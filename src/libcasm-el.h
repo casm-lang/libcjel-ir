@@ -3,7 +3,7 @@
 //  All rights reserved.
 //  
 //  Developed by: Philipp Paulweber
-//                https://github.com/ppaulweber/libcasm-el
+//                https://github.com/ppaulweber/libnovel
 //  
 //  Permission is hereby granted, free of charge, to any person obtaining a 
 //  copy of this software and associated documentation files (the "Software"), 
@@ -32,17 +32,17 @@
 //  WITH THE SOFTWARE.
 //  
 
-#ifndef _LIB_CASMEL_H_
-#define _LIB_CASMEL_H_
+#ifndef _LIB_NOVEL_H_
+#define _LIB_NOVEL_H_
 
 // #include ".h"
 
-namespace libcasm_el
+namespace libnovel
 {
 }
 
 
-#endif /* _LIB_CASMEL_H_ */
+#endif /* _LIB_NOVEL_H_ */
 
 //  
 //  Local variables:

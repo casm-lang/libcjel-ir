@@ -3,7 +3,7 @@
 #   All rights reserved.
 #   
 #   Developed by: Philipp Paulweber
-#                 https://github.com/ppaulweber/libcasm-el
+#                 https://github.com/ppaulweber/libnovel
 #   
 #   Permission is hereby granted, free of charge, to any person obtaining a 
 #   copy of this software and associated documentation files (the "Software"), 
@@ -45,7 +45,7 @@ CPPFLAG += -g -O0
 CPPFLAG += -Wall
 #CPPFLAG += -Wextra
 
-TARGET += libcasm-el.a
+TARGET += libnovel.a
 
 #CPPOBJECTS += obj/Value.o
 
@@ -71,7 +71,7 @@ obj/%.o: src/transform/%.cpp
 	@echo "CPP " $<
 	@$(CPP) $(CPPFLAG) $(INCLUDE) -c $< -o $@
 
-libcasm-el.a: $(CPPOBJECTS) $(LIBRARY)
+libnovel.a: $(CPPOBJECTS) $(LIBRARY)
 	@echo "AR  " $@
 	@$(AR) rsc $@.a $(filter %.o,$^)
 	@$(AR) -rcT $@ $@.a $(filter %.a,$^)
