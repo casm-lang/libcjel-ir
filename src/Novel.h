@@ -35,13 +35,12 @@
 #ifndef _LIB_NOVEL_H_
 #define _LIB_NOVEL_H_
 
-#include "Novel.h"
-#include "Type.h"
-#include "Value.h"
-
 
 namespace libnovel
 {
+	class Novel
+	{
+	};
 }
 
 

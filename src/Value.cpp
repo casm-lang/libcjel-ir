@@ -32,20 +32,90 @@
 //  WITH THE SOFTWARE.
 //  
 
-#ifndef _LIB_NOVEL_H_
-#define _LIB_NOVEL_H_
-
-#include "Novel.h"
-#include "Type.h"
 #include "Value.h"
 
+using namespace libnovel;
 
-namespace libnovel
+
+Value::Value( const char* name, Type* type, Value::ID id )
+: name( name )
+, type( type )
+, id( id )
+, type_lock( false )
 {
+	SymbolTable& symbols = *getSymbols();
+	symbols[ name ].insert( this );
+	printf( "[Value] created '%s' @ %p", name, this );
+	if( type )
+	{
+		printf( " of type '%s' (=0x%lx)", type->getName(), type->getID() );
+	}
+	printf( "\n" );
+}
+
+Value::~Value()
+{
+	SymbolTable& symbols = *getSymbols();
+	symbols[ name ].erase( this );
+	printf( "[Value] deleted '%s' @ %p of type %p\n", name, this, type );
+}
+
+const char* Value::getName( void ) const
+{
+	return name;
+}
+
+Type* Value::getType( void ) const
+{
+	return type;
+}
+
+void Value::setType( Type* type )
+{
+    assert( !type_lock );
+	type_lock = true;
+	
+	this->type = type;
 }
 
 
-#endif /* _LIB_NOVEL_H_ */
+Value::ID Value::getValueID() const
+{
+	return id;
+}
+
+void Value::debug( void ) const
+{
+	printf( "%p '%s' : ", this, getName() );
+	if( getType() )
+	{
+		printf( "%s", getType()->getName() );
+	}
+	printf( "\n" );
+}
+
+void Value::dump( void ) const
+{    
+	switch( this->getValueID() )
+	{
+	// case Value::RULE:
+	// 	((Rule*)this)->dump(); break;
+	// case Value::IDENTIFIER:
+	// 	((Identifier*)this)->dump(); break;
+	// case Value::INTEGER_CONSTANT:
+	// 	((IntegerConstant*)this)->dump(); break;	
+	default:
+		// if( Value::isa< Instruction >( this ) )
+		// {
+		// 	((Instruction*)this)->dump();
+		// }
+		// else
+		{
+			debug();
+		}
+	}
+}
+
 
 //  
 //  Local variables:

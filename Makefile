@@ -47,10 +47,11 @@ CPPFLAG += -Wall
 
 TARGET += libnovel.a
 
-#CPPOBJECTS += obj/Value.o
+CPPOBJECTS += obj/Value.o
+CPPOBJECTS += obj/Type.o
 
 INCLUDE += -I ./src
-#INCLUDE += -I ../
+INCLUDE += -I ../
 
 #LIBRARY += 
 

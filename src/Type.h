@@ -32,20 +32,80 @@
 //  WITH THE SOFTWARE.
 //  
 
-#ifndef _LIB_NOVEL_H_
-#define _LIB_NOVEL_H_
+/**
+   @brief    TODO
+   
+   TODO
+*/
+
+#ifndef _LIB_NOVEL_TYPE_H_
+#define _LIB_NOVEL_TYPE_H_
+
+#include "stdhl/cpp/Type.h"
 
 #include "Novel.h"
-#include "Type.h"
-#include "Value.h"
-
 
 namespace libnovel
 {
+	class Rule;
+	
+	class Type : public Novel
+	{
+	public:		
+		typedef u64*   Bit;
+		typedef i64    Integer;
+		//typedef char*  String;
+		
+		enum ID
+		{ BIT
+		, INTEGER
+	  //, STRING
+		, _TOP_
+		};
+		
+		enum STATE
+		{ UNCHANGED
+		, CHANGED
+		, LOCKED
+		};
+		
+	private:		
+		ID type_id;
+		u64 type_uid_hash;
+		STATE type_state;
+		i16 bitsize;
+		std::string description;
+		std::vector< Type* > parameters;
+		std::vector< Type* > subtypes;
+		
+		static const char* ID2str[ ID::_TOP_ ];
+		
+	public:
+		Type( ID id, i16 bitsize = -1, STATE state = STATE::UNCHANGED );
+		const ID getIDKind( void ) const;
+		const u64 getID( void ) const;
+		const char* getName( void );
+		const i16 getBitsize( void );
+
+		const std::vector< Type* >& getParameters( void ) const;
+	    const std::vector< Type* >& getSubTypes( void ) const;
+	    
+		void addParameter( Type* parameter );
+		void addSubType( Type* subtype );
+		
+		Type* getResultType( void );
+		
+	private:
+		void setID( ID id );	
+	};
+	
+    static Type IntegerType     = Type( Type::INTEGER,      Type::STATE::LOCKED );
+	//static Type StringType      = Type( Type::STRING,       Type::STATE::LOCKED );	
+	
 }
 
+#endif /* _LIB_NOVEL_TYPE_H_ */
 
-#endif /* _LIB_NOVEL_H_ */
 
 //  
 //  Local variables:
