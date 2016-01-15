@@ -32,11 +32,6 @@
 //  WITH THE SOFTWARE.
 //  
 
-/**
-   @brief    TODO
-   
-   TODO
-*/
 
 #ifndef _LIB_NOVEL_TYPE_H_
 #define _LIB_NOVEL_TYPE_H_
@@ -47,9 +42,7 @@
 
 namespace libnovel
 {
-	class Rule;
-	
-	class Type : public Novel
+    class Type //: public Novel
 	{
 	public:		
 		typedef u64*   Bit;

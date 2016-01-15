@@ -32,94 +32,17 @@
 //  WITH THE SOFTWARE.
 //  
 
-/**
-   @brief    TODO
-   
-   TODO
-   
-   @author   Philipp Paulweber
-   @date     2015-02-20
-*/
+#include "User.h"
 
-#ifndef _LIB_NOVEL_VALUE_H_
-#define _LIB_NOVEL_VALUE_H_
+using namespace libnovel;
 
-#include "Type.h"
-#include "Novel.h"
 
-namespace libnovel
-{		
-	class Value //: public Novel
-	{
-	public:
-		enum ID
-		{ USER
-
-		, INSTRUCTION
-		, UNARY_INSTRUCTION
-		, BINARY_INSTRUCTION
-		
-		, ADD_INSTRUCTION
-		};
-		
-		typedef std::unordered_map
-		< const char*
-		, std::unordered_set< Value* >
-		, libstdhl::Hash
-		, libstdhl::Equal
-		> SymbolTable;
-		
-		static SymbolTable* getSymbols( void )
-		{
-			static SymbolTable symbols;
-			return &symbols;
-		}
-		
-	private:
-		const char* name;
-		Type* type;		
-		ID id;
-		u1 type_lock;
-		
-		std::vector< Type* > parameters;
-		
-	public:
-		Value( const char* name, Type* type, ID id );
-
-		~Value();
-
-		const char* getName( void ) const;
-	    
-		Type* getType( void ) const;
-	protected:
-		void setType( Type* type );
-		
-	public:
-		ID getValueID() const;
-		
-		void debug( void ) const;
-		void dump( void ) const;
-		
-		static inline bool classof( Value const* )
-		{
-			return true;
-		}
-		
-		template< class TO >
-		static inline bool isa( Value* value )
-		{
-			return TO::classof( value );
-		}
-		
-		template< class TO >
-		static inline bool isa( const Value* value )
-		{
-			return isa< TO >( (Value*)value );
-		}		
-	};
+bool User::classof( Value const* obj )
+{
+	return obj->getValueID() == Value::USER
+		or Instruction::classof( obj );
 }
 
-#endif /* _LIB_NOVEL_VALUE_H_ */
 
 //  
 //  Local variables:

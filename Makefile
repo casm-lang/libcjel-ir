@@ -49,6 +49,7 @@ TARGET += libnovel.a
 
 CPPOBJECTS += obj/Value.o
 CPPOBJECTS += obj/Type.o
+CPPOBJECTS += obj/Instruction.o
 
 INCLUDE += -I ./src
 INCLUDE += -I ../
@@ -64,11 +65,7 @@ obj/%.o: src/%.cpp
 	@echo "CPP " $<
 	@$(CPP) $(CPPFLAG) $(INCLUDE) -c $< -o $@
 
-obj/%.o: src/analyze/%.cpp
-	@echo "CPP " $<
-	@$(CPP) $(CPPFLAG) $(INCLUDE) -c $< -o $@
-
-obj/%.o: src/transform/%.cpp
+obj/test.o: uts/test.cpp
 	@echo "CPP " $<
 	@$(CPP) $(CPPFLAG) $(INCLUDE) -c $< -o $@
 
@@ -84,3 +81,8 @@ clean:
 	@rm -rf obj
 	@echo "RM  " $(TARGET)
 	@rm -f $(TARGET)
+
+test:	default obj/test.o 
+	$(CPP) $(CPPFLAG) $(INCLUDE) obj/test.o libnovel.a -lstdc++ -o $@
+	@echo "################################################################################"
+	@./test

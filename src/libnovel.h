@@ -38,6 +38,7 @@
 #include "Novel.h"
 #include "Type.h"
 #include "Value.h"
+#include "Instruction.h"
 
 
 namespace libnovel
