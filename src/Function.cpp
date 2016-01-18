@@ -32,105 +32,54 @@
 //  WITH THE SOFTWARE.
 //  
 
-/**
-   @brief    TODO
-   
-   TODO
-   
-   @author   Philipp Paulweber
-   @date     2015-02-20
-*/
+#include "Function.h"
 
-#ifndef _LIB_NOVEL_VALUE_H_
-#define _LIB_NOVEL_VALUE_H_
+using namespace libnovel;
 
-#include "Type.h"
-#include "Novel.h"
 
-namespace libnovel
-{		
-	class Value //: public Novel
-	{
-	public:
-		enum ID
-		{ USER
-		
-		, MEMORY
-		, FUNCTION
-		
-		, INSTRUCTION
-		, UNARY_INSTRUCTION
-		, BINARY_INSTRUCTION
-		
-		, LOAD_INSTRUCTION
-		, READ_INSTRUCTION
-		, STORE_INSTRUCTION
-		, WRITE_INSTRUCTION
-		
-		, AND_INSTRUCTION
-
-		, ADD_INSTRUCTION
-		, ADDU_INSTRUCTION
-		};
-		
-		typedef std::unordered_map
-		< const char*
-		, std::unordered_set< Value* >
-		, libstdhl::Hash
-		, libstdhl::Equal
-		> SymbolTable;
-		
-		static SymbolTable* getSymbols( void )
-		{
-			static SymbolTable symbols;
-			return &symbols;
-		}
-		
-	private:
-		const char* name;
-		Type* type;		
-		ID id;
-		u1 type_lock;
-		
-		std::vector< Type* > parameters;
-		
-	public:
-		Value( const char* name, Type* type, ID id );
-		
-		~Value();
-		
-		const char* getName( void ) const;
-	    
-		Type* getType( void ) const;
-	protected:
-		void setType( Type* type );
-		
-	public:
-		ID getValueID() const;
-		
-		void debug( void ) const;
-		void dump( void ) const;
-		
-		static inline bool classof( Value const* )
-		{
-			return true;
-		}
-		
-		template< class TO >
-		static inline bool isa( Value* value )
-		{
-			return TO::classof( value );
-		}
-		
-		template< class TO >
-		static inline bool isa( const Value* value )
-		{
-			return isa< TO >( (Value*)value );
-		}		
-	};
+Function::Function( const char* name )
+: User( name, 0, Value::FUNCTION )
+{			
+	(*Value::getSymbols())[ ".function" ].insert( this );
 }
 
-#endif /* _LIB_NOVEL_VALUE_H_ */
+Function::~Function( void )
+{			
+	(*Value::getSymbols())[ ".function" ].erase( this );
+}
+
+// ParallelBlock* Function::getContext( void ) const
+// {
+// 	return context;
+// }
+
+// void Function::setContext( ParallelBlock* scope )
+// {
+// 	assert( scope );	
+// 	context = scope;
+// }
+
+void Function::dump( void ) const
+{
+	printf( "[Function ] " );
+	debug();
+	
+	// if( context )
+	// {
+	// 	context->dump();
+	// }
+	// else
+	// {
+	// 	printf( "('context' not set)\n" );
+	// }
+}
+
+bool Function::classof( Value const* obj )
+{
+	return obj->getValueID() == Value::FUNCTION;
+}
+
+
 
 //  
 //  Local variables:

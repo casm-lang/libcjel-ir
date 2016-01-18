@@ -49,6 +49,8 @@ TARGET += libnovel.a
 
 CPPOBJECTS += obj/Value.o
 CPPOBJECTS += obj/Type.o
+CPPOBJECTS += obj/Memory.o
+CPPOBJECTS += obj/Function.o
 CPPOBJECTS += obj/Instruction.o
 
 INCLUDE += -I ./src

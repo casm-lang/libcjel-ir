@@ -32,105 +32,29 @@
 //  WITH THE SOFTWARE.
 //  
 
-/**
-   @brief    TODO
-   
-   TODO
-   
-   @author   Philipp Paulweber
-   @date     2015-02-20
-*/
+#ifndef _LIB_NOVEL_MEMORY_H_
+#define _LIB_NOVEL_MEMORY_H_
 
-#ifndef _LIB_NOVEL_VALUE_H_
-#define _LIB_NOVEL_VALUE_H_
-
-#include "Type.h"
-#include "Novel.h"
+#include "Value.h"
+#include "User.h"
 
 namespace libnovel
-{		
-	class Value //: public Novel
+{
+	class Memory : public User
 	{
 	public:
-		enum ID
-		{ USER
-		
-		, MEMORY
-		, FUNCTION
-		
-		, INSTRUCTION
-		, UNARY_INSTRUCTION
-		, BINARY_INSTRUCTION
-		
-		, LOAD_INSTRUCTION
-		, READ_INSTRUCTION
-		, STORE_INSTRUCTION
-		, WRITE_INSTRUCTION
-		
-		, AND_INSTRUCTION
+		Memory( const char* name );
 
-		, ADD_INSTRUCTION
-		, ADDU_INSTRUCTION
-		};
+		~Memory( void );
 		
-		typedef std::unordered_map
-		< const char*
-		, std::unordered_set< Value* >
-		, libstdhl::Hash
-		, libstdhl::Equal
-		> SymbolTable;
-		
-		static SymbolTable* getSymbols( void )
-		{
-			static SymbolTable symbols;
-			return &symbols;
-		}
-		
-	private:
-		const char* name;
-		Type* type;		
-		ID id;
-		u1 type_lock;
-		
-		std::vector< Type* > parameters;
-		
-	public:
-		Value( const char* name, Type* type, ID id );
-		
-		~Value();
-		
-		const char* getName( void ) const;
-	    
-		Type* getType( void ) const;
-	protected:
-		void setType( Type* type );
-		
-	public:
-		ID getValueID() const;
-		
-		void debug( void ) const;
 		void dump( void ) const;
 		
-		static inline bool classof( Value const* )
-		{
-			return true;
-		}
-		
-		template< class TO >
-		static inline bool isa( Value* value )
-		{
-			return TO::classof( value );
-		}
-		
-		template< class TO >
-		static inline bool isa( const Value* value )
-		{
-			return isa< TO >( (Value*)value );
-		}		
+		static bool classof( Value const* obj );
 	};
 }
 
-#endif /* _LIB_NOVEL_VALUE_H_ */
+
+#endif /* _LIB_NOVEL_MEMORY_H_ */
 
 //  
 //  Local variables:
