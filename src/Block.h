@@ -32,105 +32,83 @@
 //  WITH THE SOFTWARE.
 //  
 
-#ifndef _LIB_NOVEL_VALUE_H_
-#define _LIB_NOVEL_VALUE_H_
+#ifndef _LIB_NOVEL_BLOCK_H_
+#define _LIB_NOVEL_BLOCK_H_
 
-#include "Type.h"
-#include "Novel.h"
+#include "Value.h"
 
 namespace libnovel
-{		
-	class Value //: public Novel
-	{
-	public:
-		enum ID
-		{ USER
-		
-		, MEMORY
-		, FUNCTION
-
-		, BLOCK
-		, EXECUTION_SEMANTICS_BLOCK
-		, PARALLEL_BLOCK
-		, SEQUENTIAL_BLOCK
-		  
-		, STATEMENT
-		, TRIVIAL_STATEMENT
-		, BRANCH_STATEMENT
-		
-		, INSTRUCTION
-		, UNARY_INSTRUCTION
-		, BINARY_INSTRUCTION
-		
-		, LOAD_INSTRUCTION
-		, READ_INSTRUCTION
-		, STORE_INSTRUCTION
-		, WRITE_INSTRUCTION
-		
-		, AND_INSTRUCTION
-
-		, ADD_INSTRUCTION
-		, ADDU_INSTRUCTION
-		};
-		
-		typedef std::unordered_map
-		< const char*
-		, std::unordered_set< Value* >
-		, libstdhl::Hash
-		, libstdhl::Equal
-		> SymbolTable;
-		
-		static SymbolTable* getSymbols( void )
-		{
-			static SymbolTable symbols;
-			return &symbols;
-		}
-		
-	private:
-		const char* name;
-		Type* type;		
-		ID id;
-		u1 type_lock;
-		
-		std::vector< Type* > parameters;
-		
-	public:
-		Value( const char* name, Type* type, ID id );
-		
-		~Value();
-		
-		const char* getName( void ) const;
+{
+// 	class Statement;
+	
+// 	class Block : public Value
+// 	{
+// 	public:
+// 		Block( const char* name, Type* type, Value::ID id = Value::BLOCK );
 	    
-		Type* getType( void ) const;
-	protected:
-		void setType( Type* type );
+// 		void dump( void ) const;
 		
-	public:
-		ID getValueID() const;
+// 		static bool classof( Value const* obj );
+// 	};
+	
+// 	class ExecutionSemanticsBlock : public Block
+// 	{
+// 	private:
+// 		const u1 is_parallel;
+// 		u64 pseudo_state;
+// 		ExecutionSemanticsBlock* parent;
+// 		std::vector< Block* > blocks;
 		
-		void debug( void ) const;
-		void dump( void ) const;
+// 	public:
+// 		ExecutionSemanticsBlock
+// 		( const char* name
+// 		, Type* type
+// 		, const u1 is_parallel
+// 		, ExecutionSemanticsBlock* parent = 0
+// 		, Value::ID id = Value::EXECUTION_SEMANTICS_BLOCK
+// 		);
 		
-		static inline bool classof( Value const* )
-		{
-			return true;
-		}
+// 		const u1 isParallel( void ) const;
 		
-		template< class TO >
-		static inline bool isa( Value* value )
-		{
-			return TO::classof( value );
-		}
+// 		const u64 getPseudoState( void ) const;
 		
-		template< class TO >
-		static inline bool isa( const Value* value )
-		{
-			return isa< TO >( (Value*)value );
-		}		
-	};
+// 	    ExecutionSemanticsBlock* getParent( void ) const;
+		
+// 		void setParent( ExecutionSemanticsBlock* parent_block );
+
+// 		const std::vector< Block* >& getBlocks( void ) const;
+
+// 		void add( Block* block );
+		
+// 	    void dump( void ) const;
+		
+// 		static bool classof( Value const* obj );
+// 	};
+	
+// 	class ParallelBlock : public ExecutionSemanticsBlock
+// 	{
+// 	public:
+// 		ParallelBlock( ExecutionSemanticsBlock* parent = 0 );
+
+// 		void dump( void ) const;
+		
+// 		static bool classof( Value const* obj );
+// 	};
+	
+// 	class SequentialBlock : public ExecutionSemanticsBlock
+// 	{
+// 	public:
+// 		SequentialBlock( ExecutionSemanticsBlock* parent = 0 );
+	    
+// 		void dump( void ) const;
+		
+// 		static bool classof( Value const* obj );
+// 	};
+
 }
 
-#endif /* _LIB_NOVEL_VALUE_H_ */
+
+#endif /* _LIB_NOVEL_BLOCK_H_ */
 
 //  
 //  Local variables:

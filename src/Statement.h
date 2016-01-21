@@ -32,105 +32,69 @@
 //  WITH THE SOFTWARE.
 //  
 
-#ifndef _LIB_NOVEL_VALUE_H_
-#define _LIB_NOVEL_VALUE_H_
+#ifndef _LIB_NOVEL_STATEMENT_H_
+#define _LIB_NOVEL_STATEMENT_H_
 
-#include "Type.h"
-#include "Novel.h"
+#include "Block.h"
 
 namespace libnovel
-{		
-	class Value //: public Novel
-	{
-	public:
-		enum ID
-		{ USER
+{
+	// class Statement : public Block
+	// {
+    // protected:
+	// 	ExecutionSemanticsBlock* scope;
 		
-		, MEMORY
-		, FUNCTION
-
-		, BLOCK
-		, EXECUTION_SEMANTICS_BLOCK
-		, PARALLEL_BLOCK
-		, SEQUENTIAL_BLOCK
-		  
-		, STATEMENT
-		, TRIVIAL_STATEMENT
-		, BRANCH_STATEMENT
+	// private:
+	// 	std::vector< Value* > instructions;
 		
-		, INSTRUCTION
-		, UNARY_INSTRUCTION
-		, BINARY_INSTRUCTION
-		
-		, LOAD_INSTRUCTION
-		, READ_INSTRUCTION
-		, STORE_INSTRUCTION
-		, WRITE_INSTRUCTION
-		
-		, AND_INSTRUCTION
-
-		, ADD_INSTRUCTION
-		, ADDU_INSTRUCTION
-		};
-		
-		typedef std::unordered_map
-		< const char*
-		, std::unordered_set< Value* >
-		, libstdhl::Hash
-		, libstdhl::Equal
-		> SymbolTable;
-		
-		static SymbolTable* getSymbols( void )
-		{
-			static SymbolTable symbols;
-			return &symbols;
-		}
-		
-	private:
-		const char* name;
-		Type* type;		
-		ID id;
-		u1 type_lock;
-		
-		std::vector< Type* > parameters;
-		
-	public:
-		Value( const char* name, Type* type, ID id );
-		
-		~Value();
-		
-		const char* getName( void ) const;
+	// public:
+	// 	Statement( const char* name, Type* type, ExecutionSemanticsBlock* scope
+	// 			 , Value::ID id = Value::STATEMENT );
 	    
-		Type* getType( void ) const;
-	protected:
-		void setType( Type* type );
+	// 	ExecutionSemanticsBlock* getScope( void ) const;
+
+	// 	const std::vector< Value* >& getInstructions( void ) const;
 		
-	public:
-		ID getValueID() const;
+	// 	void add( Value* instruction );
+
+	// 	void dump( void ) const;
 		
-		void debug( void ) const;
-		void dump( void ) const;
+	// 	static bool classof( Value const* obj );
+	// };
+	
+	// class TrivialStatement : public Statement
+	// {
+	// public:
+	// 	TrivialStatement( ExecutionSemanticsBlock* scope = 0 );
+
+	// 	void dump( void ) const;
 		
-		static inline bool classof( Value const* )
-		{
-			return true;
-		}
+	// 	static bool classof( Value const* obj );
+	// };
+
+
+	
+	// class BranchStatement : public Statement
+	// {
+	// private:
+	// 	std::vector< Block* > blocks;
 		
-		template< class TO >
-		static inline bool isa( Value* value )
-		{
-			return TO::classof( value );
-		}
+	// public:
+	// 	BranchStatement( ExecutionSemanticsBlock* scope = 0 );
+	    
+	// 	void addBlock( Value* block );
+
+	// 	const std::vector< Block* >& getBlocks( void ) const;
 		
-		template< class TO >
-		static inline bool isa( const Value* value )
-		{
-			return isa< TO >( (Value*)value );
-		}		
-	};
+	// 	void dump( void ) const;
+		
+	// 	static bool classof( Value const* obj );
+	// };
+
 }
 
-#endif /* _LIB_NOVEL_VALUE_H_ */
+
+#endif /* _LIB_NOVEL_STATEMENT_H_ */
 
 //  
 //  Local variables:
