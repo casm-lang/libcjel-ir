@@ -36,7 +36,7 @@
 #define _LIB_NOVEL_INSTRUCTION_H_
 
 #include "User.h"
-//#include "Statement.h"
+#include "Statement.h"
 
 namespace libnovel
 {
@@ -45,13 +45,13 @@ namespace libnovel
 	class Instruction : public User
 	{
 	private:
-		// Statement* statement;
+		Statement* statement;
 		std::vector< Value* > values;
 	    
 	public:
 		Instruction( const char* name, Type* type, Value::ID id = Value::INSTRUCTION );
-		// void setStatement( Statement* stmt );
-		// const Statement* getStatement( void ) const;
+		void setStatement( Statement* stmt );
+		const Statement* getStatement( void ) const;
 		
 	    void add( Value* value );
 		Value* getValue( u8 index ) const;

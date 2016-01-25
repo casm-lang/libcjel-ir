@@ -43,25 +43,25 @@ Instruction::Instruction( const char* name, Type* type, Value::ID id )
 {
 }
 
-// void Instruction::setStatement( Statement* stmt )
-// {
-// 	statement = stmt;
+void Instruction::setStatement( Statement* stmt )
+{
+	statement = stmt;
 	
-// 	for( auto value : values )
-// 	{
-// 		if( Value::isa< Instruction >( value ) )
-// 		{
-// 			printf( "[Instr] %s: %p, %p\n", __FUNCTION__, stmt, value );
-// 			stmt->add( static_cast< Instruction* >( value ) );
-// 		}
-// 	}
-// }
+	for( auto value : values )
+	{
+		if( Value::isa< Instruction >( value ) )
+		{
+			printf( "[Instr] %s: %p, %p\n", __FUNCTION__, stmt, value );
+			stmt->add( static_cast< Instruction* >( value ) );
+		}
+	}
+}
 
-// const Statement* Instruction::getStatement( void ) const
-// {
-// 	assert( statement );
-// 	return statement;
-// }
+const Statement* Instruction::getStatement( void ) const
+{
+	assert( statement );
+	return statement;
+}
 
 void Instruction::add( Value* value )
 {

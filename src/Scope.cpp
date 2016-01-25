@@ -32,35 +32,27 @@
 //  WITH THE SOFTWARE.
 //  
 
-#include "Block.h"
+#include "Scope.h"
 #include "Statement.h"
 
 using namespace libnovel;
 
 
-Block::Block( const char* name, Type* type, Value* parent, u1 is_parallel, Value::ID id )
-: Value( name, type, id )
-, parent( parent )
-, is_parallel( is_parallel )
+SequentialScope::SequentialScope()
+: Block( ".seq", 0, 0, false, Value::ID::SEQUENTIAL_SCOPE )
 {
 }
 
-const u1 Block::isParallel( void ) const
+void SequentialScope::dump( void ) const
 {
-	return is_parallel;
-}
-
-void Block::dump( void ) const
-{
-	// printf( "[Block] %p\n", this );
+	// printf( "[Scope] %p\n", this );
 	((Value*)this)->dump();
 }
 
-bool Block::classof( Value const* obj )
+bool SequentialScope::classof( Value const* obj )
 {
-	return obj->getValueID() == Value::BLOCK
-		//or ExecutionSemanticsBlock::classof( obj )
-		or Statement::classof( obj )
+	return obj->getValueID() == Value::SEQUENTIAL_SCOPE
+		//or ???::classof( obj )
 		;
 }
 
@@ -68,14 +60,14 @@ bool Block::classof( Value const* obj )
 
 
 
-// ExecutionSemanticsBlock::ExecutionSemanticsBlock
+// ExecutionSemanticsScope::ExecutionSemanticsScope
 // ( const char* name
 // , Type* type
 // , const u1 is_parallel
-// , ExecutionSemanticsBlock* parent
+// , ExecutionSemanticsScope* parent
 // , Value::ID id
 // )
-// : Block( name, type, id )
+// : Scope( name, type, id )
 // , is_parallel( is_parallel )
 // , pseudo_state( 0 )
 // , parent( parent )
@@ -83,18 +75,22 @@ bool Block::classof( Value const* obj )
 // 	setParent( parent );
 // }
 
+// const u1 ExecutionSemanticsScope::isParallel( void ) const
+// {
+// 	return is_parallel;
+// }
 		
-// const u64 ExecutionSemanticsBlock::getPseudoState( void ) const
+// const u64 ExecutionSemanticsScope::getPseudoState( void ) const
 // {
 // 	return pseudo_state;
 // }
 		
-// ExecutionSemanticsBlock* ExecutionSemanticsBlock::getParent( void ) const
+// ExecutionSemanticsScope* ExecutionSemanticsScope::getParent( void ) const
 // {
 // 	return parent;
 // }
 		
-// void ExecutionSemanticsBlock::setParent( ExecutionSemanticsBlock* parent_block )
+// void ExecutionSemanticsScope::setParent( ExecutionSemanticsScope* parent_block )
 // {
 // 	parent = parent_block;
 			
@@ -109,31 +105,31 @@ bool Block::classof( Value const* obj )
 // 	}
 // }
 
-// const std::vector< Block* >& ExecutionSemanticsBlock::getBlocks( void ) const
+// const std::vector< Scope* >& ExecutionSemanticsScope::getScopes( void ) const
 // {
 // 	return blocks;
 // }
 		
-// void ExecutionSemanticsBlock::add( Block* block )
+// void ExecutionSemanticsScope::add( Scope* block )
 // {
 // 	assert( block );
 			
 			
-// 	if( Value::isa< ExecutionSemanticsBlock >( block ) )
+// 	if( Value::isa< ExecutionSemanticsScope >( block ) )
 // 	{
-// 		ExecutionSemanticsBlock* inner = static_cast< ExecutionSemanticsBlock* >( block );
+// 		ExecutionSemanticsScope* inner = static_cast< ExecutionSemanticsScope* >( block );
 // 		inner->setParent( this );
 // 	}
 			
 // 	blocks.push_back( block );
 // }
 		
-// void ExecutionSemanticsBlock::dump( void ) const
+// void ExecutionSemanticsScope::dump( void ) const
 // {
 // 	printf( "[ESBlk] %p, %p, %u @ %lu\n"
 // 			, this, parent, isParallel(), getPseudoState() );
 			
-// 	for( Block* block : blocks )
+// 	for( Scope* block : blocks )
 // 	{
 // 		assert( block );
 
@@ -145,47 +141,47 @@ bool Block::classof( Value const* obj )
 
 
 
-// ParallelBlock::ParallelBlock( ExecutionSemanticsBlock* parent )
-// : ExecutionSemanticsBlock( "par", 0, true, parent, Value::PARALLEL_BLOCK )
+// ParallelScope::ParallelScope( ExecutionSemanticsScope* parent )
+// : ExecutionSemanticsScope( "par", 0, true, parent, Value::PARALLEL_SCOPE )
 // {
 // }
 
-// void ParallelBlock::dump( void ) const
+// void ParallelScope::dump( void ) const
 // {
-// 	((ExecutionSemanticsBlock*)this)->dump();
-// }
-		
-
-
-// SequentialBlock::SequentialBlock( ExecutionSemanticsBlock* parent )
-// : ExecutionSemanticsBlock( "seq", 0, false, parent, Value::SEQUENTIAL_BLOCK )
-// {
+// 	((ExecutionSemanticsScope*)this)->dump();
 // }
 		
-// void SequentialBlock::dump( void ) const
+
+
+// SequentialScope::SequentialScope( ExecutionSemanticsScope* parent )
+// : ExecutionSemanticsScope( "seq", 0, false, parent, Value::SEQUENTIAL_SCOPE )
 // {
-// 	((ExecutionSemanticsBlock*)this)->dump();
+// }
+		
+// void SequentialScope::dump( void ) const
+// {
+// 	((ExecutionSemanticsScope*)this)->dump();
 // }
 
 
 
 
 
-// bool ExecutionSemanticsBlock::classof( Value const* obj )
+// bool ExecutionSemanticsScope::classof( Value const* obj )
 // {
-// 	return obj->getValueID() == Value::EXECUTION_SEMANTICS_BLOCK
-// 		or ParallelBlock::classof( obj )
-// 		or SequentialBlock::classof( obj );
+// 	return obj->getValueID() == Value::EXECUTION_SEMANTICS_SCOPE
+// 		or ParallelScope::classof( obj )
+// 		or SequentialScope::classof( obj );
 // }
 
-// bool ParallelBlock::classof( Value const* obj )
+// bool ParallelScope::classof( Value const* obj )
 // {
-// 	return obj->getValueID() == Value::PARALLEL_BLOCK;
+// 	return obj->getValueID() == Value::PARALLEL_SCOPE;
 // }
 
-// bool SequentialBlock::classof( Value const* obj )
+// bool SequentialScope::classof( Value const* obj )
 // {
-// 	return obj->getValueID() == Value::SEQUENTIAL_BLOCK;
+// 	return obj->getValueID() == Value::SEQUENTIAL_SCOPE;
 // }
 
 

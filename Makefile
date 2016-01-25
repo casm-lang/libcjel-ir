@@ -54,6 +54,8 @@ CPPOBJECTS += obj/Memory.o
 CPPOBJECTS += obj/Function.o
 
 CPPOBJECTS += obj/Block.o
+
+CPPOBJECTS += obj/Scope.o
 CPPOBJECTS += obj/Statement.o
 CPPOBJECTS += obj/Instruction.o
 

@@ -40,19 +40,26 @@
 using namespace libnovel;
 
 
-// Statement::Statement( const char* name, Type* type, ExecutionSemanticsBlock* scope, Value::ID id )
-// : Block( name, type, id )
-// , scope( scope )
-// {
-// 	//assert( scope );
-// 	if( !scope ) return;
+Statement::Statement( const char* name, Type* type, Block* scope, Value::ID id )
+: Block( name, type, scope, false, id )
+, scope( scope )
+{
+	assert( scope );
+	if( !scope ) return;
 	
-// 	scope->add( this );
+	//scope->add( this );
 	
-// 	printf( "[Statement] '%s' at %lu\n", name, scope->getPseudoState() );
-// }
+	printf( "[Statement] '%s' %p\n", name, scope );
+}
 
-// ExecutionSemanticsBlock* Statement::getScope( void ) const
+
+const u1 Statement::isParallel( void ) const
+{
+	// PPA: TODO: CONTINUE: FIXME: !!!!!!!
+	return ???;
+}
+
+// ExecutionSemanticsBlock* Statement::getBlock( void ) const
 // {
 // 	return scope;
 // }
@@ -62,74 +69,75 @@ using namespace libnovel;
 // 	return instructions;
 // }
 
-// void Statement::add( Value* instruction )
-// {
-// 	printf( "%s: %p\n", __FUNCTION__, instruction );
-// 	assert( instruction );
+void Statement::add( Value* instruction )
+{
+	printf( "%s: %p\n", __FUNCTION__, instruction );
+	assert( instruction );
 
-// 	if( Value::isa< ConstantValue >( instruction ) )
-// 	{
-// 		printf( "%s: %p --> Constant, omitted\n", __FUNCTION__, instruction );
-// 		return;
-// 	}
+	// if( Value::isa< ConstantValue >( instruction ) )
+	// {
+	// 	printf( "%s: %p --> Constant, omitted\n", __FUNCTION__, instruction );
+	// 	return;
+	// }
 	
-// 	if( Value::isa< Instruction >( instruction ) )
-// 	{
-// 		printf( "%s: %p --> Instruction\n", __FUNCTION__, instruction );
-// 	    static_cast< Instruction* >( instruction )->setStatement( this );
-// 	}
+	if( Value::isa< Instruction >( instruction ) )
+	{
+		printf( "%s: %p --> Instruction\n", __FUNCTION__, instruction );
+	    static_cast< Instruction* >( instruction )->setStatement( this );
+	}
 	
-// 	instructions.push_back( instruction );
-// 	printf( "[Stmt] add: %p\n", instruction );	
-// }
+	instructions.push_back( instruction );
+	printf( "[Stmt] add: %p\n", instruction );	
+}
 
-// void Statement::dump( void ) const
-// {
-// 	for( auto instr : instructions )
-// 	{
-// 		static_cast< Value* >( instr )->dump();
-// 	}
-// }
+void Statement::dump( void ) const
+{
+	for( auto instr : instructions )
+	{
+		static_cast< Value* >( instr )->dump();
+	}
+}
 
-// bool Statement::classof( Value const* obj )
-// {
-// 	return obj->getValueID() == Value::STATEMENT
-// 		or TrivialStatement::classof( obj )
-// 		or BranchStatement::classof( obj );
-// }
-
-
-
+bool Statement::classof( Value const* obj )
+{
+	return obj->getValueID() == Value::STATEMENT
+		or TrivialStatement::classof( obj )
+		//or BranchStatement::classof( obj )
+		;
+}
 
 
-// TrivialStatement::TrivialStatement( ExecutionSemanticsBlock* scope )
-// : Statement( ".block", 0, scope, Value::TRIVIAL_STATEMENT )
-// {
-// }
 
-// void TrivialStatement::dump( void ) const
-// {
-// 	printf( "[TrStm] %p", this );
-// 	if( scope )
-// 	{
-// 		printf( " @ %lu (%p)", scope->getPseudoState(), scope );
-// 	}
-// 	printf( "\n" );
+
+
+TrivialStatement::TrivialStatement( Block* scope )
+: Statement( ".statement", 0, scope, Value::TRIVIAL_STATEMENT )
+{
+}
+
+void TrivialStatement::dump( void ) const
+{
+	printf( "[TrStm] %p", this );
+	if( scope )
+	{
+		printf( " @ %p", scope );
+	}
+	printf( "\n" );
 	
-// 	((Statement*)this)->dump();	
-// }
+	((Statement*)this)->dump();	
+}
 
-// bool TrivialStatement::classof( Value const* obj )
-// {
-// 	return obj->getValueID() == Value::TRIVIAL_STATEMENT;
-// }
+bool TrivialStatement::classof( Value const* obj )
+{
+	return obj->getValueID() == Value::TRIVIAL_STATEMENT;
+}
 
 
 
 
 
 // BranchStatement::BranchStatement( ExecutionSemanticsBlock* scope )
-// : Statement( ".block", 0, scope, Value::BRANCH_STATEMENT )
+// : Statement( ".branch", 0, scope, Value::BRANCH_STATEMENT )
 // {
 // }
 

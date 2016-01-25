@@ -38,6 +38,14 @@
 #include "Novel.h"
 #include "Type.h"
 #include "Value.h"
+
+#include "Memory.h"
+#include "Function.h"
+
+#include "Block.h"
+#include "Scope.h"
+
+#include "Statement.h"
 #include "Instruction.h"
 
 

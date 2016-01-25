@@ -32,70 +32,83 @@
 //  WITH THE SOFTWARE.
 //  
 
-#ifndef _LIB_NOVEL_STATEMENT_H_
-#define _LIB_NOVEL_STATEMENT_H_
+#ifndef _LIB_NOVEL_SCOPE_H_
+#define _LIB_NOVEL_SCOPE_H_
 
+#include "Value.h"
 #include "Block.h"
 
 namespace libnovel
 {
-	class Statement : public Block
+	class SequentialScope : public Block
 	{
-    protected:
-		Block* scope;
-		
-	private:
-		std::vector< Value* > instructions;
-		
 	public:
-		Statement( const char* name, Type* type, Block* scope, Value::ID id = Value::STATEMENT );
-	    
-	// 	ExecutionSemanticsBlock* getBlock( void ) const;
+		SequentialScope(  );
 
-	// 	const std::vector< Value* >& getInstructions( void ) const;
-		
 		virtual const u1 isParallel( void ) const;
-
-		void add( Value* instruction );
 		
 		void dump( void ) const;
 		
-		static bool classof( Value const* obj );
+		static bool classof( Value const* obj );		
 	};
 	
-	class TrivialStatement : public Statement
-	{
-	public:
-		TrivialStatement( Block* scope = 0 );
-
-		void dump( void ) const;
+// 	class ExecutionSemanticsBlock : public Block
+// 	{
+// 	private:
+// 		const u1 is_parallel;
+// 		u64 pseudo_state;
+// 		ExecutionSemanticsBlock* parent;
+// 		std::vector< Block* > blocks;
 		
-		static bool classof( Value const* obj );
-	};
+// 	public:
+// 		ExecutionSemanticsBlock
+// 		( const char* name
+// 		, Type* type
+// 		, const u1 is_parallel
+// 		, ExecutionSemanticsBlock* parent = 0
+// 		, Value::ID id = Value::EXECUTION_SEMANTICS_SCOPE
+// 		);
 		
+		
+// 		const u64 getPseudoState( void ) const;
+		
+// 	    ExecutionSemanticsBlock* getParent( void ) const;
+		
+// 		void setParent( ExecutionSemanticsBlock* parent_block );
 
+// 		const std::vector< Block* >& getBlocks( void ) const;
+
+// 		void add( Block* block );
+		
+// 	    void dump( void ) const;
+		
+// 		static bool classof( Value const* obj );
+// 	};
 	
-	// class BranchStatement : public Statement
-	// {
-	// private:
-	// 	std::vector< Block* > blocks;
+// 	class ParallelBlock : public ExecutionSemanticsBlock
+// 	{
+// 	public:
+// 		ParallelBlock( ExecutionSemanticsBlock* parent = 0 );
+
+// 		void dump( void ) const;
 		
-	// public:
-	// 	BranchStatement( ExecutionSemanticsBlock* scope = 0 );
+// 		static bool classof( Value const* obj );
+// 	};
+	
+// 	class SequentialBlock : public ExecutionSemanticsBlock
+// 	{
+// 	public:
+// 		SequentialBlock( ExecutionSemanticsBlock* parent = 0 );
 	    
-	// 	void addBlock( Value* block );
-
-	// 	const std::vector< Block* >& getBlocks( void ) const;
+// 		void dump( void ) const;
 		
-	// 	void dump( void ) const;
-		
-	// 	static bool classof( Value const* obj );
-	// };
+// 		static bool classof( Value const* obj );
+// 	};
 
 }
 
 
-#endif /* _LIB_NOVEL_STATEMENT_H_ */
+#endif /* _LIB_NOVEL_SCOPE_H_ */
 
 //  
 //  Local variables:

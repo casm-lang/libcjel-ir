@@ -39,72 +39,31 @@
 
 namespace libnovel
 {
-// 	class Statement;
-	
-// 	class Block : public Value
-// 	{
-// 	public:
-// 		Block( const char* name, Type* type, Value::ID id = Value::BLOCK );
-	    
-// 		void dump( void ) const;
+	class Block : public Value
+	{
+	private:
+	    Value* parent;
+		u1 is_parallel;
 		
-// 		static bool classof( Value const* obj );
-// 	};
-	
-// 	class ExecutionSemanticsBlock : public Block
-// 	{
-// 	private:
-// 		const u1 is_parallel;
-// 		u64 pseudo_state;
-// 		ExecutionSemanticsBlock* parent;
-// 		std::vector< Block* > blocks;
+  	public:
+		Block
+		( const char* name
+		, Type* type
+		, Value* parent
+		, u1 is_parallel
+		, Value::ID id = Value::BLOCK
+		);
 		
-// 	public:
-// 		ExecutionSemanticsBlock
-// 		( const char* name
-// 		, Type* type
-// 		, const u1 is_parallel
-// 		, ExecutionSemanticsBlock* parent = 0
-// 		, Value::ID id = Value::EXECUTION_SEMANTICS_BLOCK
-// 		);
+		virtual const u1 isParallel( void ) const;
 		
-// 		const u1 isParallel( void ) const;
-		
-// 		const u64 getPseudoState( void ) const;
-		
-// 	    ExecutionSemanticsBlock* getParent( void ) const;
-		
-// 		void setParent( ExecutionSemanticsBlock* parent_block );
+ 		const std::vector< Block* >& getBlocks( void ) const;
 
-// 		const std::vector< Block* >& getBlocks( void ) const;
-
-// 		void add( Block* block );
+ 		void add( Block* block );
 		
-// 	    void dump( void ) const;
+		void dump( void ) const;
 		
-// 		static bool classof( Value const* obj );
-// 	};
-	
-// 	class ParallelBlock : public ExecutionSemanticsBlock
-// 	{
-// 	public:
-// 		ParallelBlock( ExecutionSemanticsBlock* parent = 0 );
-
-// 		void dump( void ) const;
-		
-// 		static bool classof( Value const* obj );
-// 	};
-	
-// 	class SequentialBlock : public ExecutionSemanticsBlock
-// 	{
-// 	public:
-// 		SequentialBlock( ExecutionSemanticsBlock* parent = 0 );
-	    
-// 		void dump( void ) const;
-		
-// 		static bool classof( Value const* obj );
-// 	};
-
+		static bool classof( Value const* obj );
+	};
 }
 
 
