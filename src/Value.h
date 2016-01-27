@@ -35,11 +35,11 @@
 #ifndef _LIB_NOVEL_VALUE_H_
 #define _LIB_NOVEL_VALUE_H_
 
-#include "Type.h"
 #include "Novel.h"
+#include "Type.h"
 
 namespace libnovel
-{		
+{
 	class Value //: public Novel
 	{
 	public:
@@ -66,10 +66,10 @@ namespace libnovel
 		, READ_INSTRUCTION
 		, STORE_INSTRUCTION
 		, WRITE_INSTRUCTION
-		
+		  
 		, AND_INSTRUCTION
-
-		, ADD_INSTRUCTION
+				
+		, ADDS_INSTRUCTION
 		, ADDU_INSTRUCTION
 		};
 		

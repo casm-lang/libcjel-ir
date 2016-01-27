@@ -66,6 +66,8 @@ INCLUDE += -I ../
 
 default: $(LIBRARY) obj $(TARGET)
 
+all: clean test
+
 obj:
 	mkdir -p obj
 
@@ -79,8 +81,9 @@ obj/test.o: uts/test.cpp
 
 libnovel.a: $(CPPOBJECTS) $(LIBRARY)
 	@echo "AR  " $@
-	@$(AR) rsc $@.a $(filter %.o,$^)
-	@$(AR) -rcT $@ $@.a $(filter %.a,$^)
+	@$(AR) rsc $@ $(filter %.o,$^)
+#	@$(AR) rsc $@.a $(filter %.o,$^)
+#	@$(AR) -rcT $@ $@.a $(filter %.a,$^)
 	@ranlib $@
 #	@rm -f $@.a
 

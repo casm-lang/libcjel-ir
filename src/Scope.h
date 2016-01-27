@@ -44,8 +44,16 @@ namespace libnovel
 	{
 	public:
 		SequentialScope(  );
+		
+		void dump( void ) const;
+		
+		static bool classof( Value const* obj );		
+	};
 
-		virtual const u1 isParallel( void ) const;
+	class ParallelScope : public Block
+	{
+	public:
+	    ParallelScope(  );
 		
 		void dump( void ) const;
 		

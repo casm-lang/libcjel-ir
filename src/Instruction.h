@@ -99,26 +99,22 @@ namespace libnovel
 
 	
 	
-	// class LookupInstruction : public UnaryInstruction
-	// {
-	// public :
-	// 	LookupInstruction( Value* location );
-
-	// 	//void dump( void ) const;
-		
-	// 	static bool classof( Value const* obj );
-	// };
+	class LoadInstruction : public UnaryInstruction
+	{
+	public :
+		LoadInstruction( Value* src );
+		//void dump( void ) const;
+		static bool classof( Value const* obj );
+	};
 	
 	
-	// class UpdateInstruction : public BinaryInstruction
-	// {
-	// public:
-	// 	UpdateInstruction( Value* location, Value* expr );
-
-	// 	//void dump( void ) const;
-	    
-	// 	static bool classof( Value const* obj );
-	// };
+	class StoreInstruction : public BinaryInstruction
+	{
+	public:
+	    StoreInstruction( Value* src, Value* dst );
+		//void dump( void ) const;
+		static bool classof( Value const* obj );
+	};
 	
 	
 	// class LetInstruction : public BinaryInstruction
@@ -193,11 +189,39 @@ namespace libnovel
 	// 	Value* getFalse( void ) const;
 	// };
 
+	// class OrInstruction : public OperatorInstruction
+	// {
+	// public:
+	// 	OrInstruction( Value* lhs, Value* rhs );
+	// 	static bool classof( Value const* obj );
+	// };
+
+	// class XorInstruction : public OperatorInstruction
+	// {
+	// public:
+	// 	XorInstruction( Value* lhs, Value* rhs );
+	// 	static bool classof( Value const* obj );
+	// };
 	
-	class AddInstruction : public BinaryInstruction
+	class AndInstruction : public BinaryInstruction
 	{
 	public:
-		AddInstruction( Value* lhs, Value* rhs );
+		AndInstruction( Value* lhs, Value* rhs );
+		static bool classof( Value const* obj );
+	};
+	
+	// class NotInstruction : public UnaryInstruction
+	// {
+	// public:
+	// 	NotInstruction( Value* lhs );
+	// 	static bool classof( Value const* obj );
+	// };
+
+	
+	class AddSignedInstruction : public BinaryInstruction
+	{
+	public:
+		AddSignedInstruction( Value* lhs, Value* rhs );
 		static bool classof( Value const* obj );
 	};
 	
@@ -278,33 +302,6 @@ namespace libnovel
 	// 	static bool classof( Value const* obj );
 	// };
 
-	// class OrInstruction : public OperatorInstruction
-	// {
-	// public:
-	// 	OrInstruction( Value* lhs, Value* rhs );
-	// 	static bool classof( Value const* obj );
-	// };
-
-	// class XorInstruction : public OperatorInstruction
-	// {
-	// public:
-	// 	XorInstruction( Value* lhs, Value* rhs );
-	// 	static bool classof( Value const* obj );
-	// };
-
-	// class AndInstruction : public OperatorInstruction
-	// {
-	// public:
-	// 	AndInstruction( Value* lhs, Value* rhs );
-	// 	static bool classof( Value const* obj );
-	// };
-	
-	// class NotInstruction : public UnaryInstruction
-	// {
-	// public:
-	// 	NotInstruction( Value* lhs );
-	// 	static bool classof( Value const* obj );
-	// };
 	
 	// class MovInstruction : public UnaryInstruction
 	// {

@@ -112,8 +112,8 @@ void Instruction::dump( void ) const
 bool Instruction::classof( Value const* obj )
 {
 	return obj->getValueID() == Value::INSTRUCTION
-		or BinaryInstruction::classof( obj )
 		or UnaryInstruction::classof( obj )
+		or BinaryInstruction::classof( obj )
 		// or SkipInstruction::classof( obj )
 		// or LocationInstruction::classof( obj )
 		// or CallInstruction::classof( obj )
@@ -138,7 +138,7 @@ Value* UnaryInstruction::get( void ) const
 bool UnaryInstruction::classof( Value const* obj )
 {
 	return obj->getValueID() == Value::UNARY_INSTRUCTION
-		// or AssertInstruction::classof( obj )
+		or LoadInstruction::classof( obj )
 		;
 }
 
@@ -148,6 +148,60 @@ BinaryInstruction::BinaryInstruction( const char* name, Type* type, Value* lhs, 
 {
 	add( lhs );
 	add( rhs );
+
+// 	assert( getLHS()->getType() );
+// 	assert( getRHS()->getType() );
+
+// 	Type* lhs_ty = getLHS()->getType()->getResultType();
+// 	Type* rhs_ty = getRHS()->getType()->getResultType();
+	
+// 	assert( lhs_ty->getID() == rhs_ty->getID() );
+	
+// 	if( !getType() )
+// 	{
+// 	    // dynamic type assignment, left and right is the same type
+// 		Type* op_ty = 0;
+		
+// 		switch( id )
+// 		{
+// 			case Value::ID::ADD_INSTRUCTION:
+// 			case Value::ID::SUB_INSTRUCTION:
+// 			case Value::ID::MUL_INSTRUCTION:
+// 			case Value::ID::DIV_INSTRUCTION:
+// 			case Value::ID::RIV_INSTRUCTION:
+// 			case Value::ID::MOD_INSTRUCTION:
+// 			{
+// 				op_ty = lhs_ty;
+// 				break;
+// 			}
+// 			case Value::ID::EQU_INSTRUCTION:
+// 			case Value::ID::NEQ_INSTRUCTION:
+// 			case Value::ID::LTH_INSTRUCTION:
+// 			case Value::ID::LEQ_INSTRUCTION:
+// 			case Value::ID::GTH_INSTRUCTION:
+// 			case Value::ID::GEQ_INSTRUCTION:
+// 			{
+// 				break;
+// 			}
+// 			case Value::ID::OR_INSTRUCTION:
+// 			case Value::ID::XOR_INSTRUCTION:
+// 			case Value::ID::AND_INSTRUCTION:
+// 			case Value::ID::NOT_INSTRUCTION:
+// 			{
+// 				if( lhs_ty->getIDKind() == Type::ID::BOOLEAN
+// 				 or lhs_ty->getIDKind() == Type::ID::BIT
+// 					)
+// 				{
+// 					op_ty = lhs_ty;
+// 				}
+// 			}
+// 		    default: break;
+// 	    }
+// 		assert( op_ty && " unimplemented case! " );
+				
+// 		setType( op_ty );
+// 	}
+	
 }	  
 
 Value* BinaryInstruction::getLHS( void ) const
@@ -163,9 +217,34 @@ Value* BinaryInstruction::getRHS( void ) const
 bool BinaryInstruction::classof( Value const* obj )
 {
 	return obj->getValueID() == Value::BINARY_INSTRUCTION
-		// or UpdateInstruction::classof( obj )
-	    or AddInstruction::classof( obj )
+	    or StoreInstruction::classof( obj )
+	    or AndInstruction::classof( obj )
+	    or AddSignedInstruction::classof( obj )
 	    ;
+}
+
+
+
+//// concrete instructions!!!
+
+LoadInstruction::LoadInstruction( Value* src )
+	: UnaryInstruction( ".load", 0, src, Value::LOAD_INSTRUCTION )
+{
+}
+bool LoadInstruction::classof( Value const* obj )
+{
+	return obj->getValueID() == Value::LOAD_INSTRUCTION;
+}
+
+
+
+StoreInstruction::StoreInstruction( Value* src, Value* dst )
+	: BinaryInstruction( ".store", 0, src, dst, Value::STORE_INSTRUCTION )
+{
+}
+bool StoreInstruction::classof( Value const* obj )
+{
+	return obj->getValueID() == Value::STORE_INSTRUCTION;
 }
 
 
@@ -337,94 +416,66 @@ bool BinaryInstruction::classof( Value const* obj )
 
 
 
-// OperatorInstruction::OperatorInstruction
-// ( const char* name, Type* type, Value* lhs, Value* rhs, Value::ID id )
-// : BinaryInstruction( name, type, lhs, rhs, id )
+// OrInstruction::OrInstruction( Value* lhs, Value* rhs )
+// : OperatorInstruction( ".or", 0, lhs, rhs, Value::OR_INSTRUCTION )
 // {
-// 	assert( getLHS()->getType() );
-// 	assert( getRHS()->getType() );
+// }
+// bool OrInstruction::classof( Value const* obj )
+// {
+// 	return obj->getValueID() == Value::OR_INSTRUCTION;
+// }
 
-// 	Type* lhs_ty = getLHS()->getType()->getResultType();
-// 	Type* rhs_ty = getRHS()->getType()->getResultType();
+// XorInstruction::XorInstruction( Value* lhs, Value* rhs )
+// : OperatorInstruction( ".xor", 0, lhs, rhs, Value::XOR_INSTRUCTION )
+// {	
+// }
+// bool XorInstruction::classof( Value const* obj )
+// {
+// 	return obj->getValueID() == Value::XOR_INSTRUCTION;
+// }
+
+AndInstruction::AndInstruction( Value* lhs, Value* rhs )
+: BinaryInstruction( ".and", 0, lhs, rhs, Value::AND_INSTRUCTION )
+{	
+}
+bool AndInstruction::classof( Value const* obj )
+{
+	return obj->getValueID() == Value::AND_INSTRUCTION;
+}
+
+
+// NotInstruction::NotInstruction( Value* lhs )
+// : UnaryInstruction( ".not", 0, lhs, Value::NOT_INSTRUCTION )
+// {
+// 	Type* ty = get()->getType();
+// 	assert( get()->getType() );
+
+// 	ty = ty->getResultType();
 	
-// 	assert( lhs_ty->getID() == rhs_ty->getID() );
-	
-// 	if( !getType() )
+//     if( ty->getIDKind() == Type::ID::BOOLEAN
+// 	 or ty->getIDKind() == Type::ID::BIT
+// 	  )
 // 	{
-// 	    // dynamic type assignment, left and right is the same type
-// 		Type* op_ty = 0;
-		
-// 		switch( id )
-// 		{
-// 			case Value::ID::ADD_INSTRUCTION:
-// 			case Value::ID::SUB_INSTRUCTION:
-// 			case Value::ID::MUL_INSTRUCTION:
-// 			case Value::ID::DIV_INSTRUCTION:
-// 			case Value::ID::RIV_INSTRUCTION:
-// 			case Value::ID::MOD_INSTRUCTION:
-// 			{
-// 				op_ty = lhs_ty;
-// 				break;
-// 			}
-// 			case Value::ID::EQU_INSTRUCTION:
-// 			case Value::ID::NEQ_INSTRUCTION:
-// 			case Value::ID::LTH_INSTRUCTION:
-// 			case Value::ID::LEQ_INSTRUCTION:
-// 			case Value::ID::GTH_INSTRUCTION:
-// 			case Value::ID::GEQ_INSTRUCTION:
-// 			{
-// 				break;
-// 			}
-// 			case Value::ID::OR_INSTRUCTION:
-// 			case Value::ID::XOR_INSTRUCTION:
-// 			case Value::ID::AND_INSTRUCTION:
-// 			case Value::ID::NOT_INSTRUCTION:
-// 			{
-// 				if( lhs_ty->getIDKind() == Type::ID::BOOLEAN
-// 				 or lhs_ty->getIDKind() == Type::ID::BIT
-// 					)
-// 				{
-// 					op_ty = lhs_ty;
-// 				}
-// 			}
-// 		    default: break;
-// 	    }
-// 		assert( op_ty && " unimplemented case! " );
-				
-// 		setType( op_ty );
+// 		setType( ty );
+// 	}
+// 	else
+// 	{
+// 		assert( !" invalid type case for NOT instruction " );
 // 	}
 // }
-
-// bool OperatorInstruction::classof( Value const* obj )
+// bool NotInstruction::classof( Value const* obj )
 // {
-// 	return obj->getValueID() == Value::OPERATOR_INSTRUCTION
-// 		or AddInstruction::classof( obj )
-// 		or SubInstruction::classof( obj )
-// 		or MulInstruction::classof( obj )
-// 		or DivInstruction::classof( obj )
-// 		or RivInstruction::classof( obj )
-// 		or ModInstruction::classof( obj )
-// 		or EquInstruction::classof( obj )
-// 		or NeqInstruction::classof( obj )
-// 		or LthInstruction::classof( obj )
-// 		or LeqInstruction::classof( obj )
-// 		or GthInstruction::classof( obj )
-// 		or GeqInstruction::classof( obj )
-// 		or  OrInstruction::classof( obj )
-// 		or XorInstruction::classof( obj )
-// 		or AndInstruction::classof( obj )
-// 		or NotInstruction::classof( obj )
-// 		;
+// 	return obj->getValueID() == Value::NOT_INSTRUCTION;
 // }
 
 
-AddInstruction::AddInstruction( Value* lhs, Value* rhs )
-	: BinaryInstruction( ".add", 0, lhs, rhs, Value::ADD_INSTRUCTION )
+AddSignedInstruction::AddSignedInstruction( Value* lhs, Value* rhs )
+	: BinaryInstruction( ".adds", 0, lhs, rhs, Value::ADDS_INSTRUCTION )
 {
 }
-bool AddInstruction::classof( Value const* obj )
+bool AddSignedInstruction::classof( Value const* obj )
 {
-	return obj->getValueID() == Value::ADD_INSTRUCTION;
+	return obj->getValueID() == Value::ADDS_INSTRUCTION;
 }
 
 
@@ -527,58 +578,6 @@ bool AddInstruction::classof( Value const* obj )
 // bool GeqInstruction::classof( Value const* obj )
 // {
 // 	return obj->getValueID() == Value::GEQ_INSTRUCTION;
-// }
-
-// OrInstruction::OrInstruction( Value* lhs, Value* rhs )
-// : OperatorInstruction( ".or", 0, lhs, rhs, Value::OR_INSTRUCTION )
-// {
-// }
-// bool OrInstruction::classof( Value const* obj )
-// {
-// 	return obj->getValueID() == Value::OR_INSTRUCTION;
-// }
-
-// XorInstruction::XorInstruction( Value* lhs, Value* rhs )
-// : OperatorInstruction( ".xor", 0, lhs, rhs, Value::XOR_INSTRUCTION )
-// {	
-// }
-// bool XorInstruction::classof( Value const* obj )
-// {
-// 	return obj->getValueID() == Value::XOR_INSTRUCTION;
-// }
-
-// AndInstruction::AndInstruction( Value* lhs, Value* rhs )
-// : OperatorInstruction( ".and", 0, lhs, rhs, Value::AND_INSTRUCTION )
-// {	
-// }
-// bool AndInstruction::classof( Value const* obj )
-// {
-// 	return obj->getValueID() == Value::AND_INSTRUCTION;
-// }
-
-
-// NotInstruction::NotInstruction( Value* lhs )
-// : UnaryInstruction( ".not", 0, lhs, Value::NOT_INSTRUCTION )
-// {
-// 	Type* ty = get()->getType();
-// 	assert( get()->getType() );
-
-// 	ty = ty->getResultType();
-	
-//     if( ty->getIDKind() == Type::ID::BOOLEAN
-// 	 or ty->getIDKind() == Type::ID::BIT
-// 	  )
-// 	{
-// 		setType( ty );
-// 	}
-// 	else
-// 	{
-// 		assert( !" invalid type case for NOT instruction " );
-// 	}
-// }
-// bool NotInstruction::classof( Value const* obj )
-// {
-// 	return obj->getValueID() == Value::NOT_INSTRUCTION;
 // }
 
 // MovInstruction::MovInstruction( Value* lhs )

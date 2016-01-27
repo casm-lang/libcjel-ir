@@ -37,27 +37,35 @@
 
 #include "Value.h"
 #include "User.h"
+#include "Block.h"
 
 namespace libnovel
 {
-	// class ParallelBlock;
-	
 	class Function : public User
 	{
 	private:
-		//ParallelBlock* context;
+		Block* context;
+
+		//Identifier* ident;
+	    std::vector< Value* > parameter_in;
+	    std::vector< Value* > parameter_out;
 		
 	public:
 		Function( const char* name );
 
 		~Function( void );
 		
-		// ParallelBlock* getContext( void ) const;
+	    Block* getContext( void ) const;		
+		void setContext( Block* scope );
 		
-		// void setContext( ParallelBlock* scope );
+		void addInParameter( Value* value );
+		void addOutParameter( Value* value );
+		
+		const std::vector< Value* >& getInParameters( void ) const;
+		const std::vector< Value* >& getOutParameters( void ) const;
+
 		
 		void dump( void ) const;
-		
 		static bool classof( Value const* obj );
 	};
 }

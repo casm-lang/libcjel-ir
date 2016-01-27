@@ -48,16 +48,37 @@ Function::~Function( void )
 	(*Value::getSymbols())[ ".function" ].erase( this );
 }
 
-// ParallelBlock* Function::getContext( void ) const
-// {
-// 	return context;
-// }
+Block* Function::getContext( void ) const
+{
+	return context;
+}
 
-// void Function::setContext( ParallelBlock* scope )
-// {
-// 	assert( scope );	
-// 	context = scope;
-// }
+void Function::setContext( Block* scope )
+{
+	assert( scope );	
+	context = scope;
+}
+
+void Function::addInParameter( Value* value )
+{
+	parameter_in.push_back( value );
+}
+
+void Function::addOutParameter( Value* value )
+{
+	parameter_out.push_back( value );	
+}
+
+const std::vector< Value* >& Function::getInParameters( void ) const
+{
+	return parameter_in;
+}
+
+const std::vector< Value* >& Function::getOutParameters( void ) const
+{
+	return parameter_out;	
+}
+
 
 void Function::dump( void ) const
 {

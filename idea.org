@@ -1,0 +1,37 @@
+
+
+
+
+#+begin_src c
+
+  memory lala : 16 -> 32
+
+  memory asdf : -> 64
+
+
+  function casmrt.add( Int ra, Int rb ) -> ( Int rt )  // function Int * Int -> Int
+  {|                                                    // sequential scope!!!
+      [ va = load ra.value;                            // statement block
+        vb = load rb.value;                            //  \-> isntr. in sequence!!!
+        vt = sadd va, vb;
+        store vt, rt.value ]
+      [ ua = load ra.isdef;                            // statement clock
+        ub = load rb.isdef;
+        ut =  and ua, ub;
+        store ut, rt.isdef ]
+  |}
+  function casmrt.add( Int ra, Int rb ) -> ( Int rt )  // function Int * Int -> Int
+  {|
+      {
+          [ va = load ra.value ]
+          [ vb = load rb.value ]
+          [ ua = load ra.isdef ]
+          [ ub = load rb.isdef ]
+      }
+      {
+          [ vt = and  va, vb; store vt, rt.value ]
+          [ ut = adds ua, ub; store ut, rt.isdef ]
+      }
+  |}
+
+#+end_src

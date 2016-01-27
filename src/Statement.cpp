@@ -55,8 +55,8 @@ Statement::Statement( const char* name, Type* type, Block* scope, Value::ID id )
 
 const u1 Statement::isParallel( void ) const
 {
-	// PPA: TODO: CONTINUE: FIXME: !!!!!!!
-	return ???;
+	assert( scope );
+	return scope->isParallel();
 }
 
 // ExecutionSemanticsBlock* Statement::getBlock( void ) const

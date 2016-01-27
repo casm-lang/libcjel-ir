@@ -57,6 +57,26 @@ bool SequentialScope::classof( Value const* obj )
 }
 
 
+ParallelScope::ParallelScope()
+: Block( ".par", 0, 0, false, Value::ID::PARALLEL_SCOPE )
+{
+}
+
+void ParallelScope::dump( void ) const
+{
+	// printf( "[Scope] %p\n", this );
+	((Value*)this)->dump();
+}
+
+bool ParallelScope::classof( Value const* obj )
+{
+	
+	return obj->getValueID() == Value::PARALLEL_SCOPE
+		//or ???::classof( obj )
+		;
+}
+
+
 
 
 
