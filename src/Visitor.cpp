@@ -32,114 +32,44 @@
 //  WITH THE SOFTWARE.
 //  
 
-#ifndef _LIB_NOVEL_VALUE_H_
-#define _LIB_NOVEL_VALUE_H_
+#include "Visitor.h"
 
-#include "Novel.h"
-#include "Type.h"
+using namespace libnovel;
 
-namespace libnovel
+#define CASE_VALUE( VID, CLASS )									\
+	case Value::ID::VID: prolog										\
+	? visit_prolog( *((CLASS*)value) )								\
+	: visit_epilog( *((CLASS*)value) ) ; break
+
+void Visitor::dispatch( u1 prolog, Value* value )
 {
-	class Visitor;
-	enum class Traversal;
+	assert( value );
 	
-	class Value //: public Novel
+	switch( value->getValueID() )
 	{
-	public:
-		enum ID
-		{ USER
+		CASE_VALUE( FUNCTION,          Function );
+		CASE_VALUE( MEMORY,            Memory );
 		
-		, MEMORY
-		, FUNCTION
-
-		, BLOCK
-		  
-		, SCOPE
-		, PARALLEL_SCOPE
-	    , SEQUENTIAL_SCOPE
-		  
-		, STATEMENT
-		, TRIVIAL_STATEMENT
-		, BRANCH_STATEMENT
+		CASE_VALUE( PARALLEL_SCOPE,    ParallelScope );
+		CASE_VALUE( SEQUENTIAL_SCOPE,  SequentialScope );
 		
-		, INSTRUCTION
-		, UNARY_INSTRUCTION
-		, BINARY_INSTRUCTION
+		CASE_VALUE( TRIVIAL_STATEMENT, TrivialStatement );
 		
-		, LOAD_INSTRUCTION
-		, READ_INSTRUCTION
-		, STORE_INSTRUCTION
-		, WRITE_INSTRUCTION
-
-		, CALL_INSTRUCTION
-		  
-		, AND_INSTRUCTION
-				
-		, ADDS_INSTRUCTION
-		, ADDU_INSTRUCTION
-		};
+		CASE_VALUE( CALL_INSTRUCTION,  CallInstruction );
 		
-		typedef std::unordered_map
-		< const char*
-		, std::unordered_set< Value* >
-		, libstdhl::Hash
-		, libstdhl::Equal
-		> SymbolTable;
+		CASE_VALUE( LOAD_INSTRUCTION,  LoadInstruction );
+		CASE_VALUE( STORE_INSTRUCTION, StoreInstruction );
 		
-		static SymbolTable* getSymbols( void )
-		{
-			static SymbolTable symbols;
-			return &symbols;
-		}
+		CASE_VALUE( AND_INSTRUCTION,   AndInstruction );
+		CASE_VALUE( ADDS_INSTRUCTION,  AddSignedInstruction );
 		
-	private:
-		const char* name;
-		Type* type;		
-		ID id;
-		u1 type_lock;
-		
-		std::vector< Type* > parameters;
-		
-	public:
-		Value( const char* name, Type* type, ID id );
-		
-		~Value();
-		
-		const char* getName( void ) const;
-	    
-		Type* getType( void ) const;
-	protected:
-		void setType( Type* type );
-		
-	public:
-		ID getValueID() const;
-		
-		void debug( void ) const;
-		void dump( void ) const;
-		
-		static inline bool classof( Value const* )
-		{
-			return true;
-		}
-		
-		template< class TO >
-		static inline bool isa( Value* value )
-		{
-			return TO::classof( value );
-		}
-		
-		template< class TO >
-		static inline bool isa( const Value* value )
-		{
-			return isa< TO >( (Value*)value );
-		}
-		
-	    virtual void iterate
-		( Traversal order, Visitor* visitor, std::function< void( Value* ) > action ) final;
-	};
+	    default:
+			printf( "unimplemented value ID '%s' to dispatch\n", value->getName() );
+	}
 }
 
-#endif /* _LIB_NOVEL_VALUE_H_ */
+
+
 
 //  
 //  Local variables:

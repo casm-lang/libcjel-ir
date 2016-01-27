@@ -38,6 +38,7 @@
 #include "Novel.h"
 #include "Type.h"
 #include "Value.h"
+#include "Visitor.h"
 
 #include "Memory.h"
 #include "Function.h"

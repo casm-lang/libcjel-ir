@@ -40,7 +40,29 @@
 
 namespace libnovel
 {
-	class SequentialScope : public Block
+	class Scope : public Block
+	{
+		std::vector< Block* > block;
+	public:
+		Scope
+		( const char* name
+		, Type* type
+		, Value* parent
+		, u1 is_parallel
+		, Value::ID id = Value::ID::SCOPE
+		);
+
+		void add( Value* element );
+		
+		const std::vector< Block* >& getBlocks( void ) const;
+		
+		void dump( void ) const;
+		
+		static bool classof( Value const* obj );
+	};
+	
+	
+	class SequentialScope : public Scope
 	{
 	public:
 		SequentialScope(  );
@@ -50,7 +72,7 @@ namespace libnovel
 		static bool classof( Value const* obj );		
 	};
 
-	class ParallelScope : public Block
+	class ParallelScope : public Scope
 	{
 	public:
 	    ParallelScope(  );

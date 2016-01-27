@@ -54,12 +54,11 @@ namespace libnovel
 		, Value::ID id = Value::BLOCK
 		);
 		
+	    void setParent( Value* parent );
+		const Value* getParent( void ) const;
+		
 		virtual const u1 isParallel( void ) const;
-		
- 		const std::vector< Block* >& getBlocks( void ) const;
-
- 		void add( Block* block );
-		
+	    
 		void dump( void ) const;
 		
 		static bool classof( Value const* obj );

@@ -38,15 +38,57 @@
 using namespace libnovel;
 
 
+Scope::Scope( const char* name, Type* type, Value* parent, u1 is_parallel, Value::ID id )
+: Block( name, type, parent, is_parallel, id )
+{
+}
+
+void Scope::add( Value* element )
+{
+	assert( Value::isa< Block >( element ) );
+
+	// if( Value::isa< Scope >( element ) )
+	// {
+	// 	((Scope*)element)->setParent( this );
+	// }
+	
+	block.push_back( (Block*)element );
+}
+
+const std::vector< Block* >& Scope::getBlocks( void ) const
+{
+	return block;
+}
+
+void Scope::dump( void ) const
+{
+	printf( "[%sScope] %p, %p\n", isParallel() ? "Par" : "Seq", this, getParent() );
+	
+	for( Block* blk : getBlocks() )
+	{
+		assert( blk );
+	    blk->dump();
+		//assert(0);
+	}
+}
+
+bool Scope::classof( Value const* obj )
+{
+	return obj->getValueID() == Value::SCOPE
+		or SequentialScope::classof( obj )
+		or ParallelScope::classof( obj )
+		;
+}
+
+
 SequentialScope::SequentialScope()
-: Block( ".seq", 0, 0, false, Value::ID::SEQUENTIAL_SCOPE )
+: Scope( ".seq", 0, 0, false, Value::ID::SEQUENTIAL_SCOPE )
 {
 }
 
 void SequentialScope::dump( void ) const
 {
-	// printf( "[Scope] %p\n", this );
-	((Value*)this)->dump();
+	((Scope*)this)->dump();
 }
 
 bool SequentialScope::classof( Value const* obj )
@@ -57,15 +99,16 @@ bool SequentialScope::classof( Value const* obj )
 }
 
 
+
+
 ParallelScope::ParallelScope()
-: Block( ".par", 0, 0, false, Value::ID::PARALLEL_SCOPE )
+: Scope( ".par", 0, 0, false, Value::ID::PARALLEL_SCOPE )
 {
 }
 
 void ParallelScope::dump( void ) const
 {
-	// printf( "[Scope] %p\n", this );
-	((Value*)this)->dump();
+	((Scope*)this)->dump();
 }
 
 bool ParallelScope::classof( Value const* obj )
@@ -75,134 +118,6 @@ bool ParallelScope::classof( Value const* obj )
 		//or ???::classof( obj )
 		;
 }
-
-
-
-
-
-// ExecutionSemanticsScope::ExecutionSemanticsScope
-// ( const char* name
-// , Type* type
-// , const u1 is_parallel
-// , ExecutionSemanticsScope* parent
-// , Value::ID id
-// )
-// : Scope( name, type, id )
-// , is_parallel( is_parallel )
-// , pseudo_state( 0 )
-// , parent( parent )
-// {
-// 	setParent( parent );
-// }
-
-// const u1 ExecutionSemanticsScope::isParallel( void ) const
-// {
-// 	return is_parallel;
-// }
-		
-// const u64 ExecutionSemanticsScope::getPseudoState( void ) const
-// {
-// 	return pseudo_state;
-// }
-		
-// ExecutionSemanticsScope* ExecutionSemanticsScope::getParent( void ) const
-// {
-// 	return parent;
-// }
-		
-// void ExecutionSemanticsScope::setParent( ExecutionSemanticsScope* parent_block )
-// {
-// 	parent = parent_block;
-			
-// 	if( parent )
-// 	{
-// 		pseudo_state = parent->getPseudoState();
-
-// 		if( parent->isParallel() != this->isParallel() )
-// 		{
-// 			pseudo_state++;
-// 		}
-// 	}
-// }
-
-// const std::vector< Scope* >& ExecutionSemanticsScope::getScopes( void ) const
-// {
-// 	return blocks;
-// }
-		
-// void ExecutionSemanticsScope::add( Scope* block )
-// {
-// 	assert( block );
-			
-			
-// 	if( Value::isa< ExecutionSemanticsScope >( block ) )
-// 	{
-// 		ExecutionSemanticsScope* inner = static_cast< ExecutionSemanticsScope* >( block );
-// 		inner->setParent( this );
-// 	}
-			
-// 	blocks.push_back( block );
-// }
-		
-// void ExecutionSemanticsScope::dump( void ) const
-// {
-// 	printf( "[ESBlk] %p, %p, %u @ %lu\n"
-// 			, this, parent, isParallel(), getPseudoState() );
-			
-// 	for( Scope* block : blocks )
-// 	{
-// 		assert( block );
-
-// 		block->dump();
-// 	}
-// }
-		
-
-
-
-
-// ParallelScope::ParallelScope( ExecutionSemanticsScope* parent )
-// : ExecutionSemanticsScope( "par", 0, true, parent, Value::PARALLEL_SCOPE )
-// {
-// }
-
-// void ParallelScope::dump( void ) const
-// {
-// 	((ExecutionSemanticsScope*)this)->dump();
-// }
-		
-
-
-// SequentialScope::SequentialScope( ExecutionSemanticsScope* parent )
-// : ExecutionSemanticsScope( "seq", 0, false, parent, Value::SEQUENTIAL_SCOPE )
-// {
-// }
-		
-// void SequentialScope::dump( void ) const
-// {
-// 	((ExecutionSemanticsScope*)this)->dump();
-// }
-
-
-
-
-
-// bool ExecutionSemanticsScope::classof( Value const* obj )
-// {
-// 	return obj->getValueID() == Value::EXECUTION_SEMANTICS_SCOPE
-// 		or ParallelScope::classof( obj )
-// 		or SequentialScope::classof( obj );
-// }
-
-// bool ParallelScope::classof( Value const* obj )
-// {
-// 	return obj->getValueID() == Value::PARALLEL_SCOPE;
-// }
-
-// bool SequentialScope::classof( Value const* obj )
-// {
-// 	return obj->getValueID() == Value::SEQUENTIAL_SCOPE;
-// }
 
 
 

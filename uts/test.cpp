@@ -4,20 +4,36 @@
 #include "libnovel.h"
 using namespace libnovel;
 
+#include "analyze/NovelDumpPass.h" // just to debug some objects
+NovelDumpPass dumper;
+
+
 int main( int argc, char** argv )
 {
-    Value* a = new Value( "a", 0, Value::ID::USER );
-    Value* b = new Value( "b", 0, Value::ID::USER );
-
-    Instruction* x = new AddSignedInstruction( a, b );
-
     Block* seq = new SequentialScope();
     
     TrivialStatement* s = new TrivialStatement( seq );
-    s->add( x );
-
+    s->add( new AddSignedInstruction( seq, seq ) );
+    
     Function* f = new Function( "test" );
-    f->setContext( s );
+    f->setContext( seq );
+    
+    s->add( new CallInstruction( f ) );
+
+    printf( "===--- DUMP ---===\n" );
+    
+    f->dump();
+
+    printf( "===--- ITERATE ---===\n" );
+    
+    f->iterate
+    ( Traversal::PREORDER
+    , &dumper
+    , []( Value* v )
+      {
+          v->debug();
+      }      
+    );
     
     return 0;
 }

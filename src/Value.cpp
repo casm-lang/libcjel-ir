@@ -33,6 +33,11 @@
 //  
 
 #include "Value.h"
+#include "Visitor.h"
+
+#include "Scope.h"
+#include "Statement.h"
+#include "Instruction.h"
 
 using namespace libnovel;
 
@@ -86,7 +91,7 @@ Value::ID Value::getValueID() const
 
 void Value::debug( void ) const
 {
-	printf( "%p '%s' : ", this, getName() );
+	printf( "DEBUG: %p '%s' : ", this, getName() );
 	if( getType() )
 	{
 		printf( "%s", getType()->getName() );
@@ -98,21 +103,72 @@ void Value::dump( void ) const
 {    
 	switch( this->getValueID() )
 	{
-	// case Value::RULE:
-	// 	((Rule*)this)->dump(); break;
+	    case Value::SEQUENTIAL_SCOPE:
+			((SequentialScope*)this)->dump(); break;
+	    case Value::PARALLEL_SCOPE:
+			((ParallelScope*)this)->dump(); break;
+
+	    case Value::TRIVIAL_STATEMENT:
+			((TrivialStatement*)this)->dump(); break;
+		
 	// case Value::IDENTIFIER:
 	// 	((Identifier*)this)->dump(); break;
 	// case Value::INTEGER_CONSTANT:
 	// 	((IntegerConstant*)this)->dump(); break;	
 	default:
-		// if( Value::isa< Instruction >( this ) )
-		// {
-		// 	((Instruction*)this)->dump();
-		// }
-		// else
+		if( Value::isa< Instruction >( this ) )
+		{
+			((Instruction*)this)->dump();
+		}
+		else
 		{
 			debug();
 		}
+	}
+}
+
+
+void Value::iterate( Traversal order, Visitor* visitor, std::function< void( Value* ) > action )
+{
+	if( order == Traversal::PREORDER )
+	{
+	    action( /*order, */ this );
+	}
+	
+	if( visitor )
+	{
+		visitor->dispatch( true, this );
+	}
+	
+	if( Value::isa< Function >( this ) )
+	{
+	    ((Function*)this)->getContext()->iterate( order, visitor, action );
+	}
+	else if( Value::isa< TrivialStatement >( this ) )
+	{
+		for( Value* instr : ((TrivialStatement*)this)->getInstructions() )
+		{
+			assert( instr );
+			instr->iterate( order, visitor, action );
+		}
+	}
+	else if( Value::isa< Scope >( this ) )
+	{
+		for( Block* block : ((Scope*)this)->getBlocks() )
+		{
+			assert( block );
+			block->iterate( order, visitor, action );
+		}
+	}
+	
+	if( visitor )
+	{
+		visitor->dispatch( false, this );
+	}
+	
+	if( order == Traversal::POSTORDER )
+	{
+	    action( /*order, */ this );
 	}
 }
 

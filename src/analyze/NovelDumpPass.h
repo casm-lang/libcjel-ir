@@ -3,7 +3,7 @@
 //  All rights reserved.
 //  
 //  Developed by: Philipp Paulweber
-//                https://github.com/ppaulweber/libnovel
+//                https://github.com/ppaulweber/libcasm-be
 //  
 //  Permission is hereby granted, free of charge, to any person obtaining a 
 //  copy of this software and associated documentation files (the "Software"), 
@@ -28,118 +28,64 @@
 //  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
 //  CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
 //  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
-//  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
+//  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 //  WITH THE SOFTWARE.
 //  
 
-#ifndef _LIB_NOVEL_VALUE_H_
-#define _LIB_NOVEL_VALUE_H_
+#ifndef _LIB_NOVEL_DUMP_PASS_H_
+#define _LIB_NOVEL_DUMP_PASS_H_
 
-#include "Novel.h"
-#include "Type.h"
+#include "Pass.h"
+
+#include "libnovel.h"
 
 namespace libnovel
 {
-	class Visitor;
-	enum class Traversal;
-	
-	class Value //: public Novel
+	class NovelDumpPass : public libpass::Pass, public Visitor
 	{
 	public:
-		enum ID
-		{ USER
-		
-		, MEMORY
-		, FUNCTION
+		static char id;
+			
+		bool run( libpass::PassResult& pr );
 
-		, BLOCK
-		  
-		, SCOPE
-		, PARALLEL_SCOPE
-	    , SEQUENTIAL_SCOPE
-		  
-		, STATEMENT
-		, TRIVIAL_STATEMENT
-		, BRANCH_STATEMENT
+#define DUMP printf( "%s: %p\n", __FUNCTION__, &value )
 		
-		, INSTRUCTION
-		, UNARY_INSTRUCTION
-		, BINARY_INSTRUCTION
+		void visit_prolog( Function& value ) { DUMP; }
+		void visit_epilog( Function& value ) { DUMP; }
 		
-		, LOAD_INSTRUCTION
-		, READ_INSTRUCTION
-		, STORE_INSTRUCTION
-		, WRITE_INSTRUCTION
-
-		, CALL_INSTRUCTION
-		  
-		, AND_INSTRUCTION
-				
-		, ADDS_INSTRUCTION
-		, ADDU_INSTRUCTION
-		};
+		void visit_prolog( Memory& value ) { DUMP; }
+		void visit_epilog( Memory& value ) { DUMP; }
 		
-		typedef std::unordered_map
-		< const char*
-		, std::unordered_set< Value* >
-		, libstdhl::Hash
-		, libstdhl::Equal
-		> SymbolTable;
+		void visit_prolog( ParallelScope& value ) { DUMP; }
+		void visit_epilog( ParallelScope& value ) { DUMP; }
 		
-		static SymbolTable* getSymbols( void )
-		{
-			static SymbolTable symbols;
-			return &symbols;
-		}
+		void visit_prolog( SequentialScope& value ) { DUMP; }
+		void visit_epilog( SequentialScope& value ) { DUMP; }
 		
-	private:
-		const char* name;
-		Type* type;		
-		ID id;
-		u1 type_lock;
-		
-		std::vector< Type* > parameters;
-		
-	public:
-		Value( const char* name, Type* type, ID id );
-		
-		~Value();
-		
-		const char* getName( void ) const;
+		void visit_prolog( TrivialStatement& value ) { DUMP; }
+		void visit_epilog( TrivialStatement& value ) { DUMP; }
 	    
-		Type* getType( void ) const;
-	protected:
-		void setType( Type* type );
+		void visit_prolog( CallInstruction& value ) { DUMP; }
+		void visit_epilog( CallInstruction& value ) { DUMP; }
 		
-	public:
-		ID getValueID() const;
+		void visit_prolog( LoadInstruction& value ) { DUMP; }
+		void visit_epilog( LoadInstruction& value ) { DUMP; }
 		
-		void debug( void ) const;
-		void dump( void ) const;
+		void visit_prolog( StoreInstruction& value ) { DUMP; }
+		void visit_epilog( StoreInstruction& value ) { DUMP; }
 		
-		static inline bool classof( Value const* )
-		{
-			return true;
-		}
+		void visit_prolog( AndInstruction& value ) { DUMP; }
+		void visit_epilog( AndInstruction& value ) { DUMP; }
 		
-		template< class TO >
-		static inline bool isa( Value* value )
-		{
-			return TO::classof( value );
-		}
+		void visit_prolog( AddSignedInstruction& value ) { DUMP; }
+		void visit_epilog( AddSignedInstruction& value ) { DUMP; }
 		
-		template< class TO >
-		static inline bool isa( const Value* value )
-		{
-			return isa< TO >( (Value*)value );
-		}
-		
-	    virtual void iterate
-		( Traversal order, Visitor* visitor, std::function< void( Value* ) > action ) final;
 	};
 }
 
-#endif /* _LIB_NOVEL_VALUE_H_ */
+
+#endif /* _LIB_NOVEL_DUMP_PASS_H_ */
+
 
 //  
 //  Local variables:

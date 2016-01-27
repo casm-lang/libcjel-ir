@@ -37,22 +37,27 @@
 
 #include "Block.h"
 
+#include "Value.h"
+#include "Constant.h"
+#include "Instruction.h"
+#include "Scope.h"
+
 namespace libnovel
 {
 	class Statement : public Block
 	{
-    protected:
-		Block* scope;
+    // protected:
+	// 	Block* scope;
 		
 	private:
 		std::vector< Value* > instructions;
 		
 	public:
-		Statement( const char* name, Type* type, Block* scope, Value::ID id = Value::STATEMENT );
+		Statement( const char* name, Type* type, Value* parent, Value::ID id = Value::STATEMENT );
 	    
 	// 	ExecutionSemanticsBlock* getBlock( void ) const;
 
-	// 	const std::vector< Value* >& getInstructions( void ) const;
+		const std::vector< Value* >& getInstructions( void ) const;
 		
 		virtual const u1 isParallel( void ) const;
 
@@ -66,14 +71,14 @@ namespace libnovel
 	class TrivialStatement : public Statement
 	{
 	public:
-		TrivialStatement( Block* scope = 0 );
+		TrivialStatement( Value* parent = 0 );
 
 		void dump( void ) const;
 		
 		static bool classof( Value const* obj );
 	};
-		
-
+	
+	
 	
 	// class BranchStatement : public Statement
 	// {

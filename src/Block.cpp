@@ -45,6 +45,17 @@ Block::Block( const char* name, Type* type, Value* parent, u1 is_parallel, Value
 {
 }
 
+void Block::setParent( Value* parent )
+{
+	assert( parent );
+	this->parent = parent;
+}
+
+const Value* Block::getParent( void ) const
+{
+	return parent;
+}
+
 const u1 Block::isParallel( void ) const
 {
 	return is_parallel;
@@ -59,135 +70,10 @@ void Block::dump( void ) const
 bool Block::classof( Value const* obj )
 {
 	return obj->getValueID() == Value::BLOCK
-		//or ExecutionSemanticsBlock::classof( obj )
+		or Scope::classof( obj )
 		or Statement::classof( obj )
 		;
 }
-
-
-
-
-
-// ExecutionSemanticsBlock::ExecutionSemanticsBlock
-// ( const char* name
-// , Type* type
-// , const u1 is_parallel
-// , ExecutionSemanticsBlock* parent
-// , Value::ID id
-// )
-// : Block( name, type, id )
-// , is_parallel( is_parallel )
-// , pseudo_state( 0 )
-// , parent( parent )
-// {
-// 	setParent( parent );
-// }
-
-		
-// const u64 ExecutionSemanticsBlock::getPseudoState( void ) const
-// {
-// 	return pseudo_state;
-// }
-		
-// ExecutionSemanticsBlock* ExecutionSemanticsBlock::getParent( void ) const
-// {
-// 	return parent;
-// }
-		
-// void ExecutionSemanticsBlock::setParent( ExecutionSemanticsBlock* parent_block )
-// {
-// 	parent = parent_block;
-			
-// 	if( parent )
-// 	{
-// 		pseudo_state = parent->getPseudoState();
-
-// 		if( parent->isParallel() != this->isParallel() )
-// 		{
-// 			pseudo_state++;
-// 		}
-// 	}
-// }
-
-// const std::vector< Block* >& ExecutionSemanticsBlock::getBlocks( void ) const
-// {
-// 	return blocks;
-// }
-		
-// void ExecutionSemanticsBlock::add( Block* block )
-// {
-// 	assert( block );
-			
-			
-// 	if( Value::isa< ExecutionSemanticsBlock >( block ) )
-// 	{
-// 		ExecutionSemanticsBlock* inner = static_cast< ExecutionSemanticsBlock* >( block );
-// 		inner->setParent( this );
-// 	}
-			
-// 	blocks.push_back( block );
-// }
-		
-// void ExecutionSemanticsBlock::dump( void ) const
-// {
-// 	printf( "[ESBlk] %p, %p, %u @ %lu\n"
-// 			, this, parent, isParallel(), getPseudoState() );
-			
-// 	for( Block* block : blocks )
-// 	{
-// 		assert( block );
-
-// 		block->dump();
-// 	}
-// }
-		
-
-
-
-
-// ParallelBlock::ParallelBlock( ExecutionSemanticsBlock* parent )
-// : ExecutionSemanticsBlock( "par", 0, true, parent, Value::PARALLEL_BLOCK )
-// {
-// }
-
-// void ParallelBlock::dump( void ) const
-// {
-// 	((ExecutionSemanticsBlock*)this)->dump();
-// }
-		
-
-
-// SequentialBlock::SequentialBlock( ExecutionSemanticsBlock* parent )
-// : ExecutionSemanticsBlock( "seq", 0, false, parent, Value::SEQUENTIAL_BLOCK )
-// {
-// }
-		
-// void SequentialBlock::dump( void ) const
-// {
-// 	((ExecutionSemanticsBlock*)this)->dump();
-// }
-
-
-
-
-
-// bool ExecutionSemanticsBlock::classof( Value const* obj )
-// {
-// 	return obj->getValueID() == Value::EXECUTION_SEMANTICS_BLOCK
-// 		or ParallelBlock::classof( obj )
-// 		or SequentialBlock::classof( obj );
-// }
-
-// bool ParallelBlock::classof( Value const* obj )
-// {
-// 	return obj->getValueID() == Value::PARALLEL_BLOCK;
-// }
-
-// bool SequentialBlock::classof( Value const* obj )
-// {
-// 	return obj->getValueID() == Value::SEQUENTIAL_BLOCK;
-// }
-
 
 
 //  

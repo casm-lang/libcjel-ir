@@ -59,8 +59,13 @@ CPPOBJECTS += obj/Scope.o
 CPPOBJECTS += obj/Statement.o
 CPPOBJECTS += obj/Instruction.o
 
+CPPOBJECTS += obj/Visitor.o
+
+CPPOBJECTS += obj/analyze/NovelDumpPass.o
+
 INCLUDE += -I ./src
 INCLUDE += -I ../
+INCLUDE += -I ../pass/src
 
 #LIBRARY += 
 
@@ -70,6 +75,7 @@ all: clean test
 
 obj:
 	mkdir -p obj
+	mkdir -p obj/analyze
 
 obj/%.o: src/%.cpp
 	@echo "CPP " $<
@@ -96,4 +102,6 @@ clean:
 test:	default obj/test.o 
 	$(CPP) $(CPPFLAG) $(INCLUDE) obj/test.o libnovel.a -lstdc++ -o $@
 	@echo "################################################################################"
+
+testit:	test
 	@./test

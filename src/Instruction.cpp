@@ -114,14 +114,13 @@ bool Instruction::classof( Value const* obj )
 	return obj->getValueID() == Value::INSTRUCTION
 		or UnaryInstruction::classof( obj )
 		or BinaryInstruction::classof( obj )
+		or CallInstruction::classof( obj )
 		// or SkipInstruction::classof( obj )
 		// or LocationInstruction::classof( obj )
-		// or CallInstruction::classof( obj )
 		// or PrintInstruction::classof( obj )
 		// or SwitchInstruction::classof( obj )
 		;
 }
-
 
 
 UnaryInstruction::UnaryInstruction( const char* name, Type* type, Value* value, Value::ID id )
@@ -250,6 +249,23 @@ bool StoreInstruction::classof( Value const* obj )
 
 
 
+
+CallInstruction::CallInstruction( Value* symbol )
+: Instruction( ".call", 0, Value::CALL_INSTRUCTION )
+{
+	add( symbol );
+
+	assert( Value::isa< Function >( symbol ) );
+	
+	// assert( symbol->getType() );
+	// setType( symbol->getType()->getResultType() );
+}
+bool CallInstruction::classof( Value const* obj )
+{
+	return obj->getValueID() == Value::CALL_INSTRUCTION;
+}
+
+
 // SkipInstruction::SkipInstruction( void )
 // : Instruction( ".skip", 0, Value::SKIP_INSTRUCTION )
 // {
@@ -320,24 +336,6 @@ bool StoreInstruction::classof( Value const* obj )
 // }
 
 
-// CallInstruction::CallInstruction( Value* symbol )
-// : Instruction( ".call", 0, Value::CALL_INSTRUCTION )
-// {
-// 	add( symbol );
-	
-// 	if( Value::isa< Builtin >( symbol )
-// 	 or Value::isa< Derived >( symbol )
-// 	)
-// 	{
-// 		assert( symbol->getType() );
-// 		setType( symbol->getType()->getResultType() );
-// 	}
-// }
-
-// bool CallInstruction::classof( Value const* obj )
-// {
-// 	return obj->getValueID() == Value::CALL_INSTRUCTION;
-// }
 
 
 

@@ -32,114 +32,67 @@
 //  WITH THE SOFTWARE.
 //  
 
-#ifndef _LIB_NOVEL_VALUE_H_
-#define _LIB_NOVEL_VALUE_H_
+#ifndef _LIB_NOVEL_VISITOR_H_
+#define _LIB_NOVEL_VISITOR_H_
 
-#include "Novel.h"
-#include "Type.h"
+//#include "Novel.h"
+
+#include "Instruction.h"
+#include "Scope.h"
+
+#include "Function.h"
+#include "Memory.h"
 
 namespace libnovel
 {
-	class Visitor;
-	enum class Traversal;
-	
-	class Value //: public Novel
+	enum class Traversal
+	{ PREORDER
+	, POSTORDER
+	, INORDER
+	};
+
+	class Visitor //: public Novel
 	{
-	public:
-		enum ID
-		{ USER
+    public:
+		virtual void visit_prolog( Function& value ) = 0;
+		virtual void visit_epilog( Function& value ) = 0;
 		
-		, MEMORY
-		, FUNCTION
-
-		, BLOCK
-		  
-		, SCOPE
-		, PARALLEL_SCOPE
-	    , SEQUENTIAL_SCOPE
-		  
-		, STATEMENT
-		, TRIVIAL_STATEMENT
-		, BRANCH_STATEMENT
+		virtual void visit_prolog( Memory& value ) = 0;
+		virtual void visit_epilog( Memory& value ) = 0;
 		
-		, INSTRUCTION
-		, UNARY_INSTRUCTION
-		, BINARY_INSTRUCTION
+		virtual void visit_prolog( ParallelScope& value ) = 0;
+		virtual void visit_epilog( ParallelScope& value ) = 0;
 		
-		, LOAD_INSTRUCTION
-		, READ_INSTRUCTION
-		, STORE_INSTRUCTION
-		, WRITE_INSTRUCTION
-
-		, CALL_INSTRUCTION
-		  
-		, AND_INSTRUCTION
-				
-		, ADDS_INSTRUCTION
-		, ADDU_INSTRUCTION
-		};
+		virtual void visit_prolog( SequentialScope& value ) = 0;
+		virtual void visit_epilog( SequentialScope& value ) = 0;
 		
-		typedef std::unordered_map
-		< const char*
-		, std::unordered_set< Value* >
-		, libstdhl::Hash
-		, libstdhl::Equal
-		> SymbolTable;
-		
-		static SymbolTable* getSymbols( void )
-		{
-			static SymbolTable symbols;
-			return &symbols;
-		}
-		
-	private:
-		const char* name;
-		Type* type;		
-		ID id;
-		u1 type_lock;
-		
-		std::vector< Type* > parameters;
-		
-	public:
-		Value( const char* name, Type* type, ID id );
-		
-		~Value();
-		
-		const char* getName( void ) const;
+		virtual void visit_prolog( TrivialStatement& value ) = 0;
+		virtual void visit_epilog( TrivialStatement& value ) = 0;
 	    
-		Type* getType( void ) const;
-	protected:
-		void setType( Type* type );
+		virtual void visit_prolog( CallInstruction& value ) = 0;
+		virtual void visit_epilog( CallInstruction& value ) = 0;
 		
-	public:
-		ID getValueID() const;
+		virtual void visit_prolog( LoadInstruction& value ) = 0;
+		virtual void visit_epilog( LoadInstruction& value ) = 0;
 		
-		void debug( void ) const;
-		void dump( void ) const;
+		virtual void visit_prolog( StoreInstruction& value ) = 0;
+		virtual void visit_epilog( StoreInstruction& value ) = 0;
 		
-		static inline bool classof( Value const* )
-		{
-			return true;
-		}
+		virtual void visit_prolog( AndInstruction& value ) = 0;
+		virtual void visit_epilog( AndInstruction& value ) = 0;
 		
-		template< class TO >
-		static inline bool isa( Value* value )
-		{
-			return TO::classof( value );
-		}
+		virtual void visit_prolog( AddSignedInstruction& value ) = 0;
+		virtual void visit_epilog( AddSignedInstruction& value ) = 0;
 		
-		template< class TO >
-		static inline bool isa( const Value* value )
-		{
-			return isa< TO >( (Value*)value );
-		}
+		// virtual void visit_prolog( & value ) = 0;
+		// virtual void visit_epilog( & value ) = 0;
 		
-	    virtual void iterate
-		( Traversal order, Visitor* visitor, std::function< void( Value* ) > action ) final;
+		virtual void dispatch( u1 prolog, Value* value ) final;
 	};
 }
 
-#endif /* _LIB_NOVEL_VALUE_H_ */
+
+#endif /* _LIB_NOVEL_VISITOR_H_ */
 
 //  
 //  Local variables:

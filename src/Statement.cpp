@@ -34,29 +34,48 @@
 
 #include "Statement.h"
 
-#include "Constant.h"
-#include "Instruction.h"
-
 using namespace libnovel;
 
 
-Statement::Statement( const char* name, Type* type, Block* scope, Value::ID id )
-: Block( name, type, scope, false, id )
-, scope( scope )
+Statement::Statement( const char* name, Type* type, Value* parent, Value::ID id )
+: Block( name, type, parent, false, id )
 {
-	assert( scope );
-	if( !scope ) return;
+	assert( parent );
 	
-	//scope->add( this );
-	
-	printf( "[Statement] '%s' %p\n", name, scope );
+	if( Value::isa< Scope >( parent ) )
+	{
+		((Scope*)parent)->add( this );
+	}
+	else if( Value::isa< Function >( parent ) )
+	{
+		((Function*)parent)->setContext( this );
+	}
+	else
+	{
+		assert( !"invalid parent pointer!" );
+	}
+    
+	printf( "[Statement] '%s' %p\n", name, parent );
 }
 
 
 const u1 Statement::isParallel( void ) const
 {
-	assert( scope );
-	return scope->isParallel();
+	const Value* parent = getParent();
+	
+	if( Value::isa< Scope >( parent ) )
+	{
+		return ((Scope*)parent)->isParallel();
+	}
+	else if( Value::isa< Function >( parent ) )
+	{
+		return true;
+	}
+	else
+	{
+		assert( !"invalid parent pointer!" );
+	}
+	return false;
 }
 
 // ExecutionSemanticsBlock* Statement::getBlock( void ) const
@@ -64,10 +83,10 @@ const u1 Statement::isParallel( void ) const
 // 	return scope;
 // }
 
-// const std::vector< Value* >& Statement::getInstructions( void ) const
-// {
-// 	return instructions;
-// }
+const std::vector< Value* >& Statement::getInstructions( void ) const
+{
+	return instructions;
+}
 
 void Statement::add( Value* instruction )
 {
@@ -94,7 +113,7 @@ void Statement::dump( void ) const
 {
 	for( auto instr : instructions )
 	{
-		static_cast< Value* >( instr )->dump();
+		((Value*)instr)->dump();
 	}
 }
 
@@ -109,28 +128,30 @@ bool Statement::classof( Value const* obj )
 
 
 
-
-TrivialStatement::TrivialStatement( Block* scope )
-: Statement( ".statement", 0, scope, Value::TRIVIAL_STATEMENT )
+TrivialStatement::TrivialStatement( Value* parent )
+: Statement( ".statement", 0, parent, Value::TRIVIAL_STATEMENT )
 {
 }
 
 void TrivialStatement::dump( void ) const
 {
+	const Value* parent = getParent();
+	
 	printf( "[TrStm] %p", this );
-	if( scope )
+	if( parent )
 	{
-		printf( " @ %p", scope );
+		printf( " @ %p", parent );
 	}
 	printf( "\n" );
 	
-	((Statement*)this)->dump();	
+	((Statement*)this)->dump();
 }
 
 bool TrivialStatement::classof( Value const* obj )
 {
 	return obj->getValueID() == Value::TRIVIAL_STATEMENT;
 }
+
 
 
 

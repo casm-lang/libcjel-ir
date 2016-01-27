@@ -55,8 +55,11 @@ Block* Function::getContext( void ) const
 
 void Function::setContext( Block* scope )
 {
-	assert( scope );	
+	assert( scope );
+	
 	context = scope;
+	
+	scope->setParent( this );
 }
 
 void Function::addInParameter( Value* value )
@@ -85,14 +88,14 @@ void Function::dump( void ) const
 	printf( "[Function ] " );
 	debug();
 	
-	// if( context )
-	// {
-	// 	context->dump();
-	// }
-	// else
-	// {
-	// 	printf( "('context' not set)\n" );
-	// }
+	if( context )
+	{
+		context->dump();
+	}
+	else
+	{
+		printf( "('context' not set)\n" );
+	}
 }
 
 bool Function::classof( Value const* obj )

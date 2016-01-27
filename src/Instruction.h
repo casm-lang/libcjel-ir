@@ -37,6 +37,8 @@
 
 #include "User.h"
 #include "Statement.h"
+#include "Function.h"
+#include "Value.h"
 
 namespace libnovel
 {
@@ -116,7 +118,15 @@ namespace libnovel
 		static bool classof( Value const* obj );
 	};
 	
-	
+
+	class CallInstruction : public Instruction
+	{
+	public:
+		CallInstruction( Value* symbol );
+		//void dump( void ) const;
+		static bool classof( Value const* obj );
+	};
+
 	// class LetInstruction : public BinaryInstruction
 	// {
 	// public:
@@ -135,15 +145,6 @@ namespace libnovel
 	// 	static bool classof( Value const* obj );
 	// };
 	
-	// class CallInstruction : public Instruction
-	// {
-	// public:
-	// 	CallInstruction( Value* symbol );
-		
-	// 	//void dump( void ) const;
-		
-	// 	static bool classof( Value const* obj );
-	// };
 
 	// class PrintInstruction : public Instruction
 	// {

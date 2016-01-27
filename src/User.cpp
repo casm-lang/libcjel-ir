@@ -40,7 +40,10 @@ using namespace libnovel;
 bool User::classof( Value const* obj )
 {
 	return obj->getValueID() == Value::USER
-		or Instruction::classof( obj );
+		or Function::classof( obj )
+		or Instruction::classof( obj )
+		or Memory::classof( obj )
+		;
 }
 
 

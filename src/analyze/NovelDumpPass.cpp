@@ -3,7 +3,7 @@
 //  All rights reserved.
 //  
 //  Developed by: Philipp Paulweber
-//                https://github.com/ppaulweber/libnovel
+//                https://github.com/ppaulweber/libcasm-be
 //  
 //  Permission is hereby granted, free of charge, to any person obtaining a 
 //  copy of this software and associated documentation files (the "Software"), 
@@ -28,32 +28,34 @@
 //  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
 //  CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
 //  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
-//  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
+//  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 //  WITH THE SOFTWARE.
 //  
 
-#ifndef _LIB_NOVEL_USER_H_
-#define _LIB_NOVEL_USER_H_
+#include "NovelDumpPass.h"
 
-#include "Value.h"
+using namespace libnovel;
 
-namespace libnovel
+
+char NovelDumpPass::id = 0;
+
+static libpass::PassRegistration< NovelDumpPass > PASS
+( "CASM IR to LLVM IR"
+, "generates LLVM IR code of CASM IR"
+, 0
+, 0
+);
+
+static const char* default_output_name = "stdout";
+
+
+
+bool NovelDumpPass::run( libpass::PassResult& pr )
 {
-	class User : public Value
-	{
-	public:
-		User( const char* name, Type* type, Value::ID id = Value::USER )
-			: Value( name, type, id )
-		{
-			
-		}
-				
-		static bool classof( Value const* obj );
-	};
+	assert( !"not implemented yet!" );
+	return false;
 }
 
-
-#endif /* _LIB_NOVEL_USER_H_ */
 
 //  
 //  Local variables:
@@ -64,3 +66,4 @@ namespace libnovel
 //  End:
 //  vim:noexpandtab:sw=4:ts=4:
 //  
+
