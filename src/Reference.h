@@ -47,8 +47,8 @@ namespace libnovel
 	private:
 		Identifier* identifier;
 		Function* function;
-		u1 input;
-		
+		u1  input;
+	    
 	public:
 		Reference( const char* name, Type* type, Function* function, u1 input = true );
 		

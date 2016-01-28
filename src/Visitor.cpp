@@ -57,6 +57,8 @@ void Visitor::dispatch( Stage stage, Value* value )
 	
 	switch( value->getValueID() )
 	{
+		CASE_VALUE( MODULE,            Module );
+		
 		CASE_VALUE_INTER( FUNCTION,    Function );
 		CASE_VALUE( REFERENCE,         Reference );
 		

@@ -139,8 +139,17 @@ void Value::iterate( Traversal order, Visitor* visitor, std::function< void( Val
 	{
 		visitor->dispatch( Visitor::Stage::PROLOG, this );
 	}
-	
-	if( Value::isa< Function >( this ) )
+
+	if( Value::isa< Module >( this ) )
+	{
+	    Module* obj = ((Module*)this);
+		
+		for( Value* p : obj->getContent() )
+		{
+			p->iterate( order, visitor, action );
+		}
+	}
+	else if( Value::isa< Function >( this ) )
 	{
 		Function* obj = ((Function*)this);
 		

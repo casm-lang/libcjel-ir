@@ -32,32 +32,52 @@
 //  WITH THE SOFTWARE.
 //  
 
-#ifndef _LIB_NOVEL_H_
-#define _LIB_NOVEL_H_
-
-#include "Novel.h"
-#include "Type.h"
-#include "Value.h"
-#include "Visitor.h"
-
 #include "Module.h"
-#include "Memory.h"
-#include "Function.h"
-#include "Reference.h"
 
-#include "Block.h"
-#include "Scope.h"
-
-#include "Statement.h"
-#include "Instruction.h"
+using namespace libnovel;
 
 
-namespace libnovel
+Module::Module( const char* name )
+: User( name, 0, Value::MODULE )
 {
+	assert( name );
+	
+	(*Value::getSymbols())[ ".module" ].insert( this );
+}
+
+Module::~Module( void )
+{			
+	(*Value::getSymbols())[ ".module" ].erase( this );
+}
+
+void Module::add( Value* value )
+{
+	assert
+	(  Value::isa< Function >( value )
+//	or Value::isa< Constant >( value )
+	);
+
+	content.push_back( value );
+}
+
+const std::vector< Value* >& Module::getContent( void ) const
+{
+	return content;
 }
 
 
-#endif /* _LIB_NOVEL_H_ */
+void Module::dump( void ) const
+{
+	printf( "[Module ] " );
+	debug();
+}
+
+bool Module::classof( Value const* obj )
+{
+	return obj->getValueID() == Value::MODULE;
+}
+
+
 
 //  
 //  Local variables:

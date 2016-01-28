@@ -3,7 +3,7 @@
 //  All rights reserved.
 //  
 //  Developed by: Philipp Paulweber
-//                https://github.com/ppaulweber/libnovel
+//                https://github.com/ppaulweber/libcasm-be
 //  
 //  Permission is hereby granted, free of charge, to any person obtaining a 
 //  copy of this software and associated documentation files (the "Software"), 
@@ -28,36 +28,33 @@
 //  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
 //  CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
 //  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
-//  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
+//  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 //  WITH THE SOFTWARE.
 //  
 
-#ifndef _LIB_NOVEL_H_
-#define _LIB_NOVEL_H_
+#ifndef _LIB_NOVEL_TO_C11_PASS_H_
+#define _LIB_NOVEL_TO_C11_PASS_H_
 
-#include "Novel.h"
-#include "Type.h"
-#include "Value.h"
-#include "Visitor.h"
+#include "Pass.h"
 
-#include "Module.h"
-#include "Memory.h"
-#include "Function.h"
-#include "Reference.h"
-
-#include "Block.h"
-#include "Scope.h"
-
-#include "Statement.h"
-#include "Instruction.h"
-
+#include "libnovel.h"
 
 namespace libnovel
 {
+	class NovelToC11Pass : public libpass::Pass, public Visitor
+	{
+	public:
+		static char id;
+			
+		bool run( libpass::PassResult& pr );
+
+		LIB_NOVEL_VISITOR_INTERFACE;
+	};
 }
 
 
-#endif /* _LIB_NOVEL_H_ */
+#endif /* _LIB_NOVEL_TO_C11_PASS_H_ */
+
 
 //  
 //  Local variables:

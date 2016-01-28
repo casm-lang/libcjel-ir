@@ -46,8 +46,6 @@ static libpass::PassRegistration< NovelToLLPass > PASS
 , 0
 );
 
-// static const char* default_output_name = "stdout";
-
 
 bool NovelToLLPass::run( libpass::PassResult& pr )
 {
@@ -56,13 +54,42 @@ bool NovelToLLPass::run( libpass::PassResult& pr )
 }
 
 
+void NovelToLLPass::visit_prolog( Module& value )
+{
+	fprintf( stdout, "; ModuleID = '%s'\n", value.getName() );
+}
+void NovelToLLPass::visit_epilog( Module& value )
+{
+	fprintf( stdout, "; end of module '%s'\n", value.getName() );
+}
+
+
 void NovelToLLPass::visit_prolog( Function& value )
 {
-
+	fprintf( stdout, "define void @%s\n( ", value.getName() );
+}
+void NovelToLLPass::visit_interlog( Function& value )
+{
+	fprintf( stdout, "\n)\n{\nbegin:\n");
 }
 void NovelToLLPass::visit_epilog( Function& value )
 {
+	fprintf( stdout, "  ret void\n}\n");
+}
 
+void NovelToLLPass::visit_prolog( Reference& value )
+{
+	fprintf
+	( stdout
+	, "%s %%%s%s"
+	, "i32" //value.getType()->getName()
+	, value.getIdentifier()->getName()
+	, ( value.getFunction()->isLastParameter( &value ) ? "" : "\n, " )
+	);
+}
+void NovelToLLPass::visit_epilog( Reference& value )
+{
+	
 }
 
 void NovelToLLPass::visit_prolog( Memory& value )

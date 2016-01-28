@@ -32,32 +32,38 @@
 //  WITH THE SOFTWARE.
 //  
 
-#ifndef _LIB_NOVEL_H_
-#define _LIB_NOVEL_H_
+#ifndef _LIB_NOVEL_MODULE_H_
+#define _LIB_NOVEL_MODULE_H_
 
-#include "Novel.h"
-#include "Type.h"
 #include "Value.h"
-#include "Visitor.h"
-
-#include "Module.h"
-#include "Memory.h"
+#include "User.h"
 #include "Function.h"
-#include "Reference.h"
-
-#include "Block.h"
-#include "Scope.h"
-
-#include "Statement.h"
-#include "Instruction.h"
-
+#include "Constant.h"
 
 namespace libnovel
 {
+	class Module : public User
+	{
+	private:
+		//std::unordered_map< Value::ID, std::vector< Value* > > content;
+		std::vector< Value* > content;
+		
+	public:
+		Module( const char* name );
+		
+		~Module( void );
+		
+		void add( Value* value );
+
+		const std::vector< Value* >& getContent( void ) const;
+		
+		void dump( void ) const;
+		static bool classof( Value const* obj );
+	};
 }
 
 
-#endif /* _LIB_NOVEL_H_ */
+#endif /* _LIB_NOVEL_MODULE_H_ */
 
 //  
 //  Local variables:

@@ -40,8 +40,8 @@ using namespace libnovel;
 char NovelDumpPass::id = 0;
 
 static libpass::PassRegistration< NovelDumpPass > PASS
-( "CASM IR to LLVM IR"
-, "generates LLVM IR code of CASM IR"
+( "NOVEL Dumping Pass"
+, "generates ASCII representation of the NOVEL IR"
 , 0
 , 0
 );
@@ -58,12 +58,19 @@ bool NovelDumpPass::run( libpass::PassResult& pr )
 
 
 #define DUMP printf( "%s: %p, %s\n", __FUNCTION__, &value, value.getName() )
-		
+
+void NovelDumpPass::visit_prolog( Module& value )
+{
+	DUMP;
+}
+void NovelDumpPass::visit_epilog( Module& value )
+{
+	DUMP;
+}
+
 void NovelDumpPass::visit_prolog( Function& value )
 {
 	DUMP;
-
-	
 }
 void NovelDumpPass::visit_interlog( Function& value )
 {

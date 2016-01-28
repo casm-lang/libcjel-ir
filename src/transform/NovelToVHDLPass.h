@@ -47,7 +47,7 @@ namespace libnovel
 		static char id;
 			
 		bool run( libpass::PassResult& pr );
-
+		
 		LIB_NOVEL_VISITOR_INTERFACE;
 	};
 }

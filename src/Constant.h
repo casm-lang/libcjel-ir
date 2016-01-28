@@ -44,7 +44,7 @@ namespace libnovel
 	// class Statement;
 
 	template< typename V >
-	class Constant : public User
+	class Constant : public libnovel::User
 	{
 	private:
 		V value;

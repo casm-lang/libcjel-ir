@@ -49,6 +49,8 @@ namespace libnovel
 		enum ID
 		{ USER
 		
+		, MODULE
+		
 		, MEMORY
 		, FUNCTION
 

@@ -50,6 +50,8 @@ namespace libnovel
 		//Identifier* ident;
 	    std::vector< Value* > parameter_in;
 	    std::vector< Value* > parameter_out;
+
+		std::unordered_map< Value*, u16 > parameter2index;
 		
 	public:
 		Function( const char* name );
@@ -64,6 +66,8 @@ namespace libnovel
 		const std::vector< Value* >& getInParameters( void ) const;
 		const std::vector< Value* >& getOutParameters( void ) const;
 
+		const i16 getIndexOfParameter( Value* value ) const;
+		const u1 isLastParameter( Value* value ) const;
 		
 		void dump( void ) const;
 		static bool classof( Value const* obj );
