@@ -41,55 +41,72 @@
 #include "Scope.h"
 
 #include "Function.h"
+#include "Reference.h"
 #include "Memory.h"
+
 
 namespace libnovel
 {
 	enum class Traversal
 	{ PREORDER
 	, POSTORDER
-	, INORDER
-	};
-
+    };
+	
 	class Visitor //: public Novel
 	{
     public:
-		virtual void visit_prolog( Function& value ) = 0;
-		virtual void visit_epilog( Function& value ) = 0;
+		enum class Stage
+		{ PROLOG
+		, INTERLOG
+		, EPILOG
+		};
 		
-		virtual void visit_prolog( Memory& value ) = 0;
-		virtual void visit_epilog( Memory& value ) = 0;
-		
-		virtual void visit_prolog( ParallelScope& value ) = 0;
-		virtual void visit_epilog( ParallelScope& value ) = 0;
-		
-		virtual void visit_prolog( SequentialScope& value ) = 0;
-		virtual void visit_epilog( SequentialScope& value ) = 0;
-		
-		virtual void visit_prolog( TrivialStatement& value ) = 0;
-		virtual void visit_epilog( TrivialStatement& value ) = 0;
+		virtual void dispatch( Stage stage, Value* value ) final;
 	    
-		virtual void visit_prolog( CallInstruction& value ) = 0;
-		virtual void visit_epilog( CallInstruction& value ) = 0;
+#define LIB_NOVEL_VISITOR_INTERFACE_( PREFIX, POSTFIX )					\
+		PREFIX void visit_prolog( Function& value ) POSTFIX;			\
+		PREFIX void visit_interlog( Function& value ) POSTFIX;			\
+		PREFIX void visit_epilog( Function& value ) POSTFIX;			\
+																		\
+		PREFIX void visit_prolog( Reference& value ) POSTFIX;			\
+		PREFIX void visit_epilog( Reference& value ) POSTFIX;			\
+																		\
+		PREFIX void visit_prolog( Memory& value ) POSTFIX;				\
+		PREFIX void visit_epilog( Memory& value ) POSTFIX;				\
+																		\
+		PREFIX void visit_prolog( ParallelScope& value ) POSTFIX;		\
+		PREFIX void visit_epilog( ParallelScope& value ) POSTFIX;		\
+																		\
+		PREFIX void visit_prolog( SequentialScope& value ) POSTFIX;		\
+		PREFIX void visit_epilog( SequentialScope& value ) POSTFIX;		\
+																		\
+		PREFIX void visit_prolog( TrivialStatement& value ) POSTFIX;	\
+		PREFIX void visit_epilog( TrivialStatement& value ) POSTFIX;	\
+																		\
+		PREFIX void visit_prolog( CallInstruction& value ) POSTFIX;		\
+		PREFIX void visit_epilog( CallInstruction& value ) POSTFIX;		\
+																		\
+		PREFIX void visit_prolog( LoadInstruction& value ) POSTFIX;		\
+		PREFIX void visit_epilog( LoadInstruction& value ) POSTFIX;		\
+																		\
+		PREFIX void visit_prolog( StoreInstruction& value ) POSTFIX;	\
+		PREFIX void visit_epilog( StoreInstruction& value ) POSTFIX;	\
+																		\
+		PREFIX void visit_prolog( AndInstruction& value ) POSTFIX;		\
+		PREFIX void visit_epilog( AndInstruction& value ) POSTFIX;		\
+																		\
+		PREFIX void visit_prolog( AddSignedInstruction& value ) POSTFIX; \
+		PREFIX void visit_epilog( AddSignedInstruction& value ) POSTFIX
+
 		
-		virtual void visit_prolog( LoadInstruction& value ) = 0;
-		virtual void visit_epilog( LoadInstruction& value ) = 0;
-		
-		virtual void visit_prolog( StoreInstruction& value ) = 0;
-		virtual void visit_epilog( StoreInstruction& value ) = 0;
-		
-		virtual void visit_prolog( AndInstruction& value ) = 0;
-		virtual void visit_epilog( AndInstruction& value ) = 0;
-		
-		virtual void visit_prolog( AddSignedInstruction& value ) = 0;
-		virtual void visit_epilog( AddSignedInstruction& value ) = 0;
-		
-		// virtual void visit_prolog( & value ) = 0;
-		// virtual void visit_epilog( & value ) = 0;
-		
-		virtual void dispatch( u1 prolog, Value* value ) final;
+		LIB_NOVEL_VISITOR_INTERFACE_( virtual, = 0 );
 	};
 }
+
+#define LIB_NOVEL_VISITOR_INTERFACE LIB_NOVEL_VISITOR_INTERFACE_(,)
+
+
+
 
 
 #endif /* _LIB_NOVEL_VISITOR_H_ */

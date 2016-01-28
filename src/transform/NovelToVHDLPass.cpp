@@ -32,138 +32,121 @@
 //  WITH THE SOFTWARE.
 //  
 
-#include "NovelDumpPass.h"
+#include "NovelToVHDLPass.h"
 
 using namespace libnovel;
 
 
-char NovelDumpPass::id = 0;
+char NovelToVHDLPass::id = 0;
 
-static libpass::PassRegistration< NovelDumpPass > PASS
-( "CASM IR to LLVM IR"
-, "generates LLVM IR code of CASM IR"
+static libpass::PassRegistration< NovelToVHDLPass > PASS
+( "NOVEL IR to VHDL"
+, "generates VDHL code out of the NOVEL IR"
 , 0
 , 0
 );
 
-static const char* default_output_name = "stdout";
+// static const char* default_output_name = "stdout";
 
 
-
-bool NovelDumpPass::run( libpass::PassResult& pr )
+bool NovelToVHDLPass::run( libpass::PassResult& pr )
 {
 	assert( !"not implemented yet!" );
 	return false;
 }
 
 
-#define DUMP printf( "%s: %p, %s\n", __FUNCTION__, &value, value.getName() )
-		
-void NovelDumpPass::visit_prolog( Function& value )
+void NovelToVHDLPass::visit_prolog( Function& value )
 {
-	DUMP;
 
-	
 }
-void NovelDumpPass::visit_interlog( Function& value )
+void NovelToVHDLPass::visit_epilog( Function& value )
 {
-	DUMP;
-}
-void NovelDumpPass::visit_epilog( Function& value )
-{
-	DUMP;
+
 }
 
-void NovelDumpPass::visit_prolog( Reference& value )
+void NovelToVHDLPass::visit_prolog( Memory& value )
 {
-	DUMP;
-	printf( "%s, %s\n", value.getIdentifier()->getName(), value.isInput() ? "in" : "out" );
+
 }
-void NovelDumpPass::visit_epilog( Reference& value )
+void NovelToVHDLPass::visit_epilog( Memory& value )
 {
-	DUMP;
+
 }
 
-void NovelDumpPass::visit_prolog( Memory& value )
+void NovelToVHDLPass::visit_prolog( ParallelScope& value )
 {
-	DUMP;
+
 }
-void NovelDumpPass::visit_epilog( Memory& value )
+void NovelToVHDLPass::visit_epilog( ParallelScope& value )		
 {
-	DUMP;
+
 }
-		
-void NovelDumpPass::visit_prolog( ParallelScope& value )
+
+void NovelToVHDLPass::visit_prolog( SequentialScope& value )
 {
-	DUMP;
+
 }
-void NovelDumpPass::visit_epilog( ParallelScope& value )
+void NovelToVHDLPass::visit_epilog( SequentialScope& value )
 {
-	DUMP;
+
 }
-		
-void NovelDumpPass::visit_prolog( SequentialScope& value )
+
+void NovelToVHDLPass::visit_prolog( TrivialStatement& value )
 {
-	DUMP;
+
 }
-void NovelDumpPass::visit_epilog( SequentialScope& value )
+void NovelToVHDLPass::visit_epilog( TrivialStatement& value )
 {
-	DUMP;
+
 }
-		
-void NovelDumpPass::visit_prolog( TrivialStatement& value )
+
+void NovelToVHDLPass::visit_prolog( CallInstruction& value )
 {
-	DUMP;
+
 }
-void NovelDumpPass::visit_epilog( TrivialStatement& value )
+void NovelToVHDLPass::visit_epilog( CallInstruction& value )	
 {
-	DUMP;
+
 }
-	    
-void NovelDumpPass::visit_prolog( CallInstruction& value )
+
+void NovelToVHDLPass::visit_prolog( LoadInstruction& value )
 {
-	DUMP;
+
 }
-void NovelDumpPass::visit_epilog( CallInstruction& value )
+void NovelToVHDLPass::visit_epilog( LoadInstruction& value )		
 {
-	DUMP;
+
 }
-		
-void NovelDumpPass::visit_prolog( LoadInstruction& value )
+
+void NovelToVHDLPass::visit_prolog( StoreInstruction& value )
 {
-	DUMP;
+
 }
-void NovelDumpPass::visit_epilog( LoadInstruction& value )
+void NovelToVHDLPass::visit_epilog( StoreInstruction& value )		
 {
-	DUMP;
+
 }
-		
-void NovelDumpPass::visit_prolog( StoreInstruction& value )
+
+void NovelToVHDLPass::visit_prolog( AndInstruction& value )
 {
-	DUMP;
+
 }
-void NovelDumpPass::visit_epilog( StoreInstruction& value )
+void NovelToVHDLPass::visit_epilog( AndInstruction& value )
 {
-	DUMP;
+
 }
-		
-void NovelDumpPass::visit_prolog( AndInstruction& value )
+
+void NovelToVHDLPass::visit_prolog( AddSignedInstruction& value )
 {
-	DUMP;
+
 }
-void NovelDumpPass::visit_epilog( AndInstruction& value )
+void NovelToVHDLPass::visit_epilog( AddSignedInstruction& value )
 {
-	DUMP;
+
 }
-		
-void NovelDumpPass::visit_prolog( AddSignedInstruction& value )
-{
-	DUMP;
-}
-void NovelDumpPass::visit_epilog( AddSignedInstruction& value )
-{
-	DUMP;
-}
+
+
 
 //  
 //  Local variables:

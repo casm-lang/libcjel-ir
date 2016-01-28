@@ -32,8 +32,8 @@
 //  WITH THE SOFTWARE.
 //  
 
-#ifndef _LIB_NOVEL_DUMP_PASS_H_
-#define _LIB_NOVEL_DUMP_PASS_H_
+#ifndef _LIB_NOVEL_TO_LL_PASS_H_
+#define _LIB_NOVEL_TO_LL_PASS_H_
 
 #include "Pass.h"
 
@@ -41,7 +41,7 @@
 
 namespace libnovel
 {
-	class NovelDumpPass : public libpass::Pass, public Visitor
+	class NovelToLLPass : public libpass::Pass, public Visitor
 	{
 	public:
 		static char id;
@@ -53,7 +53,7 @@ namespace libnovel
 }
 
 
-#endif /* _LIB_NOVEL_DUMP_PASS_H_ */
+#endif /* _LIB_NOVEL_TO_LL_PASS_H_ */
 
 
 //  

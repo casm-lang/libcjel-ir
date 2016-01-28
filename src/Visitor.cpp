@@ -37,17 +37,29 @@
 using namespace libnovel;
 
 #define CASE_VALUE( VID, CLASS )									\
-	case Value::ID::VID: prolog										\
-	? visit_prolog( *((CLASS*)value) )								\
-	: visit_epilog( *((CLASS*)value) ) ; break
+	case Value::ID::VID:												    \
+	     if( stage == Stage::PROLOG )   visit_prolog(   *((CLASS*)value) ); \
+	else if( stage == Stage::EPILOG )   visit_epilog(   *((CLASS*)value) ); \
+	else assert( !"invalid visitor stage value!" );						    \
+	break
 
-void Visitor::dispatch( u1 prolog, Value* value )
+#define CASE_VALUE_INTER( VID, CLASS )									\
+	case Value::ID::VID:												    \
+	     if( stage == Stage::PROLOG )   visit_prolog(   *((CLASS*)value) ); \
+	else if( stage == Stage::INTERLOG ) visit_interlog( *((CLASS*)value) ); \
+	else if( stage == Stage::EPILOG )   visit_epilog(   *((CLASS*)value) ); \
+	else assert( !"invalid visitor stage value!" );						    \
+	break
+
+void Visitor::dispatch( Stage stage, Value* value )
 {
 	assert( value );
 	
 	switch( value->getValueID() )
 	{
-		CASE_VALUE( FUNCTION,          Function );
+		CASE_VALUE_INTER( FUNCTION,    Function );
+		CASE_VALUE( REFERENCE,         Reference );
+		
 		CASE_VALUE( MEMORY,            Memory );
 		
 		CASE_VALUE( PARALLEL_SCOPE,    ParallelScope );
@@ -64,7 +76,12 @@ void Visitor::dispatch( u1 prolog, Value* value )
 		CASE_VALUE( ADDS_INSTRUCTION,  AddSignedInstruction );
 		
 	    default:
-			printf( "unimplemented value ID '%s' to dispatch\n", value->getName() );
+			printf
+			( "%s:%i: warning: unimplemented value ID '%s' to dispatch\n"
+			, __FILE__
+			, __LINE__
+			, value->getName()
+			);
 	}
 }
 

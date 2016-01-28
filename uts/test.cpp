@@ -17,6 +17,7 @@ int main( int argc, char** argv )
     
     Function* f = new Function( "test" );
     f->setContext( seq );
+    new Reference( "a", &TypeB32, f );
     
     s->add( new CallInstruction( f ) );
 
@@ -29,10 +30,10 @@ int main( int argc, char** argv )
     f->iterate
     ( Traversal::PREORDER
     , &dumper
-    , []( Value* v )
-      {
-          v->debug();
-      }      
+    // , []( Value* v )
+    //   {
+    //       v->debug();
+    //   }      
     );
     
     return 0;

@@ -35,48 +35,39 @@
 #ifndef _LIB_NOVEL_CONSTANT_H_
 #define _LIB_NOVEL_CONSTANT_H_
 
-#include "libnovel.h"
+#include "Value.h"
+#include "Type.h"
+#include "User.h"
 
 namespace libnovel
 {
 	// class Statement;
 
-	// template< typename V >
-	// class Constant : public User
-	// {
-	// private:
-	// 	V value;
-	// 	u1 defined;
+	template< typename V >
+	class Constant : public User
+	{
+	private:
+		V value;
 		
-    // protected:
-	// 	Constant( const char* name, Type* type, V value, u1 defined, Value::ID id = Value::CONSTANT );
+    protected:
+		Constant( const char* name, Type* type, V value, u1 defined, Value::ID id = Value::CONSTANT );
 
-	// public:
-	// 	~Constant( void );
+	public:
+		~Constant( void );
 		
-	// 	const V getValue( void ) const;
+		const V getValue( void ) const;
 		
-	// 	const u1 isDefined( void ) const
-	// 	{
-	// 		return defined;
-	// 	}
-		
-	// 	const u1 isUndef( void ) const
-	// 	{
-	// 		return not defined;
-	// 	}
-		
-	// 	static bool classof( Value const* obj );
+		static bool classof( Value const* obj );
 
-	// protected:
-	//     void setValue( V val );
-	// };
+	protected:
+	    void setValue( V val );
+	};
 	
-	// class ConstantValue : public Constant< Type::Undef >
-	// {
-	// public:
-	// 	static bool classof( Value const* obj );
-	// };
+	class Constants : public Constant< void* >
+	{
+	public:
+		static bool classof( Value const* obj );
+	};
 	
 	
 	// class AgentConstant : public Constant< Type::Agent >
@@ -173,22 +164,22 @@ namespace libnovel
 	// 	static bool classof( Value const* obj );
 	// };
 	
-	// class Identifier : public Constant< const char* >
-	// {
-	// private:
-	// 	Identifier( Type* type, const char* value );
+	class Identifier : public Constant< const char* >
+	{
+	private:
+		Identifier( Type* type, const char* value );
 
-	// public:
-	//     ~Identifier( void );
+	public:
+	    ~Identifier( void );
 
-	// 	static Identifier* create( Type* type, const char* value, Value* scope = 0 );
+		static Identifier* create( Type* type, const char* value, Value* scope = 0 );
 		
-	// 	static void forgetSymbol( const char* value );
+		static void forgetSymbol( const char* value );
 		
-	// 	void dump( void ) const;
+		void dump( void ) const;
 
-	// 	static bool classof( Value const* obj );
-	// };
+		static bool classof( Value const* obj );
+	};
 }
 
 

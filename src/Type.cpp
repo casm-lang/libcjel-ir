@@ -38,9 +38,8 @@ using namespace libnovel;
 
 
 const char* Type::ID2str[ Type::ID::_TOP_ ] =
-{ "Bit"      // BIT
-, "Integer"  // INTEGER
-//, "String"   // STRING
+{ "Bit"        // BIT
+, "Structure"  // STRUCTURE
 };
 
 
@@ -167,14 +166,6 @@ Type* Type::getResultType( void )
 		{
 			return new Type( type_id, bitsize );
 		}
-		else if( type_id == Type::INTEGER )
-		{
-			return &IntegerType;
-		}
-		// else if( type_id == Type::STRING )
-		// {
-		// 	return &StringType;
-		// }
 		else
 		{
 			assert( 0 && "unimplemented result type with subtypes size zero!" );

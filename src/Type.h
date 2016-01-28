@@ -46,13 +46,11 @@ namespace libnovel
 	{
 	public:		
 		typedef u64*   Bit;
-		typedef i64    Integer;
-		//typedef char*  String;
+		//	typedef i64    Integer;
 		
 		enum ID
 		{ BIT
-		, INTEGER
-	  //, STRING
+		, STRUCTURE
 		, _TOP_
 		};
 		
@@ -89,12 +87,10 @@ namespace libnovel
 		Type* getResultType( void );
 		
 	private:
-		void setID( ID id );	
+		void setID( ID id );		
 	};
-	
-    static Type IntegerType     = Type( Type::INTEGER,      Type::STATE::LOCKED );
-	//static Type StringType      = Type( Type::STRING,       Type::STATE::LOCKED );	
-	
+
+	static Type TypeB32 = Type( Type::BIT, 32, Type::STATE::LOCKED );
 }
 
 #endif /* _LIB_NOVEL_TYPE_H_ */

@@ -42,6 +42,7 @@
 
 #include "Memory.h"
 #include "Function.h"
+#include "Reference.h"
 
 #include "Block.h"
 #include "Scope.h"

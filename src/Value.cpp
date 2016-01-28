@@ -137,12 +137,29 @@ void Value::iterate( Traversal order, Visitor* visitor, std::function< void( Val
 	
 	if( visitor )
 	{
-		visitor->dispatch( true, this );
+		visitor->dispatch( Visitor::Stage::PROLOG, this );
 	}
 	
 	if( Value::isa< Function >( this ) )
 	{
-	    ((Function*)this)->getContext()->iterate( order, visitor, action );
+		Function* obj = ((Function*)this);
+		
+		for( Value* p : obj->getInParameters() )
+		{
+			p->iterate( order, visitor, action );
+		}
+
+		for( Value* p : obj->getOutParameters() )
+		{
+			p->iterate( order, visitor, action );
+		}
+
+		if( visitor )
+		{
+			visitor->dispatch( Visitor::Stage::INTERLOG, this );
+		}
+		
+	    obj->getContext()->iterate( order, visitor, action );
 	}
 	else if( Value::isa< TrivialStatement >( this ) )
 	{
@@ -163,7 +180,7 @@ void Value::iterate( Traversal order, Visitor* visitor, std::function< void( Val
 	
 	if( visitor )
 	{
-		visitor->dispatch( false, this );
+		visitor->dispatch( Visitor::Stage::EPILOG, this );
 	}
 	
 	if( order == Traversal::POSTORDER )

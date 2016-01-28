@@ -3,7 +3,7 @@
 //  All rights reserved.
 //  
 //  Developed by: Philipp Paulweber
-//                https://github.com/ppaulweber/libcasm-be
+//                https://github.com/ppaulweber/libnovel
 //  
 //  Permission is hereby granted, free of charge, to any person obtaining a 
 //  copy of this software and associated documentation files (the "Software"), 
@@ -28,33 +28,43 @@
 //  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
 //  CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
 //  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
-//  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+//  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
 //  WITH THE SOFTWARE.
 //  
 
-#ifndef _LIB_NOVEL_DUMP_PASS_H_
-#define _LIB_NOVEL_DUMP_PASS_H_
+#ifndef _LIB_NOVEL_REFERENCE_H_
+#define _LIB_NOVEL_REFERENCE_H_
 
-#include "Pass.h"
-
-#include "libnovel.h"
+#include "Value.h"
+#include "User.h"
+#include "Function.h"
+#include "Constant.h"
 
 namespace libnovel
 {
-	class NovelDumpPass : public libpass::Pass, public Visitor
+	class Reference : public User
 	{
+	private:
+		Identifier* identifier;
+		Function* function;
+		u1 input;
+		
 	public:
-		static char id;
-			
-		bool run( libpass::PassResult& pr );
+		Reference( const char* name, Type* type, Function* function, u1 input = true );
+		
+		~Reference( void );
 
-		LIB_NOVEL_VISITOR_INTERFACE;
+		const Identifier* getIdentifier( void ) const;
+		const Function* getFunction( void ) const;
+		const u1 isInput( void ) const;
+		
+		void dump( void ) const;
+		static bool classof( Value const* obj );
 	};
 }
 
 
-#endif /* _LIB_NOVEL_DUMP_PASS_H_ */
-
+#endif /* _LIB_NOVEL_REFERENCE_H_ */
 
 //  
 //  Local variables:

@@ -33,6 +33,7 @@
 //  
 
 #include "Function.h"
+#include "Reference.h"
 
 using namespace libnovel;
 
@@ -62,14 +63,18 @@ void Function::setContext( Block* scope )
 	scope->setParent( this );
 }
 
-void Function::addInParameter( Value* value )
+void Function::addParameter( Value* value, u1 input )
 {
-	parameter_in.push_back( value );
-}
+	assert( Value::isa< Reference >( value ) );
 
-void Function::addOutParameter( Value* value )
-{
-	parameter_out.push_back( value );	
+	if( input )
+	{
+		parameter_in.push_back( value );
+	}
+	else
+	{
+		parameter_out.push_back( value );
+	}
 }
 
 const std::vector< Value* >& Function::getInParameters( void ) const

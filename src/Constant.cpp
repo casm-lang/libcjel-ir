@@ -37,55 +37,49 @@
 using namespace libnovel;
 
 
-// template< typename V >
-// Constant< V >::Constant( const char* name, Type* type, V value, u1 defined, Value::ID id )
-// : User( name, type, id )
-// , value( value )
-// , defined( defined )
-// {
-// 	(*Value::getSymbols())[ ".constant" ].insert( this );
-// }
+template< typename V >
+Constant< V >::Constant( const char* name, Type* type, V value, u1 defined, Value::ID id )
+: User( name, type, id )
+, value( value )
+{
+	(*Value::getSymbols())[ ".constant" ].insert( this );
+}
 
-// template< typename V >
-// Constant< V >::~Constant( void )
-// {
-// 	(*Value::getSymbols())[ ".constant" ].erase( this );	
-// }
+template< typename V >
+Constant< V >::~Constant( void )
+{
+	(*Value::getSymbols())[ ".constant" ].erase( this );	
+}
 
-// template< typename T >
-// bool Constant< T >::classof( Value const* obj )
-// {
-// 	assert( 0 && "invalid to check 'classof' Constant< V >, use ConstantValue" );
-// 	return false;
-// }
-
+template< typename T >
+bool Constant< T >::classof( Value const* obj )
+{
+	assert( 0 && "invalid to check 'classof' Constant< V > template class, use Constants" );
+	return false;
+}
 
 
-// template< typename V >
-// const V Constant< V >::getValue( void ) const
-// {
-// 	return value;
-// }
 
-// template< typename V >
-// void Constant< V >::setValue( V val )
-// {
-// 	value = val;
-// }
+template< typename V >
+const V Constant< V >::getValue( void ) const
+{
+	return value;
+}
+
+template< typename V >
+void Constant< V >::setValue( V val )
+{
+	value = val;
+}
 
 
-// bool ConstantValue::classof( Value const* obj )
-// {
-// 	return obj->getValueID() == Value::CONSTANT
-// 	    or AgentConstant::classof( obj )
-// 		or RulePointerConstant::classof( obj )
-// 		or BooleanConstant::classof( obj )
-// 		or IntegerConstant::classof( obj )
-// 		or BitConstant::classof( obj )
-// 		or StringConstant::classof( obj )
-// 		or Identifier::classof( obj )
-// 		;
-// }
+bool Constants::classof( Value const* obj )
+{
+	return obj->getValueID() == Value::CONSTANT
+	    //or BitConstant::classof( obj )
+		or Identifier::classof( obj )
+		;
+}
 
 
 // AgentConstant::AgentConstant( Type::Agent value, u1 defined )
@@ -382,81 +376,81 @@ using namespace libnovel;
 
 
 
-// Identifier::Identifier( Type* type, const char* value )
-// : Constant< const char* >( value, type, value, true, Value::IDENTIFIER )
-// {
-//     (*Value::getSymbols())[ ".identifier" ].insert( this );
-// }
+Identifier::Identifier( Type* type, const char* value )
+: Constant< const char* >( value, type, value, true, Value::IDENTIFIER )
+{
+    (*Value::getSymbols())[ ".identifier" ].insert( this );
+}
 
-// Identifier::~Identifier( void )
-// {
-// 	(*Value::getSymbols())[ ".identifier" ].erase( this );
-// }
+Identifier::~Identifier( void )
+{
+	(*Value::getSymbols())[ ".identifier" ].erase( this );
+}
 
-// Identifier* Identifier::create( Type* type, const char* value, Value* scope )
-// {
-// 	SymbolTable& symbols = *getSymbols();
-// 	//const char* tmp_scope = value;
+Identifier* Identifier::create( Type* type, const char* value, Value* scope )
+{
+	SymbolTable& symbols = *getSymbols();
+	//const char* tmp_scope = value;
 		
-// 	if( scope )
+	if( scope )
+	{
+		// std::string tmp;
+		// tmp.append( scope->getName() );
+		// tmp.append( "::" );
+		// tmp.append( value );
+		// tmp_scope = tmp.c_str();
+	}
+	
+	auto result = symbols.find( value );
+	if( result != symbols.end() )
+	{
+		assert( result->second.size() == 1 );
+		Value* x = *result->second.begin();
+	 	assert( x->getType()->getID() == type->getID() );
+		printf( "[Ident] found '%s' of type %lu @ %p\n", value, type->getID(), x );
+		return (Identifier*)x;
+	}
+	
+	printf( "[Ident] creating '%s' of type %lu\n", value, type->getID() );
+	return new Identifier( type, value );
+}
+
+// Identifier* Identifier::create( Type* type )
+// {
+// 	static std::unordered_map< u64, Identifier* > cache;
+// 	auto result = cache.find( type->getID() );
+// 	Identifier* x = 0;
+	
+// 	if( result != cache.end() )
 // 	{
-// 		// std::string tmp;
-// 		// tmp.append( scope->getName() );
-// 		// tmp.append( "::" );
-// 		// tmp.append( value );
-// 		// tmp_scope = tmp.c_str();
+// 		x = result->second;
+// 	 	assert( x->getType()->getID() == type->getID() );
+// 		printf( "[Ident] found 'undef' of type %lu @ %p\n", type->getID(), x );
+// 		return x;
 // 	}
 	
-// 	auto result = symbols.find( value );
-// 	if( result != symbols.end() )
-// 	{
-// 		assert( result->second.size() == 1 );
-// 		Value* x = *result->second.begin();
-// 	 	assert( x->getType()->getID() == type->getID() );
-// 		printf( "[Ident] found '%s' of type %lu @ %p\n", value, type->getID(), x );
-// 		return (Identifier*)x;
-// 	}
+// 	x = new Identifier( type, 0, false );
 	
 // 	printf( "[Ident] creating '%s' of type %lu\n", value, type->getID() );
-// 	return new Identifier( type, value );
+// 	return 
 // }
 
-// // Identifier* Identifier::create( Type* type )
-// // {
-// // 	static std::unordered_map< u64, Identifier* > cache;
-// // 	auto result = cache.find( type->getID() );
-// // 	Identifier* x = 0;
-	
-// // 	if( result != cache.end() )
-// // 	{
-// // 		x = result->second;
-// // 	 	assert( x->getType()->getID() == type->getID() );
-// // 		printf( "[Ident] found 'undef' of type %lu @ %p\n", type->getID(), x );
-// // 		return x;
-// // 	}
-	
-// // 	x = new Identifier( type, 0, false );
-	
-// // 	printf( "[Ident] creating '%s' of type %lu\n", value, type->getID() );
-// // 	return 
-// // }
+void Identifier::forgetSymbol( const char* value )
+{
+	printf( "[Ident] forgetting '%s'\n", value );
+	getSymbols()->erase( value );
+}
 
-// void Identifier::forgetSymbol( const char* value )
-// {
-// 	printf( "[Ident] forgetting '%s'\n", value );
-// 	getSymbols()->erase( value );
-// }
+void Identifier::dump( void ) const
+{
+	printf( "[Ident] " );
+	debug();
+}
 
-// void Identifier::dump( void ) const
-// {
-// 	printf( "[Ident] " );
-// 	debug();
-// }
-
-// bool Identifier::classof( Value const* obj )
-// {
-// 	return obj->getValueID() == Value::IDENTIFIER;
-// }
+bool Identifier::classof( Value const* obj )
+{
+	return obj->getValueID() == Value::IDENTIFIER;
+}
 
 
 //  

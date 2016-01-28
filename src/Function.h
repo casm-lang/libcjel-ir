@@ -38,9 +38,10 @@
 #include "Value.h"
 #include "User.h"
 #include "Block.h"
+#include "Constant.h"
 
 namespace libnovel
-{
+{	
 	class Function : public User
 	{
 	private:
@@ -52,15 +53,14 @@ namespace libnovel
 		
 	public:
 		Function( const char* name );
-
+		
 		~Function( void );
 		
 	    Block* getContext( void ) const;		
 		void setContext( Block* scope );
-		
-		void addInParameter( Value* value );
-		void addOutParameter( Value* value );
-		
+
+		void addParameter( Value* value, u1 input = true );		
+	    
 		const std::vector< Value* >& getInParameters( void ) const;
 		const std::vector< Value* >& getOutParameters( void ) const;
 

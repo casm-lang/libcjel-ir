@@ -53,6 +53,9 @@ CPPOBJECTS += obj/Type.o
 CPPOBJECTS += obj/Memory.o
 CPPOBJECTS += obj/Function.o
 
+CPPOBJECTS += obj/Reference.o
+CPPOBJECTS += obj/Constant.o
+
 CPPOBJECTS += obj/Block.o
 
 CPPOBJECTS += obj/Scope.o
@@ -62,6 +65,9 @@ CPPOBJECTS += obj/Instruction.o
 CPPOBJECTS += obj/Visitor.o
 
 CPPOBJECTS += obj/analyze/NovelDumpPass.o
+CPPOBJECTS += obj/transform/NovelToLLPass.o
+#CPPOBJECTS += obj/transform/NovelToCPass.o
+CPPOBJECTS += obj/transform/NovelToVHDLPass.o
 
 INCLUDE += -I ./src
 INCLUDE += -I ../
@@ -76,6 +82,7 @@ all: clean test
 obj:
 	mkdir -p obj
 	mkdir -p obj/analyze
+	mkdir -p obj/transform
 
 obj/%.o: src/%.cpp
 	@echo "CPP " $<
@@ -103,5 +110,5 @@ test:	default obj/test.o
 	$(CPP) $(CPPFLAG) $(INCLUDE) obj/test.o libnovel.a -lstdc++ -o $@
 	@echo "################################################################################"
 
-testit:	test
+run:	test
 	@./test

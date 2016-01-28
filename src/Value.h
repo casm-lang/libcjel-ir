@@ -52,6 +52,12 @@ namespace libnovel
 		, MEMORY
 		, FUNCTION
 
+		, REFERENCE
+		, STRUCTURE
+
+		, CONSTANT
+		, IDENTIFIER
+		  
 		, BLOCK
 		  
 		, SCOPE
@@ -135,7 +141,7 @@ namespace libnovel
 		}
 		
 	    virtual void iterate
-		( Traversal order, Visitor* visitor, std::function< void( Value* ) > action ) final;
+		( Traversal order, Visitor* visitor = 0, std::function< void( Value* ) > action  = []( Value* ){ } ) final;
 	};
 }
 
