@@ -59,7 +59,9 @@ void Visitor::dispatch( Stage stage, Value* value )
 	{
 		CASE_VALUE( MODULE,            Module );
 		
+		CASE_VALUE_INTER( COMPONENT,   Component );
 		CASE_VALUE_INTER( FUNCTION,    Function );
+		
 		CASE_VALUE( REFERENCE,         Reference );
 		
 		CASE_VALUE( MEMORY,            Memory );

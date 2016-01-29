@@ -37,23 +37,27 @@
 using namespace libnovel;
 
 
-Reference::Reference( const char* name, Type* type, Function* function, u1 input )
+Reference::Reference( const char* name, Type* type, CallableUnit* callable, u1 input )
 : User( ".reference", type, Value::REFERENCE )
 , identifier( 0 )
-, function( function )
+, callable( 0 )
 , input( input )
 {
 	assert( name );
 	assert( type );
-	assert( function );
 
     identifier = Identifier::create( type, name /* scope?!?!*/ );
 	assert( identifier );
-	function->addParameter( this, input );
+
+	
+	if( callable )
+	{
+		callable->addParameter( this, input );
+	}
 }
 
 Reference::~Reference( void )
-{			
+{
 }
 
 const Identifier* Reference::getIdentifier( void ) const
@@ -61,9 +65,15 @@ const Identifier* Reference::getIdentifier( void ) const
 	return identifier;
 }
 
-const Function* Reference::getFunction( void ) const
+const CallableUnit* Reference::getCallableUnit( void ) const
 {
-	return function;
+	return callable;
+}
+
+void Reference::setCallableUnit( CallableUnit* value )
+{
+	assert( !callable );
+	callable = value;
 }
 
 const u1 Reference::isInput( void ) const

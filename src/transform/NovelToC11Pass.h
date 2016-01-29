@@ -3,7 +3,7 @@
 //  All rights reserved.
 //  
 //  Developed by: Philipp Paulweber
-//                https://github.com/ppaulweber/libcasm-be
+//                https://github.com/ppaulweber/libnovel
 //  
 //  Permission is hereby granted, free of charge, to any person obtaining a 
 //  copy of this software and associated documentation files (the "Software"), 

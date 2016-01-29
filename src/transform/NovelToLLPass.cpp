@@ -3,7 +3,7 @@
 //  All rights reserved.
 //  
 //  Developed by: Philipp Paulweber
-//                https://github.com/ppaulweber/libcasm-be
+//                https://github.com/ppaulweber/libnovel
 //  
 //  Permission is hereby granted, free of charge, to any person obtaining a 
 //  copy of this software and associated documentation files (the "Software"), 
@@ -56,25 +56,79 @@ bool NovelToLLPass::run( libpass::PassResult& pr )
 
 void NovelToLLPass::visit_prolog( Module& value )
 {
-	fprintf( stdout, "; ModuleID = '%s'\n", value.getName() );
+	fprintf
+	( stdout
+	, "; ModuleID = '%s'\n"
+	  ";; begin of module: '%s'\n"
+	  "\n"
+	, value.getName()
+	, value.getName()
+	);
 }
 void NovelToLLPass::visit_epilog( Module& value )
 {
-	fprintf( stdout, "; end of module '%s'\n", value.getName() );
+	fprintf
+	( stdout
+	, ";; end of module: '%s'\n"
+	  "\n"
+    , value.getName()
+	);
+}
+
+
+void NovelToLLPass::visit_prolog( Component& value )
+{
+	fprintf
+	( stdout
+    , "define void @%s ;; Component\n"
+	  "( "
+    , value.getName()
+	);
+}
+void NovelToLLPass::visit_interlog( Component& value )
+{
+	fprintf
+	( stdout
+	, "\n)\n"
+	  "{\n"
+	  "begin:\n"
+	);
+}
+void NovelToLLPass::visit_epilog( Component& value )
+{
+	fprintf
+	( stdout
+	, "  ret void\n"
+	  "}\n"
+	  "\n"
+	);
 }
 
 
 void NovelToLLPass::visit_prolog( Function& value )
 {
-	fprintf( stdout, "define void @%s\n( ", value.getName() );
+	fprintf
+	( stdout
+	, "define void @%s ;; Function\n"
+	  "( "
+	, value.getName()
+	);
 }
 void NovelToLLPass::visit_interlog( Function& value )
 {
-	fprintf( stdout, "\n)\n{\nbegin:\n");
+	fprintf
+	( stdout
+	, "\n)\n{\nbegin:\n"
+	);
 }
 void NovelToLLPass::visit_epilog( Function& value )
 {
-	fprintf( stdout, "  ret void\n}\n");
+	fprintf
+	( stdout
+	, "  ret void\n"
+	  "}\n"
+	  "\n"
+	);
 }
 
 void NovelToLLPass::visit_prolog( Reference& value )
@@ -82,9 +136,9 @@ void NovelToLLPass::visit_prolog( Reference& value )
 	fprintf
 	( stdout
 	, "%s %%%s%s"
-	, "i32" //value.getType()->getName()
+	, "i32" //value.getType()->getName() // TODO: FIXME!!!
 	, value.getIdentifier()->getName()
-	, ( value.getFunction()->isLastParameter( &value ) ? "" : "\n, " )
+	, ( value.getCallableUnit()->isLastParameter( &value ) ? "" : "\n, " )
 	);
 }
 void NovelToLLPass::visit_epilog( Reference& value )

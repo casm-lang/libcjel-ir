@@ -51,6 +51,7 @@ namespace libnovel
 		enum ID
 		{ BIT
 		, STRUCTURE
+		, FUNCTION
 		, _TOP_
 		};
 		
@@ -90,7 +91,8 @@ namespace libnovel
 		void setID( ID id );		
 	};
 
-	static Type TypeB32 = Type( Type::BIT, 32, Type::STATE::LOCKED );
+	static Type TypeB32      = Type( Type::BIT,      32, Type::STATE::LOCKED );
+	static Type TypeFunction = Type( Type::FUNCTION, -1, Type::STATE::LOCKED );
 }
 
 #endif /* _LIB_NOVEL_TYPE_H_ */

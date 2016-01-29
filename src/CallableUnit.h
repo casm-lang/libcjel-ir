@@ -32,34 +32,52 @@
 //  WITH THE SOFTWARE.
 //  
 
-#ifndef _LIB_NOVEL_H_
-#define _LIB_NOVEL_H_
+#ifndef _LIB_NOVEL_CALLABLE_UNIT_H_
+#define _LIB_NOVEL_CALLABLE_UNIT_H_
 
-#include "Novel.h"
-#include "Type.h"
 #include "Value.h"
-#include "Visitor.h"
-
-#include "Module.h"
-#include "Memory.h"
-#include "CallableUnit.h"
-#include "Component.h"
-#include "Function.h"
-#include "Reference.h"
-
+#include "User.h"
 #include "Block.h"
-#include "Scope.h"
-
-#include "Statement.h"
-#include "Instruction.h"
-
+#include "Constant.h"
 
 namespace libnovel
-{
+{	
+	class CallableUnit : public User
+	{
+	private:
+		Block* context;
+
+		Identifier* identifier;
+	    std::vector< Value* > parameter_in;
+	    std::vector< Value* > parameter_out;
+
+		std::unordered_map< Value*, u16 > parameter2index;
+		
+	public:
+		CallableUnit( const char* name, Type* type, Value::ID id = CALLABLE_UNIT );
+		
+		~CallableUnit( void );
+		
+	    Block* getContext( void ) const;		
+		void setContext( Block* scope );
+
+		const Identifier* getIdentifier( void ) const;
+
+		void addParameter( Value* value, u1 input = true );		
+	    
+		const std::vector< Value* >& getInParameters( void ) const;
+		const std::vector< Value* >& getOutParameters( void ) const;
+
+		const i16 getIndexOfParameter( Value* value ) const;
+		const u1 isLastParameter( Value* value ) const;
+		
+		void dump( void ) const;
+		static bool classof( Value const* obj );
+	};
 }
 
 
-#endif /* _LIB_NOVEL_H_ */
+#endif /* _LIB_NOVEL_CALLABLE_UNIT_H_ */
 
 //  
 //  Local variables:

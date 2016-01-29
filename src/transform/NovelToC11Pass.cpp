@@ -3,7 +3,7 @@
 //  All rights reserved.
 //  
 //  Developed by: Philipp Paulweber
-//                https://github.com/ppaulweber/libcasm-be
+//                https://github.com/ppaulweber/libnovel
 //  
 //  Permission is hereby granted, free of charge, to any person obtaining a 
 //  copy of this software and associated documentation files (the "Software"), 
@@ -60,13 +60,27 @@ void NovelToC11Pass::visit_prolog( Module& value )
 }
 void NovelToC11Pass::visit_epilog( Module& value )
 {
-	fprintf( stdout, "// end of module: '%s'\n", value.getName() );
+	fprintf( stdout, "// end of module: '%s'\n\n", value.getName() );
+}
+
+
+void NovelToC11Pass::visit_prolog( Component& value )
+{
+	fprintf( stdout, "void %s // Component\n( ", value.getName() );
+}
+void NovelToC11Pass::visit_interlog( Component& value )
+{
+	fprintf( stdout, "\n)\n{\n");
+}
+void NovelToC11Pass::visit_epilog( Component& value )
+{
+	fprintf( stdout, "}\n\n");
 }
 
 
 void NovelToC11Pass::visit_prolog( Function& value )
 {
-	fprintf( stdout, "void %s\n( ", value.getName() );
+	fprintf( stdout, "void %s // Function\n( ", value.getName() );
 }
 void NovelToC11Pass::visit_interlog( Function& value )
 {
@@ -74,7 +88,7 @@ void NovelToC11Pass::visit_interlog( Function& value )
 }
 void NovelToC11Pass::visit_epilog( Function& value )
 {
-	fprintf( stdout, "}\n");
+	fprintf( stdout, "}\n\n");
 }
 
 void NovelToC11Pass::visit_prolog( Reference& value )
@@ -82,9 +96,9 @@ void NovelToC11Pass::visit_prolog( Reference& value )
 	fprintf
 	( stdout
 	, "%s %%%s%s"
-	, "int" //value.getType()->getName()
+	, "int" //value.getType()->getName() // TODO: FIXME!!!
 	, value.getIdentifier()->getName()
-	, ( value.getFunction()->isLastParameter( &value ) ? "" : "\n, " )
+	, ( value.getCallableUnit()->isLastParameter( &value ) ? "" : "\n, " )
 	);
 }
 void NovelToC11Pass::visit_epilog( Reference& value )
@@ -156,16 +170,18 @@ void NovelToC11Pass::visit_epilog( StoreInstruction& value )
 
 void NovelToC11Pass::visit_prolog( AndInstruction& value )
 {
-
+	fprintf( stdout, "// and\n" );
 }
 void NovelToC11Pass::visit_epilog( AndInstruction& value )
 {
-
+	
 }
 
 void NovelToC11Pass::visit_prolog( AddSignedInstruction& value )
 {
+	fprintf( stdout, "// signed add\n" );
 
+	
 }
 void NovelToC11Pass::visit_epilog( AddSignedInstruction& value )
 {

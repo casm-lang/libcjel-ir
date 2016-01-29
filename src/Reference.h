@@ -46,16 +46,19 @@ namespace libnovel
 	{
 	private:
 		Identifier* identifier;
-		Function* function;
+		CallableUnit* callable;
 		u1  input;
 	    
 	public:
-		Reference( const char* name, Type* type, Function* function, u1 input = true );
+		Reference( const char* name, Type* type, CallableUnit* callable = 0, u1 input = true );
 		
 		~Reference( void );
-
+		
 		const Identifier* getIdentifier( void ) const;
-		const Function* getFunction( void ) const;
+		
+		const CallableUnit* getCallableUnit( void ) const;
+		void setCallableUnit( CallableUnit* value );
+
 		const u1 isInput( void ) const;
 		
 		void dump( void ) const;

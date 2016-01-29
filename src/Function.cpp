@@ -33,13 +33,12 @@
 //  
 
 #include "Function.h"
-#include "Reference.h"
 
 using namespace libnovel;
 
 
 Function::Function( const char* name )
-: User( name, 0, Value::FUNCTION )
+: CallableUnit( name, /* TODO: FIXME: */ &TypeFunction, Value::FUNCTION )
 {			
 	(*Value::getSymbols())[ ".function" ].insert( this );
 }
@@ -49,79 +48,14 @@ Function::~Function( void )
 	(*Value::getSymbols())[ ".function" ].erase( this );
 }
 
-Block* Function::getContext( void ) const
-{
-	return context;
-}
-
-void Function::setContext( Block* scope )
-{
-	assert( scope );
-	
-	context = scope;
-	
-	scope->setParent( this );
-}
-
-void Function::addParameter( Value* value, u1 input )
-{
-	assert( Value::isa< Reference >( value ) );
-	
-	if( input )
-	{
-		parameter2index[ value ] = parameter_in.size();
-		parameter_in.push_back( value );
-	}
-	else
-	{
-		parameter2index[ value ] = parameter_in.size();
-		parameter_out.push_back( value );
-	}	
-}
-
-const std::vector< Value* >& Function::getInParameters( void ) const
-{
-	return parameter_in;
-}
-
-const std::vector< Value* >& Function::getOutParameters( void ) const
-{
-	return parameter_out;	
-}
-
-const i16 Function::getIndexOfParameter( Value* value ) const
-{
-	auto result = parameter2index.find( value );
-	if( result != parameter2index.end() )
-	{
-		return result->second;
-	}
-
-	return -1;
-}
-
-const u1 Function::isLastParameter( Value* value ) const
-{
-	assert( Value::isa< Reference >( value ) );
-	Reference* ref = (Reference*)value;
-	
-	i16 idx = getIndexOfParameter( ref );
-	assert( idx >= 0 );
-
-	i16 size = ref->isInput() ? parameter_in.size() : parameter_out.size();
-	
-	return idx == ( size - 1 );
-}
-
-
 void Function::dump( void ) const
 {
 	printf( "[Function ] " );
 	debug();
 	
-	if( context )
+	if( getContext() )
 	{
-		context->dump();
+		getContext()->dump();
 	}
 	else
 	{

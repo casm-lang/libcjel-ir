@@ -63,7 +63,7 @@ namespace libnovel
 	    void setValue( V val );
 	};
 	
-	class Constants : public Constant< void* >
+	class Constants : public Constant< u1 >
 	{
 	public:
 		static bool classof( Value const* obj );

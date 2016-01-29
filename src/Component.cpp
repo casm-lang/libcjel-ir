@@ -32,34 +32,43 @@
 //  WITH THE SOFTWARE.
 //  
 
-#ifndef _LIB_NOVEL_H_
-#define _LIB_NOVEL_H_
-
-#include "Novel.h"
-#include "Type.h"
-#include "Value.h"
-#include "Visitor.h"
-
-#include "Module.h"
-#include "Memory.h"
-#include "CallableUnit.h"
 #include "Component.h"
-#include "Function.h"
-#include "Reference.h"
 
-#include "Block.h"
-#include "Scope.h"
-
-#include "Statement.h"
-#include "Instruction.h"
+using namespace libnovel;
 
 
-namespace libnovel
+Component::Component( const char* name )
+: CallableUnit( name, /* TODO: FIXME: */ &TypeFunction, Value::COMPONENT )
+{			
+	(*Value::getSymbols())[ ".component" ].insert( this );
+}
+
+Component::~Component( void )
+{			
+	(*Value::getSymbols())[ ".component" ].erase( this );
+}
+
+void Component::dump( void ) const
 {
+	printf( "[Component ] " );
+	debug();
+	
+	if( getContext() )
+	{
+		getContext()->dump();
+	}
+	else
+	{
+		printf( "('context' not set)\n" );
+	}
+}
+
+bool Component::classof( Value const* obj )
+{
+	return obj->getValueID() == Value::COMPONENT;
 }
 
 
-#endif /* _LIB_NOVEL_H_ */
 
 //  
 //  Local variables:

@@ -19,28 +19,34 @@ NovelToVHDLPass n2v;
 int main( int argc, char** argv )
 {
     Module* m = new Module( "myTestModule" );
-    
-    Function* f = new Function( "test" );
-    m->add( f );
 
-    new Reference( "a", &TypeB32, f );
-    new Reference( "a", &TypeB32, f );
+    Function* f = new Function( "func" );
+    Reference* ra = new Reference( "a", &TypeB32, f );
+    Reference* rb = new Reference( "b", &TypeB32, f );
+    Reference* rc = new Reference( "c", &TypeB32, f, false );
+    m->add( f );
     
-    Block* seq = new SequentialScope();
-    f->setContext( seq );
+    Component* c = new Component( "test" );
+    c->addParameter( new Reference( "b", &TypeB32 ) );
+    c->addParameter( new Reference( "a", &TypeB32 ) );
+    c->addParameter( new Reference( "c", &TypeB32, 0, false ) );
+    m->add( c );
     
-    TrivialStatement* s = new TrivialStatement( seq );
-    s->add( new AddSignedInstruction( seq, seq ) );
-    s->add( new CallInstruction( f ) );
+    Block* seq0 = new SequentialScope();
+    f->setContext( seq0 );
     
+    TrivialStatement* s0 = new TrivialStatement( seq0 );
+    s0->add( new AddSignedInstruction( seq0, seq0 ) );
+    
+    
+    Block* seq1 = new SequentialScope();
+    c->setContext( seq1 );
+    TrivialStatement* s1 = new TrivialStatement( seq1 );
+    s1->add( new CallInstruction( f ) );
     
     printf( "===--- DUMP ---===\n" );
     
-    f->dump();
-
-    printf( "===--- ITERATE ---===\n" );
-    
-    f->iterate
+    m->iterate
     ( Traversal::PREORDER
     , &dumper
     );
@@ -51,7 +57,7 @@ int main( int argc, char** argv )
     ( Traversal::PREORDER
     , &n2ll
     );
-
+    
     printf( "===--- EMIT C11 ---===\n" );
     
     m->iterate
@@ -59,12 +65,12 @@ int main( int argc, char** argv )
     , &n2c11
     );
 
-    // printf( "===--- EMIT VHDL ---===\n" );
+    printf( "===--- EMIT VHDL ---===\n" );
     
-    // m->iterate
-    // ( Traversal::PREORDER
-    // , &n2v
-    // );
+    m->iterate
+    ( Traversal::PREORDER
+    , &n2v
+    );
     
     return 0;
 }

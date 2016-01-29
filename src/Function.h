@@ -36,38 +36,17 @@
 #define _LIB_NOVEL_FUNCTION_H_
 
 #include "Value.h"
-#include "User.h"
-#include "Block.h"
 #include "Constant.h"
+#include "CallableUnit.h"
 
 namespace libnovel
 {	
-	class Function : public User
+	class Function : public CallableUnit
 	{
-	private:
-		Block* context;
-
-		//Identifier* ident;
-	    std::vector< Value* > parameter_in;
-	    std::vector< Value* > parameter_out;
-
-		std::unordered_map< Value*, u16 > parameter2index;
-		
 	public:
 		Function( const char* name );
 		
 		~Function( void );
-		
-	    Block* getContext( void ) const;		
-		void setContext( Block* scope );
-
-		void addParameter( Value* value, u1 input = true );		
-	    
-		const std::vector< Value* >& getInParameters( void ) const;
-		const std::vector< Value* >& getOutParameters( void ) const;
-
-		const i16 getIndexOfParameter( Value* value ) const;
-		const u1 isLastParameter( Value* value ) const;
 		
 		void dump( void ) const;
 		static bool classof( Value const* obj );

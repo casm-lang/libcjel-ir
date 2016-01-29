@@ -59,7 +59,6 @@ bool Constant< T >::classof( Value const* obj )
 }
 
 
-
 template< typename V >
 const V Constant< V >::getValue( void ) const
 {

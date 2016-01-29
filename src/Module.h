@@ -37,6 +37,7 @@
 
 #include "Value.h"
 #include "User.h"
+#include "Component.h"
 #include "Function.h"
 #include "Constant.h"
 

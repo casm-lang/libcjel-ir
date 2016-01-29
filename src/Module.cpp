@@ -53,7 +53,8 @@ Module::~Module( void )
 void Module::add( Value* value )
 {
 	assert
-	(  Value::isa< Function >( value )
+	(  Value::isa< Component >( value )
+	or Value::isa< Function >( value )
 //	or Value::isa< Constant >( value )
 	);
 

@@ -149,26 +149,29 @@ void Value::iterate( Traversal order, Visitor* visitor, std::function< void( Val
 			p->iterate( order, visitor, action );
 		}
 	}
-	else if( Value::isa< Function >( this ) )
+	else if( Value::isa< CallableUnit >( this ) )
 	{
-		Function* obj = ((Function*)this);
+		CallableUnit* obj = ((CallableUnit*)this);
 		
 		for( Value* p : obj->getInParameters() )
 		{
 			p->iterate( order, visitor, action );
 		}
-
+		
 		for( Value* p : obj->getOutParameters() )
 		{
 			p->iterate( order, visitor, action );
 		}
-
+		
 		if( visitor )
 		{
 			visitor->dispatch( Visitor::Stage::INTERLOG, this );
 		}
+
+		Value* context = obj->getContext();
+		assert( context );
 		
-	    obj->getContext()->iterate( order, visitor, action );
+	    context->iterate( order, visitor, action );
 	}
 	else if( Value::isa< TrivialStatement >( this ) )
 	{

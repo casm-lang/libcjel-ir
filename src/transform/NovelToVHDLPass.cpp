@@ -3,7 +3,7 @@
 //  All rights reserved.
 //  
 //  Developed by: Philipp Paulweber
-//                https://github.com/ppaulweber/libcasm-be
+//                https://github.com/ppaulweber/libnovel
 //  
 //  Permission is hereby granted, free of charge, to any person obtaining a 
 //  copy of this software and associated documentation files (the "Software"), 
@@ -56,31 +56,131 @@ bool NovelToVHDLPass::run( libpass::PassResult& pr )
 }
 
 
+static const char* toString( Type* type )
+{
+	assert( type );
+
+	if( type->getIDKind() == Type::ID::BIT )
+	{
+		if( type->getBitsize() == 1 )
+		{
+			return "std_logic";
+		}
+		else if( type->getBitsize() > 1 )
+		{
+			string x
+				= "std_logic_vector( "
+				+ to_string( type->getBitsize() - 1 )
+				+ " downto 0 )";
+			return x.c_str();
+		}
+		else
+		{
+			assert( !"invalid type bit size" );
+		}
+	}
+	else
+	{
+		assert( !"unimplemented type to emit" );
+	}
+}
+
 void NovelToVHDLPass::visit_prolog( Module& value )
 {
-
+	fprintf
+	( stdout
+	, "-- begin of module: '%s'\n"
+	  "library IEEE;\n"
+	  "use IEEE.std_logic_1164.all;\n"
+	  "\n"
+	, value.getName()
+	);
 }
 void NovelToVHDLPass::visit_epilog( Module& value )
 {
-
+	fprintf( stdout, "-- end of module: '%s'\n\n", value.getName() );		
 }
+
+
+void NovelToVHDLPass::visit_prolog( Component& value )
+{
+	fprintf
+	( stdout
+	, "entity %s is port -- Component\n"
+	  "( "
+	, value.getName()
+	);
+}
+void NovelToVHDLPass::visit_interlog( Component& value )
+{
+	fprintf
+	( stdout
+	, "\n"
+	  ");\n"
+	  "end %s;\n"
+	  "architecture \\@%s@\\ of %s is begin\n"
+	, value.getName()
+	, value.getName()
+	, value.getName()
+	);
+}
+void NovelToVHDLPass::visit_epilog( Component& value )
+{
+	fprintf
+	( stdout
+	, "end \\@%s@\\;\n\n"
+	, value.getName()
+	);
+}
+
 
 void NovelToVHDLPass::visit_prolog( Function& value )
 {
-
+	fprintf
+	( stdout
+	, "procedure %s -- Function\n( "
+	, value.getName()
+	);
 }
 void NovelToVHDLPass::visit_interlog( Function& value )
 {
-
+	fprintf
+	( stdout
+	, "\n"
+	  ") is begin\n"
+	);
 }
 void NovelToVHDLPass::visit_epilog( Function& value )
 {
-
+	fprintf
+	( stdout
+	, "end procedure %s;\n\n"
+	, value.getName()
+	);
 }
+
 
 void NovelToVHDLPass::visit_prolog( Reference& value )
 {
-
+	const char* kind = 0;
+	
+	if( value.isInput() )
+	{
+		kind = "in";
+	}
+	else
+	{
+		kind = "out";
+	}
+	
+	fprintf
+	( stdout
+	, "%s : %-5s %s%s"
+	, value.getIdentifier()->getName()
+	, kind
+	, toString( value.getType() )
+	, ( value.getCallableUnit()->isLastParameter( &value ) ? "" : "\n; " )
+	);
 }
 void NovelToVHDLPass::visit_epilog( Reference& value )
 {

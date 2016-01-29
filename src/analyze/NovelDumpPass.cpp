@@ -3,7 +3,7 @@
 //  All rights reserved.
 //  
 //  Developed by: Philipp Paulweber
-//                https://github.com/ppaulweber/libcasm-be
+//                https://github.com/ppaulweber/libnovel
 //  
 //  Permission is hereby granted, free of charge, to any person obtaining a 
 //  copy of this software and associated documentation files (the "Software"), 
@@ -57,119 +57,110 @@ bool NovelDumpPass::run( libpass::PassResult& pr )
 }
 
 
-#define DUMP printf( "%s: %p, %s\n", __FUNCTION__, &value, value.getName() )
+#define DUMP_PREFIX  printf( "%-14s: %p, %s ", __FUNCTION__, &value, value.getName() )
+#define DUMP_POSTFIX printf( "\n" );
 
 void NovelDumpPass::visit_prolog( Module& value )
 {
-	DUMP;
+	DUMP_PREFIX; DUMP_POSTFIX;
 }
 void NovelDumpPass::visit_epilog( Module& value )
 {
-	DUMP;
+	DUMP_PREFIX; DUMP_POSTFIX;
 }
 
-void NovelDumpPass::visit_prolog( Function& value )
-{
-	DUMP;
-}
-void NovelDumpPass::visit_interlog( Function& value )
-{
-	DUMP;
-}
-void NovelDumpPass::visit_epilog( Function& value )
-{
-	DUMP;
-}
+void NovelDumpPass::visit_prolog( Component& value )   { DUMP_PREFIX; DUMP_POSTFIX; }
+void NovelDumpPass::visit_interlog( Component& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
+void NovelDumpPass::visit_epilog( Component& value )   { DUMP_PREFIX; DUMP_POSTFIX; }
+
+void NovelDumpPass::visit_prolog( Function& value )   { DUMP_PREFIX; DUMP_POSTFIX; }
+void NovelDumpPass::visit_interlog( Function& value ) {	DUMP_PREFIX; DUMP_POSTFIX; }
+void NovelDumpPass::visit_epilog( Function& value )   {	DUMP_PREFIX; DUMP_POSTFIX; }
 
 void NovelDumpPass::visit_prolog( Reference& value )
 {
-	DUMP;
-	printf( "%s, %s\n", value.getIdentifier()->getName(), value.isInput() ? "in" : "out" );
+	DUMP_PREFIX;
+	printf( "%s, %s", value.getIdentifier()->getName(), value.isInput() ? "in" : "out" );
+	DUMP_POSTFIX;
 }
-void NovelDumpPass::visit_epilog( Reference& value )
-{
-	DUMP;
-}
+void NovelDumpPass::visit_epilog( Reference& value )  { DUMP_PREFIX; DUMP_POSTFIX; }
 
-void NovelDumpPass::visit_prolog( Memory& value )
-{
-	DUMP;
-}
+void NovelDumpPass::visit_prolog( Memory& value )     { DUMP_PREFIX; DUMP_POSTFIX; }
 void NovelDumpPass::visit_epilog( Memory& value )
 {
-	DUMP;
+	DUMP_PREFIX; DUMP_POSTFIX;
 }
 		
 void NovelDumpPass::visit_prolog( ParallelScope& value )
 {
-	DUMP;
+	DUMP_PREFIX; DUMP_POSTFIX;
 }
 void NovelDumpPass::visit_epilog( ParallelScope& value )
 {
-	DUMP;
+	DUMP_PREFIX; DUMP_POSTFIX;
 }
 		
 void NovelDumpPass::visit_prolog( SequentialScope& value )
 {
-	DUMP;
+	DUMP_PREFIX; DUMP_POSTFIX;
 }
 void NovelDumpPass::visit_epilog( SequentialScope& value )
 {
-	DUMP;
+	DUMP_PREFIX; DUMP_POSTFIX;
 }
 		
 void NovelDumpPass::visit_prolog( TrivialStatement& value )
 {
-	DUMP;
+	DUMP_PREFIX; DUMP_POSTFIX;
 }
 void NovelDumpPass::visit_epilog( TrivialStatement& value )
 {
-	DUMP;
+	DUMP_PREFIX; DUMP_POSTFIX;
 }
 	    
 void NovelDumpPass::visit_prolog( CallInstruction& value )
 {
-	DUMP;
+	DUMP_PREFIX; DUMP_POSTFIX;
 }
 void NovelDumpPass::visit_epilog( CallInstruction& value )
 {
-	DUMP;
+	DUMP_PREFIX; DUMP_POSTFIX;
 }
 		
 void NovelDumpPass::visit_prolog( LoadInstruction& value )
 {
-	DUMP;
+	DUMP_PREFIX; DUMP_POSTFIX;
 }
 void NovelDumpPass::visit_epilog( LoadInstruction& value )
 {
-	DUMP;
+	DUMP_PREFIX; DUMP_POSTFIX;
 }
 		
 void NovelDumpPass::visit_prolog( StoreInstruction& value )
 {
-	DUMP;
+	DUMP_PREFIX; DUMP_POSTFIX;
 }
 void NovelDumpPass::visit_epilog( StoreInstruction& value )
 {
-	DUMP;
+	DUMP_PREFIX; DUMP_POSTFIX;
 }
 		
 void NovelDumpPass::visit_prolog( AndInstruction& value )
 {
-	DUMP;
+	DUMP_PREFIX; DUMP_POSTFIX;
 }
 void NovelDumpPass::visit_epilog( AndInstruction& value )
 {
-	DUMP;
+	DUMP_PREFIX; DUMP_POSTFIX;
 }
 		
 void NovelDumpPass::visit_prolog( AddSignedInstruction& value )
 {
-	DUMP;
+	DUMP_PREFIX; DUMP_POSTFIX;
 }
 void NovelDumpPass::visit_epilog( AddSignedInstruction& value )
 {
-	DUMP;
+	DUMP_PREFIX; DUMP_POSTFIX;
 }
 
 //  

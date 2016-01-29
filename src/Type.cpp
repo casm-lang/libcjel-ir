@@ -40,6 +40,7 @@ using namespace libnovel;
 const char* Type::ID2str[ Type::ID::_TOP_ ] =
 { "Bit"        // BIT
 , "Structure"  // STRUCTURE
+, "Function"   // FUNCTION
 };
 
 

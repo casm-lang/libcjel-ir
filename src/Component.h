@@ -32,34 +32,29 @@
 //  WITH THE SOFTWARE.
 //  
 
-#ifndef _LIB_NOVEL_H_
-#define _LIB_NOVEL_H_
+#ifndef _LIB_NOVEL_COMPONENT_H_
+#define _LIB_NOVEL_COMPONENT_H_
 
-#include "Novel.h"
-#include "Type.h"
 #include "Value.h"
-#include "Visitor.h"
-
-#include "Module.h"
-#include "Memory.h"
+#include "Constant.h"
 #include "CallableUnit.h"
-#include "Component.h"
-#include "Function.h"
-#include "Reference.h"
-
-#include "Block.h"
-#include "Scope.h"
-
-#include "Statement.h"
-#include "Instruction.h"
-
 
 namespace libnovel
-{
+{	
+	class Component : public CallableUnit
+	{
+	public:
+		Component( const char* name );
+		
+		~Component( void );
+		
+		void dump( void ) const;
+		static bool classof( Value const* obj );
+	};
 }
 
 
-#endif /* _LIB_NOVEL_H_ */
+#endif /* _LIB_NOVEL_COMPONENT_H_ */
 
 //  
 //  Local variables:

@@ -52,8 +52,11 @@ namespace libnovel
 		, MODULE
 		
 		, MEMORY
-		, FUNCTION
 
+		, CALLABLE_UNIT
+		, COMPONENT
+		, FUNCTION
+		
 		, REFERENCE
 		, STRUCTURE
 

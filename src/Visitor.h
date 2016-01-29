@@ -41,6 +41,7 @@
 #include "Scope.h"
 
 #include "Module.h"
+#include "Component.h"
 #include "Function.h"
 #include "Reference.h"
 #include "Memory.h"
@@ -67,6 +68,10 @@ namespace libnovel
 #define LIB_NOVEL_VISITOR_INTERFACE_( PREFIX, POSTFIX )					\
 		PREFIX void visit_prolog( Module& value ) POSTFIX;				\
 		PREFIX void visit_epilog( Module& value ) POSTFIX;				\
+																		\
+		PREFIX void visit_prolog( Component& value ) POSTFIX;			\
+		PREFIX void visit_interlog( Component& value ) POSTFIX;			\
+		PREFIX void visit_epilog( Component& value ) POSTFIX;			\
 																		\
 		PREFIX void visit_prolog( Function& value ) POSTFIX;			\
 		PREFIX void visit_interlog( Function& value ) POSTFIX;			\
