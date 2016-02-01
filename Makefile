@@ -49,6 +49,7 @@ TARGET += libnovel.a
 
 CPPOBJECTS += obj/Value.o
 CPPOBJECTS += obj/Type.o
+CPPOBJECTS += obj/Structure.o
 
 CPPOBJECTS += obj/Module.o
 CPPOBJECTS += obj/Memory.o
@@ -74,6 +75,8 @@ CPPOBJECTS += obj/transform/NovelToC11Pass.o
 CPPOBJECTS += obj/transform/NovelToVHDLPass.o
 
 INCLUDE += -I ./src
+INCLUDE += -I ./src/analyze
+INCLUDE += -I ./src/transform
 INCLUDE += -I ../
 INCLUDE += -I ../pass/src
 

@@ -149,6 +149,15 @@ void Value::iterate( Traversal order, Visitor* visitor, std::function< void( Val
 			p->iterate( order, visitor, action );
 		}
 	}
+	else if( Value::isa< Structure >( this ) )
+	{
+	    Structure* obj = ((Structure*)this);
+		
+		for( Value* p : obj->getElements() )
+		{
+			p->iterate( order, visitor, action );
+		}
+	}
 	else if( Value::isa< CallableUnit >( this ) )
 	{
 		CallableUnit* obj = ((CallableUnit*)this);

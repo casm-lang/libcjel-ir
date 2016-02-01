@@ -65,6 +65,7 @@ void Visitor::dispatch( Stage stage, Value* value )
 		CASE_VALUE( REFERENCE,         Reference );
 		
 		CASE_VALUE( MEMORY,            Memory );
+		CASE_VALUE( STRUCTURE,         Structure );
 		
 		CASE_VALUE( PARALLEL_SCOPE,    ParallelScope );
 		CASE_VALUE( SEQUENTIAL_SCOPE,  SequentialScope );
@@ -81,11 +82,13 @@ void Visitor::dispatch( Stage stage, Value* value )
 		
 	    default:
 			printf
-			( "%s:%i: warning: unimplemented value ID '%s' to dispatch\n"
+			( "%s:%i: warning: unimplemented value ID '%s' to dispatch for stage '%i'\n"
 			, __FILE__
 			, __LINE__
 			, value->getName()
+			, stage
 			);
+ 			break;
 	}
 }
 

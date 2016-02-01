@@ -41,6 +41,7 @@
 #include "Visitor.h"
 
 #include "Module.h"
+#include "Structure.h"
 #include "Memory.h"
 #include "CallableUnit.h"
 #include "Component.h"

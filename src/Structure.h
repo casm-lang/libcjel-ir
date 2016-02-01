@@ -32,56 +32,40 @@
 //  WITH THE SOFTWARE.
 //  
 
-#include "Memory.h"
+#ifndef _LIB_NOVEL_STRUCTURE_H_
+#define _LIB_NOVEL_STRUCTURE_H_
 
-using namespace libnovel;
+#include "Value.h"
+#include "User.h"
+#include "Function.h"
+#include "Constant.h"
 
-
-Memory::Memory( Structure* structure, u32 size )
-: User( ".memory", 0, Value::MEMORY )
-, structure( structure )
-, size( size )
+namespace libnovel
 {
-	assert( structure );
-	assert( size > 0 );
-}
+	class Structure : public User
+	{
+	private:
+		Identifier* identifier;
+		std::vector< Structure* > element;
+		
+	public:
+		Structure( const char* name, Type* type = &TypeStructure );
+		
+		~Structure( void );
+		
+		const Identifier* getIdentifier( void ) const;
 
-Memory::~Memory( void )
-{			
-}
+		void add( Value* value );
 
-// ParallelBlock* Memory::getContext( void ) const
-// {
-// 	return context;
-// }
-
-// void Memory::setContext( ParallelBlock* scope )
-// {
-// 	assert( scope );	
-// 	context = scope;
-// }
-
-void Memory::dump( void ) const
-{
-	printf( "[Memory ] " );
-	debug();
-	
-	// if( context )
-	// {
-	// 	context->dump();
-	// }
-	// else
-	// {
-	// 	printf( "('context' not set)\n" );
-	// }
-}
-
-bool Memory::classof( Value const* obj )
-{
-	return obj->getValueID() == Value::MEMORY;
+		const std::vector< Structure* > getElements( void ) const;
+		
+		void dump( void ) const;
+		static bool classof( Value const* obj );
+	};
 }
 
 
+#endif /* _LIB_NOVEL_STRUCTURE_H_ */
 
 //  
 //  Local variables:

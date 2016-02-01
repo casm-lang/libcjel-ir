@@ -46,8 +46,7 @@ namespace libnovel
 	{
 	public:		
 		typedef u64*   Bit;
-		//	typedef i64    Integer;
-		
+	    
 		enum ID
 		{ BIT
 		, STRUCTURE
@@ -91,8 +90,11 @@ namespace libnovel
 		void setID( ID id );		
 	};
 
-	static Type TypeB32      = Type( Type::BIT,      32, Type::STATE::LOCKED );
-	static Type TypeFunction = Type( Type::FUNCTION, -1, Type::STATE::LOCKED );
+	static Type TypeB1        = Type( Type::BIT,        1, Type::STATE::LOCKED );
+	static Type TypeB32       = Type( Type::BIT,       32, Type::STATE::LOCKED );
+	static Type TypeB64       = Type( Type::BIT,       64, Type::STATE::LOCKED );
+	static Type TypeFunction  = Type( Type::FUNCTION,  -1, Type::STATE::LOCKED );
+	static Type TypeStructure = Type( Type::STRUCTURE, -1, Type::STATE::LOCKED );
 }
 
 #endif /* _LIB_NOVEL_TYPE_H_ */

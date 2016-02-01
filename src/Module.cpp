@@ -55,7 +55,9 @@ void Module::add( Value* value )
 	assert
 	(  Value::isa< Component >( value )
 	or Value::isa< Function >( value )
-//	or Value::isa< Constant >( value )
+	or Value::isa< Structure >( value )
+	or Value::isa< Memory >( value )
+	or Value::isa< Constants >( value )
 	);
 
 	content.push_back( value );

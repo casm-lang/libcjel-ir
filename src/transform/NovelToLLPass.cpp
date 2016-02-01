@@ -47,9 +47,35 @@ static libpass::PassRegistration< NovelToLLPass > PASS
 );
 
 
+static const char* getTypeString( Type* type )
+{
+	assert( type );
+	
+	if( type->getIDKind() == Type::ID::BIT )
+	{
+		string t = "i" + to_string( type->getBitsize() );
+		return t.c_str();
+	}
+	else if( type->getIDKind() == Type::ID::STRUCTURE )
+	{
+		return "?";
+	}
+	else
+	{
+		assert( !"unimplemented or unsupported type to convert!" );
+	}
+}
+
 bool NovelToLLPass::run( libpass::PassResult& pr )
 {
-	assert( !"not implemented yet!" );
+    Module* value = (Module*)pr.getResult< NovelDumpPass >();
+	assert( value );
+    
+	value->iterate
+	( Traversal::PREORDER
+	, this
+	);
+    
 	return false;
 }
 
@@ -145,6 +171,52 @@ void NovelToLLPass::visit_epilog( Reference& value )
 {
 	
 }
+
+
+void NovelToLLPass::visit_prolog( Structure& value )
+{
+	if( value.getElements().size() == 0 )
+	{
+		// all bit types can be represented in LLVM IR directly!
+		return;
+	}
+	
+    fprintf
+	( stdout
+	, ";; begin of structure: '%s'\n"
+	  "%%%s = type\n"
+	  "{ "
+    , value.getIdentifier()->getName()
+    , value.getIdentifier()->getName()
+	);
+
+	u16 cnt = 0;
+	for( const Structure* s : value.getElements() )
+	{
+		cnt++;
+		
+        fprintf
+	    ( stdout
+		, "%s%s ;; %s\n%s"
+		, getTypeString( s->getType() )
+		, s->getElements().size() > 0 ? "*" : ""
+		, s->getIdentifier()->getName()
+		, cnt < value.getElements().size() ? ", " : ""
+		);
+	}
+	
+	fprintf
+	( stdout
+	, "}\n"
+	  ";; end of structure: '%s'\n"
+	  "\n"
+    , value.getIdentifier()->getName()
+	);	
+}
+void NovelToLLPass::visit_epilog( Structure& value )
+{
+}
+
 
 void NovelToLLPass::visit_prolog( Memory& value )
 {

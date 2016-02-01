@@ -52,8 +52,6 @@ static const char* default_output_name = "stdout";
 
 bool NovelDumpPass::run( libpass::PassResult& pr )
 {
-	assert( !"not implemented yet!" );
-
     Module* value = (Module*)pr.getResult< NovelDumpPass >();
 	assert( value );
     
@@ -69,22 +67,20 @@ bool NovelDumpPass::run( libpass::PassResult& pr )
 #define DUMP_PREFIX  printf( "%-14s: %p, %s ", __FUNCTION__, &value, value.getName() )
 #define DUMP_POSTFIX printf( "\n" );
 
-void NovelDumpPass::visit_prolog( Module& value )
-{
-	DUMP_PREFIX; DUMP_POSTFIX;
-}
-void NovelDumpPass::visit_epilog( Module& value )
-{
-	DUMP_PREFIX; DUMP_POSTFIX;
-}
+
+void NovelDumpPass::visit_prolog( Module& value )      { DUMP_PREFIX; DUMP_POSTFIX; }
+void NovelDumpPass::visit_epilog( Module& value )      { DUMP_PREFIX; DUMP_POSTFIX; }
+
 
 void NovelDumpPass::visit_prolog( Component& value )   { DUMP_PREFIX; DUMP_POSTFIX; }
 void NovelDumpPass::visit_interlog( Component& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
 void NovelDumpPass::visit_epilog( Component& value )   { DUMP_PREFIX; DUMP_POSTFIX; }
 
+
 void NovelDumpPass::visit_prolog( Function& value )   { DUMP_PREFIX; DUMP_POSTFIX; }
 void NovelDumpPass::visit_interlog( Function& value ) {	DUMP_PREFIX; DUMP_POSTFIX; }
 void NovelDumpPass::visit_epilog( Function& value )   {	DUMP_PREFIX; DUMP_POSTFIX; }
+
 
 void NovelDumpPass::visit_prolog( Reference& value )
 {
@@ -92,14 +88,17 @@ void NovelDumpPass::visit_prolog( Reference& value )
 	printf( "%s, %s", value.getIdentifier()->getName(), value.isInput() ? "in" : "out" );
 	DUMP_POSTFIX;
 }
-void NovelDumpPass::visit_epilog( Reference& value )  { DUMP_PREFIX; DUMP_POSTFIX; }
+void NovelDumpPass::visit_epilog( Reference& value )         { DUMP_PREFIX; DUMP_POSTFIX; }
 
-void NovelDumpPass::visit_prolog( Memory& value )     { DUMP_PREFIX; DUMP_POSTFIX; }
-void NovelDumpPass::visit_epilog( Memory& value )
-{
-	DUMP_PREFIX; DUMP_POSTFIX;
-}
-		
+
+void NovelDumpPass::visit_prolog( Structure& value )         { DUMP_PREFIX; DUMP_POSTFIX; }
+void NovelDumpPass::visit_epilog( Structure& value )         { DUMP_PREFIX; DUMP_POSTFIX; }
+
+
+void NovelDumpPass::visit_prolog( Memory& value )            { DUMP_PREFIX; DUMP_POSTFIX; }
+void NovelDumpPass::visit_epilog( Memory& value )            { DUMP_PREFIX; DUMP_POSTFIX; }
+
+
 void NovelDumpPass::visit_prolog( ParallelScope& value )
 {
 	DUMP_PREFIX; DUMP_POSTFIX;

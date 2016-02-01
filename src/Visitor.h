@@ -80,6 +80,9 @@ namespace libnovel
 		PREFIX void visit_prolog( Reference& value ) POSTFIX;			\
 		PREFIX void visit_epilog( Reference& value ) POSTFIX;			\
 																		\
+		PREFIX void visit_prolog( Structure& value ) POSTFIX;			\
+		PREFIX void visit_epilog( Structure& value ) POSTFIX;			\
+																		\
 		PREFIX void visit_prolog( Memory& value ) POSTFIX;				\
 		PREFIX void visit_epilog( Memory& value ) POSTFIX;				\
 																		\

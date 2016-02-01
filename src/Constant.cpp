@@ -76,7 +76,7 @@ bool Constants::classof( Value const* obj )
 {
 	return obj->getValueID() == Value::CONSTANT
 	    //or BitConstant::classof( obj )
-		or Identifier::classof( obj )
+		//or Identifier::classof( obj )
 		;
 }
 

@@ -105,6 +105,16 @@ void NovelToC11Pass::visit_epilog( Reference& value )
 {	
 }
 
+void NovelToC11Pass::visit_prolog( Structure& value )
+{
+
+}
+void NovelToC11Pass::visit_epilog( Structure& value )
+{
+
+}
+
+
 void NovelToC11Pass::visit_prolog( Memory& value )
 {
 
@@ -113,6 +123,7 @@ void NovelToC11Pass::visit_epilog( Memory& value )
 {
 
 }
+
 
 void NovelToC11Pass::visit_prolog( ParallelScope& value )
 {

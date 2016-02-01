@@ -37,14 +37,18 @@
 
 #include "Value.h"
 #include "User.h"
+#include "Structure.h"
 
 namespace libnovel
 {
 	class Memory : public User
 	{
+	    Structure* structure;
+		u32 size;
+		
 	public:
-		Memory( const char* name );
-
+		Memory( Structure* value, u32 size );
+		
 		~Memory( void );
 		
 		void dump( void ) const;

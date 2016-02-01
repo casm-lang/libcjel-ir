@@ -187,6 +187,17 @@ void NovelToVHDLPass::visit_epilog( Reference& value )
 
 }
 
+
+void NovelToVHDLPass::visit_prolog( Structure& value )
+{
+
+}
+void NovelToVHDLPass::visit_epilog( Structure& value )
+{
+
+}
+
+
 void NovelToVHDLPass::visit_prolog( Memory& value )
 {
 

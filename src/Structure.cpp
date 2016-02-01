@@ -32,53 +32,56 @@
 //  WITH THE SOFTWARE.
 //  
 
-#include "Memory.h"
+#include "Structure.h"
 
 using namespace libnovel;
 
 
-Memory::Memory( Structure* structure, u32 size )
-: User( ".memory", 0, Value::MEMORY )
-, structure( structure )
-, size( size )
+Structure::Structure( const char* name, Type* type )
+: User( name, type, Value::STRUCTURE )
+, identifier( 0 )
 {
-	assert( structure );
-	assert( size > 0 );
-}
-
-Memory::~Memory( void )
-{			
-}
-
-// ParallelBlock* Memory::getContext( void ) const
-// {
-// 	return context;
-// }
-
-// void Memory::setContext( ParallelBlock* scope )
-// {
-// 	assert( scope );	
-// 	context = scope;
-// }
-
-void Memory::dump( void ) const
-{
-	printf( "[Memory ] " );
-	debug();
+	assert( name );
+	assert( type );
 	
-	// if( context )
-	// {
-	// 	context->dump();
-	// }
-	// else
-	// {
-	// 	printf( "('context' not set)\n" );
-	// }
+    identifier = Identifier::create( type, name /* scope?!?!*/ );
+	assert( identifier );
+	
+	(*Value::getSymbols())[ ".structure" ].insert( this );
 }
 
-bool Memory::classof( Value const* obj )
+Structure::~Structure( void )
 {
-	return obj->getValueID() == Value::MEMORY;
+	(*Value::getSymbols())[ ".structure" ].erase( this );
+}
+
+const Identifier* Structure::getIdentifier( void ) const
+{
+	return identifier;
+}
+
+void Structure::add( Value* value )
+{
+	assert( value );
+	assert( Value::isa< Structure >( value ) );
+
+	element.push_back( (Structure*)value );
+}
+
+const std::vector< Structure* > Structure::getElements( void ) const
+{
+	return element;
+}
+
+void Structure::dump( void ) const
+{
+	printf( "[Structure ] " );
+	debug();
+}
+
+bool Structure::classof( Value const* obj )
+{
+	return obj->getValueID() == Value::STRUCTURE;
 }
 
 

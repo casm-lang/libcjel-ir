@@ -40,6 +40,8 @@
 #include "Component.h"
 #include "Function.h"
 #include "Constant.h"
+#include "Structure.h"
+#include "Memory.h"
 
 namespace libnovel
 {
