@@ -53,6 +53,15 @@ static const char* default_output_name = "stdout";
 bool NovelDumpPass::run( libpass::PassResult& pr )
 {
 	assert( !"not implemented yet!" );
+
+    Module* value = (Module*)pr.getResult< NovelDumpPass >();
+	assert( value );
+    
+	value->iterate
+	( Traversal::PREORDER
+	, this
+	);
+    
 	return false;
 }
 
