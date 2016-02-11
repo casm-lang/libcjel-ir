@@ -51,7 +51,14 @@ static libpass::PassRegistration< NovelToVHDLPass > PASS
 
 bool NovelToVHDLPass::run( libpass::PassResult& pr )
 {
-	assert( !"not implemented yet!" );
+    Module* value = (Module*)pr.getResult< NovelDumpPass >();
+	assert( value );
+    
+	value->iterate
+	( Traversal::PREORDER
+	, this
+	);
+    
 	return false;
 }
 
@@ -84,6 +91,42 @@ static const char* toString( Type* type )
 		assert( !"unimplemented type to emit" );
 	}
 }
+
+static const char* getTypeString( Value& value )
+{
+	Type* type = value.getType();
+	assert( type );
+	
+	if( type->getIDKind() == Type::ID::BIT )
+	{
+		if( type->getBitsize() == 1 )
+		{
+			return "std_logic";
+		}
+		else if( type->getBitsize() > 1 )
+		{
+			string x
+				= "std_logic_vector( "
+				+ to_string( type->getBitsize() - 1 )
+				+ " downto 0 )";
+			return x.c_str();
+		}
+		else
+		{
+			assert( !"invalid type bit size" );
+		}
+	}
+	else if( type->getIDKind() == Type::ID::STRUCTURE )
+	{
+		assert( Value::isa< Structure >( &value ) );
+		return ((Structure*)&value)->getIdentifier()->getName();
+	}
+	else
+	{
+		assert( !"unimplemented or unsupported type to convert!" );
+	}
+}
+
 
 void NovelToVHDLPass::visit_prolog( Module& value )
 {

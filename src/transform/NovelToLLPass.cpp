@@ -47,10 +47,11 @@ static libpass::PassRegistration< NovelToLLPass > PASS
 );
 
 
-static const char* getTypeString( Type* type )
+static const char* getTypeString( Value& value )
 {
+	Type* type = value.getType();
 	assert( type );
-	
+		
 	if( type->getIDKind() == Type::ID::BIT )
 	{
 		string t = "i" + to_string( type->getBitsize() );
@@ -58,7 +59,8 @@ static const char* getTypeString( Type* type )
 	}
 	else if( type->getIDKind() == Type::ID::STRUCTURE )
 	{
-		return "?";
+		assert( Value::isa< Structure >( &value ) );
+		return ((Structure*)&value)->getIdentifier()->getName();
 	}
 	else
 	{
@@ -168,9 +170,7 @@ void NovelToLLPass::visit_prolog( Reference& value )
 	);
 }
 void NovelToLLPass::visit_epilog( Reference& value )
-{
-	
-}
+{}
 
 
 void NovelToLLPass::visit_prolog( Structure& value )
@@ -198,7 +198,7 @@ void NovelToLLPass::visit_prolog( Structure& value )
         fprintf
 	    ( stdout
 		, "%s%s ;; %s\n%s"
-		, getTypeString( s->getType() )
+		, getTypeString( *((Value*)s) )
 		, s->getElements().size() > 0 ? "*" : ""
 		, s->getIdentifier()->getName()
 		, cnt < value.getElements().size() ? ", " : ""
@@ -214,90 +214,79 @@ void NovelToLLPass::visit_prolog( Structure& value )
 	);	
 }
 void NovelToLLPass::visit_epilog( Structure& value )
-{
-}
+{}
 
 
 void NovelToLLPass::visit_prolog( Memory& value )
 {
-
+	TODO;
 }
 void NovelToLLPass::visit_epilog( Memory& value )
-{
+{}
 
-}
 
 void NovelToLLPass::visit_prolog( ParallelScope& value )
 {
-
+	TODO;
 }
 void NovelToLLPass::visit_epilog( ParallelScope& value )		
-{
+{}
 
-}
 
 void NovelToLLPass::visit_prolog( SequentialScope& value )
 {
-
+	TODO;
 }
 void NovelToLLPass::visit_epilog( SequentialScope& value )
-{
+{}
 
-}
 
 void NovelToLLPass::visit_prolog( TrivialStatement& value )
 {
-
+	TODO;
 }
 void NovelToLLPass::visit_epilog( TrivialStatement& value )
-{
+{}
 
-}
 
 void NovelToLLPass::visit_prolog( CallInstruction& value )
 {
-
+	TODO;
 }
 void NovelToLLPass::visit_epilog( CallInstruction& value )	
-{
+{}
 
-}
 
 void NovelToLLPass::visit_prolog( LoadInstruction& value )
 {
-
+	TODO;
 }
 void NovelToLLPass::visit_epilog( LoadInstruction& value )		
-{
+{}
 
-}
 
 void NovelToLLPass::visit_prolog( StoreInstruction& value )
 {
-
+	TODO;
 }
 void NovelToLLPass::visit_epilog( StoreInstruction& value )		
-{
+{}
 
-}
 
 void NovelToLLPass::visit_prolog( AndInstruction& value )
 {
-
+	TODO;
 }
 void NovelToLLPass::visit_epilog( AndInstruction& value )
-{
+{}
 
-}
 
 void NovelToLLPass::visit_prolog( AddSignedInstruction& value )
 {
-
+	TODO;
 }
 void NovelToLLPass::visit_epilog( AddSignedInstruction& value )
-{
-
-}
+{}
 
 
 

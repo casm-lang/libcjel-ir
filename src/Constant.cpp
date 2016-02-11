@@ -386,6 +386,11 @@ Identifier::~Identifier( void )
 	(*Value::getSymbols())[ ".identifier" ].erase( this );
 }
 
+Identifier* Identifier::create( Type* type, std::string value, Value* scope )
+{
+	return create( type, value.c_str(), scope );
+}
+
 Identifier* Identifier::create( Type* type, const char* value, Value* scope )
 {
 	SymbolTable& symbols = *getSymbols();

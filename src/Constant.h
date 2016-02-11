@@ -168,10 +168,11 @@ namespace libnovel
 	{
 	private:
 		Identifier( Type* type, const char* value );
-
+				
 	public:
 	    ~Identifier( void );
 
+		static Identifier* create( Type* type, std::string value, Value* scope = 0 );
 		static Identifier* create( Type* type, const char* value, Value* scope = 0 );
 		
 		static void forgetSymbol( const char* value );

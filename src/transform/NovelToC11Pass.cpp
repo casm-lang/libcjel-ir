@@ -47,26 +47,64 @@ static libpass::PassRegistration< NovelToC11Pass > PASS
 );
 
 
+static const char* getTypeString( Value& value )
+{
+	Type* type = value.getType();
+	assert( type );
+		
+	if( type->getIDKind() == Type::ID::BIT )
+	{
+		u16 bitsize = type->getBitsize();
+		u16 bitsize_type = 8;
+
+		while( bitsize > bitsize_type )
+		{
+		    bitsize_type *= 2;
+		}
+		
+		assert( bitsize_type <= 64 );
+		
+		string t = "uint" + to_string( bitsize_type ) + "_t";
+		return t.c_str();
+	}
+	else if( type->getIDKind() == Type::ID::STRUCTURE )
+	{
+		assert( Value::isa< Structure >( &value ) );
+		return ((Structure*)&value)->getIdentifier()->getName();
+	}
+	else
+	{
+		assert( !"unimplemented or unsupported type to convert!" );
+	}
+}
+
 bool NovelToC11Pass::run( libpass::PassResult& pr )
 {
-	assert( !"not implemented yet!" );
+    Module* value = (Module*)pr.getResult< NovelDumpPass >();
+	assert( value );
+    
+	value->iterate
+	( Traversal::PREORDER
+	, this
+	);
+    
 	return false;
 }
 
 
 void NovelToC11Pass::visit_prolog( Module& value )
 {
-	fprintf( stdout, "// begin of module: '%s'\n", value.getName() );
+	fprintf( stdout, "// module begin: '%s'\n", value.getName() );
 }
 void NovelToC11Pass::visit_epilog( Module& value )
 {
-	fprintf( stdout, "// end of module: '%s'\n\n", value.getName() );
+	fprintf( stdout, "// module end: '%s'\n\n", value.getName() );
 }
 
 
 void NovelToC11Pass::visit_prolog( Component& value )
 {
-	fprintf( stdout, "void %s // Component\n( ", value.getName() );
+	fprintf( stdout, "void %s // component\n( ", value.getName() );
 }
 void NovelToC11Pass::visit_interlog( Component& value )
 {
@@ -80,7 +118,7 @@ void NovelToC11Pass::visit_epilog( Component& value )
 
 void NovelToC11Pass::visit_prolog( Function& value )
 {
-	fprintf( stdout, "void %s // Function\n( ", value.getName() );
+	fprintf( stdout, "void %s // function\n( ", value.getName() );
 }
 void NovelToC11Pass::visit_interlog( Function& value )
 {
@@ -95,109 +133,131 @@ void NovelToC11Pass::visit_prolog( Reference& value )
 {
 	fprintf
 	( stdout
-	, "%s %%%s%s"
-	, "int" //value.getType()->getName() // TODO: FIXME!!!
+	, "%s* %s%s"
+	, getTypeString( value )
 	, value.getIdentifier()->getName()
 	, ( value.getCallableUnit()->isLastParameter( &value ) ? "" : "\n, " )
 	);
 }
 void NovelToC11Pass::visit_epilog( Reference& value )
-{	
+{
 }
 
 void NovelToC11Pass::visit_prolog( Structure& value )
 {
-
+	if( value.getElements().size() == 0 )
+	{
+		// all bit types can be represented in C11 directly!
+		return;
+	}
+	
+    fprintf
+	( stdout
+	, "// structure begin: '%s'\n"
+	  "typedef struct %s\n"
+	  "{ "
+    , value.getIdentifier()->getName()
+    , value.getIdentifier()->getName()
+	);
+	
+	for( const Structure* s : value.getElements() )
+	{
+        fprintf
+	    ( stdout
+		, "%s%s %s\n; "
+		, getTypeString( *((Value*)s) )
+		, s->getElements().size() > 0 ? "*" : ""
+		, s->getIdentifier()->getName()
+		);
+	}
+	
+	fprintf
+	( stdout
+	, "\n"
+	  "} %s;\n"
+	  "// structure end: '%s'\n"
+	  "\n"
+    , value.getIdentifier()->getName()
+    , value.getIdentifier()->getName()
+	);	
 }
-void NovelToC11Pass::visit_epilog( Structure& value )
-{
-
-}
+void NovelToC11Pass::visit_epilog( Structure& value ) {}
 
 
 void NovelToC11Pass::visit_prolog( Memory& value )
 {
-
+	TODO;
 }
 void NovelToC11Pass::visit_epilog( Memory& value )
-{
-
-}
+{}
 
 
 void NovelToC11Pass::visit_prolog( ParallelScope& value )
 {
-
+	fprintf( stdout, "{ // par begin\n" );
 }
 void NovelToC11Pass::visit_epilog( ParallelScope& value )		
 {
-
+	fprintf( stdout, "} // par end\n" );
 }
+
 
 void NovelToC11Pass::visit_prolog( SequentialScope& value )
 {
-
+	fprintf( stdout, "{ // seq begin\n" );
 }
 void NovelToC11Pass::visit_epilog( SequentialScope& value )
 {
-
+	fprintf( stdout, "} // seq end\n" );
 }
+
 
 void NovelToC11Pass::visit_prolog( TrivialStatement& value )
 {
-
+	TODO;
 }
 void NovelToC11Pass::visit_epilog( TrivialStatement& value )
-{
+{}
 
-}
 
 void NovelToC11Pass::visit_prolog( CallInstruction& value )
 {
-
+	TODO;
 }
-void NovelToC11Pass::visit_epilog( CallInstruction& value )	
-{
+void NovelToC11Pass::visit_epilog( CallInstruction& value )
+{}
 
-}
 
 void NovelToC11Pass::visit_prolog( LoadInstruction& value )
 {
-
+	TODO;	
 }
-void NovelToC11Pass::visit_epilog( LoadInstruction& value )		
-{
+void NovelToC11Pass::visit_epilog( LoadInstruction& value )
+{}
 
-}
 
 void NovelToC11Pass::visit_prolog( StoreInstruction& value )
 {
-
+	TODO;
 }
-void NovelToC11Pass::visit_epilog( StoreInstruction& value )		
-{
+void NovelToC11Pass::visit_epilog( StoreInstruction& value )
+{}
 
-}
 
 void NovelToC11Pass::visit_prolog( AndInstruction& value )
 {
-	fprintf( stdout, "// and\n" );
+	TODO;	
 }
 void NovelToC11Pass::visit_epilog( AndInstruction& value )
-{
-	
-}
+{}
+
 
 void NovelToC11Pass::visit_prolog( AddSignedInstruction& value )
 {
-	fprintf( stdout, "// signed add\n" );
-
-	
+	TODO;	
 }
 void NovelToC11Pass::visit_epilog( AddSignedInstruction& value )
-{
-
-}
+{}
 
 
 

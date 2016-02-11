@@ -40,7 +40,6 @@
 #include "libnovel.h"
 #include "NovelDumpPass.h"
 
-
 namespace libnovel
 {
 	class NovelToLLPass : public libpass::Pass, public Visitor

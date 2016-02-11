@@ -38,6 +38,7 @@
 #include "Pass.h"
 
 #include "libnovel.h"
+#include "NovelDumpPass.h"
 
 namespace libnovel
 {
