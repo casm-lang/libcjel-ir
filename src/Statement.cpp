@@ -90,7 +90,6 @@ const std::vector< Value* >& Statement::getInstructions( void ) const
 
 void Statement::add( Value* instruction )
 {
-	printf( "%s: %p\n", __FUNCTION__, instruction );
 	assert( instruction );
 
 	// if( Value::isa< ConstantValue >( instruction ) )
@@ -101,8 +100,11 @@ void Statement::add( Value* instruction )
 	
 	if( Value::isa< Instruction >( instruction ) )
 	{
-		printf( "%s: %p --> Instruction\n", __FUNCTION__, instruction );
 	    static_cast< Instruction* >( instruction )->setStatement( this );
+	}
+	else
+	{
+		assert(0);
 	}
 	
 	instructions.push_back( instruction );

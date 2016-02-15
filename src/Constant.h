@@ -41,7 +41,7 @@
 
 namespace libnovel
 {
-	// class Statement;
+	class Structure;
 
 	template< typename V >
 	class Constant : public libnovel::User
@@ -50,7 +50,7 @@ namespace libnovel
 		V value;
 		
     protected:
-		Constant( const char* name, Type* type, V value, u1 defined, Value::ID id = Value::CONSTANT );
+		Constant( const char* name, Type* type, V value, Value::ID id = Value::CONSTANT );
 
 	public:
 		~Constant( void );
@@ -63,6 +63,7 @@ namespace libnovel
 	    void setValue( V val );
 	};
 	
+	
 	class Constants : public Constant< u1 >
 	{
 	public:
@@ -70,99 +71,34 @@ namespace libnovel
 	};
 	
 	
-	// class AgentConstant : public Constant< Type::Agent >
-	// {
-	// private:
-	// 	AgentConstant( Type::Agent value, u1 defined );
-
-	// public:
-	// 	static AgentConstant* create( Type::Agent value );
-	// 	static AgentConstant* create( void );
+	class BitConstant : public Constant< Type::Bit >
+	{
+	private:
+		u64 value[1];
+		BitConstant( Type* type, u64 value );
 		
-	// 	void dump( void ) const;
+	public:
+		static BitConstant* create( u64 value, u16 bitsize );
 		
-	// 	static bool classof( Value const* obj );
-	// };
+		void dump( void ) const;
+		
+		static bool classof( Value const* obj );
+	};
 	
 	
-	// class RulePointerConstant : public Constant< Type::RulePointer >
-	// {
-	// private:
-	// 	const char* resolve_identifier;
+	class StructureConstant : public Constant< const std::vector< Value* >& >
+	{
+	private:
+		StructureConstant( const std::vector< Value* >& value );
 		
-	// 	RulePointerConstant( Type::RulePointer value, u1 defined );
-	    
-	// public:
-	// 	static RulePointerConstant* create( Type::RulePointer value );
-	// 	static RulePointerConstant* create( const char* name );
-	// 	static RulePointerConstant* create( void );
-
-	// 	void setResolveIdentifier( const char* name );
-	// 	void resolve( void );
+	public:
+		static StructureConstant* create( Structure* kind, const std::vector< Value* >& value );
 		
-	// 	void dump( void ) const;
+		void dump( void ) const;
 		
-	// 	static bool classof( Value const* obj );
-	// };
+		static bool classof( Value const* obj );
+	};
 	
-	
-	// class BooleanConstant : public Constant< Type::Boolean >
-	// {
-	// private:
-	// 	BooleanConstant( Type::Boolean value, u1 defined );
-		
-	// public:
-	// 	static BooleanConstant* create( Type::Boolean value );
-	// 	static BooleanConstant* create( void );
-		
-	// 	void dump( void ) const;
-		
-	// 	static bool classof( Value const* obj );
-	// };
-
-	// class IntegerConstant : public Constant< Type::Integer >
-	// {
-	// private:
-	// 	IntegerConstant( Type::Integer value, u1 defined );
-
-	// public:
-	// 	static IntegerConstant* create( Type::Integer value );
-	// 	static IntegerConstant* create( void );
-		
-	// 	void dump( void ) const;
-		
-	// 	static bool classof( Value const* obj );
-	// };
-	
-	// class BitConstant : public Constant< Type::Bit >
-	// {
-	// private:
-	// 	u64 value[1];
-	// 	BitConstant( Type* type, u64 value, u1 defined );
-
-	// public:
-	// 	static BitConstant* create( u64 value, u16 bitsize );
-	// 	static BitConstant* create( u16 bitsize );
-		
-	// 	void dump( void ) const;
-		
-	// 	static bool classof( Value const* obj );
-	// };
-	
-	// class StringConstant : public Constant< Type::String >
-	// {
-	// private:
-	// 	StringConstant( Type::String value, u1 defined );
-
-	// public:
-	// 	static StringConstant* create( Type::String value );
-	// 	static StringConstant* create( const char* value );
-	// 	static StringConstant* create( void );
-		
-	// 	void dump( void ) const;
-		
-	// 	static bool classof( Value const* obj );
-	// };
 	
 	class Identifier : public Constant< const char* >
 	{

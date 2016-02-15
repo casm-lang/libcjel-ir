@@ -69,8 +69,9 @@ static const char* getTypeString( Value& value )
 	}
 	else if( type->getIDKind() == Type::ID::STRUCTURE )
 	{
-		assert( Value::isa< Structure >( &value ) );
-		return ((Structure*)&value)->getIdentifier()->getName();
+		Value* ty = type->getBound();
+		assert(  Value::isa< Structure >( ty ) );
+		return ((Structure*)ty)->getName();
 	}
 	else
 	{
@@ -235,7 +236,6 @@ void NovelToC11Pass::visit_prolog( LoadInstruction& value )
 void NovelToC11Pass::visit_epilog( LoadInstruction& value )
 {}
 
-
 void NovelToC11Pass::visit_prolog( StoreInstruction& value )
 {
 	TODO;
@@ -257,6 +257,23 @@ void NovelToC11Pass::visit_prolog( AddSignedInstruction& value )
 	TODO;	
 }
 void NovelToC11Pass::visit_epilog( AddSignedInstruction& value )
+{}
+
+
+
+
+void NovelToC11Pass::visit_prolog( BitConstant& value )
+{
+	TODO;
+}
+void NovelToC11Pass::visit_epilog( BitConstant& value )
+{}
+
+void NovelToC11Pass::visit_prolog( StructureConstant& value )
+{
+	TODO;
+}
+void NovelToC11Pass::visit_epilog( StructureConstant& value )
 {}
 
 

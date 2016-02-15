@@ -66,6 +66,9 @@ void Visitor::dispatch( Stage stage, Value* value )
 		
 		CASE_VALUE( MEMORY,            Memory );
 		CASE_VALUE( STRUCTURE,         Structure );
+
+		CASE_VALUE( BIT_CONSTANT,       BitConstant );
+		CASE_VALUE( STRUCTURE_CONSTANT, StructureConstant );
 		
 		CASE_VALUE( PARALLEL_SCOPE,    ParallelScope );
 		CASE_VALUE( SEQUENTIAL_SCOPE,  SequentialScope );

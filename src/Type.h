@@ -37,16 +37,19 @@
 #define _LIB_NOVEL_TYPE_H_
 
 #include "stdhl/cpp/Type.h"
+#include "stdhl/cpp/Binding.h"
 
 #include "Novel.h"
 
 namespace libnovel
 {
-    class Type //: public Novel
+	class Value;
+	
+    class Type : public libstdhl::Binding< Value >  //: public Novel
 	{
 	public:		
-		typedef u64*   Bit;
-	    
+		typedef u64*       Bit;
+		
 		enum ID
 		{ BIT
 		, STRUCTURE

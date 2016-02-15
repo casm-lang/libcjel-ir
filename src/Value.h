@@ -61,6 +61,9 @@ namespace libnovel
 		, STRUCTURE
 
 		, CONSTANT
+		, BIT_CONSTANT
+		, STRUCTURE_CONSTANT
+
 		, IDENTIFIER
 		  
 		, BLOCK

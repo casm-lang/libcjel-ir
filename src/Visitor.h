@@ -45,6 +45,7 @@
 #include "Function.h"
 #include "Reference.h"
 #include "Memory.h"
+#include "Constant.h"
 
 
 namespace libnovel
@@ -108,8 +109,14 @@ namespace libnovel
 		PREFIX void visit_epilog( AndInstruction& value ) POSTFIX;		\
 																		\
 		PREFIX void visit_prolog( AddSignedInstruction& value ) POSTFIX; \
-		PREFIX void visit_epilog( AddSignedInstruction& value ) POSTFIX
-
+		PREFIX void visit_epilog( AddSignedInstruction& value ) POSTFIX; \
+																		\
+		PREFIX void visit_prolog( BitConstant& value ) POSTFIX;			\
+		PREFIX void visit_epilog( BitConstant& value ) POSTFIX;			\
+																		\
+		PREFIX void visit_prolog( StructureConstant& value ) POSTFIX;	\
+		PREFIX void visit_epilog( StructureConstant& value ) POSTFIX
+		
 		
 		LIB_NOVEL_VISITOR_INTERFACE_( virtual, = 0 );
 	};

@@ -63,35 +63,6 @@ bool NovelToVHDLPass::run( libpass::PassResult& pr )
 }
 
 
-static const char* toString( Type* type )
-{
-	assert( type );
-
-	if( type->getIDKind() == Type::ID::BIT )
-	{
-		if( type->getBitsize() == 1 )
-		{
-			return "std_logic";
-		}
-		else if( type->getBitsize() > 1 )
-		{
-			string x
-				= "std_logic_vector( "
-				+ to_string( type->getBitsize() - 1 )
-				+ " downto 0 )";
-			return x.c_str();
-		}
-		else
-		{
-			assert( !"invalid type bit size" );
-		}
-	}
-	else
-	{
-		assert( !"unimplemented type to emit" );
-	}
-}
-
 static const char* getTypeString( Value& value )
 {
 	Type* type = value.getType();
@@ -118,8 +89,9 @@ static const char* getTypeString( Value& value )
 	}
 	else if( type->getIDKind() == Type::ID::STRUCTURE )
 	{
-		assert( Value::isa< Structure >( &value ) );
-		return ((Structure*)&value)->getIdentifier()->getName();
+		Value* ty = type->getBound();
+		assert(  Value::isa< Structure >( ty ) );
+		return ((Structure*)ty)->getName();
 	}
 	else
 	{
@@ -221,7 +193,7 @@ void NovelToVHDLPass::visit_prolog( Reference& value )
 	, "%s : %-5s %s%s"
 	, value.getIdentifier()->getName()
 	, kind
-	, toString( value.getType() )
+	, getTypeString( value )
 	, ( value.getCallableUnit()->isLastParameter( &value ) ? "" : "\n; " )
 	);
 }
@@ -321,6 +293,21 @@ void NovelToVHDLPass::visit_epilog( AddSignedInstruction& value )
 {
 
 }
+
+
+void NovelToVHDLPass::visit_prolog( BitConstant& value )
+{
+	TODO;
+}
+void NovelToVHDLPass::visit_epilog( BitConstant& value )
+{}
+
+void NovelToVHDLPass::visit_prolog( StructureConstant& value )
+{
+	TODO;
+}
+void NovelToVHDLPass::visit_epilog( StructureConstant& value )
+{}
 
 
 

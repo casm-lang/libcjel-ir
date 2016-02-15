@@ -171,6 +171,27 @@ void NovelDumpPass::visit_epilog( AddSignedInstruction& value )
 	DUMP_PREFIX; DUMP_POSTFIX;
 }
 
+
+
+void NovelDumpPass::visit_prolog( BitConstant& value )
+{
+	DUMP_PREFIX; DUMP_POSTFIX;
+}
+void NovelDumpPass::visit_epilog( BitConstant& value )
+{
+	DUMP_PREFIX; DUMP_POSTFIX;
+}
+
+void NovelDumpPass::visit_prolog( StructureConstant& value )
+{
+	DUMP_PREFIX; DUMP_POSTFIX;
+}
+void NovelDumpPass::visit_epilog( StructureConstant& value )
+{
+	DUMP_PREFIX; DUMP_POSTFIX;
+}
+
+
 //  
 //  Local variables:
 //  mode: c++

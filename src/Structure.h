@@ -57,7 +57,8 @@ namespace libnovel
 
 		void add( Value* value );
 
-		const std::vector< Structure* > getElements( void ) const;
+		Value* get( u16 index ) const; 
+		const std::vector< Structure* >& getElements( void ) const;
 		
 		void dump( void ) const;
 		static bool classof( Value const* obj );

@@ -290,6 +290,21 @@ void NovelToLLPass::visit_epilog( AddSignedInstruction& value )
 
 
 
+void NovelToLLPass::visit_prolog( BitConstant& value )
+{
+	TODO;
+}
+void NovelToLLPass::visit_epilog( BitConstant& value )
+{}
+
+void NovelToLLPass::visit_prolog( StructureConstant& value )
+{
+	TODO;
+}
+void NovelToLLPass::visit_epilog( StructureConstant& value )
+{}
+
+
 //  
 //  Local variables:
 //  mode: c++

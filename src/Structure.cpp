@@ -68,7 +68,14 @@ void Structure::add( Value* value )
 	element.push_back( (Structure*)value );
 }
 
-const std::vector< Structure* > Structure::getElements( void ) const
+Value* Structure::get( u16 index ) const
+{
+	assert( index < element.size() );
+
+	return element[ index ];
+}
+
+const std::vector< Structure* >& Structure::getElements( void ) const
 {
 	return element;
 }
