@@ -95,13 +95,13 @@ BitConstant* BitConstant::create( u64 value, u16 bitsize )
 	
 	assert( bitsize > 0 and bitsize <= 256 and "invalid 'Bit' constant bit size" );
 	
-	auto result = cache[bitsize].find( value );
-	if( result != cache[bitsize].end() )
-	{
-		assert( result->second );
-		printf( "[Const] found %p\n", result->second );
-		return result->second;
-	}
+	// auto result = cache[bitsize].find( value );
+	// if( result != cache[bitsize].end() )
+	// {
+	// 	assert( result->second );
+	// 	printf( "[Const] found %p\n", result->second );
+	// 	return result->second;
+	// }
 	
 	BitConstant* obj = new BitConstant( new Type( Type::ID::BIT, bitsize ), value );
 	cache[bitsize][ value ] = obj;
@@ -121,9 +121,21 @@ bool BitConstant::classof( Value const* obj )
 
 
 
-StructureConstant::StructureConstant( const std::vector< Value* >& value )
-: Constant< const std::vector< Value* >& >( ".const_struct", &TypeStructure, value, Value::STRUCTURE_CONSTANT )
-{	
+StructureConstant::StructureConstant( Type* type, std::vector< Value* > value )
+: Constant< std::vector< Value* > >( ".const_struct", type, value, Value::STRUCTURE_CONSTANT )
+{
+	for( Value* p : value )
+	{
+		assert( p );
+		if( Value::isa< BitConstant >( p ) )
+		{
+			((BitConstant*)p)->bind( this );
+		}
+		else if( Value::isa< StructureConstant >( p ) )
+		{
+			((StructureConstant*)p)->bind( this );
+		}
+	}
 }
 
 StructureConstant* StructureConstant::create( Structure* kind, const std::vector< Value* >& value )
@@ -131,14 +143,22 @@ StructureConstant* StructureConstant::create( Structure* kind, const std::vector
 	// TODO: FIXME: PPA: silly implmeentation for now!!! must be improved to gain performance and use less memory!!!
 
 	// TODO: FIXME: PPA: check if KIND structure subtypes match the provided value subtypes in the vector!!!
+
+	assert( kind );
+	assert( kind->getType() );
 	
-	StructureConstant* obj = new StructureConstant( value );
+	StructureConstant* obj = new StructureConstant( kind->getType(), value );
 	return obj;
+}
+
+const std::vector< Value* >& StructureConstant::getElements( void ) const
+{
+	return value;
 }
 
 void StructureConstant::dump( void ) const
 {
-	printf( "[Const] %p = structure %p\n", this, &getValue() );
+	printf( "[Const] %p = structure %p\n", this, &getElements() );
 }
 
 bool StructureConstant::classof( Value const* obj )

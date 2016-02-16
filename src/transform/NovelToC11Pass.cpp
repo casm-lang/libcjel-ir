@@ -71,7 +71,9 @@ static const char* getTypeString( Value& value )
 	{
 		Value* ty = type->getBound();
 		assert(  Value::isa< Structure >( ty ) );
-		return ((Structure*)ty)->getName();
+	    
+		string t = "struct " + string( ((Structure*)ty)->getName() );
+		return t.c_str();
 	}
 	else
 	{
@@ -155,7 +157,7 @@ void NovelToC11Pass::visit_prolog( Structure& value )
     fprintf
 	( stdout
 	, "// structure begin: '%s'\n"
-	  "typedef struct %s\n"
+	  "struct %s\n"
 	  "{ "
     , value.getIdentifier()->getName()
     , value.getIdentifier()->getName()
@@ -174,11 +176,9 @@ void NovelToC11Pass::visit_prolog( Structure& value )
 	
 	fprintf
 	( stdout
-	, "\n"
-	  "} %s;\n"
+	, "};\n"
 	  "// structure end: '%s'\n"
 	  "\n"
-    , value.getIdentifier()->getName()
     , value.getIdentifier()->getName()
 	);	
 }
@@ -264,17 +264,43 @@ void NovelToC11Pass::visit_epilog( AddSignedInstruction& value )
 
 void NovelToC11Pass::visit_prolog( BitConstant& value )
 {
-	TODO;
+	StructureConstant* sc = 0;
+	if( value.isBound() )
+	{
+		sc = value.getBound();
+		u1 last = sc->getElements().back() == &value;
+	    
+		fprintf
+		( stdout
+		, "%lu%s"
+		, value.getValue()[0]
+		, last ? "" : ", "
+		);
+	}
+	else
+	{
+		assert( !" unimplemented !!! " );
+	}
 }
 void NovelToC11Pass::visit_epilog( BitConstant& value )
 {}
 
 void NovelToC11Pass::visit_prolog( StructureConstant& value )
 {
-	TODO;
+	fprintf
+	( stdout
+	, "%s abc = { "
+	, getTypeString( value )
+	);
 }
 void NovelToC11Pass::visit_epilog( StructureConstant& value )
-{}
+{
+	fprintf
+	( stdout
+	, " };\n"
+	  "\n"
+	);
+}
 
 
 

@@ -35,6 +35,8 @@
 #ifndef _LIB_NOVEL_CONSTANT_H_
 #define _LIB_NOVEL_CONSTANT_H_
 
+#include "stdhl/cpp/Binding.h"
+
 #include "Value.h"
 #include "Type.h"
 #include "User.h"
@@ -46,16 +48,14 @@ namespace libnovel
 	template< typename V >
 	class Constant : public libnovel::User
 	{
-	private:
-		V value;
-		
     protected:
+		V value;
 		Constant( const char* name, Type* type, V value, Value::ID id = Value::CONSTANT );
 
 	public:
 		~Constant( void );
 		
-		const V getValue( void ) const;
+	    const V getValue( void ) const;
 		
 		static bool classof( Value const* obj );
 
@@ -69,9 +69,11 @@ namespace libnovel
 	public:
 		static bool classof( Value const* obj );
 	};
+
 	
+	class StructureConstant;
 	
-	class BitConstant : public Constant< Type::Bit >
+	class BitConstant : public Constant< Type::Bit >, public libstdhl::Binding< StructureConstant >
 	{
 	private:
 		u64 value[1];
@@ -86,13 +88,15 @@ namespace libnovel
 	};
 	
 	
-	class StructureConstant : public Constant< const std::vector< Value* >& >
+	class StructureConstant : public Constant< std::vector< Value* > >, public libstdhl::Binding< StructureConstant >
 	{
 	private:
-		StructureConstant( const std::vector< Value* >& value );
+		StructureConstant( Type* type, std::vector< Value* > value );
 		
 	public:
 		static StructureConstant* create( Structure* kind, const std::vector< Value* >& value );
+
+		const std::vector< Value* >& getElements( void ) const;
 		
 		void dump( void ) const;
 		
