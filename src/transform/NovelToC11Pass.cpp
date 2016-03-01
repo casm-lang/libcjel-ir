@@ -180,7 +180,7 @@ void NovelToC11Pass::visit_prolog( Structure& value )
 	  "// structure end: '%s'\n"
 	  "\n"
     , value.getIdentifier()->getName()
-	);	
+	);
 }
 void NovelToC11Pass::visit_epilog( Structure& value ) {}
 
@@ -195,11 +195,11 @@ void NovelToC11Pass::visit_epilog( Memory& value )
 
 void NovelToC11Pass::visit_prolog( ParallelScope& value )
 {
-	fprintf( stdout, "{ // par begin\n" );
+	fprintf( stdout, "  { // par begin\n" );
 }
 void NovelToC11Pass::visit_epilog( ParallelScope& value )		
 {
-	fprintf( stdout, "} // par end\n" );
+	fprintf( stdout, "  } // par end\n" );
 }
 
 
@@ -215,15 +215,32 @@ void NovelToC11Pass::visit_epilog( SequentialScope& value )
 
 void NovelToC11Pass::visit_prolog( TrivialStatement& value )
 {
-	TODO;
+	fprintf( stdout, "    { // stmt begin\n" );
 }
 void NovelToC11Pass::visit_epilog( TrivialStatement& value )
-{}
+{
+	fprintf( stdout, "    } // stmt end\n" );
+}
 
 
 void NovelToC11Pass::visit_prolog( CallInstruction& value )
-{
-	TODO;
+{	
+	// TODO: FIXME: register notion!!! shall be added to NOVEL directly!!!
+	fprintf
+	( stdout
+	, "      "
+	  "%s %p// call\n"
+	  , getTypeString( *value.getValue(0) )
+	  , value.getValues().size()
+	);
+	
+	fprintf
+	( stdout
+	, "      "
+	  "%s %p// call\n"
+	  , value.getValue(0)->getName()
+	  , &value
+	);
 }
 void NovelToC11Pass::visit_epilog( CallInstruction& value )
 {}
@@ -231,7 +248,7 @@ void NovelToC11Pass::visit_epilog( CallInstruction& value )
 
 void NovelToC11Pass::visit_prolog( LoadInstruction& value )
 {
-	TODO;	
+	TODO;
 }
 void NovelToC11Pass::visit_epilog( LoadInstruction& value )
 {}
