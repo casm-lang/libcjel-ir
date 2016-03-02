@@ -205,7 +205,7 @@ void NovelToVHDLPass::visit_epilog( Reference& value )
 
 void NovelToVHDLPass::visit_prolog( Structure& value )
 {
-
+	TODO;
 }
 void NovelToVHDLPass::visit_epilog( Structure& value )
 {
@@ -213,85 +213,91 @@ void NovelToVHDLPass::visit_epilog( Structure& value )
 }
 
 
+void NovelToVHDLPass::visit_prolog( Variable& value )
+{
+	TODO;
+}
+void NovelToVHDLPass::visit_epilog( Variable& value )
+{
+}
+
 void NovelToVHDLPass::visit_prolog( Memory& value )
 {
-
+	TODO;
 }
 void NovelToVHDLPass::visit_epilog( Memory& value )
 {
-
 }
 
 void NovelToVHDLPass::visit_prolog( ParallelScope& value )
 {
-
+	TODO;
 }
 void NovelToVHDLPass::visit_epilog( ParallelScope& value )		
 {
-
 }
 
 void NovelToVHDLPass::visit_prolog( SequentialScope& value )
 {
-
+	TODO;
 }
 void NovelToVHDLPass::visit_epilog( SequentialScope& value )
 {
-
 }
 
 void NovelToVHDLPass::visit_prolog( TrivialStatement& value )
 {
-
+	TODO;
 }
 void NovelToVHDLPass::visit_epilog( TrivialStatement& value )
 {
-
 }
 
 void NovelToVHDLPass::visit_prolog( CallInstruction& value )
 {
-
+	TODO;
 }
 void NovelToVHDLPass::visit_epilog( CallInstruction& value )	
 {
-
 }
+
+void NovelToVHDLPass::visit_prolog( IdInstruction& value )
+{
+	TODO;
+}
+void NovelToVHDLPass::visit_epilog( IdInstruction& value )		
+{}
 
 void NovelToVHDLPass::visit_prolog( LoadInstruction& value )
 {
-
+	TODO;
 }
 void NovelToVHDLPass::visit_epilog( LoadInstruction& value )		
 {
-
 }
 
 void NovelToVHDLPass::visit_prolog( StoreInstruction& value )
 {
-
+	TODO;
 }
 void NovelToVHDLPass::visit_epilog( StoreInstruction& value )		
 {
-
 }
 
 void NovelToVHDLPass::visit_prolog( AndInstruction& value )
 {
-
+	TODO;
 }
 void NovelToVHDLPass::visit_epilog( AndInstruction& value )
 {
-
 }
 
 void NovelToVHDLPass::visit_prolog( AddSignedInstruction& value )
 {
-
+	TODO;
 }
 void NovelToVHDLPass::visit_epilog( AddSignedInstruction& value )
 {
-
 }
 
 
@@ -300,14 +306,16 @@ void NovelToVHDLPass::visit_prolog( BitConstant& value )
 	TODO;
 }
 void NovelToVHDLPass::visit_epilog( BitConstant& value )
-{}
+{
+}
 
 void NovelToVHDLPass::visit_prolog( StructureConstant& value )
 {
 	TODO;
 }
 void NovelToVHDLPass::visit_epilog( StructureConstant& value )
-{}
+{
+}
 
 
 

@@ -38,12 +38,14 @@
 #include "Novel.h"
 #include "Type.h"
 
+#include "stdhl/cpp/Labeling.h"
+
 namespace libnovel
 {
 	class Visitor;
 	enum class Traversal;
 	
-	class Value //: public Novel
+	class Value : public libstdhl::Labeling //: public Novel
 	{
 	public:
 		enum ID
@@ -57,9 +59,10 @@ namespace libnovel
 		, COMPONENT
 		, FUNCTION
 		
+		, VARIABLE
 		, REFERENCE
 		, STRUCTURE
-
+		
 		, CONSTANT
 		, BIT_CONSTANT
 		, STRUCTURE_CONSTANT
@@ -80,6 +83,8 @@ namespace libnovel
 		, UNARY_INSTRUCTION
 		, BINARY_INSTRUCTION
 		
+		, ID_INSTRUCTION
+		  
 		, LOAD_INSTRUCTION
 		, READ_INSTRUCTION
 		, STORE_INSTRUCTION

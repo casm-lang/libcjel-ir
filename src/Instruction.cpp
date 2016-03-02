@@ -137,6 +137,7 @@ Value* UnaryInstruction::get( void ) const
 bool UnaryInstruction::classof( Value const* obj )
 {
 	return obj->getValueID() == Value::UNARY_INSTRUCTION
+		or IdInstruction::classof( obj )
 		or LoadInstruction::classof( obj )
 		;
 }
@@ -225,6 +226,17 @@ bool BinaryInstruction::classof( Value const* obj )
 
 
 //// concrete instructions!!!
+IdInstruction::IdInstruction( Value* src )
+: UnaryInstruction( ".addressof", &TypeB64, src, Value::ID_INSTRUCTION )
+{
+	assert( src and Value::isa< Variable >( src ) );
+}
+bool IdInstruction::classof( Value const* obj )
+{
+	return obj->getValueID() == Value::ID_INSTRUCTION;
+}
+
+
 
 LoadInstruction::LoadInstruction( Value* src )
 	: UnaryInstruction( ".load", 0, src, Value::LOAD_INSTRUCTION )
@@ -257,8 +269,8 @@ CallInstruction::CallInstruction( Value* symbol )
 
 	assert( Value::isa< Function >( symbol ) );
 	
-	// assert( symbol->getType() );
-	// setType( symbol->getType()->getResultType() );
+	//assert( symbol->getType() ); // TODO: FIXME: PPA: MARK:
+	//setType( symbol->getType()->getResultType() );
 }
 bool CallInstruction::classof( Value const* obj )
 {

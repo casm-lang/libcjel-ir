@@ -39,11 +39,11 @@
 
 #include "Instruction.h"
 #include "Scope.h"
-
 #include "Module.h"
 #include "Component.h"
 #include "Function.h"
 #include "Reference.h"
+#include "Variable.h"
 #include "Memory.h"
 #include "Constant.h"
 
@@ -84,6 +84,9 @@ namespace libnovel
 		PREFIX void visit_prolog( Structure& value ) POSTFIX;			\
 		PREFIX void visit_epilog( Structure& value ) POSTFIX;			\
 																		\
+		PREFIX void visit_prolog( Variable& value ) POSTFIX;			\
+		PREFIX void visit_epilog( Variable& value ) POSTFIX;			\
+																		\
 		PREFIX void visit_prolog( Memory& value ) POSTFIX;				\
 		PREFIX void visit_epilog( Memory& value ) POSTFIX;				\
 																		\
@@ -98,6 +101,9 @@ namespace libnovel
 																		\
 		PREFIX void visit_prolog( CallInstruction& value ) POSTFIX;		\
 		PREFIX void visit_epilog( CallInstruction& value ) POSTFIX;		\
+																		\
+		PREFIX void visit_prolog( IdInstruction& value ) POSTFIX;		\
+		PREFIX void visit_epilog( IdInstruction& value ) POSTFIX;		\
 																		\
 		PREFIX void visit_prolog( LoadInstruction& value ) POSTFIX;		\
 		PREFIX void visit_epilog( LoadInstruction& value ) POSTFIX;		\

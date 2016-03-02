@@ -217,6 +217,13 @@ void NovelToLLPass::visit_epilog( Structure& value )
 {}
 
 
+void NovelToLLPass::visit_prolog( Variable& value )
+{
+	TODO;
+}
+void NovelToLLPass::visit_epilog( Variable& value )
+{}
+
 void NovelToLLPass::visit_prolog( Memory& value )
 {
 	TODO;
@@ -256,6 +263,12 @@ void NovelToLLPass::visit_prolog( CallInstruction& value )
 void NovelToLLPass::visit_epilog( CallInstruction& value )	
 {}
 
+void NovelToLLPass::visit_prolog( IdInstruction& value )
+{
+	TODO;
+}
+void NovelToLLPass::visit_epilog( IdInstruction& value )		
+{}
 
 void NovelToLLPass::visit_prolog( LoadInstruction& value )
 {
@@ -263,7 +276,6 @@ void NovelToLLPass::visit_prolog( LoadInstruction& value )
 }
 void NovelToLLPass::visit_epilog( LoadInstruction& value )		
 {}
-
 
 void NovelToLLPass::visit_prolog( StoreInstruction& value )
 {

@@ -32,38 +32,35 @@
 //  WITH THE SOFTWARE.
 //  
 
-#ifndef _LIB_NOVEL_H_
-#define _LIB_NOVEL_H_
+#ifndef _LIB_NOVEL_VARIABLE_H_
+#define _LIB_NOVEL_VARIABLE_H_
 
-#include "Novel.h"
-#include "Type.h"
 #include "Value.h"
-#include "Visitor.h"
-
-#include "Module.h"
-#include "Structure.h"
-#include "Variable.h"
-#include "Memory.h"
-#include "CallableUnit.h"
-#include "Component.h"
-#include "Function.h"
-#include "Reference.h"
-
-#include "Block.h"
-#include "Scope.h"
-
-#include "Statement.h"
+#include "User.h"
+#include "Constant.h"
 #include "Instruction.h"
-
-#include "stdhl/cpp/Allocator.h"
 
 namespace libnovel
 {
+	class Variable : public User
+	{
+	private:
+		Value* expression;
+		
+	public:
+		Variable( Type* type, Value* expression );
+		
+		~Variable( void );
+		
+		Value* getExpression( void ) const;
+
+		void dump( void ) const;
+		static bool classof( Value const* obj );
+	};
 }
 
-#define TODO fprintf( stderr, "%s:%i: '%s' implementation TODO\n", __FILE__, __LINE__, __FUNCTION__ )
 
-#endif /* _LIB_NOVEL_H_ */
+#endif /* _LIB_NOVEL_VARIABLE_H_ */
 
 //  
 //  Local variables:

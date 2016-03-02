@@ -1,5 +1,5 @@
 //  
-//  Copyright (c) 2015 Philipp Paulweber
+//  Copyright (c) 2016 Philipp Paulweber
 //  All rights reserved.
 //  
 //  Developed by: Philipp Paulweber
@@ -32,38 +32,42 @@
 //  WITH THE SOFTWARE.
 //  
 
-#ifndef _LIB_NOVEL_H_
-#define _LIB_NOVEL_H_
-
-#include "Novel.h"
-#include "Type.h"
-#include "Value.h"
-#include "Visitor.h"
-
-#include "Module.h"
-#include "Structure.h"
 #include "Variable.h"
-#include "Memory.h"
-#include "CallableUnit.h"
-#include "Component.h"
-#include "Function.h"
-#include "Reference.h"
 
-#include "Block.h"
-#include "Scope.h"
+using namespace libnovel;
 
-#include "Statement.h"
-#include "Instruction.h"
 
-#include "stdhl/cpp/Allocator.h"
+Variable::Variable( Type* type, Value* expression )
+: User( ".variable", type, Value::VARIABLE )
+, expression( expression )
+{
+	assert( type );
+	assert( expression && Value::isa< Constants >(expression) );
+}
 
-namespace libnovel
+Variable::~Variable( void )
 {
 }
 
-#define TODO fprintf( stderr, "%s:%i: '%s' implementation TODO\n", __FILE__, __LINE__, __FUNCTION__ )
 
-#endif /* _LIB_NOVEL_H_ */
+Value* Variable::getExpression( void ) const
+{
+	return expression;
+}
+
+
+void Variable::dump( void ) const
+{
+	printf( "[Variable ] " );
+	debug();
+}
+
+bool Variable::classof( Value const* obj )
+{
+	return obj->getValueID() == Value::VARIABLE;
+}
+
+
 
 //  
 //  Local variables:

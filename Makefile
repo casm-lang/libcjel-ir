@@ -58,6 +58,7 @@ CPPOBJECTS += obj/CallableUnit.o
 CPPOBJECTS += obj/Component.o
 CPPOBJECTS += obj/Function.o
 
+CPPOBJECTS += obj/Variable.o
 CPPOBJECTS += obj/Reference.o
 CPPOBJECTS += obj/Constant.o
 

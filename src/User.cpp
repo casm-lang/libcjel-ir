@@ -47,6 +47,7 @@ bool User::classof( Value const* obj )
 		or Structure::classof( obj )
 		or Constants::classof( obj )
 		or Instruction::classof( obj )
+		or Variable::classof( obj )
 		;
 }
 

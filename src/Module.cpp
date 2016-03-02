@@ -33,6 +33,7 @@
 //  
 
 #include "Module.h"
+#include "Variable.h"
 
 using namespace libnovel;
 
@@ -58,6 +59,7 @@ void Module::add( Value* value )
 	or Value::isa< Structure >( value )
 	or Value::isa< Memory >( value )
 	or Value::isa< Constants >( value )
+	or Value::isa< Variable >( value )
 	);
 
 	content.push_back( value );

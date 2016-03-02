@@ -1,5 +1,5 @@
 //  
-//  Copyright (c) 2015 Philipp Paulweber
+//  Copyright (c) 2016 Philipp Paulweber
 //  All rights reserved.
 //  
 //  Developed by: Philipp Paulweber
@@ -46,9 +46,6 @@ static libpass::PassRegistration< NovelDumpPass > PASS
 , 0
 );
 
-static const char* default_output_name = "stdout";
-
-
 
 bool NovelDumpPass::run( libpass::PassResult& pr )
 {
@@ -68,19 +65,16 @@ bool NovelDumpPass::run( libpass::PassResult& pr )
 #define DUMP_POSTFIX printf( "\n" );
 
 
-void NovelDumpPass::visit_prolog( Module& value )      { DUMP_PREFIX; DUMP_POSTFIX; }
-void NovelDumpPass::visit_epilog( Module& value )      { DUMP_PREFIX; DUMP_POSTFIX; }
-
+void NovelDumpPass::visit_prolog( Module& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
+void NovelDumpPass::visit_epilog( Module& value ) {}
 
 void NovelDumpPass::visit_prolog( Component& value )   { DUMP_PREFIX; DUMP_POSTFIX; }
-void NovelDumpPass::visit_interlog( Component& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
-void NovelDumpPass::visit_epilog( Component& value )   { DUMP_PREFIX; DUMP_POSTFIX; }
-
+void NovelDumpPass::visit_interlog( Component& value ) {}
+void NovelDumpPass::visit_epilog( Component& value )   {}
 
 void NovelDumpPass::visit_prolog( Function& value )   { DUMP_PREFIX; DUMP_POSTFIX; }
-void NovelDumpPass::visit_interlog( Function& value ) {	DUMP_PREFIX; DUMP_POSTFIX; }
-void NovelDumpPass::visit_epilog( Function& value )   {	DUMP_PREFIX; DUMP_POSTFIX; }
-
+void NovelDumpPass::visit_interlog( Function& value ) {}
+void NovelDumpPass::visit_epilog( Function& value )   {}
 
 void NovelDumpPass::visit_prolog( Reference& value )
 {
@@ -88,108 +82,49 @@ void NovelDumpPass::visit_prolog( Reference& value )
 	printf( "%s, %s", value.getIdentifier()->getName(), value.isInput() ? "in" : "out" );
 	DUMP_POSTFIX;
 }
-void NovelDumpPass::visit_epilog( Reference& value )         { DUMP_PREFIX; DUMP_POSTFIX; }
+void NovelDumpPass::visit_epilog( Reference& value ) {}
 
+void NovelDumpPass::visit_prolog( Structure& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
+void NovelDumpPass::visit_epilog( Structure& value ) {}
 
-void NovelDumpPass::visit_prolog( Structure& value )         { DUMP_PREFIX; DUMP_POSTFIX; }
-void NovelDumpPass::visit_epilog( Structure& value )         { DUMP_PREFIX; DUMP_POSTFIX; }
+void NovelDumpPass::visit_prolog( Variable& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
+void NovelDumpPass::visit_epilog( Variable& value ) {}
 
+void NovelDumpPass::visit_prolog( Memory& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
+void NovelDumpPass::visit_epilog( Memory& value ) {}
 
-void NovelDumpPass::visit_prolog( Memory& value )            { DUMP_PREFIX; DUMP_POSTFIX; }
-void NovelDumpPass::visit_epilog( Memory& value )            { DUMP_PREFIX; DUMP_POSTFIX; }
-
-
-void NovelDumpPass::visit_prolog( ParallelScope& value )
-{
-	DUMP_PREFIX; DUMP_POSTFIX;
-}
-void NovelDumpPass::visit_epilog( ParallelScope& value )
-{
-	DUMP_PREFIX; DUMP_POSTFIX;
-}
+void NovelDumpPass::visit_prolog( ParallelScope& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
+void NovelDumpPass::visit_epilog( ParallelScope& value ) {}
 		
-void NovelDumpPass::visit_prolog( SequentialScope& value )
-{
-	DUMP_PREFIX; DUMP_POSTFIX;
-}
-void NovelDumpPass::visit_epilog( SequentialScope& value )
-{
-	DUMP_PREFIX; DUMP_POSTFIX;
-}
+void NovelDumpPass::visit_prolog( SequentialScope& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
+void NovelDumpPass::visit_epilog( SequentialScope& value ) {}
 		
-void NovelDumpPass::visit_prolog( TrivialStatement& value )
-{
-	DUMP_PREFIX; DUMP_POSTFIX;
-}
-void NovelDumpPass::visit_epilog( TrivialStatement& value )
-{
-	DUMP_PREFIX; DUMP_POSTFIX;
-}
-	    
-void NovelDumpPass::visit_prolog( CallInstruction& value )
-{
-	DUMP_PREFIX; DUMP_POSTFIX;
-}
-void NovelDumpPass::visit_epilog( CallInstruction& value )
-{
-	DUMP_PREFIX; DUMP_POSTFIX;
-}
+void NovelDumpPass::visit_prolog( TrivialStatement& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
+void NovelDumpPass::visit_epilog( TrivialStatement& value ) {}
+ 	    
+void NovelDumpPass::visit_prolog( CallInstruction& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
+void NovelDumpPass::visit_epilog( CallInstruction& value ) {}
 		
-void NovelDumpPass::visit_prolog( LoadInstruction& value )
-{
-	DUMP_PREFIX; DUMP_POSTFIX;
-}
-void NovelDumpPass::visit_epilog( LoadInstruction& value )
-{
-	DUMP_PREFIX; DUMP_POSTFIX;
-}
-		
-void NovelDumpPass::visit_prolog( StoreInstruction& value )
-{
-	DUMP_PREFIX; DUMP_POSTFIX;
-}
-void NovelDumpPass::visit_epilog( StoreInstruction& value )
-{
-	DUMP_PREFIX; DUMP_POSTFIX;
-}
-		
-void NovelDumpPass::visit_prolog( AndInstruction& value )
-{
-	DUMP_PREFIX; DUMP_POSTFIX;
-}
-void NovelDumpPass::visit_epilog( AndInstruction& value )
-{
-	DUMP_PREFIX; DUMP_POSTFIX;
-}
-		
-void NovelDumpPass::visit_prolog( AddSignedInstruction& value )
-{
-	DUMP_PREFIX; DUMP_POSTFIX;
-}
-void NovelDumpPass::visit_epilog( AddSignedInstruction& value )
-{
-	DUMP_PREFIX; DUMP_POSTFIX;
-}
+void NovelDumpPass::visit_prolog( IdInstruction& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
+void NovelDumpPass::visit_epilog( IdInstruction& value ) {}
 
+void NovelDumpPass::visit_prolog( LoadInstruction& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
+void NovelDumpPass::visit_epilog( LoadInstruction& value ) {}
 
+void NovelDumpPass::visit_prolog( StoreInstruction& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
+void NovelDumpPass::visit_epilog( StoreInstruction& value ) {}
 
-void NovelDumpPass::visit_prolog( BitConstant& value )
-{
-	DUMP_PREFIX; DUMP_POSTFIX;
-}
-void NovelDumpPass::visit_epilog( BitConstant& value )
-{
-	DUMP_PREFIX; DUMP_POSTFIX;
-}
+void NovelDumpPass::visit_prolog( AndInstruction& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
+void NovelDumpPass::visit_epilog( AndInstruction& value ) {}
+		
+void NovelDumpPass::visit_prolog( AddSignedInstruction& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
+void NovelDumpPass::visit_epilog( AddSignedInstruction& value ) {}
 
-void NovelDumpPass::visit_prolog( StructureConstant& value )
-{
-	DUMP_PREFIX; DUMP_POSTFIX;
-}
-void NovelDumpPass::visit_epilog( StructureConstant& value )
-{
-	DUMP_PREFIX; DUMP_POSTFIX;
-}
+void NovelDumpPass::visit_prolog( BitConstant& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
+void NovelDumpPass::visit_epilog( BitConstant& value ) {}
+
+void NovelDumpPass::visit_prolog( StructureConstant& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
+void NovelDumpPass::visit_epilog( StructureConstant& value ) {}
 
 
 //  

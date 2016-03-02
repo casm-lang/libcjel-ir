@@ -51,7 +51,7 @@ static const char* getTypeString( Value& value )
 {
 	Type* type = value.getType();
 	assert( type );
-		
+	
 	if( type->getIDKind() == Type::ID::BIT )
 	{
 		u16 bitsize = type->getBitsize();
@@ -65,7 +65,7 @@ static const char* getTypeString( Value& value )
 		assert( bitsize_type <= 64 );
 		
 		string t = "uint" + to_string( bitsize_type ) + "_t";
-		return t.c_str();
+		return libstdhl::Allocator::string( t );
 	}
 	else if( type->getIDKind() == Type::ID::STRUCTURE )
 	{
@@ -73,7 +73,7 @@ static const char* getTypeString( Value& value )
 		assert(  Value::isa< Structure >( ty ) );
 	    
 		string t = "struct " + string( ((Structure*)ty)->getName() );
-		return t.c_str();
+	    return libstdhl::Allocator::string( t );
 	}
 	else
 	{
@@ -136,8 +136,9 @@ void NovelToC11Pass::visit_prolog( Reference& value )
 {
 	fprintf
 	( stdout
-	, "%s* %s%s"
+	, "%s* %s // %s%s"
 	, getTypeString( value )
+	, value.getLabel()
 	, value.getIdentifier()->getName()
 	, ( value.getCallableUnit()->isLastParameter( &value ) ? "" : "\n, " )
 	);
@@ -185,6 +186,19 @@ void NovelToC11Pass::visit_prolog( Structure& value )
 void NovelToC11Pass::visit_epilog( Structure& value ) {}
 
 
+void NovelToC11Pass::visit_prolog( Variable& value )
+{
+	fprintf
+	( stdout
+	, "%s %s = { 0 }; // variable\n"
+	, getTypeString( *value.getType()->getBound() ) //->getName()
+	, value.getLabel()
+	  //, value.getExpression()->getLabel()
+	);
+}
+void NovelToC11Pass::visit_epilog( Variable& value )
+{}
+
 void NovelToC11Pass::visit_prolog( Memory& value )
 {
 	TODO;
@@ -205,11 +219,11 @@ void NovelToC11Pass::visit_epilog( ParallelScope& value )
 
 void NovelToC11Pass::visit_prolog( SequentialScope& value )
 {
-	fprintf( stdout, "{ // seq begin\n" );
+	fprintf( stdout, "  { // seq begin\n" );
 }
 void NovelToC11Pass::visit_epilog( SequentialScope& value )
 {
-	fprintf( stdout, "} // seq end\n" );
+	fprintf( stdout, "  } // seq end\n" );
 }
 
 
@@ -230,14 +244,6 @@ void NovelToC11Pass::visit_prolog( CallInstruction& value )
 	( stdout
 	, "      "
 	  "%s %p// call\n"
-	  , getTypeString( *value.getValue(0) )
-	  , value.getValues().size()
-	);
-	
-	fprintf
-	( stdout
-	, "      "
-	  "%s %p// call\n"
 	  , value.getValue(0)->getName()
 	  , &value
 	);
@@ -245,6 +251,21 @@ void NovelToC11Pass::visit_prolog( CallInstruction& value )
 void NovelToC11Pass::visit_epilog( CallInstruction& value )
 {}
 
+
+void NovelToC11Pass::visit_prolog( IdInstruction& value )
+{
+	fprintf
+	( stdout
+	, "      "
+	  "%s %s = (%s)&%s;// id\n"
+	  , getTypeString( value )
+	  , value.getLabel()
+	  , getTypeString( value )
+	  , value.get()->getLabel()
+	);
+}
+void NovelToC11Pass::visit_epilog( IdInstruction& value )
+{}
 
 void NovelToC11Pass::visit_prolog( LoadInstruction& value )
 {
@@ -255,7 +276,13 @@ void NovelToC11Pass::visit_epilog( LoadInstruction& value )
 
 void NovelToC11Pass::visit_prolog( StoreInstruction& value )
 {
-	TODO;
+	fprintf
+	( stdout
+	, "      "
+	  "*%s = %s;// store\n"
+	  , value.getValue(1)->getLabel()
+	  , value.getValue(0)->getLabel()
+	);
 }
 void NovelToC11Pass::visit_epilog( StoreInstruction& value )
 {}

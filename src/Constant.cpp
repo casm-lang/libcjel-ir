@@ -91,10 +91,11 @@ BitConstant::BitConstant( Type* type, u64 value )
 
 BitConstant* BitConstant::create( u64 value, u16 bitsize )
 {
-	static std::unordered_map< u64, BitConstant* > cache[256];
+	//static std::unordered_map< u64, BitConstant* > cache[256];
 	
 	assert( bitsize > 0 and bitsize <= 256 and "invalid 'Bit' constant bit size" );
 	
+	// TODO: FIXME: improve this to save memory and gain more compilation performance 
 	// auto result = cache[bitsize].find( value );
 	// if( result != cache[bitsize].end() )
 	// {
@@ -104,7 +105,7 @@ BitConstant* BitConstant::create( u64 value, u16 bitsize )
 	// }
 	
 	BitConstant* obj = new BitConstant( new Type( Type::ID::BIT, bitsize ), value );
-	cache[bitsize][ value ] = obj;
+	//cache[bitsize][ value ] = obj;
 	return obj;
 }
 
@@ -124,16 +125,45 @@ bool BitConstant::classof( Value const* obj )
 StructureConstant::StructureConstant( Type* type, std::vector< Value* > value )
 : Constant< std::vector< Value* > >( ".const_struct", type, value, Value::STRUCTURE_CONSTANT )
 {
-	for( Value* p : value )
+	assert( type );
+	libnovel::Value* b = type->getBound();
+	assert( b and libnovel::Value::isa< libnovel::Structure >( b ) );
+	libnovel::Structure* s = (libnovel::Structure*)b;
+		
+	if( value.size() == 0 ) 
 	{
-		assert( p );
-		if( Value::isa< BitConstant >( p ) )
+		if( s->getElements().size() > 0 )
 		{
-			((BitConstant*)p)->bind( this );
+			for( Value* e : s->getElements() )
+			{
+				if( e->getType()->getIDKind() == Type::BIT )
+				{
+					
+				}
+				else
+				{
+					assert( !"struct in struct in ... not implemented yet!" );
+				}
+			}
 		}
-		else if( Value::isa< StructureConstant >( p ) )
+		else
 		{
-			((StructureConstant*)p)->bind( this );
+			assert( !"empty structure found, should not be possible!" );
+		}
+	}
+	else
+	{
+		for( Value* p : value )
+		{
+			assert( p );
+			if( Value::isa< BitConstant >( p ) )
+			{
+				((BitConstant*)p)->bind( this );
+			}
+			else if( Value::isa< StructureConstant >( p ) )
+			{
+				((StructureConstant*)p)->bind( this );
+			}
 		}
 	}
 }

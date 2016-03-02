@@ -38,6 +38,7 @@
 #include "User.h"
 #include "Statement.h"
 #include "Function.h"
+#include "Variable.h"
 #include "Value.h"
 
 namespace libnovel
@@ -98,7 +99,15 @@ namespace libnovel
 		
 	// 	static bool classof( Value const* obj );
 	// };
-
+	
+	
+	class IdInstruction : public UnaryInstruction
+	{
+	public :
+		IdInstruction( Value* src );
+		//void dump( void ) const;
+		static bool classof( Value const* obj );
+	};
 	
 	
 	class LoadInstruction : public UnaryInstruction

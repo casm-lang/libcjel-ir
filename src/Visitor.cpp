@@ -64,6 +64,7 @@ void Visitor::dispatch( Stage stage, Value* value )
 		
 		CASE_VALUE( REFERENCE,         Reference );
 		
+		CASE_VALUE( VARIABLE,          Variable );
 		CASE_VALUE( MEMORY,            Memory );
 		CASE_VALUE( STRUCTURE,         Structure );
 
@@ -76,6 +77,8 @@ void Visitor::dispatch( Stage stage, Value* value )
 		CASE_VALUE( TRIVIAL_STATEMENT, TrivialStatement );
 		
 		CASE_VALUE( CALL_INSTRUCTION,  CallInstruction );
+		
+		CASE_VALUE( ID_INSTRUCTION,    IdInstruction );
 		
 		CASE_VALUE( LOAD_INSTRUCTION,  LoadInstruction );
 		CASE_VALUE( STORE_INSTRUCTION, StoreInstruction );

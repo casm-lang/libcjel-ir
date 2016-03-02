@@ -94,7 +94,7 @@ namespace libnovel
 		StructureConstant( Type* type, std::vector< Value* > value );
 		
 	public:
-		static StructureConstant* create( Structure* kind, const std::vector< Value* >& value );
+		static StructureConstant* create( Structure* kind, const std::vector< Value* >& value = {} );
 
 		const std::vector< Value* >& getElements( void ) const;
 		
