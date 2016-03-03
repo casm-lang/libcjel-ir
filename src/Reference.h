@@ -39,6 +39,7 @@
 #include "User.h"
 #include "Function.h"
 #include "Constant.h"
+#include "Structure.h"
 
 namespace libnovel
 {
@@ -48,6 +49,7 @@ namespace libnovel
 		Identifier* identifier;
 		CallableUnit* callable;
 		u1  input;
+		Structure* structure;
 	    
 	public:
 		Reference( const char* name, Type* type, CallableUnit* callable = 0, u1 input = true );
@@ -60,6 +62,10 @@ namespace libnovel
 		void setCallableUnit( CallableUnit* value );
 
 		const u1 isInput( void ) const;
+		
+		const Structure* getStructure( void ) const;
+		const u1 isStructure( void ) const;
+		
 		
 		void dump( void ) const;
 		static bool classof( Value const* obj );

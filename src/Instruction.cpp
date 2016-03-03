@@ -252,8 +252,9 @@ bool IdInstruction::classof( Value const* obj )
 
 
 LoadInstruction::LoadInstruction( Value* src )
-	: UnaryInstruction( ".load", 0, src, Value::LOAD_INSTRUCTION )
+: UnaryInstruction( ".load", 0, src, Value::LOAD_INSTRUCTION )
 {
+	//assert( Value::isa< Structure > );
 }
 bool LoadInstruction::classof( Value const* obj )
 {
@@ -272,6 +273,17 @@ bool StoreInstruction::classof( Value const* obj )
 }
 
 
+ExtractInstruction::ExtractInstruction( Value* src, Value* dst )
+	: BinaryInstruction( ".extract", 0, src, dst, Value::EXTRACT_INSTRUCTION )
+{
+	assert( src );
+	assert( dst );
+	
+}
+bool ExtractInstruction::classof( Value const* obj )
+{
+	return obj->getValueID() == Value::EXTRACT_INSTRUCTION;
+}
 
 
 

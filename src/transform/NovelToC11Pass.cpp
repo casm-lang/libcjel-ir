@@ -267,6 +267,13 @@ void NovelToC11Pass::visit_prolog( IdInstruction& value )
 void NovelToC11Pass::visit_epilog( IdInstruction& value )
 {}
 
+void NovelToC11Pass::visit_prolog( ExtractInstruction& value )
+{
+	TODO;
+}
+void NovelToC11Pass::visit_epilog( ExtractInstruction& value )
+{}
+
 void NovelToC11Pass::visit_prolog( LoadInstruction& value )
 {
 	TODO;

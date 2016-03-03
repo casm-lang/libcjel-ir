@@ -37,9 +37,10 @@
 using namespace libnovel;
 
 
-Structure::Structure( const char* name, Type* type )
+Structure::Structure( const char* name, Type* type, Structure* parent )
 : User( name, type, Value::STRUCTURE )
 , identifier( 0 )
+, parent( parent )
 {
 	assert( name );
 	assert( type );
@@ -64,8 +65,9 @@ void Structure::add( Value* value )
 {
 	assert( value );
 	assert( Value::isa< Structure >( value ) );
-
-	element.push_back( (Structure*)value );
+	Structure* s = (Structure*)value;
+	s->setParent( this );
+	element.push_back( s );
 }
 
 Value* Structure::get( u16 index ) const
@@ -78,6 +80,17 @@ Value* Structure::get( u16 index ) const
 const std::vector< Structure* >& Structure::getElements( void ) const
 {
 	return element;
+}
+
+void Structure::setParent( Structure* value )
+{
+	assert( !parent );
+	parent = value;
+}
+
+Structure* Structure::getParent( void ) const
+{
+	return parent;
 }
 
 void Structure::dump( void ) const

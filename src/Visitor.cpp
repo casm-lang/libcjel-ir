@@ -78,7 +78,8 @@ void Visitor::dispatch( Stage stage, Value* value )
 		
 		CASE_VALUE( CALL_INSTRUCTION,  CallInstruction );
 		
-		CASE_VALUE( ID_INSTRUCTION,    IdInstruction );
+		CASE_VALUE( ID_INSTRUCTION,      IdInstruction );
+		CASE_VALUE( EXTRACT_INSTRUCTION, ExtractInstruction );
 		
 		CASE_VALUE( LOAD_INSTRUCTION,  LoadInstruction );
 		CASE_VALUE( STORE_INSTRUCTION, StoreInstruction );

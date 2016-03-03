@@ -270,6 +270,13 @@ void NovelToLLPass::visit_prolog( IdInstruction& value )
 void NovelToLLPass::visit_epilog( IdInstruction& value )		
 {}
 
+void NovelToLLPass::visit_prolog( ExtractInstruction& value )
+{
+	TODO;
+}
+void NovelToLLPass::visit_epilog( ExtractInstruction& value )
+{}
+
 void NovelToLLPass::visit_prolog( LoadInstruction& value )
 {
 	TODO;

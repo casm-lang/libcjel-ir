@@ -47,9 +47,10 @@ namespace libnovel
 	private:
 		Identifier* identifier;
 		std::vector< Structure* > element;
+		Structure* parent;
 		
 	public:
-		Structure( const char* name, Type* type = &TypeStructure );
+		Structure( const char* name, Type* type = &TypeStructure, Structure* parent = 0 );
 		
 		~Structure( void );
 		
@@ -59,6 +60,9 @@ namespace libnovel
 
 		Value* get( u16 index ) const; 
 		const std::vector< Structure* >& getElements( void ) const;
+
+		void setParent( Structure* value );
+		Structure* getParent( void ) const;
 		
 		void dump( void ) const;
 		static bool classof( Value const* obj );

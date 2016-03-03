@@ -126,8 +126,16 @@ namespace libnovel
 		//void dump( void ) const;
 		static bool classof( Value const* obj );
 	};
-	
 
+	class ExtractInstruction : public BinaryInstruction
+	{
+	public:
+	    ExtractInstruction( Value* ref, Value* element );
+		//void dump( void ) const;
+		static bool classof( Value const* obj );
+	};
+	
+	
 	class CallInstruction : public Instruction
 	{
 	public:
@@ -135,7 +143,7 @@ namespace libnovel
 		//void dump( void ) const;
 		static bool classof( Value const* obj );
 	};
-
+	
 	// class LetInstruction : public BinaryInstruction
 	// {
 	// public:

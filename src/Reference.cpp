@@ -42,6 +42,7 @@ Reference::Reference( const char* name, Type* type, CallableUnit* callable, u1 i
 , identifier( 0 )
 , callable( 0 )
 , input( input )
+, structure( 0 )
 {
 	assert( name );
 	assert( type );
@@ -49,6 +50,14 @@ Reference::Reference( const char* name, Type* type, CallableUnit* callable, u1 i
     identifier = Identifier::create( type, name /* scope?!?!*/ );
 	assert( identifier );
 
+	if( type->isBound() )
+	{
+		Value* bind = type->getBound();
+		if( bind and libnovel::Value::isa< libnovel::Structure >( bind ) )
+		{
+			structure = (Structure*)bind;
+		}
+	}
 	
 	if( callable )
 	{
@@ -79,6 +88,20 @@ void Reference::setCallableUnit( CallableUnit* value )
 const u1 Reference::isInput( void ) const
 {
 	return input;
+}
+
+
+
+const Structure* Reference::getStructure( void ) const
+{
+	assert( structure );
+	return structure;
+}
+
+
+const u1 Reference::isStructure( void ) const
+{
+	return structure != 0;
 }
 
 

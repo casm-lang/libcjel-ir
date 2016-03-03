@@ -131,6 +131,8 @@ void NovelToVHDLPass::visit_interlog( Component& value )
 	fprintf
 	( stdout
 	, "\n"
+	  "; req : in std_logic\n"
+	  "; ack : in std_logic\n"
 	  ");\n"
 	  "end %s;\n"
 	  "architecture \\@%s@\\ of %s is begin\n"
@@ -151,27 +153,30 @@ void NovelToVHDLPass::visit_epilog( Component& value )
 
 void NovelToVHDLPass::visit_prolog( Function& value )
 {
-	fprintf
-	( stdout
-	, "procedure %s -- Function\n( "
-	, value.getName()
-	);
+	visit_prolog( *((Component*)(&value)) );
+	// fprintf
+	// ( stdout
+	// , "procedure %s -- Function\n( "
+	// , value.getName()
+	// );
 }
 void NovelToVHDLPass::visit_interlog( Function& value )
 {
-	fprintf
-	( stdout
-	, "\n"
-	  ") is begin\n"
-	);
+	visit_interlog( *((Component*)(&value)) );
+	// fprintf
+	// ( stdout
+	// , "\n"
+	//   ") is begin\n"
+	// );
 }
 void NovelToVHDLPass::visit_epilog( Function& value )
 {
-	fprintf
-	( stdout
-	, "end procedure %s;\n\n"
-	, value.getName()
-	);
+	visit_epilog( *((Component*)(&value)) );
+	// fprintf
+	// ( stdout
+	// , "end procedure %s;\n\n"
+	// , value.getName()
+	// );
 }
 
 
@@ -199,7 +204,7 @@ void NovelToVHDLPass::visit_prolog( Reference& value )
 }
 void NovelToVHDLPass::visit_epilog( Reference& value )
 {
-
+	
 }
 
 
@@ -231,7 +236,36 @@ void NovelToVHDLPass::visit_epilog( Memory& value )
 
 void NovelToVHDLPass::visit_prolog( ParallelScope& value )
 {
-	TODO;
+	fprintf
+	( stdout
+	, "  -- par begin\n"
+	  "  process( %s ) is\n"
+	  "  begin\n"
+	  "    if rising_edge( %s ) then\n"
+	, "req"
+	, "req"
+	);
+	
+	for( auto block : value.getBlocks() )
+	{
+	}
+	
+	fprintf
+	( stdout
+	,  "      TODO\n"
+	  "    end if;\n"
+	  "  end process;\n"
+	);
+	
+	
+	// -- par begin
+	// 	process( req ) is
+	// 	  begin
+	// 	if rising_edge( req ) then
+	// 					  req_add0 <= transport '1' after 5 ns;
+	// req_add1 <= transport '1' after 5 ns;
+	// end if;
+	// end process;
 }
 void NovelToVHDLPass::visit_epilog( ParallelScope& value )		
 {
@@ -266,6 +300,13 @@ void NovelToVHDLPass::visit_prolog( IdInstruction& value )
 	TODO;
 }
 void NovelToVHDLPass::visit_epilog( IdInstruction& value )		
+{}
+
+void NovelToVHDLPass::visit_prolog( ExtractInstruction& value )
+{
+	TODO;
+}
+void NovelToVHDLPass::visit_epilog( ExtractInstruction& value )
 {}
 
 void NovelToVHDLPass::visit_prolog( LoadInstruction& value )
