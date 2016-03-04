@@ -310,6 +310,13 @@ void NovelToC11Pass::visit_prolog( AddSignedInstruction& value )
 void NovelToC11Pass::visit_epilog( AddSignedInstruction& value )
 {}
 
+void NovelToC11Pass::visit_prolog( DivSignedInstruction& value )
+{
+	TODO;	
+}
+void NovelToC11Pass::visit_epilog( DivSignedInstruction& value )
+{}
+
 
 
 

@@ -242,6 +242,13 @@ namespace libnovel
 		AddSignedInstruction( Value* lhs, Value* rhs );
 		static bool classof( Value const* obj );
 	};
+
+	class DivSignedInstruction : public BinaryInstruction
+	{
+	public:
+		DivSignedInstruction( Value* lhs, Value* rhs );
+		static bool classof( Value const* obj );
+	};
 	
 	// Class SubInstruction : public OperatorInstruction
 	// {

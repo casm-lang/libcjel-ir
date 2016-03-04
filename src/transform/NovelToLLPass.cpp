@@ -307,6 +307,13 @@ void NovelToLLPass::visit_prolog( AddSignedInstruction& value )
 void NovelToLLPass::visit_epilog( AddSignedInstruction& value )
 {}
 
+void NovelToLLPass::visit_prolog( DivSignedInstruction& value )
+{
+	TODO;	
+}
+void NovelToLLPass::visit_epilog( DivSignedInstruction& value )
+{}
+
 
 
 void NovelToLLPass::visit_prolog( BitConstant& value )

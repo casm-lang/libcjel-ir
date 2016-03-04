@@ -233,6 +233,7 @@ bool BinaryInstruction::classof( Value const* obj )
 	    or StoreInstruction::classof( obj )
 	    or AndInstruction::classof( obj )
 	    or AddSignedInstruction::classof( obj )
+	    or DivSignedInstruction::classof( obj )
 	    ;
 }
 
@@ -511,6 +512,15 @@ AddSignedInstruction::AddSignedInstruction( Value* lhs, Value* rhs )
 bool AddSignedInstruction::classof( Value const* obj )
 {
 	return obj->getValueID() == Value::ADDS_INSTRUCTION;
+}
+
+DivSignedInstruction::DivSignedInstruction( Value* lhs, Value* rhs )
+	: BinaryInstruction( ".divs", 0, lhs, rhs, Value::DIVS_INSTRUCTION )
+{
+}
+bool DivSignedInstruction::classof( Value const* obj )
+{
+	return obj->getValueID() == Value::DIVS_INSTRUCTION;
 }
 
 

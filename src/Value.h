@@ -97,6 +97,8 @@ namespace libnovel
 				
 		, ADDS_INSTRUCTION
 		, ADDU_INSTRUCTION
+
+		, DIVS_INSTRUCTION
 		};
 		
 		typedef std::unordered_map

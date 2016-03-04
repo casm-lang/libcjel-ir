@@ -123,6 +123,9 @@ void NovelDumpPass::visit_epilog( AndInstruction& value ) {}
 void NovelDumpPass::visit_prolog( AddSignedInstruction& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
 void NovelDumpPass::visit_epilog( AddSignedInstruction& value ) {}
 
+void NovelDumpPass::visit_prolog( DivSignedInstruction& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
+void NovelDumpPass::visit_epilog( DivSignedInstruction& value ) {}
+
 void NovelDumpPass::visit_prolog( BitConstant& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
 void NovelDumpPass::visit_epilog( BitConstant& value ) {}
 

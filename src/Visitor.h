@@ -120,6 +120,9 @@ namespace libnovel
 		PREFIX void visit_prolog( AddSignedInstruction& value ) POSTFIX; \
 		PREFIX void visit_epilog( AddSignedInstruction& value ) POSTFIX; \
 																		\
+		PREFIX void visit_prolog( DivSignedInstruction& value ) POSTFIX; \
+		PREFIX void visit_epilog( DivSignedInstruction& value ) POSTFIX; \
+																		\
 		PREFIX void visit_prolog( BitConstant& value ) POSTFIX;			\
 		PREFIX void visit_epilog( BitConstant& value ) POSTFIX;			\
 																		\

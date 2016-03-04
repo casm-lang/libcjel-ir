@@ -1,5 +1,5 @@
 //  
-//  Copyright (c) 2015 Philipp Paulweber
+//  Copyright (c) 2016 Philipp Paulweber
 //  All rights reserved.
 //  
 //  Developed by: Philipp Paulweber
@@ -47,6 +47,8 @@ static libpass::PassRegistration< NovelToVHDLPass > PASS
 );
 
 // static const char* default_output_name = "stdout";
+
+static FILE* stream = stdout;
 
 
 bool NovelToVHDLPass::run( libpass::PassResult& pr )
@@ -103,48 +105,179 @@ static const char* getTypeString( Value& value )
 void NovelToVHDLPass::visit_prolog( Module& value )
 {
 	fprintf
-	( stdout
+	( stream
 	, "-- begin of module: '%s'\n"
-	  "library IEEE;\n"
-	  "use IEEE.std_logic_1164.all;\n"
+	  // "library IEEE;\n"
+	  // "use IEEE.std_logic_1164.all;\n"
 	  "\n"
 	, value.getName()
 	);
 }
 void NovelToVHDLPass::visit_epilog( Module& value )
 {
-	fprintf( stdout, "-- end of module: '%s'\n\n", value.getName() );		
+	fprintf( stream, "-- end of module: '%s'\n\n", value.getName() );		
+}
+
+static void emit_wire( Value& value )
+{
+	assert( Value::isa< CallableUnit >( &value ) );
+
+	Block* context = ((CallableUnit*)(&value))->getContext();
+	assert( context );
+	
+	if( Value::isa< Scope >( context ) )
+	{
+		for( auto block : ((Scope*)context)->getBlocks() )
+		{
+			fprintf
+			( stream
+			, "  signal %s : std_logic;\n"
+			, block->getLabel()
+			);
+		}
+	}
+}
+
+
+static void emit_req( Value& value )
+{
+	fprintf
+	( stream
+	, "  -- req %s\n"
+	  "  process( req_%s ) is begin\n"
+	  "    if rising_edge( req_%s ) then\n"
+	, value.getLabel()
+	, value.getLabel()
+	, value.getLabel()
+	);
+	
+	// Block* context = 0;
+	
+	// if( Value::isa< CallableUnit >( &value ) )
+	// {
+	// 	context = ((CallableUnit*)(&value))->getContext();
+	// }
+	// assert( context );
+	
+	if( Value::isa< Scope >( &value ) )
+	{
+		for( auto block : ((Scope*)&value)->getBlocks() )
+		{
+			fprintf
+			( stream
+			, "      " // TODO: FIXME: dynamic indention calculation 
+			  "%s <= transport '1' after 5ns\n"
+			, block->getLabel()
+			);
+		}
+		if( ((Scope*)&value)->getBlocks().size() == 0 )
+		{
+			fprintf
+			( stream
+			, "      " // TODO: FIXME: dynamic indention calculation 
+			  "null; -- EMPTY SCOPE!\n"
+			);
+		}
+	}
+	
+	fprintf
+	( stream
+	, "    end if;\n"
+	  "  end process;\n"
+	  "\n"
+	);	
+}
+
+static void emit_ack( Value& value )
+{
+	fprintf
+	( stream
+	, "  -- ack %s\n"
+	  "  ack_%s <= transport ( "
+	, value.getLabel()
+	, value.getLabel()
+	);
+	
+	// Block* context = 0;
+	
+	// if( Value::isa< CallableUnit >( &value ) )
+	// {
+	// 	context = ((CallableUnit*)(&value))->getContext();
+	// }
+	// assert( context );
+	
+	if( Value::isa< Scope >( &value ) )
+	{
+		u1 first = true;
+		for( auto block : ((Scope*)&value)->getBlocks() )
+		{
+			fprintf
+			( stream
+			, "%sack_%s"
+			  , first ? "" : " and "
+			, block->getLabel()
+			);
+			
+			if( first )
+			{
+				first = false;
+			}
+		}
+		if( ((Scope*)&value)->getBlocks().size() == 0 )
+		{
+			fprintf
+			( stream
+			, "'1'"
+			);
+		}
+	}
+	
+	fprintf
+	( stream
+	, " ) after 5ns;\n"
+	);
 }
 
 
 void NovelToVHDLPass::visit_prolog( Component& value )
 {
 	fprintf
-	( stdout
-	, "entity %s is port -- Component\n"
+	( stream
+	, "-- Component '%s'\n"
+	  "library IEEE;\n"
+	  "use IEEE.std_logic_1164.all;\n"
+	  "entity %s is port\n"
 	  "( "
+	, value.getLabel()
 	, value.getName()
 	);
 }
 void NovelToVHDLPass::visit_interlog( Component& value )
 {
 	fprintf
-	( stdout
+	( stream
 	, "\n"
 	  "; req : in std_logic\n"
 	  "; ack : in std_logic\n"
 	  ");\n"
 	  "end %s;\n"
-	  "architecture \\@%s@\\ of %s is begin\n"
+	  "architecture \\@%s@\\ of %s is\n"
 	, value.getName()
 	, value.getName()
 	, value.getName()
+	);
+	
+	emit_wire( value );
+	
+	fprintf
+	( stream
+	, "begin\n"
 	);
 }
 void NovelToVHDLPass::visit_epilog( Component& value )
 {
 	fprintf
-	( stdout
+	( stream
 	, "end \\@%s@\\;\n\n"
 	, value.getName()
 	);
@@ -155,7 +288,7 @@ void NovelToVHDLPass::visit_prolog( Function& value )
 {
 	visit_prolog( *((Component*)(&value)) );
 	// fprintf
-	// ( stdout
+	// ( stream
 	// , "procedure %s -- Function\n( "
 	// , value.getName()
 	// );
@@ -164,7 +297,7 @@ void NovelToVHDLPass::visit_interlog( Function& value )
 {
 	visit_interlog( *((Component*)(&value)) );
 	// fprintf
-	// ( stdout
+	// ( stream
 	// , "\n"
 	//   ") is begin\n"
 	// );
@@ -173,7 +306,7 @@ void NovelToVHDLPass::visit_epilog( Function& value )
 {
 	visit_epilog( *((Component*)(&value)) );
 	// fprintf
-	// ( stdout
+	// ( stream
 	// , "end procedure %s;\n\n"
 	// , value.getName()
 	// );
@@ -194,7 +327,7 @@ void NovelToVHDLPass::visit_prolog( Reference& value )
 	}
 	
 	fprintf
-	( stdout
+	( stream
 	, "%s : %-5s %s%s"
 	, value.getIdentifier()->getName()
 	, kind
@@ -236,47 +369,20 @@ void NovelToVHDLPass::visit_epilog( Memory& value )
 
 void NovelToVHDLPass::visit_prolog( ParallelScope& value )
 {
-	fprintf
-	( stdout
-	, "  -- par begin\n"
-	  "  process( %s ) is\n"
-	  "  begin\n"
-	  "    if rising_edge( %s ) then\n"
-	, "req"
-	, "req"
-	);
-	
-	for( auto block : value.getBlocks() )
-	{
-	}
-	
-	fprintf
-	( stdout
-	,  "      TODO\n"
-	  "    end if;\n"
-	  "  end process;\n"
-	);
-	
-	
-	// -- par begin
-	// 	process( req ) is
-	// 	  begin
-	// 	if rising_edge( req ) then
-	// 					  req_add0 <= transport '1' after 5 ns;
-	// req_add1 <= transport '1' after 5 ns;
-	// end if;
-	// end process;
+	emit_req( value );
 }
 void NovelToVHDLPass::visit_epilog( ParallelScope& value )		
 {
+	emit_ack( value );
 }
 
 void NovelToVHDLPass::visit_prolog( SequentialScope& value )
 {
-	TODO;
+	emit_req( value );
 }
 void NovelToVHDLPass::visit_epilog( SequentialScope& value )
 {
+	emit_ack( value );
 }
 
 void NovelToVHDLPass::visit_prolog( TrivialStatement& value )
@@ -340,6 +446,13 @@ void NovelToVHDLPass::visit_prolog( AddSignedInstruction& value )
 void NovelToVHDLPass::visit_epilog( AddSignedInstruction& value )
 {
 }
+
+void NovelToVHDLPass::visit_prolog( DivSignedInstruction& value )
+{
+	TODO;	
+}
+void NovelToVHDLPass::visit_epilog( DivSignedInstruction& value )
+{}
 
 
 void NovelToVHDLPass::visit_prolog( BitConstant& value )

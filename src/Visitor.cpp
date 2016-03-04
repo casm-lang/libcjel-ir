@@ -86,6 +86,7 @@ void Visitor::dispatch( Stage stage, Value* value )
 		
 		CASE_VALUE( AND_INSTRUCTION,   AndInstruction );
 		CASE_VALUE( ADDS_INSTRUCTION,  AddSignedInstruction );
+		CASE_VALUE( DIVS_INSTRUCTION,  DivSignedInstruction );
 		
 	    default:
 			printf
