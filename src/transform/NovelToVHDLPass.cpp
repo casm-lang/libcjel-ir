@@ -125,13 +125,23 @@ static void emit_wire( Value& value )
 	Block* context = ((CallableUnit*)(&value))->getContext();
 	assert( context );
 	
+	// fprintf
+	// ( stream
+	// , "  signal req_%s : std_logic;\n"
+	//   "  signal ack_%s : std_logic;\n"
+	// , context->getLabel()
+	// , context->getLabel()
+	// );
+	
 	if( Value::isa< Scope >( context ) )
 	{
 		for( auto block : ((Scope*)context)->getBlocks() )
 		{
 			fprintf
 			( stream
-			, "  signal %s : std_logic;\n"
+			, "  signal req_%s : std_logic;\n"
+			  "  signal ack_%s : std_logic;\n"
+			, block->getLabel()
 			, block->getLabel()
 			);
 		}
@@ -141,101 +151,10 @@ static void emit_wire( Value& value )
 
 static void emit_req( Value& value )
 {
-	fprintf
-	( stream
-	, "  -- req %s\n"
-	  "  process( req_%s ) is begin\n"
-	  "    if rising_edge( req_%s ) then\n"
-	, value.getLabel()
-	, value.getLabel()
-	, value.getLabel()
-	);
-	
-	// Block* context = 0;
-	
-	// if( Value::isa< CallableUnit >( &value ) )
-	// {
-	// 	context = ((CallableUnit*)(&value))->getContext();
-	// }
-	// assert( context );
-	
-	if( Value::isa< Scope >( &value ) )
-	{
-		for( auto block : ((Scope*)&value)->getBlocks() )
-		{
-			fprintf
-			( stream
-			, "      " // TODO: FIXME: dynamic indention calculation 
-			  "%s <= transport '1' after 5ns\n"
-			, block->getLabel()
-			);
-		}
-		if( ((Scope*)&value)->getBlocks().size() == 0 )
-		{
-			fprintf
-			( stream
-			, "      " // TODO: FIXME: dynamic indention calculation 
-			  "null; -- EMPTY SCOPE!\n"
-			);
-		}
-	}
-	
-	fprintf
-	( stream
-	, "    end if;\n"
-	  "  end process;\n"
-	  "\n"
-	);	
 }
 
 static void emit_ack( Value& value )
 {
-	fprintf
-	( stream
-	, "  -- ack %s\n"
-	  "  ack_%s <= transport ( "
-	, value.getLabel()
-	, value.getLabel()
-	);
-	
-	// Block* context = 0;
-	
-	// if( Value::isa< CallableUnit >( &value ) )
-	// {
-	// 	context = ((CallableUnit*)(&value))->getContext();
-	// }
-	// assert( context );
-	
-	if( Value::isa< Scope >( &value ) )
-	{
-		u1 first = true;
-		for( auto block : ((Scope*)&value)->getBlocks() )
-		{
-			fprintf
-			( stream
-			, "%sack_%s"
-			  , first ? "" : " and "
-			, block->getLabel()
-			);
-			
-			if( first )
-			{
-				first = false;
-			}
-		}
-		if( ((Scope*)&value)->getBlocks().size() == 0 )
-		{
-			fprintf
-			( stream
-			, "'1'"
-			);
-		}
-	}
-	
-	fprintf
-	( stream
-	, " ) after 5ns;\n"
-	);
 }
 
 
@@ -246,6 +165,7 @@ void NovelToVHDLPass::visit_prolog( Component& value )
 	, "-- Component '%s'\n"
 	  "library IEEE;\n"
 	  "use IEEE.std_logic_1164.all;\n"
+	  "use IEEE.numeric_std.all;\n"
 	  "entity %s is port\n"
 	  "( "
 	, value.getLabel()
@@ -336,8 +256,7 @@ void NovelToVHDLPass::visit_prolog( Reference& value )
 	);
 }
 void NovelToVHDLPass::visit_epilog( Reference& value )
-{
-	
+{	
 }
 
 
@@ -347,7 +266,6 @@ void NovelToVHDLPass::visit_prolog( Structure& value )
 }
 void NovelToVHDLPass::visit_epilog( Structure& value )
 {
-
 }
 
 
@@ -369,20 +287,158 @@ void NovelToVHDLPass::visit_epilog( Memory& value )
 
 void NovelToVHDLPass::visit_prolog( ParallelScope& value )
 {
-	emit_req( value );
+	//emit_req( value );
+	fprintf
+	( stream
+	, "  -- req %s\n"
+	  "  process( req_%s ) is begin\n"
+	  "    if rising_edge( req_%s ) then\n"
+	, value.getLabel()
+	, value.getLabel()
+	, value.getLabel()
+	);
+	
+	for( auto block : value.getBlocks() )
+	{
+		fprintf
+		( stream
+		, "      " // TODO: FIXME: dynamic indention calculation 
+		  "req_%s <= transport '1' after 5 ns;\n"
+		, block->getLabel()
+		);
+	}
+	if( value.getBlocks().size() == 0 )
+	{
+		fprintf
+		( stream
+		, "      " // TODO: FIXME: dynamic indention calculation 
+		  "null; -- EMPTY SCOPE!\n"
+	    );
+	}
+	
+	fprintf
+	( stream
+	, "    end if;\n"
+	  "  end process;\n"
+	  "\n"
+	);	
 }
 void NovelToVHDLPass::visit_epilog( ParallelScope& value )		
 {
-	emit_ack( value );
+	//emit_ack( value );
+	fprintf
+	( stream
+	, "  -- ack %s\n"
+	  "  ack_%s <= transport ( "
+	, value.getLabel()
+	, value.getLabel()
+	);
+	
+	u1 first = true;
+	for( auto block : value.getBlocks() )
+	{
+		fprintf
+		( stream
+		, "%sack_%s"
+		, first ? "" : " and "
+		, block->getLabel()
+		);
+			
+		if( first )
+		{
+			first = false;
+		}
+	}
+	if( value.getBlocks().size() == 0 )
+	{
+		fprintf
+		( stream
+		, "'1'"
+		);
+	}
+	
+	fprintf
+	( stream
+	, " ) after 5 ns;\n"
+	);
 }
 
 void NovelToVHDLPass::visit_prolog( SequentialScope& value )
 {
-	emit_req( value );
+	//emit_req( value );
+
+	fprintf
+	( stream
+	, "  -- req %s\n"
+	, value.getLabel()
+	);	
+
+	u1 first = true;
+	Value* last = &value;
+	
+	for( Value* block : value.getBlocks() )
+	{
+		string tmp("");
+		
+		if( first )
+		{
+			if( not Value::isa< CallableUnit >( value.getParent() ) )
+			{
+				tmp += "req_" + std::string(last->getLabel());
+			}
+			else
+			{
+				tmp = "req";
+			}
+		}
+		else
+		{
+			tmp += "ack_" + std::string(last->getLabel());
+		}
+		
+		fprintf
+		( stream
+		, "  process( %s ) is begin\n"
+		  "    if rising_edge( %s ) then\n"
+		  "      req_%s <= transport '1' after 5 ns;\n" // TODO: FIXME: dynamic indention calculation
+		  "    end if;\n"
+		  "  end process;\n"
+		  "\n"
+		, tmp.c_str()
+		, tmp.c_str()
+		, block->getLabel()
+		);
+		
+		first = false;
+		last = block;
+	}
+	
+	if( value.getBlocks().size() == 0 )
+	{
+		fprintf
+		( stream
+		, "  -- EMPTY SCOPE!\n"
+	    );
+	}	
 }
 void NovelToVHDLPass::visit_epilog( SequentialScope& value )
 {
-	emit_ack( value );
+	string tmp("ack");
+
+	if( not Value::isa< CallableUnit >( value.getParent() ) )
+	{
+		tmp += "_" + std::string(value.getLabel());
+	}
+	
+	fprintf
+	( stream
+	, "  -- ack %s\n"
+	  "  %s <= transport ( %s%s ) after 5 ns;\n"
+	, value.getLabel()
+	, tmp.c_str()
+	, value.getBlocks().size() > 0 ? "ack_" : ""
+	, value.getBlocks().size() > 0 ? value.getBlocks().back()->getLabel() : "'1'"
+	);
 }
 
 void NovelToVHDLPass::visit_prolog( TrivialStatement& value )
