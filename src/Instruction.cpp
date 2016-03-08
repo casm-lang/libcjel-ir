@@ -39,7 +39,7 @@ using namespace libnovel;
 
 Instruction::Instruction( const char* name, Type* type, Value::ID id )
 : User( name, type, id )
-//, statement( 0 )
+, statement( 0 )
 {
 }
 
@@ -47,24 +47,28 @@ void Instruction::setStatement( Statement* stmt )
 {
 	statement = stmt;
 	
-	for( auto value : values )
+	for( Value* value : values )
 	{
-		if( Value::isa< Instruction >( value ) )
+		if( not Value::isa< Instruction >( value ) )
 		{
-			Instruction* instr = (Instruction*)value;
-			if( instr->getStatement() == 0 )
-			{			
-				stmt->add( ( value ) );
-			}
-			else if( instr->getStatement() != stmt )
-			{
-				fprintf
+			continue;
+		}
+
+		Instruction* instr = (Instruction*)value;
+
+		if( instr->getStatement() == 0 )
+		{
+			stmt->add( value );
+		}
+		
+		if( instr->getStatement() != stmt )
+		{
+			fprintf
 				( stderr
-				, "error: %s:%i: Instruction %p does belong to a different Statement block\n"
-				, __FUNCTION__, __LINE__, value
-				);
-				assert(0);
-			}
+				  , "error: %s:%i: Instruction %p does belong to a different Statement block\n"
+				  , __FUNCTION__, __LINE__, value
+					);
+			assert(0);
 		}
 	}
 }
@@ -128,6 +132,7 @@ bool Instruction::classof( Value const* obj )
 		or UnaryInstruction::classof( obj )
 		or BinaryInstruction::classof( obj )
 		or CallInstruction::classof( obj )
+		or ExtractInstruction::classof( obj )
 		// or SkipInstruction::classof( obj )
 		// or LocationInstruction::classof( obj )
 		// or PrintInstruction::classof( obj )

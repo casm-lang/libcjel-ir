@@ -139,8 +139,8 @@ static void emit_wire( Value& value )
 		{
 			fprintf
 			( stream
-			, "  signal req_%s : std_logic;\n"
-			  "  signal ack_%s : std_logic;\n"
+			, "  signal req_%s : std_logic := '0';\n"
+			  "  signal ack_%s : std_logic := '0';\n"
 			, block->getLabel()
 			, block->getLabel()
 			);
@@ -290,7 +290,7 @@ void NovelToVHDLPass::visit_prolog( ParallelScope& value )
 	//emit_req( value );
 	fprintf
 	( stream
-	, "  -- req %s\n"
+	, "  -- req %s -- par begin\n"
 	  "  process( req_%s ) is begin\n"
 	  "    if rising_edge( req_%s ) then\n"
 	, value.getLabel()
@@ -328,7 +328,7 @@ void NovelToVHDLPass::visit_epilog( ParallelScope& value )
 	//emit_ack( value );
 	fprintf
 	( stream
-	, "  -- ack %s\n"
+	, "  -- ack %s -- par end\n"
 	  "  ack_%s <= transport ( "
 	, value.getLabel()
 	, value.getLabel()
@@ -365,11 +365,9 @@ void NovelToVHDLPass::visit_epilog( ParallelScope& value )
 
 void NovelToVHDLPass::visit_prolog( SequentialScope& value )
 {
-	//emit_req( value );
-
 	fprintf
 	( stream
-	, "  -- req %s\n"
+	, "  -- req %s -- seq begin\n"
 	, value.getLabel()
 	);	
 
@@ -432,7 +430,7 @@ void NovelToVHDLPass::visit_epilog( SequentialScope& value )
 	
 	fprintf
 	( stream
-	, "  -- ack %s\n"
+	, "  -- ack %s -- seq end\n"
 	  "  %s <= transport ( %s%s ) after 5 ns;\n"
 	, value.getLabel()
 	, tmp.c_str()
@@ -443,10 +441,44 @@ void NovelToVHDLPass::visit_epilog( SequentialScope& value )
 
 void NovelToVHDLPass::visit_prolog( TrivialStatement& value )
 {
-	TODO;
+	string tmp("req_" + std::string(value.getLabel()));
+	
+	fprintf
+	( stream
+	, "  -- stmt %s\n"
+	  "  process( %s ) is\n"
+	, value.getLabel()
+	, tmp.c_str()
+	);
+	
+	for( Value* instr : value.getInstructions() )
+	{
+		fprintf
+		( stream
+		, "    variable %s;\n"
+		, instr->getLabel()
+		);
+	}
+
+	fprintf
+	( stream
+	, "  begin\n"
+	  "    if rising_edge( %s ) then\n"
+	, tmp.c_str()
+	);
 }
 void NovelToVHDLPass::visit_epilog( TrivialStatement& value )
 {
+	string tmp("ack_" + std::string(value.getLabel()));
+	
+	fprintf
+	( stream
+	, "      ack_%s <= transport ( '1' ) after 25 ns;\n"
+	  "    end if;\n"
+	  "  end process;\n"
+	  "\n"
+	, value.getLabel()
+	);
 }
 
 void NovelToVHDLPass::visit_prolog( CallInstruction& value )
@@ -466,14 +498,34 @@ void NovelToVHDLPass::visit_epilog( IdInstruction& value )
 
 void NovelToVHDLPass::visit_prolog( ExtractInstruction& value )
 {
-	TODO;
+	assert( Value::isa< Reference >( value.getLHS() ) );
+	Reference* ref = (Reference*)( value.getLHS() );
+
+	assert( Value::isa< Structure >( value.getRHS() ) );
+	Structure* str = (Structure*)( value.getRHS() );
+
+	assert( str->getParent() == ref->getStructure() );
+	
+	fprintf
+	( stream
+	, "      %s := %s.%s;\n"
+	, value.getLabel()
+	, ref->getIdentifier()->getName()
+	, str->getName()
+	);
 }
 void NovelToVHDLPass::visit_epilog( ExtractInstruction& value )
 {}
 
 void NovelToVHDLPass::visit_prolog( LoadInstruction& value )
 {
-	TODO;
+	assert( Value::isa< ExtractInstruction >( value.get() ) );
+	fprintf
+	( stream
+	, "      %s := %s;\n"
+	, value.getLabel()
+	  , value.get()->getLabel()
+	);
 }
 void NovelToVHDLPass::visit_epilog( LoadInstruction& value )		
 {
@@ -481,7 +533,12 @@ void NovelToVHDLPass::visit_epilog( LoadInstruction& value )
 
 void NovelToVHDLPass::visit_prolog( StoreInstruction& value )
 {
-	TODO;
+	fprintf
+	( stream
+	, "      %s <= transport %s after 20 ns;\n"
+	, value.getRHS()->getLabel()
+	, value.getLHS()->getLabel()
+	);	
 }
 void NovelToVHDLPass::visit_epilog( StoreInstruction& value )		
 {
@@ -489,7 +546,13 @@ void NovelToVHDLPass::visit_epilog( StoreInstruction& value )
 
 void NovelToVHDLPass::visit_prolog( AndInstruction& value )
 {
-	TODO;
+	fprintf
+	( stream
+	, "      %s := %s and %s;\n"
+	, value.getLabel()
+	, value.getLHS()->getLabel()
+	, value.getRHS()->getLabel()
+	);	
 }
 void NovelToVHDLPass::visit_epilog( AndInstruction& value )
 {
@@ -497,7 +560,13 @@ void NovelToVHDLPass::visit_epilog( AndInstruction& value )
 
 void NovelToVHDLPass::visit_prolog( AddSignedInstruction& value )
 {
-	TODO;
+	fprintf
+	( stream
+	, "      %s := std_logic_vector( signed( %s ) + signed( %s ) );\n"
+	, value.getLabel()
+	, value.getLHS()->getLabel()
+	, value.getRHS()->getLabel()
+	);
 }
 void NovelToVHDLPass::visit_epilog( AddSignedInstruction& value )
 {
@@ -505,7 +574,13 @@ void NovelToVHDLPass::visit_epilog( AddSignedInstruction& value )
 
 void NovelToVHDLPass::visit_prolog( DivSignedInstruction& value )
 {
-	TODO;	
+	fprintf
+	( stream
+	, "      %s := std_logic_vector( signed( %s ) / signed( %s ) );\n"
+	, value.getLabel()
+	, value.getLHS()->getLabel()
+	, value.getRHS()->getLabel()
+	);	
 }
 void NovelToVHDLPass::visit_epilog( DivSignedInstruction& value )
 {}

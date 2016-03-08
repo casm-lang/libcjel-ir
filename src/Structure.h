@@ -57,7 +57,7 @@ namespace libnovel
 		const Identifier* getIdentifier( void ) const;
 
 		void add( Value* value );
-
+		
 		Value* get( u16 index ) const; 
 		const std::vector< Structure* >& getElements( void ) const;
 
