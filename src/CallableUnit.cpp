@@ -153,7 +153,7 @@ void CallableUnit::dump( void ) const
 
 bool CallableUnit::classof( Value const* obj )
 {
-	return obj->getValueID() == Value::CALLABLE_UNIT
+	return obj->getValueID() == classid()
 		or Component::classof( obj )
 		or Function::classof( obj )
 		;

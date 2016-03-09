@@ -74,7 +74,7 @@ void Scope::dump( void ) const
 
 bool Scope::classof( Value const* obj )
 {
-	return obj->getValueID() == Value::SCOPE
+	return obj->getValueID() == classid()
 		or SequentialScope::classof( obj )
 		or ParallelScope::classof( obj )
 		;
@@ -93,7 +93,7 @@ void SequentialScope::dump( void ) const
 
 bool SequentialScope::classof( Value const* obj )
 {
-	return obj->getValueID() == Value::SEQUENTIAL_SCOPE
+	return obj->getValueID() == classid()
 		//or ???::classof( obj )
 		;
 }
@@ -114,7 +114,7 @@ void ParallelScope::dump( void ) const
 bool ParallelScope::classof( Value const* obj )
 {
 	
-	return obj->getValueID() == Value::PARALLEL_SCOPE
+	return obj->getValueID() == classid()
 		//or ???::classof( obj )
 		;
 }

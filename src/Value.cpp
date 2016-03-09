@@ -130,6 +130,11 @@ void Value::dump( void ) const
 
 void Value::iterate( Traversal order, Visitor* visitor, std::function< void( Value* ) > action )
 {
+	if( Value::isa< Structure >( this ) and ((Structure*)this)->getElements().size() == 0 )
+	{
+		return;
+	}
+	
 	if( order == Traversal::PREORDER )
 	{
 	    action( /*order, */ this );
@@ -143,18 +148,36 @@ void Value::iterate( Traversal order, Visitor* visitor, std::function< void( Val
 	if( Value::isa< Module >( this ) )
 	{
 	    Module* obj = ((Module*)this);
-
-		auto content = obj->getContent();
+		const std::vector< Value* > empty = {};
 		
-		u8 c = 0;
-		while( c < 100 )
+		for( Value* p : (obj->has< Structure >() ? obj->get< Structure >() : empty ) )
 		{
-			for( Value* p : content[c] )
-			{
-				p->iterate( order, visitor, action );
-			}
-			
-			c++;
+			p->iterate( order, visitor, action );
+		}
+		
+		for( Value* p : (obj->has< Constants >() ? obj->get< Constants >() : empty ) )
+		{
+			p->iterate( order, visitor, action );
+		}
+		
+		for( Value* p : (obj->has< Variable >() ? obj->get< Variable >() : empty ) )
+		{
+			p->iterate( order, visitor, action );
+		}
+		
+		for( Value* p : (obj->has< Memory >() ? obj->get< Memory >() : empty ) )
+		{
+			p->iterate( order, visitor, action );
+		}
+		
+		for( Value* p : (obj->has< Function >() ? obj->get< Function >() : empty ) )
+		{
+			p->iterate( order, visitor, action );
+		}
+		
+		for( Value* p : (obj->has< Component >() ? obj->get< Component >() : empty ) )
+		{
+			p->iterate( order, visitor, action );
 		}
 	}
 	else if( Value::isa< Structure >( this ) )
@@ -162,7 +185,7 @@ void Value::iterate( Traversal order, Visitor* visitor, std::function< void( Val
 	    Structure* obj = ((Structure*)this);
 		
 		for( Value* p : obj->getElements() )
-		{
+		{				
 			p->iterate( order, visitor, action );
 		}
 	}

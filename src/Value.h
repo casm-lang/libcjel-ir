@@ -49,7 +49,8 @@ namespace libnovel
 	{
 	public:
 		enum ID
-		{ USER
+		{ VALUE
+		, USER
 		
 		, MODULE
 		
@@ -116,7 +117,7 @@ namespace libnovel
 			static SymbolTable symbols;
 			return &symbols;
 		}
-		
+
 	private:
 		const char* name;
 		Type* type;		
@@ -124,6 +125,8 @@ namespace libnovel
 		u1 type_lock;
 		
 		std::vector< Type* > parameters;
+
+		std::unordered_map< u32, Value* > references;
 		
 	public:
 		Value( const char* name, Type* type, ID id );
@@ -133,6 +136,7 @@ namespace libnovel
 		const char* getName( void ) const;
 	    
 		Type* getType( void ) const;
+		
 	protected:
 		void setType( Type* type );
 		
@@ -141,7 +145,30 @@ namespace libnovel
 		
 		void debug( void ) const;
 		void dump( void ) const;
+
+
+		template< class C >
+		C* getRef( void )
+		{
+			auto result = references.find( C::classid() );
+			if( result != references.end() )
+			{
+				assert( Value::isa< C >( result->second ) );
+				return (C*)result->second;
+			}
+			
+			return 0;
+		}
 		
+		template< class C >
+		void setRef( Value* reference )
+		{
+			assert( references.count( C::classid() ) == 0 );
+			references[ C::classid() ] = reference;
+		}
+		
+		static inline ID classid( void ) { return Value::VALUE; };
+
 		static inline bool classof( Value const* )
 		{
 			return true;

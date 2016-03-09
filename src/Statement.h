@@ -63,11 +63,6 @@ namespace libnovel
 
 		void add( Value* instruction );
 		
-		void dump( void ) const;
-		
-		static bool classof( Value const* obj );
-
-		
 		template< class C >
 		bool consistsOnlyOf( void )
 		{
@@ -81,6 +76,11 @@ namespace libnovel
 
 			return true;
 		};
+		
+		void dump( void ) const;
+		
+		static inline Value::ID classid( void ) { return Value::STATEMENT; };
+		static bool classof( Value const* obj );
 	};
 	
 	class TrivialStatement : public Statement
@@ -90,6 +90,7 @@ namespace libnovel
 
 		void dump( void ) const;
 		
+		static inline Value::ID classid( void ) { return Value::TRIVIAL_STATEMENT; };
 		static bool classof( Value const* obj );
 	};
 	

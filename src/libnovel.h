@@ -61,7 +61,7 @@ namespace libnovel
 {
 }
 
-#define TODO fprintf( stderr, "%s:%i: '%s' implementation TODO\n", __FILE__, __LINE__, __FUNCTION__ )
+#define TODO fprintf( stdout, "%s:%i: '%s' implementation TODO\n", __FILE__, __LINE__, __FUNCTION__ )
 
 #endif /* _LIB_NOVEL_H_ */
 

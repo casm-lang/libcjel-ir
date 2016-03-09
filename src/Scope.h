@@ -58,6 +58,7 @@ namespace libnovel
 		
 		void dump( void ) const;
 		
+		static inline Value::ID classid( void ) { return Value::SCOPE; };
 		static bool classof( Value const* obj );
 	};
 	
@@ -69,6 +70,7 @@ namespace libnovel
 		
 		void dump( void ) const;
 		
+		static inline Value::ID classid( void ) { return Value::SEQUENTIAL_SCOPE; };
 		static bool classof( Value const* obj );		
 	};
 
@@ -79,62 +81,9 @@ namespace libnovel
 		
 		void dump( void ) const;
 		
+		static inline Value::ID classid( void ) { return Value::PARALLEL_SCOPE; };
 		static bool classof( Value const* obj );		
 	};
-	
-// 	class ExecutionSemanticsBlock : public Block
-// 	{
-// 	private:
-// 		const u1 is_parallel;
-// 		u64 pseudo_state;
-// 		ExecutionSemanticsBlock* parent;
-// 		std::vector< Block* > blocks;
-		
-// 	public:
-// 		ExecutionSemanticsBlock
-// 		( const char* name
-// 		, Type* type
-// 		, const u1 is_parallel
-// 		, ExecutionSemanticsBlock* parent = 0
-// 		, Value::ID id = Value::EXECUTION_SEMANTICS_SCOPE
-// 		);
-		
-		
-// 		const u64 getPseudoState( void ) const;
-		
-// 	    ExecutionSemanticsBlock* getParent( void ) const;
-		
-// 		void setParent( ExecutionSemanticsBlock* parent_block );
-
-// 		const std::vector< Block* >& getBlocks( void ) const;
-
-// 		void add( Block* block );
-		
-// 	    void dump( void ) const;
-		
-// 		static bool classof( Value const* obj );
-// 	};
-	
-// 	class ParallelBlock : public ExecutionSemanticsBlock
-// 	{
-// 	public:
-// 		ParallelBlock( ExecutionSemanticsBlock* parent = 0 );
-
-// 		void dump( void ) const;
-		
-// 		static bool classof( Value const* obj );
-// 	};
-	
-// 	class SequentialBlock : public ExecutionSemanticsBlock
-// 	{
-// 	public:
-// 		SequentialBlock( ExecutionSemanticsBlock* parent = 0 );
-	    
-// 		void dump( void ) const;
-		
-// 		static bool classof( Value const* obj );
-// 	};
-
 }
 
 

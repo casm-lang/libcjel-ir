@@ -36,6 +36,7 @@
 #define _LIB_NOVEL_STRUCTURE_H_
 
 #include "Value.h"
+#include "Module.h"
 #include "User.h"
 #include "Function.h"
 #include "Constant.h"
@@ -65,6 +66,8 @@ namespace libnovel
 		Structure* getParent( void ) const;
 		
 		void dump( void ) const;
+		
+		static inline Value::ID classid( void ) { return Value::STRUCTURE; };
 		static bool classof( Value const* obj );
 	};
 }

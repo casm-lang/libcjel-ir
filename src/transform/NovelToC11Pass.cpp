@@ -148,12 +148,6 @@ void NovelToC11Pass::visit_epilog( Reference& value )
 
 void NovelToC11Pass::visit_prolog( Structure& value )
 {
-	if( value.getElements().size() == 0 )
-	{
-		// all bit types can be represented in C11 directly!
-		return;
-	}
-	
     fprintf
 	( stdout
 	, "// structure begin: '%s'\n"
@@ -182,7 +176,8 @@ void NovelToC11Pass::visit_prolog( Structure& value )
     , value.getIdentifier()->getName()
 	);
 }
-void NovelToC11Pass::visit_epilog( Structure& value ) {}
+void NovelToC11Pass::visit_epilog( Structure& value )
+{}
 
 
 void NovelToC11Pass::visit_prolog( Variable& value )

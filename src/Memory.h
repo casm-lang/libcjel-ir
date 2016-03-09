@@ -53,6 +53,7 @@ namespace libnovel
 		
 		void dump( void ) const;
 		
+		static inline Value::ID classid( void ) { return Value::MEMORY; };
 		static bool classof( Value const* obj );
 	};
 }

@@ -72,6 +72,8 @@ namespace libnovel
 		const u1 isLastParameter( Value* value ) const;
 		
 		void dump( void ) const;
+		
+		static inline Value::ID classid( void ) { return Value::CALLABLE_UNIT; };
 		static bool classof( Value const* obj );
 	};
 }

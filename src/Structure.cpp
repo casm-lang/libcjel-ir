@@ -101,7 +101,7 @@ void Structure::dump( void ) const
 
 bool Structure::classof( Value const* obj )
 {
-	return obj->getValueID() == Value::STRUCTURE;
+	return obj->getValueID() == classid();
 }
 
 

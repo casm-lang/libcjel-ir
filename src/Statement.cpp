@@ -121,7 +121,7 @@ void Statement::dump( void ) const
 
 bool Statement::classof( Value const* obj )
 {
-	return obj->getValueID() == Value::STATEMENT
+	return obj->getValueID() == classid()
 		or TrivialStatement::classof( obj )
 		//or BranchStatement::classof( obj )
 		;
@@ -148,7 +148,7 @@ void TrivialStatement::dump( void ) const
 
 bool TrivialStatement::classof( Value const* obj )
 {
-	return obj->getValueID() == Value::TRIVIAL_STATEMENT;
+	return obj->getValueID() == classid();
 }
 
 

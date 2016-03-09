@@ -57,6 +57,7 @@ namespace libnovel
 		
 	    const V getValue( void ) const;
 		
+		static inline Value::ID classid( void ) { return Value::CONSTANT; };
 		static bool classof( Value const* obj );
 
 	protected:
@@ -67,6 +68,7 @@ namespace libnovel
 	class Constants : public Constant< u1 >
 	{
 	public:
+		static inline Value::ID classid( void ) { return Value::CONSTANT; };
 		static bool classof( Value const* obj );
 	};
 
@@ -84,6 +86,7 @@ namespace libnovel
 		
 		void dump( void ) const;
 		
+		static inline Value::ID classid( void ) { return Value::BIT_CONSTANT; };
 		static bool classof( Value const* obj );
 	};
 	
@@ -100,6 +103,7 @@ namespace libnovel
 		
 		void dump( void ) const;
 		
+		static inline Value::ID classid( void ) { return Value::STRUCTURE_CONSTANT; };
 		static bool classof( Value const* obj );
 	};
 	
@@ -119,6 +123,7 @@ namespace libnovel
 		
 		void dump( void ) const;
 
+		static inline Value::ID classid( void ) { return Value::IDENTIFIER; };
 		static bool classof( Value const* obj );
 	};
 }

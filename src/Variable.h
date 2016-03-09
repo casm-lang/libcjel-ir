@@ -55,6 +55,8 @@ namespace libnovel
 		Value* getExpression( void ) const;
 
 		void dump( void ) const;
+
+		static inline ID classid( void ) { return Value::VARIABLE; };
 		static bool classof( Value const* obj );
 	};
 }

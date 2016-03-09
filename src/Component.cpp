@@ -65,7 +65,7 @@ void Component::dump( void ) const
 
 bool Component::classof( Value const* obj )
 {
-	return obj->getValueID() == Value::COMPONENT;
+	return obj->getValueID() == classid();
 }
 
 

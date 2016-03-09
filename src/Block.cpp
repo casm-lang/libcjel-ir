@@ -67,9 +67,10 @@ void Block::dump( void ) const
 	((Value*)this)->dump();
 }
 
+
 bool Block::classof( Value const* obj )
 {
-	return obj->getValueID() == Value::BLOCK
+	return obj->getValueID() == classid()
 		or Scope::classof( obj )
 		or Statement::classof( obj )
 		;

@@ -62,6 +62,7 @@ namespace libnovel
 		
 		void dump( void ) const;
 		
+		static inline Value::ID classid( void ) { return Value::INSTRUCTION; };
 		static bool classof( Value const* obj );
 	};
 	
@@ -71,8 +72,8 @@ namespace libnovel
 		UnaryInstruction( const char* name, Type* type, Value* value
 						, Value::ID id = Value::UNARY_INSTRUCTION );
 		Value* get( void ) const;
-
 		
+		static inline Value::ID classid( void ) { return Value::UNARY_INSTRUCTION; };
 		static bool classof( Value const* obj );
 	};
 	
@@ -85,6 +86,7 @@ namespace libnovel
 		Value* getLHS( void ) const;
 		Value* getRHS( void ) const;
 				
+		static inline Value::ID classid( void ) { return Value::BINARY_INSTRUCTION; };
 		static bool classof( Value const* obj );
 	};
 
@@ -99,6 +101,7 @@ namespace libnovel
 		, Value::ID id = Value::ARITHMETIC_INSTRUCTION
 		);
 		
+		static inline Value::ID classid( void ) { return Value::ARITHMETIC_INSTRUCTION; };
 		static bool classof( Value const* obj );
 	};
 
@@ -113,27 +116,17 @@ namespace libnovel
 		, Value::ID id = Value::LOGICAL_INSTRUCTION
 		);
 		
+		static inline Value::ID classid( void ) { return Value::LOGICAL_INSTRUCTION; };
 		static bool classof( Value const* obj );
 	};
 	
-	
-	
-	// class SkipInstruction : public Instruction
-	// {
-	// public:
-	// 	SkipInstruction( void );
-		
-	// 	//void dump( void ) const;
-		
-	// 	static bool classof( Value const* obj );
-	// };
-	
-	
+
 	class IdInstruction : public UnaryInstruction
 	{
 	public :
 		IdInstruction( Value* src );
 		//void dump( void ) const;
+		static inline Value::ID classid( void ) { return Value::ID_INSTRUCTION; };
 		static bool classof( Value const* obj );
 	};
 	
@@ -143,6 +136,7 @@ namespace libnovel
 	public :
 		LoadInstruction( Value* src );
 		//void dump( void ) const;
+		static inline Value::ID classid( void ) { return Value::LOAD_INSTRUCTION; };
 		static bool classof( Value const* obj );
 	};
 	
@@ -152,6 +146,7 @@ namespace libnovel
 	public:
 	    StoreInstruction( Value* src, Value* dst );
 		//void dump( void ) const;
+		static inline Value::ID classid( void ) { return Value::STORE_INSTRUCTION; };
 		static bool classof( Value const* obj );
 	};
 
@@ -160,6 +155,7 @@ namespace libnovel
 	public:
 	    ExtractInstruction( Value* ref, Value* element );
 		//void dump( void ) const;
+		static inline Value::ID classid( void ) { return Value::EXTRACT_INSTRUCTION; };
 		static bool classof( Value const* obj );
 	};
 	
@@ -169,105 +165,24 @@ namespace libnovel
 	public:
 		CallInstruction( Value* symbol );
 		//void dump( void ) const;
+		static inline Value::ID classid( void ) { return Value::CALL_INSTRUCTION; };
 		static bool classof( Value const* obj );
 	};
-	
-	// class LetInstruction : public BinaryInstruction
-	// {
-	// public:
-	//     LetInstruction( Value* ident, Value* expr );
-        
-	// 	static bool classof( Value const* obj );
-	// };
-	
-	// class LocationInstruction : public Instruction
-	// {
-	// public:
-	// 	LocationInstruction( Value* function );
-
-	// 	//void dump( void ) const;
-		
-	// 	static bool classof( Value const* obj );
-	// };
-	
-
-	// class PrintInstruction : public Instruction
-	// {
-	// public:
-	// 	PrintInstruction( Value* channel = 0 );
-	// 	static bool classof( Value const* obj );
-	// };
-
-
-	// class AssertInstruction : public UnaryInstruction
-	// {
-	// public :
-	// 	AssertInstruction( Value* condition );
-
-	// 	//void dump( void ) const;
-		
-	// 	static bool classof( Value const* obj );
-	// };
-	
-	
-	// class SwitchInstruction : public Instruction
-	// {
-	// public:
-	// 	SwitchInstruction( Value* expression );
-		
-	// 	//void dump( void ) const;
-		
-	// 	static bool classof( Value const* obj );
-	// };	
-	
-	// class BranchInstruction : public UnaryInstruction
-	// {
-	// private:
-	// 	Value* case_true;
-	//     Value* case_false;
-		
-	// public :
-	//     BranchInstruction( Value* condition, Value* case_true, Value* case_false = 0 );
-		
-	// 	static bool classof( Value const* obj );
-
-	// 	Value* getTrue ( void ) const;
-	// 	Value* getFalse( void ) const;
-	// };
-
-	// class OrInstruction : public OperatorInstruction
-	// {
-	// public:
-	// 	OrInstruction( Value* lhs, Value* rhs );
-	// 	static bool classof( Value const* obj );
-	// };
-
-	// class XorInstruction : public OperatorInstruction
-	// {
-	// public:
-	// 	XorInstruction( Value* lhs, Value* rhs );
-	// 	static bool classof( Value const* obj );
-	// };
 	
 	class AndInstruction : public ArithmeticInstruction
 	{
 	public:
 		AndInstruction( Value* lhs, Value* rhs );
+		static inline Value::ID classid( void ) { return Value::AND_INSTRUCTION; };
 		static bool classof( Value const* obj );
 	};
-	
-	// class NotInstruction : public UnaryInstruction
-	// {
-	// public:
-	// 	NotInstruction( Value* lhs );
-	// 	static bool classof( Value const* obj );
-	// };
 
 	
 	class AddSignedInstruction : public ArithmeticInstruction
 	{
 	public:
 		AddSignedInstruction( Value* lhs, Value* rhs );
+		static inline Value::ID classid( void ) { return Value::ADDS_INSTRUCTION; };
 		static bool classof( Value const* obj );
 	};
 
@@ -275,6 +190,7 @@ namespace libnovel
 	{
 	public:
 		DivSignedInstruction( Value* lhs, Value* rhs );
+		static inline Value::ID classid( void ) { return Value::DIVS_INSTRUCTION; };
 		static bool classof( Value const* obj );
 	};
 	

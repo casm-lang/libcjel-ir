@@ -113,7 +113,7 @@ void Reference::dump( void ) const
 
 bool Reference::classof( Value const* obj )
 {
-	return obj->getValueID() == Value::REFERENCE;
+	return obj->getValueID() == classid();
 }
 
 

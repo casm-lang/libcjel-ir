@@ -65,7 +65,7 @@ void Function::dump( void ) const
 
 bool Function::classof( Value const* obj )
 {
-	return obj->getValueID() == Value::FUNCTION;
+	return obj->getValueID() == classid();
 }
 
 

@@ -49,6 +49,8 @@ namespace libnovel
 		~Function( void );
 		
 		void dump( void ) const;
+		
+		static inline Value::ID classid( void ) { return Value::FUNCTION; };
 		static bool classof( Value const* obj );
 	};
 }

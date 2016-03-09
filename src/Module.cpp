@@ -40,7 +40,7 @@ using namespace libnovel;
 
 Module::Module( const char* name )
 : User( name, 0, Value::MODULE )
-{
+{	
 	assert( name );
 	
 	(*Value::getSymbols())[ ".module" ].insert( this );
@@ -54,45 +54,48 @@ Module::~Module( void )
 void Module::add( Value* value )
 {
 	assert( value );
-
-	u8 bucket = -1;
+	
 	if( Value::isa< Structure >( value ) )
 	{
-		bucket = 0;
+		content[ Structure::classid() ].push_back( value );
+		value->setRef< Module >( this );
 	}
 	else if( Value::isa< Constants >( value ) )
 	{
-		bucket = 1;
+		content[ Constants::classid() ].push_back( value );
+		value->setRef< Constants >( this );
 	}
 	else if( Value::isa< Variable >( value ) )
 	{
-		bucket = 2;
+		content[ Variable::classid() ].push_back( value );
+		value->setRef< Variable >( this );
 	}
 	else if( Value::isa< Memory >( value ) ) 
 	{
-		bucket = 3;
+		content[ Memory::classid() ].push_back( value );
+		value->setRef< Memory >( this );
 	}
 	else if( Value::isa< Function >( value ) )
 	{
-		bucket = 4;
+		content[ Function::classid() ].push_back( value );
+		value->setRef< Function >( this );
 	}
 	else if( Value::isa< Component >( value ) )
 	{
-		bucket = 5;
+		content[ Component::classid() ].push_back( value );
+		value->setRef< Component >( this );
 	}
 	else
 	{
 		assert( !"unsupported Module content found!" );
 	}
-	
-	content[ bucket ].push_back( value );
 }
 
-const std::unordered_map< u8, std::vector< Value* > >& Module::getContent( void ) const
-{
-	return content;
-}
-
+// const std::unordered_map< u8, std::vector< Value* > >& Module::getContent( void ) const
+// {
+// 	return content;
+// }
+		
 
 void Module::dump( void ) const
 {
@@ -102,7 +105,7 @@ void Module::dump( void ) const
 
 bool Module::classof( Value const* obj )
 {
-	return obj->getValueID() == Value::MODULE;
+	return obj->getValueID() == classid();
 }
 
 

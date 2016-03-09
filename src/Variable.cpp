@@ -64,7 +64,7 @@ void Variable::dump( void ) const
 
 bool Variable::classof( Value const* obj )
 {
-	return obj->getValueID() == Value::VARIABLE;
+	return obj->getValueID() == classid();
 }
 
 

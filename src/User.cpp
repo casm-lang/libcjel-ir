@@ -36,10 +36,9 @@
 
 using namespace libnovel;
 
-
 bool User::classof( Value const* obj )
 {
-	return obj->getValueID() == Value::USER
+	return obj->getValueID() == classid()
 		or Module::classof( obj )
 		or Memory::classof( obj )
 		or CallableUnit::classof( obj )

@@ -72,10 +72,9 @@ void Constant< V >::setValue( V val )
 	value = val;
 }
 
-
 bool Constants::classof( Value const* obj )
 {
-	return obj->getValueID() == Value::CONSTANT
+	return obj->getValueID() == classid()
 	    or BitConstant::classof( obj )
 		or StructureConstant::classof( obj )
 		//or Identifier::classof( obj )
@@ -116,7 +115,7 @@ void BitConstant::dump( void ) const
 
 bool BitConstant::classof( Value const* obj )
 {
-	return obj->getValueID() == Value::BIT_CONSTANT;
+	return obj->getValueID() == classid();
 }
 
 
@@ -193,7 +192,7 @@ void StructureConstant::dump( void ) const
 
 bool StructureConstant::classof( Value const* obj )
 {
-	return obj->getValueID() == Value::STRUCTURE_CONSTANT;
+	return obj->getValueID() == classid();
 }
 
 
@@ -280,7 +279,7 @@ void Identifier::dump( void ) const
 
 bool Identifier::classof( Value const* obj )
 {
-	return obj->getValueID() == Value::IDENTIFIER;
+	return obj->getValueID() == classid();
 }
 
 

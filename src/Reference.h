@@ -65,9 +65,10 @@ namespace libnovel
 		
 		const Structure* getStructure( void ) const;
 		const u1 isStructure( void ) const;
-		
-		
+				
 		void dump( void ) const;
+
+		static inline Value::ID classid( void ) { return Value::REFERENCE; };
 		static bool classof( Value const* obj );
 	};
 }

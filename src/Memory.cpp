@@ -78,7 +78,7 @@ void Memory::dump( void ) const
 
 bool Memory::classof( Value const* obj )
 {
-	return obj->getValueID() == Value::MEMORY;
+	return obj->getValueID() == classid();
 }
 
 
