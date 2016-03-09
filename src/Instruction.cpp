@@ -73,10 +73,8 @@ void Instruction::setStatement( Statement* stmt )
 	}
 }
 
-
 const Statement* Instruction::getStatement( void ) const
 {
-	//assert( statement );
 	return statement;
 }
 
@@ -98,12 +96,14 @@ void Instruction::add( Value* value )
 
 Value* Instruction::getValue( u8 index ) const
 {
+	// TODO: IDEA: assert( getType() ); // to force the type check!
 	assert( index < values.size() );
 	return values[ index ];
 }
 
 const std::vector< Value* >& Instruction::getValues( void ) const
 {
+	// TODO: IDEA: assert( getType() ); // to force the type check!
 	return values;
 }
 
@@ -144,8 +144,10 @@ bool Instruction::classof( Value const* obj )
 UnaryInstruction::UnaryInstruction( const char* name, Type* type, Value* value, Value::ID id )
 : Instruction( name, type, id )
 {
+	assert(  value->getType() );
+	setType( value->getType() );
 	add( value );
-}	  
+}
 
 Value* UnaryInstruction::get( void ) const
 {
@@ -166,6 +168,70 @@ BinaryInstruction::BinaryInstruction( const char* name, Type* type, Value* lhs, 
 {
 	add( lhs );
 	add( rhs );
+}	  
+
+Value* BinaryInstruction::getLHS( void ) const
+{
+	return getValue( 0 );
+}
+
+Value* BinaryInstruction::getRHS( void ) const
+{
+	return getValue( 1 );
+}
+
+bool BinaryInstruction::classof( Value const* obj )
+{
+	return obj->getValueID() == Value::BINARY_INSTRUCTION
+	    or ArithmeticInstruction::classof( obj )
+	    or LogicalInstruction::classof( obj )
+	    or StoreInstruction::classof( obj )
+		;
+	    // or AndInstruction::classof( obj )
+	    // or AddSignedInstruction::classof( obj )
+	    // or DivSignedInstruction::classof( obj )
+	    // ;
+}
+
+
+
+ArithmeticInstruction::ArithmeticInstruction( const char* name, Type* type, Value* lhs, Value* rhs, Value::ID id )
+: BinaryInstruction( name, type, lhs, rhs, id )
+{
+	Type* lhs_ty = getLHS()->getType();
+	Type* rhs_ty = getRHS()->getType();
+	
+	assert( lhs_ty );
+	assert( rhs_ty );
+	assert( lhs_ty->getID() == rhs_ty->getID() );
+	
+	assert( !getType() );
+
+	assert( !getType() );
+	setType( lhs->getType() );	
+}
+
+bool ArithmeticInstruction::classof( Value const* obj )
+{
+	return obj->getValueID() == Value::ARITHMETIC_INSTRUCTION
+	    or AndInstruction::classof( obj )
+	    or AddSignedInstruction::classof( obj )
+	    or DivSignedInstruction::classof( obj )
+	    ;
+}
+
+LogicalInstruction::LogicalInstruction( const char* name, Type* type, Value* lhs, Value* rhs, Value::ID id )
+: BinaryInstruction( name, type, lhs, rhs, id )
+{
+	assert( !"IMPLEMENTATION ... TODO!!!" );	
+}
+
+bool LogicalInstruction::classof( Value const* obj )
+{
+	return obj->getValueID() == Value::LOGICAL_INSTRUCTION
+	    ;
+}
+
 
 // 	assert( getLHS()->getType() );
 // 	assert( getRHS()->getType() );
@@ -219,31 +285,17 @@ BinaryInstruction::BinaryInstruction( const char* name, Type* type, Value* lhs, 
 				
 // 		setType( op_ty );
 // 	}
+
+
+
+
+
+
+
+
+
+
 	
-}	  
-
-Value* BinaryInstruction::getLHS( void ) const
-{
-	return getValue( 0 );
-}
-
-Value* BinaryInstruction::getRHS( void ) const
-{
-	return getValue( 1 );
-}
-
-bool BinaryInstruction::classof( Value const* obj )
-{
-	return obj->getValueID() == Value::BINARY_INSTRUCTION
-	    or StoreInstruction::classof( obj )
-	    or AndInstruction::classof( obj )
-	    or AddSignedInstruction::classof( obj )
-	    or DivSignedInstruction::classof( obj )
-	    ;
-}
-
-
-
 //// concrete instructions!!!
 IdInstruction::IdInstruction( Value* src )
 : UnaryInstruction( ".addressof", &TypeB64, src, Value::ID_INSTRUCTION )
@@ -260,7 +312,6 @@ bool IdInstruction::classof( Value const* obj )
 LoadInstruction::LoadInstruction( Value* src )
 : UnaryInstruction( ".load", 0, src, Value::LOAD_INSTRUCTION )
 {
-	//assert( Value::isa< Structure > );
 }
 bool LoadInstruction::classof( Value const* obj )
 {
@@ -270,7 +321,7 @@ bool LoadInstruction::classof( Value const* obj )
 
 
 StoreInstruction::StoreInstruction( Value* src, Value* dst )
-	: BinaryInstruction( ".store", 0, src, dst, Value::STORE_INSTRUCTION )
+: BinaryInstruction( ".store", 0, src, dst, Value::STORE_INSTRUCTION )
 {
 }
 bool StoreInstruction::classof( Value const* obj )
@@ -280,11 +331,17 @@ bool StoreInstruction::classof( Value const* obj )
 
 
 ExtractInstruction::ExtractInstruction( Value* src, Value* dst )
-	: BinaryInstruction( ".extract", 0, src, dst, Value::EXTRACT_INSTRUCTION )
+: BinaryInstruction( ".extract", 0, src, dst, Value::EXTRACT_INSTRUCTION )
 {
 	assert( src );
 	assert( dst );
+
+	assert( src->getType() );
+	assert( dst->getType() );
+
+	// TODO: possible check to implement if 'dst' is inside 'src'
 	
+	setType( dst->getType() );
 }
 bool ExtractInstruction::classof( Value const* obj )
 {
@@ -476,7 +533,7 @@ bool CallInstruction::classof( Value const* obj )
 // }
 
 AndInstruction::AndInstruction( Value* lhs, Value* rhs )
-: BinaryInstruction( ".and", 0, lhs, rhs, Value::AND_INSTRUCTION )
+: ArithmeticInstruction( ".and", 0, lhs, rhs, Value::AND_INSTRUCTION )
 {	
 }
 bool AndInstruction::classof( Value const* obj )
@@ -511,7 +568,7 @@ bool AndInstruction::classof( Value const* obj )
 
 
 AddSignedInstruction::AddSignedInstruction( Value* lhs, Value* rhs )
-	: BinaryInstruction( ".adds", 0, lhs, rhs, Value::ADDS_INSTRUCTION )
+: ArithmeticInstruction( ".adds", 0, lhs, rhs, Value::ADDS_INSTRUCTION )
 {
 }
 bool AddSignedInstruction::classof( Value const* obj )
@@ -520,7 +577,7 @@ bool AddSignedInstruction::classof( Value const* obj )
 }
 
 DivSignedInstruction::DivSignedInstruction( Value* lhs, Value* rhs )
-	: BinaryInstruction( ".divs", 0, lhs, rhs, Value::DIVS_INSTRUCTION )
+: ArithmeticInstruction( ".divs", 0, lhs, rhs, Value::DIVS_INSTRUCTION )
 {
 }
 bool DivSignedInstruction::classof( Value const* obj )

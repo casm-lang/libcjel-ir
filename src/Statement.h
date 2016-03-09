@@ -66,6 +66,21 @@ namespace libnovel
 		void dump( void ) const;
 		
 		static bool classof( Value const* obj );
+
+		
+		template< class C >
+		bool consistsOnlyOf( void )
+		{
+			for( auto instr : instructions )
+			{
+				if( not Value::isa< C >( instr ) )
+				{
+					return false;
+				}
+			}
+
+			return true;
+		};
 	};
 	
 	class TrivialStatement : public Statement

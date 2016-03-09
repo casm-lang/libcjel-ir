@@ -143,10 +143,18 @@ void Value::iterate( Traversal order, Visitor* visitor, std::function< void( Val
 	if( Value::isa< Module >( this ) )
 	{
 	    Module* obj = ((Module*)this);
+
+		auto content = obj->getContent();
 		
-		for( Value* p : obj->getContent() )
+		u8 c = 0;
+		while( c < 100 )
 		{
-			p->iterate( order, visitor, action );
+			for( Value* p : content[c] )
+			{
+				p->iterate( order, visitor, action );
+			}
+			
+			c++;
 		}
 	}
 	else if( Value::isa< Structure >( this ) )
@@ -162,7 +170,7 @@ void Value::iterate( Traversal order, Visitor* visitor, std::function< void( Val
 	{
 	    StructureConstant* obj = ((StructureConstant*)this);
 		
-		for( Value* p : obj->getElements() ) //u16 c = 0; c < obj->getValue().size(); c++ )
+		for( Value* p : obj->getElements() )
 		{
 			p->iterate( order, visitor, action );
 		}

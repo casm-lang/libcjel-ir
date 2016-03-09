@@ -71,7 +71,6 @@ static const char* getTypeString( Value& value )
 	{
 		Value* ty = type->getBound();
 		assert(  Value::isa< Structure >( ty ) );
-	    
 		string t = "struct " + string( ((Structure*)ty)->getName() );
 	    return libstdhl::Allocator::string( t );
 	}

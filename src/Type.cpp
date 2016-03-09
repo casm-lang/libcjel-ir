@@ -161,9 +161,15 @@ void Type::addSubType( Type* subtype )
 
 Type* Type::getResultType( void )
 {
+	assert( !"DEPRECATED: DO NOT USE THIS FUNCTION" );
+	
 	if( subtypes.size() == 0 )
 	{
 		if( type_id == Type::BIT )
+		{
+			return new Type( type_id, bitsize );
+		}
+		else if( type_id == Type::STRUCTURE )
 		{
 			return new Type( type_id, bitsize );
 		}

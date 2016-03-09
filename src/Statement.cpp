@@ -127,9 +127,6 @@ bool Statement::classof( Value const* obj )
 		;
 }
 
-
-
-
 TrivialStatement::TrivialStatement( Value* parent )
 : Statement( ".statement", 0, parent, Value::TRIVIAL_STATEMENT )
 {

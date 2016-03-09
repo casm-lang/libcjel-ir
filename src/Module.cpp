@@ -53,19 +53,42 @@ Module::~Module( void )
 
 void Module::add( Value* value )
 {
-	assert
-	(  Value::isa< Component >( value )
-	or Value::isa< Function >( value )
-	or Value::isa< Structure >( value )
-	or Value::isa< Memory >( value )
-	or Value::isa< Constants >( value )
-	or Value::isa< Variable >( value )
-	);
+	assert( value );
 
-	content.push_back( value );
+	u8 bucket = -1;
+	if( Value::isa< Structure >( value ) )
+	{
+		bucket = 0;
+	}
+	else if( Value::isa< Constants >( value ) )
+	{
+		bucket = 1;
+	}
+	else if( Value::isa< Variable >( value ) )
+	{
+		bucket = 2;
+	}
+	else if( Value::isa< Memory >( value ) ) 
+	{
+		bucket = 3;
+	}
+	else if( Value::isa< Function >( value ) )
+	{
+		bucket = 4;
+	}
+	else if( Value::isa< Component >( value ) )
+	{
+		bucket = 5;
+	}
+	else
+	{
+		assert( !"unsupported Module content found!" );
+	}
+	
+	content[ bucket ].push_back( value );
 }
 
-const std::vector< Value* >& Module::getContent( void ) const
+const std::unordered_map< u8, std::vector< Value* > >& Module::getContent( void ) const
 {
 	return content;
 }

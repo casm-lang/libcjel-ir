@@ -48,8 +48,7 @@ namespace libnovel
 	class Module : public User
 	{
 	private:
-		//std::unordered_map< Value::ID, std::vector< Value* > > content;
-		std::vector< Value* > content;
+		std::unordered_map< u8, std::vector< Value* > > content;
 		
 	public:
 		Module( const char* name );
@@ -58,7 +57,7 @@ namespace libnovel
 		
 		void add( Value* value );
 
-		const std::vector< Value* >& getContent( void ) const;
+		const std::unordered_map< u8, std::vector< Value* > >& getContent( void ) const;
 		
 		void dump( void ) const;
 		static bool classof( Value const* obj );

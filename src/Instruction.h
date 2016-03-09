@@ -87,6 +87,34 @@ namespace libnovel
 				
 		static bool classof( Value const* obj );
 	};
+
+	class ArithmeticInstruction : public BinaryInstruction
+	{
+	public:
+		ArithmeticInstruction
+		( const char* name
+		, Type* type
+		, Value* lhs
+		, Value* rhs
+		, Value::ID id = Value::ARITHMETIC_INSTRUCTION
+		);
+		
+		static bool classof( Value const* obj );
+	};
+
+	class LogicalInstruction : public BinaryInstruction
+	{
+	public:
+		LogicalInstruction
+		( const char* name
+		, Type* type
+		, Value* lhs
+		, Value* rhs
+		, Value::ID id = Value::LOGICAL_INSTRUCTION
+		);
+		
+		static bool classof( Value const* obj );
+	};
 	
 	
 	
@@ -221,7 +249,7 @@ namespace libnovel
 	// 	static bool classof( Value const* obj );
 	// };
 	
-	class AndInstruction : public BinaryInstruction
+	class AndInstruction : public ArithmeticInstruction
 	{
 	public:
 		AndInstruction( Value* lhs, Value* rhs );
@@ -236,14 +264,14 @@ namespace libnovel
 	// };
 
 	
-	class AddSignedInstruction : public BinaryInstruction
+	class AddSignedInstruction : public ArithmeticInstruction
 	{
 	public:
 		AddSignedInstruction( Value* lhs, Value* rhs );
 		static bool classof( Value const* obj );
 	};
 
-	class DivSignedInstruction : public BinaryInstruction
+	class DivSignedInstruction : public ArithmeticInstruction
 	{
 	public:
 		DivSignedInstruction( Value* lhs, Value* rhs );
