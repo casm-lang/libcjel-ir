@@ -95,9 +95,11 @@ namespace libnovel
 
 	static Type TypeB1        = Type( Type::BIT,        1, Type::STATE::LOCKED );
 	static Type TypeB32       = Type( Type::BIT,       32, Type::STATE::LOCKED );
+	static Type TypeB48       = Type( Type::BIT,       48, Type::STATE::LOCKED );
 	static Type TypeB64       = Type( Type::BIT,       64, Type::STATE::LOCKED );
 	static Type TypeFunction  = Type( Type::FUNCTION,  -1, Type::STATE::LOCKED );
 	static Type TypeStructure = Type( Type::STRUCTURE, -1, Type::STATE::LOCKED );
+	static Type TypeId        = TypeB48;
 }
 
 #endif /* _LIB_NOVEL_TYPE_H_ */

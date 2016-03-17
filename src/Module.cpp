@@ -58,37 +58,39 @@ void Module::add( Value* value )
 	if( Value::isa< Structure >( value ) )
 	{
 		content[ Structure::classid() ].push_back( value );
-		value->setRef< Module >( this );
+		//value->setRef< Module >( this );
 	}
 	else if( Value::isa< Constants >( value ) )
 	{
 		content[ Constants::classid() ].push_back( value );
-		value->setRef< Constants >( this );
+		//value->setRef< Constants >( this );
 	}
 	else if( Value::isa< Variable >( value ) )
 	{
 		content[ Variable::classid() ].push_back( value );
-		value->setRef< Variable >( this );
+		//value->setRef< Variable >( this );
 	}
 	else if( Value::isa< Memory >( value ) ) 
 	{
 		content[ Memory::classid() ].push_back( value );
-		value->setRef< Memory >( this );
+		//value->setRef< Memory >( this );
 	}
 	else if( Value::isa< Function >( value ) )
 	{
 		content[ Function::classid() ].push_back( value );
-		value->setRef< Function >( this );
+		//value->setRef< Function >( this );
 	}
 	else if( Value::isa< Component >( value ) )
 	{
 		content[ Component::classid() ].push_back( value );
-		value->setRef< Component >( this );
+		//value->setRef< Component >( this );
 	}
 	else
 	{
 		assert( !"unsupported Module content found!" );
 	}
+
+	value->setRef< Module >( this );
 }
 
 // const std::unordered_map< u8, std::vector< Value* > >& Module::getContent( void ) const

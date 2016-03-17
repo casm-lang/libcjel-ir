@@ -149,7 +149,7 @@ namespace libnovel
 
 		template< class C >
 		C* getRef( void )
-		{
+		{			
 			auto result = references.find( C::classid() );
 			if( result != references.end() )
 			{

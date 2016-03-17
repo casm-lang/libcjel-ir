@@ -144,8 +144,12 @@ bool Instruction::classof( Value const* obj )
 UnaryInstruction::UnaryInstruction( const char* name, Type* type, Value* value, Value::ID id )
 : Instruction( name, type, id )
 {
-	assert(  value->getType() );
-	setType( value->getType() );
+	if( not type )
+	{
+		assert(  value->getType() );
+		setType( value->getType() );
+	}
+	
 	add( value );
 }
 
@@ -298,7 +302,7 @@ bool LogicalInstruction::classof( Value const* obj )
 	
 //// concrete instructions!!!
 IdInstruction::IdInstruction( Value* src )
-: UnaryInstruction( ".addressof", &TypeB64, src, Value::ID_INSTRUCTION )
+: UnaryInstruction( ".id", &TypeId, src, Value::ID_INSTRUCTION )
 {
 	assert( src and Value::isa< Variable >( src ) );
 }

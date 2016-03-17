@@ -172,6 +172,8 @@ void NovelToVHDLPass::visit_prolog( Component& value )
 	  "use IEEE.std_logic_1164.all;\n"
 	  "use IEEE.numeric_std.all;\n"
 	  "use work.Structure.all;\n"
+	  "use work.Constants.all;\n"
+	  "use work.Variables.all;\n"
 	  "entity %s is port\n"
 	  "( "
 	, value.getLabel()
@@ -284,10 +286,9 @@ void NovelToVHDLPass::visit_prolog( Structure& value )
 	
     fprintf
 	( stream
-	, "-- Structure '%s'\n"
-	  "type %s is\n"
+	, "type %s is\n"
 	  "record\n"
-    , value.getIdentifier()->getName()
+	  //, value.getIdentifier()->getName()
     , getTypeString( value )
 	);
 	
@@ -326,10 +327,48 @@ void NovelToVHDLPass::visit_epilog( Structure& value )
 
 void NovelToVHDLPass::visit_prolog( Variable& value )
 {
-	TODO;
+	static Value n( "", &TypeId, libnovel::Value::VALUE );
+	
+	Module* m = value.getRef< Module >();
+	
+	if( m->get< Variable >().front() == &value )
+	{
+		fprintf
+		( stream
+	    , "-- Variables\n"
+	      "library IEEE;\n"
+	      "use IEEE.std_logic_1164.all;\n"
+	      "use IEEE.numeric_std.all;\n"
+		  "use work.Structure.all;\n"
+		  "use work.Constants.all;\n"
+		  "package Variables is\n"
+	    );
+	}
+
+	static u64 var_allocation = 0;
+	std::bitset< 48 > v( var_allocation );
+	var_allocation++;
+	
+	fprintf
+	( stream
+	, "  constant %s_id : %s := { %s };\n"
+	, value.getLabel()
+	, getTypeString( n )
+	, v.to_string().c_str()
+	);
 }
 void NovelToVHDLPass::visit_epilog( Variable& value )
 {
+	Module* m = value.getRef< Module >();
+	
+	if( m->get< Variable >().back() == &value )
+	{
+		fprintf
+		( stream
+	    , "end;\n"
+		  "\n"
+	    );
+	}
 }
 
 void NovelToVHDLPass::visit_prolog( Memory& value )
@@ -574,7 +613,20 @@ void NovelToVHDLPass::visit_epilog( CallInstruction& value )
 
 void NovelToVHDLPass::visit_prolog( IdInstruction& value )
 {
-	TODO;
+	if( Value::isa< Variable >( value.get() ) )
+	{
+		fprintf
+		( stream
+		, "      %s := %s_id;\n "
+		, value.getLabel()
+		, value.get()->getLabel()
+		);
+	}
+	else
+	{
+		TODO;
+		assert( !"unimplemented!" );
+	}
 }
 void NovelToVHDLPass::visit_epilog( IdInstruction& value )		
 {}
@@ -726,9 +778,9 @@ void NovelToVHDLPass::visit_epilog( BitConstant& value )
 
 void NovelToVHDLPass::visit_prolog( StructureConstant& value )
 {
-	//Module* m = value.getRef<Module>();
+	Module* m = value.getRef<Module>();
 	
-	if( false ) //m->get< Constants >().front() == &value )
+	if( m->get< Constants >().front() == &value )
 	{
 		fprintf
 		( stream
@@ -736,18 +788,28 @@ void NovelToVHDLPass::visit_prolog( StructureConstant& value )
 	      "library IEEE;\n"
 	      "use IEEE.std_logic_1164.all;\n"
 	      "use IEEE.numeric_std.all;\n"
-	      "package Constants is\n"
+		  "use work.Structure.all;\n"
+		  "package Constants is\n"
 	    );
 	}
 	
 	fprintf
 	( stream
-	, "  constant %s : %s = { "
+	, "  constant %s : %s := { "
 	, value.getLabel()
 	, getTypeString( value )
 	);
+}
+void NovelToVHDLPass::visit_epilog( StructureConstant& value )
+{
+	Module* m = value.getRef<Module>();
 	
-	if( false ) //m->get< Constants >().back() == &value )
+	fprintf
+	( stream
+	, "};\n"
+	);
+	
+	if( m->get< Constants >().back() == &value )
 	{
 		fprintf
 		( stream
@@ -755,13 +817,6 @@ void NovelToVHDLPass::visit_prolog( StructureConstant& value )
 		  "\n"
 	    );
 	}
-}
-void NovelToVHDLPass::visit_epilog( StructureConstant& value )
-{
-	fprintf
-	( stream
-	, "}\n"
-	);
 }
 
 
