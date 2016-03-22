@@ -50,11 +50,12 @@ namespace libnovel
 	private:
 		Statement* statement;
 		std::vector< Value* > values;
-	    
+		
 	public:
 		Instruction( const char* name, Type* type, Value::ID id = Value::INSTRUCTION );
+
 		void setStatement( Statement* stmt );
-		const Statement* getStatement( void ) const;
+		Statement* getStatement( void ) const;
 		
 	    void add( Value* value );
 		Value* getValue( u8 index ) const;
@@ -121,6 +122,15 @@ namespace libnovel
 	};
 	
 
+	class AllocInstruction : public Instruction
+	{
+	public :
+		AllocInstruction( Type* type );
+		static inline Value::ID classid( void ) { return Value::ALLOC_INSTRUCTION; };
+		static bool classof( Value const* obj );
+	};
+	
+	
 	class IdInstruction : public UnaryInstruction
 	{
 	public :
@@ -129,7 +139,6 @@ namespace libnovel
 		static inline Value::ID classid( void ) { return Value::ID_INSTRUCTION; };
 		static bool classof( Value const* obj );
 	};
-	
 	
 	class LoadInstruction : public UnaryInstruction
 	{

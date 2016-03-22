@@ -87,6 +87,8 @@ namespace libnovel
 		, ARITHMETIC_INSTRUCTION
 		, LOGICAL_INSTRUCTION
 		
+		, ALLOC_INSTRUCTION
+		
 		, ID_INSTRUCTION
 		, EXTRACT_INSTRUCTION
 		
@@ -127,6 +129,8 @@ namespace libnovel
 		std::vector< Type* > parameters;
 
 		std::unordered_map< u32, Value* > references;
+
+		Value* next;
 		
 	public:
 		Value( const char* name, Type* type, ID id );
@@ -145,6 +149,9 @@ namespace libnovel
 		
 		void debug( void ) const;
 		void dump( void ) const;
+
+		void setNext( Value* value );
+		Value* getNext( void ) const;
 
 
 		template< class C >

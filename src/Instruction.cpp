@@ -73,7 +73,7 @@ void Instruction::setStatement( Statement* stmt )
 	}
 }
 
-const Statement* Instruction::getStatement( void ) const
+Statement* Instruction::getStatement( void ) const
 {
 	return statement;
 }
@@ -106,6 +106,7 @@ const std::vector< Value* >& Instruction::getValues( void ) const
 	// TODO: IDEA: assert( getType() ); // to force the type check!
 	return values;
 }
+
 
 void Instruction::dump( void ) const
 {
@@ -301,6 +302,16 @@ bool LogicalInstruction::classof( Value const* obj )
 
 	
 //// concrete instructions!!!
+AllocInstruction::AllocInstruction( Type* type )
+: Instruction( ".alloc", type, Value::ALLOC_INSTRUCTION )
+{
+}
+bool AllocInstruction::classof( Value const* obj )
+{
+	return obj->getValueID() == classid();
+}
+
+
 IdInstruction::IdInstruction( Value* src )
 : UnaryInstruction( ".id", &TypeId, src, Value::ID_INSTRUCTION )
 {

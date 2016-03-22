@@ -245,6 +245,12 @@ void NovelToC11Pass::visit_prolog( CallInstruction& value )
 void NovelToC11Pass::visit_epilog( CallInstruction& value )
 {}
 
+void NovelToC11Pass::visit_prolog( AllocInstruction& value )
+{
+	TODO;
+}
+void NovelToC11Pass::visit_epilog( AllocInstruction& value )
+{}
 
 void NovelToC11Pass::visit_prolog( IdInstruction& value )
 {

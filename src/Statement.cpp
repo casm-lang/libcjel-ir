@@ -106,6 +106,11 @@ void Statement::add( Value* instruction )
 	{
 		assert(0);
 	}
+
+	if( instructions.size() > 0 )
+	{
+		instructions.back()->setNext( instruction );
+	}
 	
 	instructions.push_back( instruction );
 	printf( "[Stmt] add: %p\n", instruction );	

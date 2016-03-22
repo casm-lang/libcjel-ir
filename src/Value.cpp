@@ -89,6 +89,19 @@ Value::ID Value::getValueID() const
 	return id;
 }
 
+
+// TODO: FIXME: PPA: maybe a better solution than this!!!
+void Value::setNext( Value* value )
+{
+	next = value;
+}
+
+Value* Value::getNext( void ) const
+{
+	return next;
+}
+
+
 void Value::debug( void ) const
 {
 	printf( "DEBUG: %p '%s' : ", this, getName() );

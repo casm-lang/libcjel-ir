@@ -263,6 +263,15 @@ void NovelToLLPass::visit_prolog( CallInstruction& value )
 void NovelToLLPass::visit_epilog( CallInstruction& value )	
 {}
 
+
+void NovelToLLPass::visit_prolog( AllocInstruction& value )
+{
+	TODO;
+}
+void NovelToLLPass::visit_epilog( AllocInstruction& value )
+{}
+
+
 void NovelToLLPass::visit_prolog( IdInstruction& value )
 {
 	TODO;

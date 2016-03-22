@@ -57,36 +57,38 @@ void Visitor::dispatch( Stage stage, Value* value )
 	
 	switch( value->getValueID() )
 	{
-		CASE_VALUE( MODULE,            Module );
+		CASE_VALUE( MODULE,              Module );
 		
-		CASE_VALUE_INTER( COMPONENT,   Component );
-		CASE_VALUE_INTER( FUNCTION,    Function );
+		CASE_VALUE_INTER( COMPONENT,     Component );
+		CASE_VALUE_INTER( FUNCTION,      Function );
 		
-		CASE_VALUE( REFERENCE,         Reference );
+		CASE_VALUE( REFERENCE,           Reference );
 		
-		CASE_VALUE( VARIABLE,          Variable );
-		CASE_VALUE( MEMORY,            Memory );
-		CASE_VALUE( STRUCTURE,         Structure );
+		CASE_VALUE( VARIABLE,            Variable );
+		CASE_VALUE( MEMORY,              Memory );
+		CASE_VALUE( STRUCTURE,           Structure );
 
-		CASE_VALUE( BIT_CONSTANT,       BitConstant );
-		CASE_VALUE( STRUCTURE_CONSTANT, StructureConstant );
+		CASE_VALUE( BIT_CONSTANT,        BitConstant );
+		CASE_VALUE( STRUCTURE_CONSTANT,  StructureConstant );
 		
-		CASE_VALUE( PARALLEL_SCOPE,    ParallelScope );
-		CASE_VALUE( SEQUENTIAL_SCOPE,  SequentialScope );
+		CASE_VALUE( PARALLEL_SCOPE,      ParallelScope );
+		CASE_VALUE( SEQUENTIAL_SCOPE,    SequentialScope );
 		
-		CASE_VALUE( TRIVIAL_STATEMENT, TrivialStatement );
+		CASE_VALUE( TRIVIAL_STATEMENT,   TrivialStatement );
 		
-		CASE_VALUE( CALL_INSTRUCTION,  CallInstruction );
+		CASE_VALUE( CALL_INSTRUCTION,    CallInstruction );
+		
+		CASE_VALUE( ALLOC_INSTRUCTION,   AllocInstruction );
 		
 		CASE_VALUE( ID_INSTRUCTION,      IdInstruction );
 		CASE_VALUE( EXTRACT_INSTRUCTION, ExtractInstruction );
 		
-		CASE_VALUE( LOAD_INSTRUCTION,  LoadInstruction );
-		CASE_VALUE( STORE_INSTRUCTION, StoreInstruction );
+		CASE_VALUE( LOAD_INSTRUCTION,    LoadInstruction );
+		CASE_VALUE( STORE_INSTRUCTION,   StoreInstruction );
 		
-		CASE_VALUE( AND_INSTRUCTION,   AndInstruction );
-		CASE_VALUE( ADDS_INSTRUCTION,  AddSignedInstruction );
-		CASE_VALUE( DIVS_INSTRUCTION,  DivSignedInstruction );
+		CASE_VALUE( AND_INSTRUCTION,     AndInstruction );
+		CASE_VALUE( ADDS_INSTRUCTION,    AddSignedInstruction );
+		CASE_VALUE( DIVS_INSTRUCTION,    DivSignedInstruction );
 		
 	    default:
 			printf

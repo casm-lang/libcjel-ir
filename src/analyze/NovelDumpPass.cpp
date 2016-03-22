@@ -105,6 +105,9 @@ void NovelDumpPass::visit_epilog( TrivialStatement& value ) {}
 void NovelDumpPass::visit_prolog( CallInstruction& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
 void NovelDumpPass::visit_epilog( CallInstruction& value ) {}
 		
+void NovelDumpPass::visit_prolog( AllocInstruction& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
+void NovelDumpPass::visit_epilog( AllocInstruction& value ) {}
+
 void NovelDumpPass::visit_prolog( IdInstruction& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
 void NovelDumpPass::visit_epilog( IdInstruction& value ) {}
 		
