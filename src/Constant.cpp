@@ -220,50 +220,55 @@ Identifier* Identifier::create( Type* type, std::string value, Value* scope )
 Identifier* Identifier::create( Type* type, const char* value, Value* scope )
 {
 	SymbolTable& symbols = *getSymbols();
-	//const char* tmp_scope = value;
-		
+
+	const char* tmp = value;
+	
 	if( scope )
 	{
-		// std::string tmp;
-		// tmp.append( scope->getName() );
-		// tmp.append( "::" );
-		// tmp.append( value );
-		// tmp_scope = tmp.c_str();
+		tmp = libstdhl::Allocator::string( string(scope->getName()) + "::" + string(tmp) );
 	}
 	
-	auto result = symbols.find( value );
+	auto result = symbols.find( tmp );
 	if( result != symbols.end() )
 	{
 		assert( result->second.size() == 1 );
 		Value* x = *result->second.begin();
-	 	assert( x->getType()->getID() == type->getID() );
-		printf( "[Ident] found '%s' of type %lu @ %p\n", value, type->getID(), x );
-		return (Identifier*)x;
+
+		//assert( x->getType()->getID() == type->getID() );
+		if( x->getType()->getID() == type->getID() )
+		{
+			printf( "[Ident] found '%s' of type %lu @ %p\n", value, type->getID(), x );
+			return (Identifier*)x;
+		}
 	}
+	
+
+
+// //const char* tmp_scope = value;
+		
+// 	if( scope )
+// 	{
+// 		// std::string tmp;
+// 		// tmp.append( scope->getName() );
+// 		// tmp.append( "::" );
+// 		// tmp.append( value );
+// 		// tmp_scope = tmp.c_str();
+// 	}
+	
+// 	auto result = symbols.find( value );
+// 	if( result != symbols.end() )
+// 	{
+// 		assert( result->second.size() == 1 );
+// 		Value* x = *result->second.begin();
+// 	 	assert( x->getType()->getID() == type->getID() );
+// 		printf( "[Ident] found '%s' of type %lu @ %p\n", value, type->getID(), x );
+// 		return (Identifier*)x;
+// 	}
 	
 	printf( "[Ident] creating '%s' of type %lu\n", value, type->getID() );
 	return new Identifier( type, value );
 }
 
-// Identifier* Identifier::create( Type* type )
-// {
-// 	static std::unordered_map< u64, Identifier* > cache;
-// 	auto result = cache.find( type->getID() );
-// 	Identifier* x = 0;
-	
-// 	if( result != cache.end() )
-// 	{
-// 		x = result->second;
-// 	 	assert( x->getType()->getID() == type->getID() );
-// 		printf( "[Ident] found 'undef' of type %lu @ %p\n", type->getID(), x );
-// 		return x;
-// 	}
-	
-// 	x = new Identifier( type, 0, false );
-	
-// 	printf( "[Ident] creating '%s' of type %lu\n", value, type->getID() );
-// 	return 
-// }
 
 void Identifier::forgetSymbol( const char* value )
 {

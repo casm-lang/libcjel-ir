@@ -51,7 +51,7 @@ namespace libnovel
 		Structure* parent;
 		
 	public:
-		Structure( const char* name, Type* type = &TypeStructure, Structure* parent = 0 );
+		Structure( const char* name, Type* type = 0, Structure* parent = 0 );
 		
 		~Structure( void );
 		

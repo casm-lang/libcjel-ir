@@ -43,10 +43,21 @@ Structure::Structure( const char* name, Type* type, Structure* parent )
 , parent( parent )
 {
 	assert( name );
-	assert( type );
 	
-    identifier = Identifier::create( type, name /* scope?!?!*/ );
+	if( !type )
+	{
+		Type* ty = new Type( Type::STRUCTURE, -1, Type::STATE::LOCKED );
+		assert( ty );
+		setType( ty );
+	}
+	
+	identifier = Identifier::create( getType(), name, parent );
 	assert( identifier );
+	
+	if( parent )
+	{
+		parent->add( this );
+	}
 	
 	(*Value::getSymbols())[ ".structure" ].insert( this );
 }
@@ -66,8 +77,11 @@ void Structure::add( Value* value )
 	assert( value );
 	assert( Value::isa< Structure >( value ) );
 	Structure* s = (Structure*)value;
-	s->setParent( this );
+	//s->setParent( this );
+	
 	element.push_back( s );
+
+	assert( s->getParent() == this );
 }
 
 Value* Structure::get( u16 index ) const
