@@ -547,7 +547,19 @@ void NovelToVHDLPass::visit_epilog( SequentialScope& value )
 
 void NovelToVHDLPass::visit_prolog( TrivialStatement& value )
 {
-	if( value.consistsOnlyOf< CallInstruction >() )
+	u1 plain = true;
+	for( Value* i : value.getInstructions() )
+	{
+		if( not Value::isa< CallInstruction >( i )
+		and not Value::isa< AllocInstruction >( i ) )
+		{
+			plain = false;
+			break;
+		}
+	}
+	
+	//if( value.consistsOnlyOf< CallInstruction >() )
+	if( plain ) // TODO: FIXME: PPA: this can be much more generic!!!
 	{
 		fprintf
 		( stream
@@ -556,9 +568,20 @@ void NovelToVHDLPass::visit_prolog( TrivialStatement& value )
 		, value.getLabel()
 		, value.getLabel()
 		);
-
+		
 		for( Value* instr : value.getInstructions() )
 		{
+			if( Value::isa< AllocInstruction >( instr ) )
+			{
+				fprintf
+				( stream
+				, "    signal %s : %s;\n"
+				, instr->getLabel()
+				, getTypeString( *instr )
+				);
+				//continue;
+			}
+			
 			fprintf
 			( stream
 			, "    signal sig_%s : std_logic;\n"
@@ -570,12 +593,19 @@ void NovelToVHDLPass::visit_prolog( TrivialStatement& value )
 		, "    signal sig_%s : std_logic;\n"
 		, value.getLabel()
 		);
+
+		// Value* n = value.getNext();
+		// while( n != 0 and Value::isa< AllocInstruction >( n ) )
+		// {
+		// 	n = n->getNext();
+		// }
 		
 		fprintf
 		( stream
 		, "  begin\n"
 		  "    sig_%s <= req_%s;\n"
 		  "    ack_%s <= sig_%s;\n"
+		  //, n != 0 ? n->getLabel() : ((Instruction*)&value)->getStatement()->getLabel()
 		, value.getInstructions().front()->getLabel()
 		, value.getLabel()
 		, value.getLabel()
@@ -610,7 +640,7 @@ void NovelToVHDLPass::visit_prolog( TrivialStatement& value )
 		, getTypeString( *instr )
 		);
 	}
-
+	
 	fprintf
 	( stream
 	, "  begin\n"
@@ -620,7 +650,19 @@ void NovelToVHDLPass::visit_prolog( TrivialStatement& value )
 }
 void NovelToVHDLPass::visit_epilog( TrivialStatement& value )
 {
-	if( value.consistsOnlyOf< CallInstruction >() )
+	u1 plain = true;
+	for( Value* i : value.getInstructions() )
+	{
+		if( not Value::isa< CallInstruction >( i )
+		and not Value::isa< AllocInstruction >( i ) )
+		{
+			plain = false;
+			break;
+		}
+	}
+	
+	//if( value.consistsOnlyOf< CallInstruction >() )
+	if( plain ) // TODO: FIXME: PPA: this can be much more generic!!!
 	{
 		fprintf
 		( stream
@@ -647,25 +689,25 @@ void NovelToVHDLPass::visit_prolog( CallInstruction& value )
 {
 	fprintf
 	( stream
-	, "    %s : entity work.%-15s port map( "
+	, "    call_%s : entity work.%-15s port map( "
 	, value.getLabel()
 	, value.getValue(0)->getName()
 	);
+
+	// Value* n = value.getNext();
+	// while( n != 0 and Value::isa< AllocInstruction >( n ) )
+	// {
+	// 	n = n->getNext();
+	// }
 	
 	fprintf
 	( stream
 	, "sig_%s, sig_%s"
 	, value.getLabel()
+	  //, n != 0 ? n->getLabel() : ((Instruction*)&value)->getStatement()->getLabel()
 	, value.getNext() != 0 ? value.getNext()->getLabel() : ((Instruction*)&value)->getStatement()->getLabel()
 	);
 	
-	
-	fprintf
-	( stream
-	, " ); -- call %lu"
-	, value.getValues().size()
-	);
-
 	u1 first = true;
 	for( auto v : value.getValues() )
 	{
@@ -674,13 +716,14 @@ void NovelToVHDLPass::visit_prolog( CallInstruction& value )
 			first = false;
 			continue;
 		}
-		
+
 		fprintf( stream, ", %s", v->getLabel() );
 	}
-
+	
 	fprintf
 	( stream
-	, "\n"
+	, " ); -- call %lu\n"
+	, value.getValues().size()
 	);
 }
 void NovelToVHDLPass::visit_epilog( CallInstruction& value )	
@@ -690,10 +733,16 @@ void NovelToVHDLPass::visit_epilog( CallInstruction& value )
 
 void NovelToVHDLPass::visit_prolog( AllocInstruction& value )
 {
-	TODO;
+	fprintf
+	( stream
+	, "    sig_%s <= sig_%s;\n"
+	, value.getNext() != 0 ? value.getNext()->getLabel() : ((Instruction*)&value)->getStatement()->getLabel()
+	, value.getLabel()
+	);
 }
 void NovelToVHDLPass::visit_epilog( AllocInstruction& value )
-{}
+{
+}
 
 
 void NovelToVHDLPass::visit_prolog( IdInstruction& value )
