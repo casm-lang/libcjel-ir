@@ -317,6 +317,12 @@ void NovelToC11Pass::visit_prolog( DivSignedInstruction& value )
 void NovelToC11Pass::visit_epilog( DivSignedInstruction& value )
 {}
 
+void NovelToC11Pass::visit_prolog( EquUnsignedInstruction& value ) { TODO; }
+void NovelToC11Pass::visit_epilog( EquUnsignedInstruction& value ) {}
+
+void NovelToC11Pass::visit_prolog( NeqUnsignedInstruction& value ) { TODO; }
+void NovelToC11Pass::visit_epilog( NeqUnsignedInstruction& value ) {}
+
 
 
 

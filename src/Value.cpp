@@ -229,7 +229,7 @@ void Value::iterate( Traversal order, Visitor* visitor, std::function< void( Val
 		{
 			visitor->dispatch( Visitor::Stage::INTERLOG, this );
 		}
-
+		
 		Value* context = obj->getContext();
 		assert( context );
 		

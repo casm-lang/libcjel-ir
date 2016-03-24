@@ -96,7 +96,6 @@ namespace libnovel
 	public:
 		ArithmeticInstruction
 		( const char* name
-		, Type* type
 		, Value* lhs
 		, Value* rhs
 		, Value::ID id = Value::ARITHMETIC_INSTRUCTION
@@ -111,7 +110,6 @@ namespace libnovel
 	public:
 		LogicalInstruction
 		( const char* name
-		, Type* type
 		, Value* lhs
 		, Value* rhs
 		, Value::ID id = Value::LOGICAL_INSTRUCTION
@@ -237,21 +235,23 @@ namespace libnovel
 	// 	ModInstruction( Value* lhs, Value* rhs );
 	// 	static bool classof( Value const* obj );
 	// };
-
-	// class EquInstruction : public OperatorInstruction
-	// {
-	// public:
-	// 	EquInstruction( Value* lhs, Value* rhs );
-	// 	static bool classof( Value const* obj );
-	// };
-
-	// class NeqInstruction : public OperatorInstruction
-	// {
-	// public:
-	// 	NeqInstruction( Value* lhs, Value* rhs );
-	// 	static bool classof( Value const* obj );
-	// };
-
+	
+	class EquUnsignedInstruction : public LogicalInstruction
+	{
+	public:
+		EquUnsignedInstruction( Value* lhs, Value* rhs );
+		static inline Value::ID classid( void ) { return Value::EQUU_INSTRUCTION; };
+		static bool classof( Value const* obj );
+	};
+	
+	class NeqUnsignedInstruction : public LogicalInstruction
+	{
+	public:
+		NeqUnsignedInstruction( Value* lhs, Value* rhs );
+		static inline Value::ID classid( void ) { return Value::NEQU_INSTRUCTION; };
+		static bool classof( Value const* obj );
+	};
+	
 	// class LthInstruction : public OperatorInstruction
 	// {
 	// public:

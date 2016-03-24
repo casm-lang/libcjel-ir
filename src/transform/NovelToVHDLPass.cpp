@@ -890,6 +890,14 @@ void NovelToVHDLPass::visit_prolog( DivSignedInstruction& value )
 void NovelToVHDLPass::visit_epilog( DivSignedInstruction& value )
 {}
 
+void NovelToVHDLPass::visit_prolog( EquUnsignedInstruction& value ) { TODO; }
+void NovelToVHDLPass::visit_epilog( EquUnsignedInstruction& value ) {}
+
+void NovelToVHDLPass::visit_prolog( NeqUnsignedInstruction& value ) { TODO; }
+void NovelToVHDLPass::visit_epilog( NeqUnsignedInstruction& value ) {}
+
+
+
 
 void NovelToVHDLPass::visit_prolog( BitConstant& value )
 {

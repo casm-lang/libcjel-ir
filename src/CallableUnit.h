@@ -52,6 +52,8 @@ namespace libnovel
 	    std::vector< Value* > parameter_out;
 
 		std::unordered_map< Value*, u16 > parameter2index;
+
+	    std::vector< Value* > linkage;
 		
 	public:
 		CallableUnit( const char* name, Type* type, Value::ID id = CALLABLE_UNIT );
@@ -64,12 +66,15 @@ namespace libnovel
 		const Identifier* getIdentifier( void ) const;
 
 		void addParameter( Value* value, u1 input = true );		
+	    void addLinkage( Value* value );		
 	    
 		const std::vector< Value* >& getInParameters( void ) const;
 		const std::vector< Value* >& getOutParameters( void ) const;
-
+		
 		const i16 getIndexOfParameter( Value* value ) const;
 		const u1 isLastParameter( Value* value ) const;
+		
+		const std::vector< Value* >& getLinkage( void ) const;
 		
 		void dump( void ) const;
 		

@@ -45,14 +45,21 @@ namespace libnovel
 {
 	class Reference : public User
 	{
+	public:
+		enum Kind
+		{ INPUT = 0
+		, OUTPUT
+		, LINKAGE
+		};
+		
 	private:
 		Identifier* identifier;
 		CallableUnit* callable;
-		u1  input;
+		Kind kind;
 		Structure* structure;
 	    
 	public:
-		Reference( const char* name, Type* type, CallableUnit* callable = 0, u1 input = true );
+		Reference( const char* name, Type* type, CallableUnit* callable = 0, Kind kind = INPUT );
 		
 		~Reference( void );
 		
@@ -62,6 +69,8 @@ namespace libnovel
 		void setCallableUnit( CallableUnit* value );
 
 		const u1 isInput( void ) const;
+		const u1 isOutput( void ) const;
+		const u1 isLinkage( void ) const;
 		
 		const Structure* getStructure( void ) const;
 		const u1 isStructure( void ) const;

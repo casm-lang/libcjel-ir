@@ -126,6 +126,12 @@ namespace libnovel
 		PREFIX void visit_prolog( DivSignedInstruction& value ) POSTFIX; \
 		PREFIX void visit_epilog( DivSignedInstruction& value ) POSTFIX; \
 																		\
+		PREFIX void visit_prolog( EquUnsignedInstruction& value ) POSTFIX; \
+		PREFIX void visit_epilog( EquUnsignedInstruction& value ) POSTFIX; \
+																		\
+		PREFIX void visit_prolog( NeqUnsignedInstruction& value ) POSTFIX; \
+		PREFIX void visit_epilog( NeqUnsignedInstruction& value ) POSTFIX; \
+																		\
 		PREFIX void visit_prolog( BitConstant& value ) POSTFIX;			\
 		PREFIX void visit_epilog( BitConstant& value ) POSTFIX;			\
 																		\

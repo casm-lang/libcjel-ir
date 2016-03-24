@@ -97,6 +97,17 @@ void CallableUnit::addParameter( Value* value, u1 input )
 	}	
 }
 
+void CallableUnit::addLinkage( Value* value )
+{
+	assert( value );
+	assert( Value::isa< Reference >( value ) );
+	
+	Reference* ref = (Reference*)value;
+	ref->setCallableUnit( this );
+
+	linkage.push_back( value );
+}
+
 const std::vector< Value* >& CallableUnit::getInParameters( void ) const
 {
 	return parameter_in;
@@ -134,6 +145,11 @@ const u1 CallableUnit::isLastParameter( Value* value ) const
 	}
     
 	return index >= (total - 1);
+}
+
+const std::vector< Value* >& CallableUnit::getLinkage( void ) const
+{
+	return linkage;
 }
 
 

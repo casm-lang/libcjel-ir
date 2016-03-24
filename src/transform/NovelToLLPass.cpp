@@ -323,6 +323,12 @@ void NovelToLLPass::visit_prolog( DivSignedInstruction& value )
 void NovelToLLPass::visit_epilog( DivSignedInstruction& value )
 {}
 
+void NovelToLLPass::visit_prolog( EquUnsignedInstruction& value ) { TODO; }
+void NovelToLLPass::visit_epilog( EquUnsignedInstruction& value ) {}
+
+void NovelToLLPass::visit_prolog( NeqUnsignedInstruction& value ) { TODO; }
+void NovelToLLPass::visit_epilog( NeqUnsignedInstruction& value ) {}
+
 
 
 void NovelToLLPass::visit_prolog( BitConstant& value )

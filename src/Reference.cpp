@@ -1,5 +1,5 @@
 //  
-//  Copyright (c) 2015 Philipp Paulweber
+//  Copyright (c) 2016 Philipp Paulweber
 //  All rights reserved.
 //  
 //  Developed by: Philipp Paulweber
@@ -37,19 +37,19 @@
 using namespace libnovel;
 
 
-Reference::Reference( const char* name, Type* type, CallableUnit* callable, u1 input )
+Reference::Reference( const char* name, Type* type, CallableUnit* callable, Kind kind )
 : User( ".reference", type, Value::REFERENCE )
 , identifier( 0 )
 , callable( 0 )
-, input( input )
+, kind( kind )
 , structure( 0 )
 {
 	assert( name );
 	assert( type );
 
-    identifier = Identifier::create( type, name /* scope?!?!*/ );
+    identifier = Identifier::create( type, name, callable /* scope?!?!*/ );
 	assert( identifier );
-
+	
 	if( type->isBound() )
 	{
 		Value* bind = type->getBound();
@@ -61,7 +61,14 @@ Reference::Reference( const char* name, Type* type, CallableUnit* callable, u1 i
 	
 	if( callable )
 	{
-		callable->addParameter( this, input );
+		if( kind != LINKAGE )
+		{
+			callable->addParameter( this, kind == INPUT );
+		}
+		else
+		{
+			callable->addLinkage( this );
+		}
 	}
 }
 
@@ -87,10 +94,18 @@ void Reference::setCallableUnit( CallableUnit* value )
 
 const u1 Reference::isInput( void ) const
 {
-	return input;
+	return kind == INPUT;
 }
 
+const u1 Reference::isOutput( void ) const
+{
+	return kind == OUTPUT;
+}
 
+const u1 Reference::isLinkage( void ) const
+{
+	return kind == LINKAGE;
+}
 
 const Structure* Reference::getStructure( void ) const
 {
