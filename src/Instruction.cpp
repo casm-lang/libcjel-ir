@@ -371,7 +371,7 @@ CallInstruction::CallInstruction( Value* symbol )
 {
 	add( symbol );
 
-	assert( Value::isa< Function >( symbol ) );
+	assert( Value::isa< Intrinsic >( symbol ) );
 	
 	//assert( symbol->getType() ); // TODO: FIXME: PPA: MARK:
 	//setType( symbol->getType()->getResultType() );

@@ -183,12 +183,12 @@ void Value::iterate( Traversal order, Visitor* visitor, std::function< void( Val
 			p->iterate( order, visitor, action );
 		}
 		
-		for( Value* p : (obj->has< Function >() ? obj->get< Function >() : empty ) )
+		for( Value* p : (obj->has< Intrinsic >() ? obj->get< Intrinsic >() : empty ) )
 		{
 			p->iterate( order, visitor, action );
 		}
 		
-		for( Value* p : (obj->has< Component >() ? obj->get< Component >() : empty ) )
+		for( Value* p : (obj->has< Function >() ? obj->get< Function >() : empty ) )
 		{
 			p->iterate( order, visitor, action );
 		}

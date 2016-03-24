@@ -46,9 +46,9 @@ Statement::Statement( const char* name, Type* type, Value* parent, Value::ID id 
 	{
 		((Scope*)parent)->add( this );
 	}
-	else if( Value::isa< Function >( parent ) )
+	else if( Value::isa< Intrinsic >( parent ) )
 	{
-		((Function*)parent)->setContext( this );
+		((Intrinsic*)parent)->setContext( this );
 	}
 	else
 	{
@@ -67,7 +67,7 @@ const u1 Statement::isParallel( void ) const
 	{
 		return ((Scope*)parent)->isParallel();
 	}
-	else if( Value::isa< Function >( parent ) )
+	else if( Value::isa< Intrinsic >( parent ) )
 	{
 		return true;
 	}

@@ -104,16 +104,16 @@ void NovelToLLPass::visit_epilog( Module& value )
 }
 
 
-void NovelToLLPass::visit_prolog( Component& value )
+void NovelToLLPass::visit_prolog( Function& value )
 {
 	fprintf
 	( stdout
-    , "define void @%s ;; Component\n"
+    , "define void @%s ;; Function\n"
 	  "( "
     , value.getName()
 	);
 }
-void NovelToLLPass::visit_interlog( Component& value )
+void NovelToLLPass::visit_interlog( Function& value )
 {
 	fprintf
 	( stdout
@@ -122,7 +122,7 @@ void NovelToLLPass::visit_interlog( Component& value )
 	  "begin:\n"
 	);
 }
-void NovelToLLPass::visit_epilog( Component& value )
+void NovelToLLPass::visit_epilog( Function& value )
 {
 	fprintf
 	( stdout
@@ -133,23 +133,23 @@ void NovelToLLPass::visit_epilog( Component& value )
 }
 
 
-void NovelToLLPass::visit_prolog( Function& value )
+void NovelToLLPass::visit_prolog( Intrinsic& value )
 {
 	fprintf
 	( stdout
-	, "define void @%s ;; Function\n"
+	, "define void @%s ;; Intrinsic\n"
 	  "( "
 	, value.getName()
 	);
 }
-void NovelToLLPass::visit_interlog( Function& value )
+void NovelToLLPass::visit_interlog( Intrinsic& value )
 {
 	fprintf
 	( stdout
 	, "\n)\n{\nbegin:\n"
 	);
 }
-void NovelToLLPass::visit_epilog( Function& value )
+void NovelToLLPass::visit_epilog( Intrinsic& value )
 {
 	fprintf
 	( stdout

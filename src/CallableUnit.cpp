@@ -34,8 +34,9 @@
 
 #include "CallableUnit.h"
 #include "Reference.h"
+
+#include "Intrinsic.h"
 #include "Function.h"
-#include "Component.h"
 
 using namespace libnovel;
 
@@ -154,7 +155,7 @@ void CallableUnit::dump( void ) const
 bool CallableUnit::classof( Value const* obj )
 {
 	return obj->getValueID() == classid()
-		or Component::classof( obj )
+		or Intrinsic::classof( obj )
 		or Function::classof( obj )
 		;
 }

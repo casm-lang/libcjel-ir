@@ -38,7 +38,7 @@
 #include "Value.h"
 #include "Module.h"
 #include "User.h"
-#include "Function.h"
+#include "Intrinsic.h"
 #include "Constant.h"
 
 namespace libnovel

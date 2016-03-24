@@ -57,7 +57,7 @@ namespace libnovel
 		, MEMORY
 
 		, CALLABLE_UNIT
-		, COMPONENT
+		, INTRINSIC
 		, FUNCTION
 		
 		, VARIABLE

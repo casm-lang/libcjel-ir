@@ -32,8 +32,8 @@
 //  WITH THE SOFTWARE.
 //  
 
-#ifndef _LIB_NOVEL_COMPONENT_H_
-#define _LIB_NOVEL_COMPONENT_H_
+#ifndef _LIB_NOVEL_INTRINSIC_H_
+#define _LIB_NOVEL_INTRINSIC_H_
 
 #include "Value.h"
 #include "Constant.h"
@@ -41,22 +41,22 @@
 
 namespace libnovel
 {	
-	class Component : public CallableUnit
+	class Intrinsic : public CallableUnit
 	{
 	public:
-		Component( const char* name );
+		Intrinsic( const char* name );
 		
-		~Component( void );
+		~Intrinsic( void );
 		
 		void dump( void ) const;
 		
-		static inline Value::ID classid( void ) { return Value::COMPONENT; };
+		static inline Value::ID classid( void ) { return Value::INTRINSIC; };
 		static bool classof( Value const* obj );
 	};
 }
 
 
-#endif /* _LIB_NOVEL_COMPONENT_H_ */
+#endif /* _LIB_NOVEL_INTRINSIC_H_ */
 
 //  
 //  Local variables:

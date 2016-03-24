@@ -104,29 +104,29 @@ void NovelToC11Pass::visit_epilog( Module& value )
 }
 
 
-void NovelToC11Pass::visit_prolog( Component& value )
-{
-	fprintf( stdout, "void %s // component\n( ", value.getName() );
-}
-void NovelToC11Pass::visit_interlog( Component& value )
-{
-	fprintf( stdout, "\n)\n{\n");
-}
-void NovelToC11Pass::visit_epilog( Component& value )
-{
-	fprintf( stdout, "}\n\n");
-}
-
-
 void NovelToC11Pass::visit_prolog( Function& value )
 {
-	fprintf( stdout, "void %s // function\n( ", value.getName() );
+	fprintf( stdout, "void %s // component\n( ", value.getName() );
 }
 void NovelToC11Pass::visit_interlog( Function& value )
 {
 	fprintf( stdout, "\n)\n{\n");
 }
 void NovelToC11Pass::visit_epilog( Function& value )
+{
+	fprintf( stdout, "}\n\n");
+}
+
+
+void NovelToC11Pass::visit_prolog( Intrinsic& value )
+{
+	fprintf( stdout, "void %s // intrinsic\n( ", value.getName() );
+}
+void NovelToC11Pass::visit_interlog( Intrinsic& value )
+{
+	fprintf( stdout, "\n)\n{\n");
+}
+void NovelToC11Pass::visit_epilog( Intrinsic& value )
 {
 	fprintf( stdout, "}\n\n");
 }

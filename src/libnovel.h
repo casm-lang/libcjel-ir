@@ -45,8 +45,8 @@
 #include "Variable.h"
 #include "Memory.h"
 #include "CallableUnit.h"
-#include "Component.h"
 #include "Function.h"
+#include "Intrinsic.h"
 #include "Reference.h"
 
 #include "Block.h"

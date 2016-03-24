@@ -154,11 +154,11 @@ static void emit_wire( Value& value )
 }
 
  
-void NovelToVHDLPass::visit_prolog( Component& value )
+void NovelToVHDLPass::visit_prolog( Function& value )
 {
 	fprintf
 	( stream
-	, "-- Component '%s'\n"
+	, "-- Function '%s'\n"
 	  "library IEEE;\n"
 	  "use IEEE.std_logic_1164.all;\n"
 	  "use IEEE.numeric_std.all;\n"
@@ -173,7 +173,7 @@ void NovelToVHDLPass::visit_prolog( Component& value )
 	, value.getName()
 	);
 }
-void NovelToVHDLPass::visit_interlog( Component& value )
+void NovelToVHDLPass::visit_interlog( Function& value )
 {
 	string tmp( "\n;" );
 	
@@ -200,7 +200,7 @@ void NovelToVHDLPass::visit_interlog( Component& value )
 	, "begin\n"
 	);
 }
-void NovelToVHDLPass::visit_epilog( Component& value )
+void NovelToVHDLPass::visit_epilog( Function& value )
 {
 	fprintf
 	( stream
@@ -210,27 +210,27 @@ void NovelToVHDLPass::visit_epilog( Component& value )
 }
 
 
-void NovelToVHDLPass::visit_prolog( Function& value )
+void NovelToVHDLPass::visit_prolog( Intrinsic& value )
 {
-	visit_prolog( *((Component*)(&value)) );
+	visit_prolog( *((Function*)(&value)) );
 	// fprintf
 	// ( stream
-	// , "procedure %s -- Function\n( "
+	// , "procedure %s -- Intrinsic\n( "
 	// , value.getName()
 	// );
 }
-void NovelToVHDLPass::visit_interlog( Function& value )
+void NovelToVHDLPass::visit_interlog( Intrinsic& value )
 {
-	visit_interlog( *((Component*)(&value)) );
+	visit_interlog( *((Function*)(&value)) );
 	// fprintf
 	// ( stream
 	// , "\n"
 	//   ") is begin\n"
 	// );
 }
-void NovelToVHDLPass::visit_epilog( Function& value )
+void NovelToVHDLPass::visit_epilog( Intrinsic& value )
 {
-	visit_epilog( *((Component*)(&value)) );
+	visit_epilog( *((Function*)(&value)) );
 	// fprintf
 	// ( stream
 	// , "end procedure %s;\n\n"

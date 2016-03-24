@@ -77,15 +77,15 @@ void Module::add( Value* value )
 		content[ Memory::classid() ].push_back( value );
 		//value->setRef< Memory >( this );
 	}
+	else if( Value::isa< Intrinsic >( value ) )
+	{
+		content[ Intrinsic::classid() ].push_back( value );
+		//value->setRef< Intrinsic >( this );
+	}
 	else if( Value::isa< Function >( value ) )
 	{
 		content[ Function::classid() ].push_back( value );
 		//value->setRef< Function >( this );
-	}
-	else if( Value::isa< Component >( value ) )
-	{
-		content[ Component::classid() ].push_back( value );
-		//value->setRef< Component >( this );
 	}
 	else
 	{

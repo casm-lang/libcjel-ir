@@ -37,7 +37,7 @@
 
 #include "User.h"
 #include "Statement.h"
-#include "Function.h"
+#include "Intrinsic.h"
 #include "Variable.h"
 #include "Value.h"
 

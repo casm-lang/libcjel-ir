@@ -68,13 +68,13 @@ bool NovelDumpPass::run( libpass::PassResult& pr )
 void NovelDumpPass::visit_prolog( Module& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
 void NovelDumpPass::visit_epilog( Module& value ) {}
 
-void NovelDumpPass::visit_prolog( Component& value )   { DUMP_PREFIX; DUMP_POSTFIX; }
-void NovelDumpPass::visit_interlog( Component& value ) {}
-void NovelDumpPass::visit_epilog( Component& value )   {}
-
 void NovelDumpPass::visit_prolog( Function& value )   { DUMP_PREFIX; DUMP_POSTFIX; }
 void NovelDumpPass::visit_interlog( Function& value ) {}
 void NovelDumpPass::visit_epilog( Function& value )   {}
+
+void NovelDumpPass::visit_prolog( Intrinsic& value )   { DUMP_PREFIX; DUMP_POSTFIX; }
+void NovelDumpPass::visit_interlog( Intrinsic& value ) {}
+void NovelDumpPass::visit_epilog( Intrinsic& value )   {}
 
 void NovelDumpPass::visit_prolog( Reference& value )
 {

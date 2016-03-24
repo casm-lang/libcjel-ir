@@ -32,25 +32,25 @@
 //  WITH THE SOFTWARE.
 //  
 
-#include "Component.h"
+#include "Intrinsic.h"
 
 using namespace libnovel;
 
 
-Component::Component( const char* name )
-: CallableUnit( name, /* TODO: FIXME: */ &TypeFunction, Value::COMPONENT )
-{			
-	(*Value::getSymbols())[ ".component" ].insert( this );
-}
-
-Component::~Component( void )
-{			
-	(*Value::getSymbols())[ ".component" ].erase( this );
-}
-
-void Component::dump( void ) const
+Intrinsic::Intrinsic( const char* name )
+: CallableUnit( name, /* TODO: FIXME: */ &TypeFunction, Value::INTRINSIC )
 {
-	printf( "[Component ] " );
+	(*Value::getSymbols())[ ".intrinsic" ].insert( this );
+}
+
+Intrinsic::~Intrinsic( void )
+{			
+	(*Value::getSymbols())[ ".intrinsic" ].erase( this );
+}
+
+void Intrinsic::dump( void ) const
+{
+	printf( "[Intrinsic ] " );
 	debug();
 	
 	if( getContext() )
@@ -63,7 +63,7 @@ void Component::dump( void ) const
 	}
 }
 
-bool Component::classof( Value const* obj )
+bool Intrinsic::classof( Value const* obj )
 {
 	return obj->getValueID() == classid();
 }
