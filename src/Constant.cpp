@@ -225,7 +225,7 @@ Identifier* Identifier::create( Type* type, const char* value, Value* scope )
 	
 	if( scope )
 	{
-		tmp = libstdhl::Allocator::string( string(scope->getName()) + "::" + string(tmp) );
+		tmp = libstdhl::Allocator::string( string(scope->getName()) + "::" + string(value) );
 	}
 	
 	auto result = symbols.find( tmp );

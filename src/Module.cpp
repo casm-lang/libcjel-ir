@@ -42,6 +42,8 @@ Module::Module( const char* name )
 : User( name, 0, Value::MODULE )
 {	
 	assert( name );
+
+	//assert(0);
 	
 	(*Value::getSymbols())[ ".module" ].insert( this );
 }

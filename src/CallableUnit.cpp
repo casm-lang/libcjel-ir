@@ -45,7 +45,7 @@ CallableUnit::CallableUnit( const char* name, Type* type, Value::ID id )
 , context( 0 )
 , identifier( 0 )
 {
-	identifier = Identifier::create( type, name );
+	identifier = Identifier::create( type, name, this );
 	assert( identifier );
 	
 	(*Value::getSymbols())[ ".callableunit" ].insert( this );
