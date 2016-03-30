@@ -46,8 +46,6 @@ static libpass::PassRegistration< NovelToVHDLPass > PASS
 , 0
 );
 
-// static const char* default_output_name = "stdout";
-
 static FILE* stream = stderr;
 
 
@@ -126,17 +124,23 @@ void NovelToVHDLPass::visit_epilog( Module& value )
 static void emit_wire( Value& value )
 {
 	assert( Value::isa< CallableUnit >( &value ) );
+	CallableUnit* cunit = ((CallableUnit*)(&value));
 
-	Block* context = ((CallableUnit*)(&value))->getContext();
-	assert( context );
+	for( auto link : cunit->getLinkage() )
+	{
+		Reference* linkage = (Reference*)link;
+		
+		fprintf
+		( stream
+		, "  signal %s : %s := %s;\n"
+		, linkage->getIdentifier()->getName()
+		, getTypeString( *linkage )
+		, linkage->getRef< Variable >()->getExpression()->getLabel()
+		);
+	}
 	
-	// fprintf
-	// ( stream
-	// , "  signal req_%s : std_logic;\n"
-	//   "  signal ack_%s : std_logic;\n"
-	// , context->getLabel()
-	// , context->getLabel()
-	// );
+	Block* context = cunit->getContext();
+	assert( context );
 	
 	if( Value::isa< Scope >( context ) )
 	{
@@ -628,7 +632,8 @@ void NovelToVHDLPass::visit_prolog( TrivialStatement& value )
 	for( Value* instr : value.getInstructions() )
 	{
 		if( Value::isa< ExtractInstruction >( instr )
-		or  Value::isa< StoreInstruction >( instr ) )
+		or  Value::isa< StoreInstruction >( instr )
+		or  Value::isa< NopInstruction >( instr ) )
 		{
 			continue;
 		}
@@ -685,6 +690,27 @@ void NovelToVHDLPass::visit_epilog( TrivialStatement& value )
 	);
 }
 
+
+void NovelToVHDLPass::visit_prolog( BranchStatement& value )
+{
+	TODO;
+}
+void NovelToVHDLPass::visit_interlog( BranchStatement& value )
+{}
+void NovelToVHDLPass::visit_epilog( BranchStatement& value )
+{}
+
+
+void NovelToVHDLPass::visit_prolog( LoopStatement& value )
+{
+	TODO;
+}
+void NovelToVHDLPass::visit_interlog( LoopStatement& value )
+{}
+void NovelToVHDLPass::visit_epilog( LoopStatement& value )
+{}
+
+
 void NovelToVHDLPass::visit_prolog( CallInstruction& value )
 {
 	fprintf
@@ -727,6 +753,18 @@ void NovelToVHDLPass::visit_prolog( CallInstruction& value )
 	);
 }
 void NovelToVHDLPass::visit_epilog( CallInstruction& value )	
+{
+}
+
+
+void NovelToVHDLPass::visit_prolog( NopInstruction& value )
+{
+	fprintf
+	( stream
+	, "      null; -- NO OPERATION\n"
+	);
+}
+void NovelToVHDLPass::visit_epilog( NopInstruction& value )
 {
 }
 

@@ -50,6 +50,14 @@ Statement::Statement( const char* name, Type* type, Value* parent, Value::ID id 
 	{
 		((Intrinsic*)parent)->setContext( this );
 	}
+	else if( Value::isa< BranchStatement >( parent ) )
+	{
+		((BranchStatement*)parent)->addBlock( this );
+	}
+	else if( Value::isa< LoopStatement >( parent ) )
+	{
+		((LoopStatement*)parent)->addBlock( this );
+	}
 	else
 	{
 		assert( !"invalid parent pointer!" );
@@ -116,6 +124,32 @@ void Statement::add( Value* instruction )
 	printf( "[Stmt] add: %p\n", instruction );	
 }
 
+void Statement::addBlock( Block* block )
+{
+	assert( block );
+	
+	if( Value::isa< TrivialStatement >( this ) )
+	{
+		assert( !" trivial statements are not allowed to have inside blocks! " );		
+	}
+	else if( Value::isa< LoopStatement >( this ) )
+	{
+		assert( blocks.size() < 1 );		
+	}
+	
+	blocks.push_back( block );	
+}
+
+const std::vector< Block* >& Statement::getBlocks( void ) const
+{
+	if( Value::isa< TrivialStatement >( this ) )
+	{
+		assert( !" trivial statements do not contain inside blocks! " );		
+	}
+
+	return blocks;
+}
+
 void Statement::dump( void ) const
 {
 	for( auto instr : instructions )
@@ -128,7 +162,8 @@ bool Statement::classof( Value const* obj )
 {
 	return obj->getValueID() == classid()
 		or TrivialStatement::classof( obj )
-		//or BranchStatement::classof( obj )
+		or BranchStatement::classof( obj )
+		or LoopStatement::classof( obj )
 		;
 }
 
@@ -141,7 +176,7 @@ void TrivialStatement::dump( void ) const
 {
 	const Value* parent = getParent();
 	
-	printf( "[TrStm] %p", this );
+	printf( "[Statment] %p", this );
 	if( parent )
 	{
 		printf( " @ %p", parent );
@@ -157,40 +192,56 @@ bool TrivialStatement::classof( Value const* obj )
 }
 
 
+BranchStatement::BranchStatement( Value* parent )
+: Statement( ".branch", 0, parent, Value::BRANCH_STATEMENT )
+{
+}
 
-
-
-
-// BranchStatement::BranchStatement( ExecutionSemanticsBlock* scope )
-// : Statement( ".branch", 0, scope, Value::BRANCH_STATEMENT )
-// {
-// }
-
-// void BranchStatement::addBlock( Value* block )
-// {
-// 	assert( Value::isa< Block >( block ) );
+void BranchStatement::dump( void ) const
+{
+	const Value* parent = getParent();
 	
-// 	blocks.push_back( (Block*)block );
-// }
-
-// const std::vector< Block* >& BranchStatement::getBlocks( void ) const
-// {
-// 	return blocks;
-// }
-
-// void BranchStatement::dump( void ) const
-// {
-// 	printf( "[BranchStatement] %p\n", this );
+	printf( "[Branch] %p", this );
+	if( parent )
+	{
+		printf( " @ %p", parent );
+	}
+	printf( "\n" );
 	
-// 	((Statement*)this)->dump();
-	
-// 	// TODO: here the branches etc.
-// }
+	((Statement*)this)->dump();
+}
 
-// bool BranchStatement::classof( Value const* obj )
-// {
-// 	return obj->getValueID() == Value::BRANCH_STATEMENT;
-// }
+bool BranchStatement::classof( Value const* obj )
+{
+	return obj->getValueID() == classid();
+}
+
+
+LoopStatement::LoopStatement( Value* parent )
+: Statement( ".loop", 0, parent, Value::LOOP_STATEMENT )
+{
+}
+
+void LoopStatement::dump( void ) const
+{
+	const Value* parent = getParent();
+	
+	printf( "[Loop] %p", this );
+	if( parent )
+	{
+		printf( " @ %p", parent );
+	}
+	printf( "\n" );
+	
+	((Statement*)this)->dump();
+}
+
+bool LoopStatement::classof( Value const* obj )
+{
+	return obj->getValueID() == classid();
+}
+
+
 
 
 

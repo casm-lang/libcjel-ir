@@ -90,7 +90,7 @@ namespace libnovel
 		static inline Value::ID classid( void ) { return Value::BINARY_INSTRUCTION; };
 		static bool classof( Value const* obj );
 	};
-
+	
 	class ArithmeticInstruction : public BinaryInstruction
 	{
 	public:
@@ -119,7 +119,14 @@ namespace libnovel
 		static bool classof( Value const* obj );
 	};
 	
-
+	class NopInstruction : public Instruction
+	{
+	public :
+		NopInstruction( void );
+		static inline Value::ID classid( void ) { return Value::NOP_INSTRUCTION; };
+		static bool classof( Value const* obj );
+	};
+	
 	class AllocInstruction : public Instruction
 	{
 	public :
@@ -127,8 +134,7 @@ namespace libnovel
 		static inline Value::ID classid( void ) { return Value::ALLOC_INSTRUCTION; };
 		static bool classof( Value const* obj );
 	};
-	
-	
+    
 	class IdInstruction : public UnaryInstruction
 	{
 	public :

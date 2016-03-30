@@ -137,7 +137,7 @@ StructureConstant::StructureConstant( Type* type, std::vector< Value* > value )
 			{
 				if( e->getType()->getIDKind() == Type::BIT )
 				{
-					
+					this->value.push_back( BitConstant::create( 0, e->getType()->getBitsize() ) );
 				}
 				else
 				{
@@ -150,19 +150,23 @@ StructureConstant::StructureConstant( Type* type, std::vector< Value* > value )
 			assert( !"empty structure found, should not be possible!" );
 		}
 	}
-	else
+	
+	assert( this->value.size() != 0 && "empty structure found, should not be possible!" );
+	
+	for( Value* p : this->value )
 	{
-		for( Value* p : value )
+		assert( p );
+		if( Value::isa< BitConstant >( p ) )
 		{
-			assert( p );
-			if( Value::isa< BitConstant >( p ) )
-			{
-				((BitConstant*)p)->bind( this );
-			}
-			else if( Value::isa< StructureConstant >( p ) )
-			{
-				((StructureConstant*)p)->bind( this );
-			}
+			((BitConstant*)p)->bind( this );
+		}
+		else if( Value::isa< StructureConstant >( p ) )
+		{
+			((StructureConstant*)p)->bind( this );
+		}
+		else
+		{
+			assert( !" unimplemented case found! " );
 		}
 	}
 }

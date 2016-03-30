@@ -132,13 +132,9 @@ bool Instruction::classof( Value const* obj )
 	return obj->getValueID() == classid()
 		or UnaryInstruction::classof( obj )
 		or BinaryInstruction::classof( obj )
-		or CallInstruction::classof( obj )
-		or ExtractInstruction::classof( obj )
+		or NopInstruction::classof( obj )
 		or AllocInstruction::classof( obj )
-		// or SkipInstruction::classof( obj )
-		// or LocationInstruction::classof( obj )
-		// or PrintInstruction::classof( obj )
-		// or SwitchInstruction::classof( obj )
+		or CallInstruction::classof( obj )
 		;
 }
 
@@ -192,6 +188,7 @@ bool BinaryInstruction::classof( Value const* obj )
 	    or ArithmeticInstruction::classof( obj )
 	    or LogicalInstruction::classof( obj )
 	    or StoreInstruction::classof( obj )
+		or ExtractInstruction::classof( obj )
 		;
 }
 
@@ -245,6 +242,16 @@ bool LogicalInstruction::classof( Value const* obj )
 // INSTRUCTIONS
 // -----------------------------------------------------------------------------
 
+NopInstruction::NopInstruction( void )
+: Instruction( ".nop", 0, Value::NOP_INSTRUCTION )
+{
+}
+bool NopInstruction::classof( Value const* obj )
+{
+	return obj->getValueID() == classid();
+}
+
+
 AllocInstruction::AllocInstruction( Type* type )
 : Instruction( ".alloc", type, Value::ALLOC_INSTRUCTION )
 {
@@ -253,6 +260,7 @@ bool AllocInstruction::classof( Value const* obj )
 {
 	return obj->getValueID() == classid();
 }
+
 
 CallInstruction::CallInstruction( Value* symbol )
 : Instruction( ".call", 0, Value::CALL_INSTRUCTION )

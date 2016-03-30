@@ -101,16 +101,27 @@ void NovelDumpPass::visit_epilog( SequentialScope& value ) {}
 		
 void NovelDumpPass::visit_prolog( TrivialStatement& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
 void NovelDumpPass::visit_epilog( TrivialStatement& value ) {}
- 	    
-void NovelDumpPass::visit_prolog( CallInstruction& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
-void NovelDumpPass::visit_epilog( CallInstruction& value ) {}
 		
+void NovelDumpPass::visit_prolog( BranchStatement& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
+void NovelDumpPass::visit_interlog( BranchStatement& value ) {}
+void NovelDumpPass::visit_epilog( BranchStatement& value ) {}
+		
+void NovelDumpPass::visit_prolog( LoopStatement& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
+void NovelDumpPass::visit_interlog( LoopStatement& value ) {}
+void NovelDumpPass::visit_epilog( LoopStatement& value ) {}
+		
+void NovelDumpPass::visit_prolog( NopInstruction& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
+void NovelDumpPass::visit_epilog( NopInstruction& value ) {}
+
 void NovelDumpPass::visit_prolog( AllocInstruction& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
 void NovelDumpPass::visit_epilog( AllocInstruction& value ) {}
 
 void NovelDumpPass::visit_prolog( IdInstruction& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
 void NovelDumpPass::visit_epilog( IdInstruction& value ) {}
 		
+void NovelDumpPass::visit_prolog( CallInstruction& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
+void NovelDumpPass::visit_epilog( CallInstruction& value ) {}
+
 void NovelDumpPass::visit_prolog( ExtractInstruction& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
 void NovelDumpPass::visit_epilog( ExtractInstruction& value ) {}
 
@@ -134,6 +145,7 @@ void NovelDumpPass::visit_epilog( EquUnsignedInstruction& value ) {}
 
 void NovelDumpPass::visit_prolog( NeqUnsignedInstruction& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
 void NovelDumpPass::visit_epilog( NeqUnsignedInstruction& value ) {}
+
 
 void NovelDumpPass::visit_prolog( BitConstant& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
 void NovelDumpPass::visit_epilog( BitConstant& value ) {}

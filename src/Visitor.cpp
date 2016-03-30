@@ -74,10 +74,13 @@ void Visitor::dispatch( Stage stage, Value* value )
 		CASE_VALUE( PARALLEL_SCOPE,      ParallelScope );
 		CASE_VALUE( SEQUENTIAL_SCOPE,    SequentialScope );
 		
-		CASE_VALUE( TRIVIAL_STATEMENT,   TrivialStatement );
+		CASE_VALUE( TRIVIAL_STATEMENT,      TrivialStatement );
+		CASE_VALUE_INTER( BRANCH_STATEMENT, BranchStatement );
+		CASE_VALUE_INTER( LOOP_STATEMENT,   LoopStatement );
 		
 		CASE_VALUE( CALL_INSTRUCTION,    CallInstruction );
 		
+		CASE_VALUE( NOP_INSTRUCTION,     NopInstruction );
 		CASE_VALUE( ALLOC_INSTRUCTION,   AllocInstruction );
 		
 		CASE_VALUE( ID_INSTRUCTION,      IdInstruction );
@@ -89,6 +92,9 @@ void Visitor::dispatch( Stage stage, Value* value )
 		CASE_VALUE( AND_INSTRUCTION,     AndInstruction );
 		CASE_VALUE( ADDS_INSTRUCTION,    AddSignedInstruction );
 		CASE_VALUE( DIVS_INSTRUCTION,    DivSignedInstruction );
+
+		CASE_VALUE( EQUU_INSTRUCTION,    EquUnsignedInstruction );
+		CASE_VALUE( NEQU_INSTRUCTION,    NeqUnsignedInstruction );
 		
 	    default:
 			printf

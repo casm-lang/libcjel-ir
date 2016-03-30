@@ -46,6 +46,22 @@ static libpass::PassRegistration< NovelToC11Pass > PASS
 , 0
 );
 
+static FILE* stream = stderr;
+
+
+bool NovelToC11Pass::run( libpass::PassResult& pr )
+{
+    Module* value = (Module*)pr.getResult< NovelDumpPass >();
+	assert( value );
+    
+	value->iterate
+	( Traversal::PREORDER
+	, this
+	);
+    
+	return false;
+}
+
 
 static const char* getTypeString( Value& value )
 {
@@ -80,61 +96,48 @@ static const char* getTypeString( Value& value )
 	}
 }
 
-bool NovelToC11Pass::run( libpass::PassResult& pr )
-{
-    Module* value = (Module*)pr.getResult< NovelDumpPass >();
-	assert( value );
-    
-	value->iterate
-	( Traversal::PREORDER
-	, this
-	);
-    
-	return false;
-}
-
 
 void NovelToC11Pass::visit_prolog( Module& value )
 {
-	fprintf( stdout, "// module begin: '%s'\n", value.getName() );
+	fprintf( stream, "// module begin: '%s'\n", value.getName() );
 }
 void NovelToC11Pass::visit_epilog( Module& value )
 {
-	fprintf( stdout, "// module end: '%s'\n\n", value.getName() );
+	fprintf( stream, "// module end: '%s'\n\n", value.getName() );
 }
 
 
 void NovelToC11Pass::visit_prolog( Function& value )
 {
-	fprintf( stdout, "void %s // component\n( ", value.getName() );
+	fprintf( stream, "void %s // component\n( ", value.getName() );
 }
 void NovelToC11Pass::visit_interlog( Function& value )
 {
-	fprintf( stdout, "\n)\n{\n");
+	fprintf( stream, "\n)\n{\n");
 }
 void NovelToC11Pass::visit_epilog( Function& value )
 {
-	fprintf( stdout, "}\n\n");
+	fprintf( stream, "}\n\n");
 }
 
 
 void NovelToC11Pass::visit_prolog( Intrinsic& value )
 {
-	fprintf( stdout, "void %s // intrinsic\n( ", value.getName() );
+	fprintf( stream, "void %s // intrinsic\n( ", value.getName() );
 }
 void NovelToC11Pass::visit_interlog( Intrinsic& value )
 {
-	fprintf( stdout, "\n)\n{\n");
+	fprintf( stream, "\n)\n{\n");
 }
 void NovelToC11Pass::visit_epilog( Intrinsic& value )
 {
-	fprintf( stdout, "}\n\n");
+	fprintf( stream, "}\n\n");
 }
 
 void NovelToC11Pass::visit_prolog( Reference& value )
 {
 	fprintf
-	( stdout
+	( stream
 	, "%s* %s // %s%s"
 	, getTypeString( value )
 	, value.getLabel()
@@ -149,7 +152,7 @@ void NovelToC11Pass::visit_epilog( Reference& value )
 void NovelToC11Pass::visit_prolog( Structure& value )
 {
     fprintf
-	( stdout
+	( stream
 	, "// structure begin: '%s'\n"
 	  "struct %s\n"
 	  "{ "
@@ -160,7 +163,7 @@ void NovelToC11Pass::visit_prolog( Structure& value )
 	for( const Structure* s : value.getElements() )
 	{
         fprintf
-	    ( stdout
+	    ( stream
 		, "%s%s %s\n; "
 		, getTypeString( *((Value*)s) )
 		, s->getElements().size() > 0 ? "*" : ""
@@ -169,7 +172,7 @@ void NovelToC11Pass::visit_prolog( Structure& value )
 	}
 	
 	fprintf
-	( stdout
+	( stream
 	, "};\n"
 	  "// structure end: '%s'\n"
 	  "\n"
@@ -183,7 +186,7 @@ void NovelToC11Pass::visit_epilog( Structure& value )
 void NovelToC11Pass::visit_prolog( Variable& value )
 {
 	fprintf
-	( stdout
+	( stream
 	, "%s %s = { 0 }; // variable\n"
 	, getTypeString( *value.getType()->getBound() ) //->getName()
 	, value.getLabel()
@@ -203,31 +206,59 @@ void NovelToC11Pass::visit_epilog( Memory& value )
 
 void NovelToC11Pass::visit_prolog( ParallelScope& value )
 {
-	fprintf( stdout, "  { // par begin\n" );
+	fprintf( stream, "  { // par begin\n" );
 }
 void NovelToC11Pass::visit_epilog( ParallelScope& value )		
 {
-	fprintf( stdout, "  } // par end\n" );
+	fprintf( stream, "  } // par end\n" );
 }
 
 
 void NovelToC11Pass::visit_prolog( SequentialScope& value )
 {
-	fprintf( stdout, "  { // seq begin\n" );
+	fprintf( stream, "  { // seq begin\n" );
 }
 void NovelToC11Pass::visit_epilog( SequentialScope& value )
 {
-	fprintf( stdout, "  } // seq end\n" );
+	fprintf( stream, "  } // seq end\n" );
 }
 
 
 void NovelToC11Pass::visit_prolog( TrivialStatement& value )
 {
-	fprintf( stdout, "    { // stmt begin\n" );
+	fprintf( stream, "    { // stmt begin\n" );
 }
 void NovelToC11Pass::visit_epilog( TrivialStatement& value )
 {
-	fprintf( stdout, "    } // stmt end\n" );
+	fprintf( stream, "    } // stmt end\n" );
+}
+
+void NovelToC11Pass::visit_prolog( BranchStatement& value )
+{
+	fprintf( stream, "    // branch prolog\n" );
+}
+void NovelToC11Pass::visit_interlog( BranchStatement& value )
+{
+	fprintf( stream, "    // branch interlog\n" );
+}
+void NovelToC11Pass::visit_epilog( BranchStatement& value )
+{
+	fprintf( stream, "    // branch epilog\n" );
+}
+
+
+void NovelToC11Pass::visit_prolog( LoopStatement& value )
+{
+	TODO;
+	fprintf( stream, "    // loop prolog\n" );
+}
+void NovelToC11Pass::visit_interlog( LoopStatement& value )
+{
+	fprintf( stream, "    // loop interlog\n" );
+}
+void NovelToC11Pass::visit_epilog( LoopStatement& value )
+{
+	fprintf( stream, "    // loop epilog\n" );
 }
 
 
@@ -235,7 +266,7 @@ void NovelToC11Pass::visit_prolog( CallInstruction& value )
 {	
 	// TODO: FIXME: register notion!!! shall be added to NOVEL directly!!!
 	fprintf
-	( stdout
+	( stream
 	, "      "
 	  "%s %p// call\n"
 	  , value.getValue(0)->getName()
@@ -244,6 +275,18 @@ void NovelToC11Pass::visit_prolog( CallInstruction& value )
 }
 void NovelToC11Pass::visit_epilog( CallInstruction& value )
 {}
+
+
+void NovelToC11Pass::visit_prolog( NopInstruction& value )
+{
+	fprintf
+	( stream
+	, "      // nop\n"
+	);
+}
+void NovelToC11Pass::visit_epilog( NopInstruction& value )
+{}
+
 
 void NovelToC11Pass::visit_prolog( AllocInstruction& value )
 {
@@ -255,7 +298,7 @@ void NovelToC11Pass::visit_epilog( AllocInstruction& value )
 void NovelToC11Pass::visit_prolog( IdInstruction& value )
 {
 	fprintf
-	( stdout
+	( stream
 	, "      "
 	  "%s %s = (%s)&%s;// id\n"
 	  , getTypeString( value )
@@ -284,7 +327,7 @@ void NovelToC11Pass::visit_epilog( LoadInstruction& value )
 void NovelToC11Pass::visit_prolog( StoreInstruction& value )
 {
 	fprintf
-	( stdout
+	( stream
 	, "      "
 	  "*%s = %s;// store\n"
 	  , value.getValue(1)->getLabel()
@@ -335,7 +378,7 @@ void NovelToC11Pass::visit_prolog( BitConstant& value )
 		u1 last = sc->getElements().back() == &value;
 	    
 		fprintf
-		( stdout
+		( stream
 		, "%lu%s"
 		, value.getValue()[0]
 		, last ? "" : ", "
@@ -352,7 +395,7 @@ void NovelToC11Pass::visit_epilog( BitConstant& value )
 void NovelToC11Pass::visit_prolog( StructureConstant& value )
 {
 	fprintf
-	( stdout
+	( stream
 	, "%s abc = { "
 	, getTypeString( value )
 	);
@@ -360,7 +403,7 @@ void NovelToC11Pass::visit_prolog( StructureConstant& value )
 void NovelToC11Pass::visit_epilog( StructureConstant& value )
 {
 	fprintf
-	( stdout
+	( stream
 	, " };\n"
 	  "\n"
 	);

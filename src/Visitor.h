@@ -99,8 +99,19 @@ namespace libnovel
 		PREFIX void visit_prolog( TrivialStatement& value ) POSTFIX;	\
 		PREFIX void visit_epilog( TrivialStatement& value ) POSTFIX;	\
 																		\
+		PREFIX void visit_prolog( BranchStatement& value ) POSTFIX;		\
+		PREFIX void visit_interlog( BranchStatement& value ) POSTFIX;	\
+		PREFIX void visit_epilog( BranchStatement& value ) POSTFIX;		\
+																		\
+		PREFIX void visit_prolog( LoopStatement& value ) POSTFIX;		\
+		PREFIX void visit_interlog( LoopStatement& value ) POSTFIX;		\
+		PREFIX void visit_epilog( LoopStatement& value ) POSTFIX;		\
+																		\
 		PREFIX void visit_prolog( CallInstruction& value ) POSTFIX;		\
 		PREFIX void visit_epilog( CallInstruction& value ) POSTFIX;		\
+																		\
+		PREFIX void visit_prolog( NopInstruction& value ) POSTFIX;		\
+		PREFIX void visit_epilog( NopInstruction& value ) POSTFIX;		\
 																		\
 		PREFIX void visit_prolog( AllocInstruction& value ) POSTFIX;	\
 		PREFIX void visit_epilog( AllocInstruction& value ) POSTFIX;	\

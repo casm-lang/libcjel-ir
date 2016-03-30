@@ -46,22 +46,21 @@ namespace libnovel
 {
 	class Statement : public Block
 	{
-    // protected:
-	// 	Block* scope;
-		
 	private:
 		std::vector< Value* > instructions;
+		std::vector< Block* > blocks;
 		
 	public:
 		Statement( const char* name, Type* type, Value* parent, Value::ID id = Value::STATEMENT );
-	    
-	// 	ExecutionSemanticsBlock* getBlock( void ) const;
-
+		
 		const std::vector< Value* >& getInstructions( void ) const;
 		
 		virtual const u1 isParallel( void ) const;
 
 		void add( Value* instruction );
+
+		void addBlock( Block* block );
+		const std::vector< Block* >& getBlocks( void ) const;
 		
 		template< class C >
 		bool consistsOnlyOf( void )
@@ -94,25 +93,27 @@ namespace libnovel
 		static bool classof( Value const* obj );
 	};
 	
+	class BranchStatement : public Statement
+	{
+	public:
+		BranchStatement( Value* parent = 0 );
+		
+		void dump( void ) const;
+		
+		static inline Value::ID classid( void ) { return Value::BRANCH_STATEMENT; };
+		static bool classof( Value const* obj );
+	};
 	
-	
-	// class BranchStatement : public Statement
-	// {
-	// private:
-	// 	std::vector< Block* > blocks;
+	class LoopStatement : public Statement
+	{
+	public:
+	    LoopStatement( Value* parent = 0 );
 		
-	// public:
-	// 	BranchStatement( ExecutionSemanticsBlock* scope = 0 );
-	    
-	// 	void addBlock( Value* block );
-
-	// 	const std::vector< Block* >& getBlocks( void ) const;
+		void dump( void ) const;
 		
-	// 	void dump( void ) const;
-		
-	// 	static bool classof( Value const* obj );
-	// };
-
+		static inline Value::ID classid( void ) { return Value::LOOP_STATEMENT; };
+		static bool classof( Value const* obj );
+	};
 }
 
 

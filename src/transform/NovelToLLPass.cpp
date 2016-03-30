@@ -46,6 +46,22 @@ static libpass::PassRegistration< NovelToLLPass > PASS
 , 0
 );
 
+static FILE* stream = stderr;
+
+
+bool NovelToLLPass::run( libpass::PassResult& pr )
+{
+    Module* value = (Module*)pr.getResult< NovelDumpPass >();
+	assert( value );
+    
+	value->iterate
+	( Traversal::PREORDER
+	, this
+	);
+    
+	return false;
+}
+
 
 static const char* getTypeString( Value& value )
 {
@@ -67,20 +83,6 @@ static const char* getTypeString( Value& value )
 		assert( !"unimplemented or unsupported type to convert!" );
 	}
 }
-
-bool NovelToLLPass::run( libpass::PassResult& pr )
-{
-    Module* value = (Module*)pr.getResult< NovelDumpPass >();
-	assert( value );
-    
-	value->iterate
-	( Traversal::PREORDER
-	, this
-	);
-    
-	return false;
-}
-
 
 void NovelToLLPass::visit_prolog( Module& value )
 {
@@ -256,6 +258,26 @@ void NovelToLLPass::visit_epilog( TrivialStatement& value )
 {}
 
 
+void NovelToLLPass::visit_prolog( BranchStatement& value )
+{
+	TODO;
+}
+void NovelToLLPass::visit_interlog( BranchStatement& value )
+{}
+void NovelToLLPass::visit_epilog( BranchStatement& value )
+{}
+
+
+void NovelToLLPass::visit_prolog( LoopStatement& value )
+{
+	TODO;
+}
+void NovelToLLPass::visit_interlog( LoopStatement& value )
+{}
+void NovelToLLPass::visit_epilog( LoopStatement& value )
+{}
+
+
 void NovelToLLPass::visit_prolog( CallInstruction& value )
 {
 	TODO;
@@ -263,6 +285,17 @@ void NovelToLLPass::visit_prolog( CallInstruction& value )
 void NovelToLLPass::visit_epilog( CallInstruction& value )	
 {}
 
+
+void NovelToLLPass::visit_prolog( NopInstruction& value )
+{
+	TODO;
+	fprintf
+	( stream
+	, "    ;; nop\n"
+	);
+}
+void NovelToLLPass::visit_epilog( NopInstruction& value )
+{}
 
 void NovelToLLPass::visit_prolog( AllocInstruction& value )
 {
