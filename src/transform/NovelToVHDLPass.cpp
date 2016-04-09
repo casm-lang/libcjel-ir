@@ -54,6 +54,9 @@ bool NovelToVHDLPass::run( libpass::PassResult& pr )
     Module* value = (Module*)pr.getResult< NovelDumpPass >();
 	assert( value );
     
+	string fn = "obj/" + string( value->getName() ) + ".vhd"; 
+	stream = fopen( fn.c_str(), "w" );
+	
 	value->iterate
 	( Traversal::PREORDER
 	, this
@@ -101,26 +104,6 @@ static const char* getTypeString( Value& value )
 }
 
 
-void NovelToVHDLPass::visit_prolog( Module& value )
-{
-	std::chrono::time_point<std::chrono::system_clock> stamp;
-	stamp = std::chrono::system_clock::now();
-	std::time_t timestamp = std::chrono::system_clock::to_time_t( stamp );
-	
-	fprintf
-	( stream
-	, "-- Generated At: %s"
-	  "-- Module: '%s'\n"
-	  "\n"
-	, std::ctime( &timestamp )
-	, value.getName()
-	);
-}
-void NovelToVHDLPass::visit_epilog( Module& value )
-{
-	fprintf( stream, "-- end of module: '%s'\n\n", value.getName() );		
-}
-
 static void emit_wire( Value& value )
 {
 	assert( Value::isa< CallableUnit >( &value ) );
@@ -157,7 +140,36 @@ static void emit_wire( Value& value )
 	}
 }
 
- 
+
+//
+// Module
+//
+
+void NovelToVHDLPass::visit_prolog( Module& value )
+{
+	std::chrono::time_point<std::chrono::system_clock> stamp;
+	stamp = std::chrono::system_clock::now();
+	std::time_t timestamp = std::chrono::system_clock::to_time_t( stamp );
+	
+	fprintf
+	( stream
+	, "-- Generated At: %s"
+	  "-- Module: '%s'\n"
+	  "\n"
+	, std::ctime( &timestamp )
+	, value.getName()
+	);
+}
+void NovelToVHDLPass::visit_epilog( Module& value )
+{
+	fprintf( stream, "-- end of module: '%s'\n\n", value.getName() );		
+}
+
+
+//
+// Function
+//
+
 void NovelToVHDLPass::visit_prolog( Function& value )
 {
 	fprintf
@@ -172,7 +184,6 @@ void NovelToVHDLPass::visit_prolog( Function& value )
 	  "entity %s is port\n"
 	  "( req : in  std_logic\n"
 	  "; ack : out std_logic\n"
-
 	, value.getLabel()
 	, value.getName()
 	);
@@ -208,40 +219,48 @@ void NovelToVHDLPass::visit_epilog( Function& value )
 {
 	fprintf
 	( stream
-	, "end \\@%s@\\;\n\n"
+	, "end \\@%s@\\;\n"
+	  "\n"
 	, value.getName()
 	);
 }
 
 
+//
+// Intrinsic
+//
+
 void NovelToVHDLPass::visit_prolog( Intrinsic& value )
 {
-	visit_prolog( *((Function*)(&value)) );
-	// fprintf
-	// ( stream
-	// , "procedure %s -- Intrinsic\n( "
-	// , value.getName()
-	// );
+	fprintf
+	( stream
+	, "-- Intrinsic '%s'\n"
+	  "library IEEE;\n"
+	  "use IEEE.std_logic_1164.all;\n"
+	  "use IEEE.numeric_std.all;\n"
+	  "use work.Structure.all;\n"
+	  "use work.Constants.all;\n"
+	  "use work.Variables.all;\n"
+	  "entity %s is port\n"
+	  "( req : in  std_logic\n"
+	  "; ack : out std_logic\n"
+	, value.getLabel()
+	, value.getName()
+	);
 }
 void NovelToVHDLPass::visit_interlog( Intrinsic& value )
 {
 	visit_interlog( *((Function*)(&value)) );
-	// fprintf
-	// ( stream
-	// , "\n"
-	//   ") is begin\n"
-	// );
 }
 void NovelToVHDLPass::visit_epilog( Intrinsic& value )
 {
 	visit_epilog( *((Function*)(&value)) );
-	// fprintf
-	// ( stream
-	// , "end procedure %s;\n\n"
-	// , value.getName()
-	// );
 }
 
+
+//
+// Reference
+//
 
 void NovelToVHDLPass::visit_prolog( Reference& value )
 {
@@ -262,13 +281,15 @@ void NovelToVHDLPass::visit_prolog( Reference& value )
 	, value.getIdentifier()->getName()
 	, kind
 	, getTypeString( value )
-  //, ( value.getCallableUnit()->isLastParameter( &value ) ? "\n" : "\n; " )
 	);
 }
 void NovelToVHDLPass::visit_epilog( Reference& value )
-{	
-}
+{}
 
+
+//
+// Structure
+//
 
 void NovelToVHDLPass::visit_prolog( Structure& value )
 {
@@ -290,7 +311,6 @@ void NovelToVHDLPass::visit_prolog( Structure& value )
 	( stream
 	, "type %s is\n"
 	  "record\n"
-	  //, value.getIdentifier()->getName()
     , getTypeString( value )
 	);
 	
@@ -326,6 +346,10 @@ void NovelToVHDLPass::visit_epilog( Structure& value )
 {
 }
 
+
+//
+// Variable
+//
 
 void NovelToVHDLPass::visit_prolog( Variable& value )
 {
@@ -373,6 +397,11 @@ void NovelToVHDLPass::visit_epilog( Variable& value )
 	}
 }
 
+
+//
+// Memory
+//
+
 void NovelToVHDLPass::visit_prolog( Memory& value )
 {
 	TODO;
@@ -380,6 +409,11 @@ void NovelToVHDLPass::visit_prolog( Memory& value )
 void NovelToVHDLPass::visit_epilog( Memory& value )
 {
 }
+
+
+//
+// ParallelScope
+//
 
 void NovelToVHDLPass::visit_prolog( ParallelScope& value )
 {
@@ -472,6 +506,11 @@ void NovelToVHDLPass::visit_epilog( ParallelScope& value )
 	);
 }
 
+
+//
+// SequentialScope
+//
+
 void NovelToVHDLPass::visit_prolog( SequentialScope& value )
 {
 	fprintf
@@ -548,6 +587,11 @@ void NovelToVHDLPass::visit_epilog( SequentialScope& value )
 	, value.getBlocks().size() > 0 ? value.getBlocks().back()->getLabel() : "'1'"
 	);
 }
+
+
+//
+// TrivialStatement
+//
 
 void NovelToVHDLPass::visit_prolog( TrivialStatement& value )
 {
@@ -691,6 +735,10 @@ void NovelToVHDLPass::visit_epilog( TrivialStatement& value )
 }
 
 
+//
+// BranchStatement
+//
+
 void NovelToVHDLPass::visit_prolog( BranchStatement& value )
 {
 	TODO;
@@ -701,6 +749,10 @@ void NovelToVHDLPass::visit_epilog( BranchStatement& value )
 {}
 
 
+//
+// LoopStatement
+//
+
 void NovelToVHDLPass::visit_prolog( LoopStatement& value )
 {
 	TODO;
@@ -710,6 +762,10 @@ void NovelToVHDLPass::visit_interlog( LoopStatement& value )
 void NovelToVHDLPass::visit_epilog( LoopStatement& value )
 {}
 
+
+//
+// CallInstruction
+//
 
 void NovelToVHDLPass::visit_prolog( CallInstruction& value )
 {
@@ -757,6 +813,10 @@ void NovelToVHDLPass::visit_epilog( CallInstruction& value )
 }
 
 
+//
+// NopInstruction
+//
+
 void NovelToVHDLPass::visit_prolog( NopInstruction& value )
 {
 	fprintf
@@ -768,6 +828,10 @@ void NovelToVHDLPass::visit_epilog( NopInstruction& value )
 {
 }
 
+
+//
+// AllocInstruction
+//
 
 void NovelToVHDLPass::visit_prolog( AllocInstruction& value )
 {
@@ -782,6 +846,10 @@ void NovelToVHDLPass::visit_epilog( AllocInstruction& value )
 {
 }
 
+
+//
+// IdInstruction
+//
 
 void NovelToVHDLPass::visit_prolog( IdInstruction& value )
 {
@@ -804,8 +872,21 @@ void NovelToVHDLPass::visit_epilog( IdInstruction& value )
 {}
 
 
-void NovelToVHDLPass::visit_prolog( ExtractInstruction& value ) {}
-void NovelToVHDLPass::visit_epilog( ExtractInstruction& value ) {}
+//
+// ExtractInstruction
+//
+
+void NovelToVHDLPass::visit_prolog( ExtractInstruction& value )
+{
+}
+void NovelToVHDLPass::visit_epilog( ExtractInstruction& value )
+{
+}
+
+
+//
+// LoadInstruction
+//
 
 void NovelToVHDLPass::visit_prolog( LoadInstruction& value )
 {
@@ -838,6 +919,11 @@ void NovelToVHDLPass::visit_prolog( LoadInstruction& value )
 void NovelToVHDLPass::visit_epilog( LoadInstruction& value )		
 {
 }
+
+
+//
+// StoreInstruction
+//
 
 void NovelToVHDLPass::visit_prolog( StoreInstruction& value )
 {
@@ -887,6 +973,11 @@ void NovelToVHDLPass::visit_epilog( StoreInstruction& value )
 {
 }
 
+
+//
+// AndInstruction
+//
+
 void NovelToVHDLPass::visit_prolog( AndInstruction& value )
 {
 	fprintf
@@ -900,6 +991,11 @@ void NovelToVHDLPass::visit_prolog( AndInstruction& value )
 void NovelToVHDLPass::visit_epilog( AndInstruction& value )
 {
 }
+
+
+//
+// AddSignedInstruction
+//
 
 void NovelToVHDLPass::visit_prolog( AddSignedInstruction& value )
 {
@@ -915,6 +1011,11 @@ void NovelToVHDLPass::visit_epilog( AddSignedInstruction& value )
 {
 }
 
+
+//
+// DivSignedInstruction
+//
+
 void NovelToVHDLPass::visit_prolog( DivSignedInstruction& value )
 {
 	fprintf
@@ -928,14 +1029,35 @@ void NovelToVHDLPass::visit_prolog( DivSignedInstruction& value )
 void NovelToVHDLPass::visit_epilog( DivSignedInstruction& value )
 {}
 
-void NovelToVHDLPass::visit_prolog( EquUnsignedInstruction& value ) { TODO; }
-void NovelToVHDLPass::visit_epilog( EquUnsignedInstruction& value ) {}
 
-void NovelToVHDLPass::visit_prolog( NeqUnsignedInstruction& value ) { TODO; }
-void NovelToVHDLPass::visit_epilog( NeqUnsignedInstruction& value ) {}
+//
+// EquUnsignedInstruction
+//
+
+void NovelToVHDLPass::visit_prolog( EquUnsignedInstruction& value )
+{
+	TODO;
+}
+void NovelToVHDLPass::visit_epilog( EquUnsignedInstruction& value )
+{}
+
+
+//
+// NeqUnsignedInstruction
+//
+
+void NovelToVHDLPass::visit_prolog( NeqUnsignedInstruction& value )
+{
+	TODO;
+}
+void NovelToVHDLPass::visit_epilog( NeqUnsignedInstruction& value )
+{}
 
 
 
+//
+// BitConstant
+//
 
 void NovelToVHDLPass::visit_prolog( BitConstant& value )
 {
@@ -963,8 +1085,12 @@ void NovelToVHDLPass::visit_prolog( BitConstant& value )
 	}
 }
 void NovelToVHDLPass::visit_epilog( BitConstant& value )
-{
-}
+{}
+
+
+//
+// StructureConstant
+//
 
 void NovelToVHDLPass::visit_prolog( StructureConstant& value )
 {
