@@ -90,7 +90,8 @@ static const char* getTypeString( Value& value )
 	{
 		Value* ty = type->getBound();
 		assert(  Value::isa< Structure >( ty ) );
-		string t = "struct " + string( ((Structure*)ty)->getName() );
+		//string t = "struct_" + string( ((Structure*)ty)->getName() );
+		string t = string( ((Structure*)ty)->getName() );
 	    return libstdhl::Allocator::string( t );
 	}
 	else
@@ -114,6 +115,10 @@ void NovelToC11Pass::visit_prolog( Module& value )
 	( stream
 	, "// Generated At: %s"
 	  "// Module: '%s'\n"
+	  "\n"
+	  "#include <stdio.h>\n"
+	  "//#include <stdlib.h>\n"
+	  "#include <stdint.h>\n"
 	  "\n"
 	, std::ctime( &timestamp )
 	, value.getName()
@@ -192,8 +197,8 @@ void NovelToC11Pass::visit_prolog( Reference& value )
 	( stream
 	, "%s* %s // %s%s"
 	, getTypeString( value )
-	, value.getLabel()
 	, value.getIdentifier()->getName()
+	, value.getLabel()
 	, ( value.getCallableUnit()->isLastParameter( &value ) ? "" : "\n, " )
 	);
 }
@@ -219,9 +224,9 @@ void NovelToC11Pass::visit_prolog( Structure& value )
 	
     fprintf
 	( stream
-	, "%s\n"
+	, "typedef struct %s_t\n"
 	  "{ "
-	, getTypeString( value )
+	  , value.getIdentifier()->getName()
     );
 	
 	for( const Structure* s : value.getElements() )
@@ -237,8 +242,10 @@ void NovelToC11Pass::visit_prolog( Structure& value )
 	
 	fprintf
 	( stream
-	, "};\n"
+	, "}\n"
+	  "%s;\n"
 	  "\n"
+	, getTypeString( value )
     );
 }
 void NovelToC11Pass::visit_epilog( Structure& value )
@@ -264,10 +271,10 @@ void NovelToC11Pass::visit_prolog( Variable& value )
 	
 	fprintf
 	( stream
-	, "%s %s = %s;\n"
+	, "%s %s = { 0 };\n"
 	, getTypeString( *value.getType()->getBound() )
 	, value.getLabel()
-	, value.getExpression()->getLabel()
+	  //, value.getExpression()->getLabel()
 	);
 }
 void NovelToC11Pass::visit_epilog( Variable& value )
@@ -411,10 +418,35 @@ void NovelToC11Pass::visit_prolog( CallInstruction& value )
 	// TODO: FIXME: register notion!!! shall be added to NOVEL directly!!!
 	fprintf
 	( stream
-	, "      "
-	  "%s %p// call\n"
-	  , value.getValue(0)->getName()
-	  , &value
+	, "%s%s( "
+	, "" // TODO: FIXME: indention!
+	, value.getValue(0)->getName()
+	);
+
+	u8 cnt = 0;
+	
+	for( auto v : value.getValues() )
+	{
+		if( cnt == 0 )
+		{
+			cnt++;
+			continue;
+		}
+		
+		fprintf
+		( stream
+		, "%s(%s*)&%s"
+		, ( cnt > 1 ? ", " : "" )
+		, getTypeString( *v )
+		, v->getLabel()
+		);
+		cnt++;
+	}
+	
+	fprintf
+	( stream
+	, " ); // call %lu\n"
+	, value.getValues().size()
 	);
 }
 void NovelToC11Pass::visit_epilog( CallInstruction& value )
@@ -429,7 +461,8 @@ void NovelToC11Pass::visit_prolog( NopInstruction& value )
 {
 	fprintf
 	( stream
-	, "      // nop\n"
+	, "%s// nop\n"
+	, "" // TODO: FIXME: indention!
 	);
 }
 void NovelToC11Pass::visit_epilog( NopInstruction& value )
@@ -442,7 +475,13 @@ void NovelToC11Pass::visit_epilog( NopInstruction& value )
 
 void NovelToC11Pass::visit_prolog( AllocInstruction& value )
 {
-	TODO;
+	fprintf
+	( stream
+	, "%s%s %s;// alloc\n"
+	, "" // TODO: FIXME: indention!
+	, getTypeString( value )
+	, value.getLabel()
+	);
 }
 void NovelToC11Pass::visit_epilog( AllocInstruction& value )
 {}
@@ -456,12 +495,12 @@ void NovelToC11Pass::visit_prolog( IdInstruction& value )
 {
 	fprintf
 	( stream
-	, "      "
-	  "%s %s = (%s)&%s;// id\n"
-	  , getTypeString( value )
-	  , value.getLabel()
-	  , getTypeString( value )
-	  , value.get()->getLabel()
+	, "%s%s %s = (%s)&%s;// id\n"
+	, "" // TODO: FIXME: indention!!!
+	, getTypeString( value )
+	, value.getLabel()
+	, getTypeString( value )
+	, value.get()->getLabel()
 	);
 }
 void NovelToC11Pass::visit_epilog( IdInstruction& value )
@@ -486,7 +525,27 @@ void NovelToC11Pass::visit_epilog( ExtractInstruction& value )
 
 void NovelToC11Pass::visit_prolog( LoadInstruction& value )
 {
-	TODO;
+	assert( Value::isa< ExtractInstruction >( value.get() ) );
+	ExtractInstruction* ext = (ExtractInstruction*)( value.get() );
+	
+	assert( Value::isa< Reference >( ext->getLHS() ) );
+	Reference* ref = (Reference*)( ext->getLHS() );
+
+	assert( Value::isa< Structure >( ext->getRHS() ) );
+	Structure* str = (Structure*)( ext->getRHS() );
+
+	assert( str->getParent() == ref->getStructure() );
+	
+	fprintf
+	( stream
+	, "%s%s %s = %s->%s;\n"
+	, "" // TODO: FIXME: indention!!!
+	, getTypeString( value )
+	, value.getLabel()
+	, ref->getIdentifier()->getName()
+	, str->getName()
+	);
+	
 }
 void NovelToC11Pass::visit_epilog( LoadInstruction& value )
 {}
@@ -498,17 +557,74 @@ void NovelToC11Pass::visit_epilog( LoadInstruction& value )
 
 void NovelToC11Pass::visit_prolog( StoreInstruction& value )
 {
-	fprintf
-	( stream
-	, "      "
-	  "*%s = %s;// store\n"
-	  , value.getValue(1)->getLabel()
-	  , value.getValue(0)->getLabel()
-	);
+	// fprintf
+	// ( stream
+	// , "%s*%s = %s;// store\n"
+	// , "" // TODO: FIXME: indention!!!
+	// , value.getValue(1)->getLabel()
+	// , value.getValue(0)->getLabel()
+	// );
+	
+	Value* dst = value.getRHS();
+	Value* src = value.getLHS();
+	
+	if( Value::isa< ExtractInstruction >( dst ) )
+	{
+		ExtractInstruction* ext = (ExtractInstruction*)( dst );
+		assert( ext );
+		
+		assert( Value::isa< Reference >( ext->getLHS() ) );
+		Reference* ref = (Reference*)( ext->getLHS() );
+		
+		assert( Value::isa< Structure >( ext->getRHS() ) );
+		Structure* str = (Structure*)( ext->getRHS() );
+		
+		assert( str->getParent() == ref->getStructure() );
+		fprintf
+		( stream
+	    , "%s%s->%s = %s; // store\n"
+		, "" // TODO: FIXME: indention!!!
+		, ref->getIdentifier()->getName()
+	    , str->getName()
+	    , src->getLabel()
+	    );		
+	}
+	else if( Value::isa< Reference >( dst ) )
+	{
+		Reference* ref = (Reference*)( dst );
+		assert( ref );
+		
+		fprintf
+		( stream
+		, "%s*%s = %s; // store\n"
+		, "" // TODO: FIXME: indention!!!
+	    , ref->getIdentifier()->getName()
+	    , src->getLabel()
+	    );
+	}
+	else
+	{
+		TODO;
+		assert( !" unimplemented! " );
+	}	
 }
 void NovelToC11Pass::visit_epilog( StoreInstruction& value )
 {}
 
+
+static void instr( BinaryInstruction& value, const char* op )
+{
+	fprintf
+	( stream
+	, "%s%s %s = %s %s %s;\n"
+	, "" // TODO: FIXME: indention!!!
+	, getTypeString( value )
+	, value.getLabel()
+	, value.getLHS()->getLabel()
+	, op
+	, value.getRHS()->getLabel()
+	);	
+}
 
 //
 // AndInstruction
@@ -516,7 +632,7 @@ void NovelToC11Pass::visit_epilog( StoreInstruction& value )
 
 void NovelToC11Pass::visit_prolog( AndInstruction& value )
 {
-	TODO;	
+	instr( value, "&" );
 }
 void NovelToC11Pass::visit_epilog( AndInstruction& value )
 {}
@@ -528,7 +644,7 @@ void NovelToC11Pass::visit_epilog( AndInstruction& value )
 
 void NovelToC11Pass::visit_prolog( AddSignedInstruction& value )
 {
-	TODO;	
+	instr( value, "+" );
 }
 void NovelToC11Pass::visit_epilog( AddSignedInstruction& value )
 {}
@@ -540,7 +656,7 @@ void NovelToC11Pass::visit_epilog( AddSignedInstruction& value )
 
 void NovelToC11Pass::visit_prolog( DivSignedInstruction& value )
 {
-	TODO;	
+	instr( value, "/" );
 }
 void NovelToC11Pass::visit_epilog( DivSignedInstruction& value )
 {}
@@ -552,7 +668,7 @@ void NovelToC11Pass::visit_epilog( DivSignedInstruction& value )
 
 void NovelToC11Pass::visit_prolog( EquUnsignedInstruction& value )
 {
-	TODO;
+	instr( value, "==" );
 }
 void NovelToC11Pass::visit_epilog( EquUnsignedInstruction& value )
 {
@@ -565,7 +681,7 @@ void NovelToC11Pass::visit_epilog( EquUnsignedInstruction& value )
 
 void NovelToC11Pass::visit_prolog( NeqUnsignedInstruction& value )
 {
-	TODO;
+	instr( value, "!=" );
 }
 void NovelToC11Pass::visit_epilog( NeqUnsignedInstruction& value )
 {}
@@ -617,7 +733,7 @@ void NovelToC11Pass::visit_prolog( StructureConstant& value )
 	
 	fprintf
 	( stream
-	, "%s %s = { "
+	, "const %s %s = { "
 	, getTypeString( value )
 	, value.getLabel()
 	);
