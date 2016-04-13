@@ -35,7 +35,7 @@ namespace libnovel
 	{
 	private:
 		std::vector< Value* > instructions;
-		std::vector< Block* > blocks;
+		std::vector< Scope* > scopes;
 		
 	public:
 		Statement( const char* name, Type* type, Value* parent, Value::ID id = Value::STATEMENT );
@@ -46,8 +46,8 @@ namespace libnovel
 
 		void add( Value* instruction );
 
-		void addBlock( Block* block );
-		const std::vector< Block* >& getBlocks( void ) const;
+		void addScope( Scope* block );
+		const std::vector< Scope* >& getScopes( void ) const;
 		
 		template< class C >
 		bool consistsOnlyOf( void )

@@ -37,14 +37,6 @@ Statement::Statement( const char* name, Type* type, Value* parent, Value::ID id 
 	{
 		((Intrinsic*)parent)->setContext( this );
 	}
-	else if( Value::isa< BranchStatement >( parent ) )
-	{
-		((BranchStatement*)parent)->addBlock( this );
-	}
-	else if( Value::isa< LoopStatement >( parent ) )
-	{
-		((LoopStatement*)parent)->addBlock( this );
-	}
 	else
 	{
 		assert( !"invalid parent pointer!" );
@@ -72,11 +64,6 @@ const u1 Statement::isParallel( void ) const
 	}
 	return false;
 }
-
-// ExecutionSemanticsBlock* Statement::getBlock( void ) const
-// {
-// 	return scope;
-// }
 
 const std::vector< Value* >& Statement::getInstructions( void ) const
 {
@@ -111,30 +98,37 @@ void Statement::add( Value* instruction )
 	printf( "[Stmt] add: %p\n", instruction );	
 }
 
-void Statement::addBlock( Block* block )
+void Statement::addScope( Scope* scope )
 {
-	assert( block );
+	assert( scope );
 	
 	if( Value::isa< TrivialStatement >( this ) )
 	{
-		assert( !" trivial statements are not allowed to have inside blocks! " );		
+		assert( !" trivial statements are not allowed to have inside scopes! " );		
 	}
 	else if( Value::isa< LoopStatement >( this ) )
 	{
-		assert( blocks.size() < 1 );		
+		assert( scopes.size() < 1 );
 	}
 	
-	blocks.push_back( block );	
+    scopes.push_back( scope );
+	
+	if( scope->getParent() == 0 )
+	{
+		scope->setParent( this );
+	}
+
+	assert( scope->getParent() == this && " inconsistent scope nesting! " );
 }
 
-const std::vector< Block* >& Statement::getBlocks( void ) const
+const std::vector< Scope* >& Statement::getScopes( void ) const
 {
 	if( Value::isa< TrivialStatement >( this ) )
 	{
-		assert( !" trivial statements do not contain inside blocks! " );		
+		assert( !" trivial statements do not contain inside scopes! " );		
 	}
 
-	return blocks;
+	return scopes;
 }
 
 void Statement::dump( void ) const

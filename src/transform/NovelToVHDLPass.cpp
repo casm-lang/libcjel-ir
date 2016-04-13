@@ -1068,7 +1068,8 @@ void NovelToVHDLPass::visit_prolog( BitConstant& value )
 	}
 	else
 	{
-		assert( !" unimplemented !!! " );
+		//assert( !" unimplemented !!! " );
+		TODO;
 	}
 }
 void NovelToVHDLPass::visit_epilog( BitConstant& value )

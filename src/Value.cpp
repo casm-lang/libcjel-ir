@@ -237,10 +237,10 @@ void Value::iterate( Traversal order, Visitor* visitor, std::function< void( Val
 		{
 			visitor->dispatch( Visitor::Stage::INTERLOG, this );
 
-			for( Block* blk : stmt->getBlocks() )
+			for( Scope* sco : stmt->getScopes() )
 			{
-				assert( blk );
-				blk->iterate( order, visitor, action );
+				assert( sco );
+				sco->iterate( order, visitor, action );
 			}
 		}		
 	}
