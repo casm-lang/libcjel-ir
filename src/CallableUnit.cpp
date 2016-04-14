@@ -136,6 +136,11 @@ const u1 CallableUnit::isLastParameter( Value* value ) const
 	return index >= (total - 1);
 }
 
+const i16 CallableUnit::getParameterLength( void ) const
+{
+	return parameter_in.size() + parameter_out.size();
+}
+
 const std::vector< Value* >& CallableUnit::getLinkage( void ) const
 {
 	return linkage;

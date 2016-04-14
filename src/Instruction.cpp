@@ -254,12 +254,13 @@ bool AllocInstruction::classof( Value const* obj )
 CallInstruction::CallInstruction( Value* symbol )
 : Instruction( ".call", 0, Value::CALL_INSTRUCTION )
 {
-	add( symbol );
-
-	assert( Value::isa< Intrinsic >( symbol ) );
+	assert( Value::isa< CallableUnit >( symbol ) );
+	
 	
 	//assert( symbol->getType() ); // TODO: FIXME: PPA: MARK:
 	//setType( symbol->getType()->getResultType() );
+
+	add( symbol );
 }
 bool CallInstruction::classof( Value const* obj )
 {

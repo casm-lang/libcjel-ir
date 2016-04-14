@@ -35,14 +35,16 @@ namespace libnovel
 	{
 	private:
 		Value* expression;
+		const char* ident;
 		
 	public:
-		Variable( Type* type, Value* expression );
+		Variable( Type* type, Value* expression, const char* ident = 0 );
 		
 		~Variable( void );
 		
 		Value* getExpression( void ) const;
-
+		const char* getIdent( void ) const;
+		
 		void dump( void ) const;
 
 		static inline ID classid( void ) { return Value::VARIABLE; };

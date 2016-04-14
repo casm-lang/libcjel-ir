@@ -62,6 +62,7 @@ namespace libnovel
 		
 		const i16 getIndexOfParameter( Value* value ) const;
 		const u1 isLastParameter( Value* value ) const;
+		const i16 getParameterLength( void ) const;
 		
 		const std::vector< Value* >& getLinkage( void ) const;
 		

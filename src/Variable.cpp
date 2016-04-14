@@ -26,9 +26,10 @@
 using namespace libnovel;
 
 
-Variable::Variable( Type* type, Value* expression )
+Variable::Variable( Type* type, Value* expression, const char* ident )
 : User( ".variable", type, Value::VARIABLE )
 , expression( expression )
+, ident( ident )
 {
 	assert( type );
 	assert( expression && Value::isa< Constants >(expression) );
@@ -42,6 +43,11 @@ Variable::~Variable( void )
 Value* Variable::getExpression( void ) const
 {
 	return expression;
+}
+
+const char* Variable::getIdent( void ) const
+{
+	return ident;
 }
 
 

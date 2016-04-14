@@ -163,7 +163,17 @@ void NovelToC11Pass::visit_prolog( Function& value )
 	  "( "
 	, value.getLabel()
 	, value.getName()
-	);
+	);	
+	
+	if( strcmp( value.getName(), "main" ) == 0 )
+	{
+	    fprintf
+	    ( stream
+	    , "int    argc\n"
+	      ", char** argv%s"
+		, ( value.getParameterLength() == 0 ? "" : "\n, " )
+	    );
+	}
 }
 void NovelToC11Pass::visit_interlog( Function& value )
 {
@@ -171,15 +181,49 @@ void NovelToC11Pass::visit_interlog( Function& value )
 	( stream
 	, "\n"
 	  ")\n"
-	//"{\n"
 	);
+	
+    if( value.getLinkage().size() > 0 )
+	{
+		fprintf
+		( stream
+		, "{ // linkage\n"
+		);
+		
+		for( Value* linkage : value.getLinkage() )
+		{
+			assert( Value::isa< Reference >( linkage ) );
+			Reference* ref = (Reference*)linkage;
+			
+		    Value* origin = linkage->getRef< Variable >();
+
+			//assert( !" unimplemented linkage kind/type! " );
+			assert( origin and " internal error! " );
+			
+			fprintf
+			( stream
+			, "%s* %s = &%s; // '%s'\n"
+			, getTypeString( *linkage )
+			, ref->getIdentifier()->getName()
+			, origin->getLabel() 
+			, ref->getLabel() 
+			);
+		}
+	}
 }
 void NovelToC11Pass::visit_epilog( Function& value )
 {
+	if( value.getLinkage().size() > 0 )
+	{
+	    fprintf
+	    ( stream
+	    , "}\n"
+	    );
+	}
+
 	fprintf
 	( stream
-	,//"}\n"
-	  "\n"
+	, "\n"
 	);
 }
 
@@ -197,7 +241,9 @@ void NovelToC11Pass::visit_prolog( Intrinsic& value )
 	  "( "
 	, value.getLabel()
 	, value.getName()
-	);	
+	);
+	
+	assert( value.getLinkage().size() == 0 );
 }
 void NovelToC11Pass::visit_interlog( Intrinsic& value )
 {
@@ -293,10 +339,10 @@ void NovelToC11Pass::visit_prolog( Variable& value )
 	
 	fprintf
 	( stream
-	, "%s %s = { 0 };\n"
+	, "%s %s = { 0 }; // '%s'\n"
 	, getTypeString( *value.getType()->getBound() )
 	, value.getLabel()
-	  //, value.getExpression()->getLabel()
+	, value.getIdent()
 	);
 }
 void NovelToC11Pass::visit_epilog( Variable& value )
