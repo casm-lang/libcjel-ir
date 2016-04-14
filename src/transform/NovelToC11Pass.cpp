@@ -159,9 +159,10 @@ void NovelToC11Pass::visit_prolog( Function& value )
 	fprintf
 	( stream
 	, "// Function '%s'\n"
-	  "void %s\n"
+	  "%s %s\n"
 	  "( "
 	, value.getLabel()
+	, ( strcmp( value.getName(), "main" ) == 0 ? "int" : "void" )
 	, value.getName()
 	);	
 	
