@@ -124,6 +124,7 @@ bool Instruction::classof( Value const* obj )
 		or NopInstruction::classof( obj )
 		or AllocInstruction::classof( obj )
 		or CallInstruction::classof( obj )
+		or StreamInstruction::classof( obj )
 		;
 }
 
@@ -263,6 +264,21 @@ CallInstruction::CallInstruction( Value* symbol )
 	add( symbol );
 }
 bool CallInstruction::classof( Value const* obj )
+{
+	return obj->getValueID() == classid();
+}
+
+
+StreamInstruction::StreamInstruction( Channel channel )
+: Instruction( ".stream", 0, Value::STREAM_INSTRUCTION )
+, channel( channel )
+{
+}
+const StreamInstruction::Channel StreamInstruction::getChannel( void ) const
+{
+	return channel;
+}
+bool StreamInstruction::classof( Value const* obj )
 {
 	return obj->getValueID() == classid();
 }

@@ -590,6 +590,64 @@ void NovelToC11Pass::visit_epilog( CallInstruction& value )
 
 
 //
+// StreamInstruction
+//
+
+static void replace( std::string& str, const std::string& search, const std::string& replace )
+{
+	size_t pos = 0;
+	while( ( pos = str.find(search, pos) ) != std::string::npos)
+	{
+		str.replace( pos, search.length(), replace );
+		pos += replace.length();
+	}
+}
+
+void NovelToC11Pass::visit_prolog( StreamInstruction& value )
+{
+	assert( value.getChannel() == StreamInstruction::OUTPUT );
+
+	const char* channel = "stdout";
+
+	string fmt = "\"";
+	string arg = "";
+	for( Value* i : value.getValues() )
+	{
+		if( Value::isa< Variable >( i ) )
+		{
+			fmt += "%p";
+			arg += ", &" + arg += string( i->getLabel() );
+		}
+		else if( Value::isa< StringConstant >( i ) )
+		{
+			StringConstant* c = (StringConstant*)i;
+			std::string tmp = std::string( c->getValue() );
+			replace( tmp, "\n", "\\n" );
+			fmt += tmp;
+		}
+		else
+		{
+			assert( !" unimplemented Value to 'stream'! " );
+		}
+		
+		
+	}
+	fmt += "\"";
+	
+	fprintf
+	( stream
+	, "%sfprintf( %s, %s%s );\n"
+    , indention( value )
+	, channel
+	, fmt.c_str()
+	, arg.c_str()
+	);
+}
+void NovelToC11Pass::visit_epilog( StreamInstruction& value )
+{}
+
+
+//
 // NopInstruction
 //
 

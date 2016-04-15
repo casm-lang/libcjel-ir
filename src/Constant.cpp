@@ -66,7 +66,7 @@ bool Constants::classof( Value const* obj )
 	return obj->getValueID() == classid()
 	    or BitConstant::classof( obj )
 		or StructureConstant::classof( obj )
-		//or Identifier::classof( obj )
+		or StringConstant::classof( obj )
 		;
 }
 
@@ -106,8 +106,6 @@ bool BitConstant::classof( Value const* obj )
 {
 	return obj->getValueID() == classid();
 }
-
-
 
 
 StructureConstant::StructureConstant( Type* type, std::vector< Value* > value )
@@ -279,6 +277,37 @@ bool Identifier::classof( Value const* obj )
 {
 	return obj->getValueID() == classid();
 }
+
+
+
+
+
+
+StringConstant::StringConstant( Type* type, Type::String value )
+: Constant< Type::String >( ".const_string", type, value, Value::STRING_CONSTANT )
+{
+}
+
+StringConstant* StringConstant::create( Type::String value, u16 length )
+{
+	assert( length <= 256 and "invalid 'String' constant size" ); // TODO: FIXME: internal limitation for now!
+	
+	StringConstant* obj = new StringConstant( new Type( Type::ID::STRING, length ), value );
+	assert( obj );
+	return obj;
+}
+
+void StringConstant::dump( void ) const
+{
+	printf( "[Const] %p = string '%s'\n", this, getValue() );
+}
+
+bool StringConstant::classof( Value const* obj )
+{
+	return obj->getValueID() == classid();
+}
+
+
 
 
 //  

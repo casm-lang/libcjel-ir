@@ -803,6 +803,19 @@ void NovelToVHDLPass::visit_epilog( CallInstruction& value )
 
 
 //
+// StreamInstruction
+//
+
+void NovelToVHDLPass::visit_prolog( StreamInstruction& value )
+{
+	TODO;
+}
+void NovelToVHDLPass::visit_epilog( StreamInstruction& value )
+{}
+
+
+
+//
 // NopInstruction
 //
 

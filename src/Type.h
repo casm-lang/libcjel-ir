@@ -36,12 +36,14 @@ namespace libnovel
     class Type : public libstdhl::Binding< Value >  //: public Novel
 	{
 	public:		
-		typedef u64*       Bit;
+		typedef u64*        Bit;
+		typedef const char* String;
 		
 		enum ID
 		{ BIT
 		, STRUCTURE
 		, FUNCTION
+		, STRING
 		, _TOP_
 		};
 		
@@ -80,14 +82,18 @@ namespace libnovel
 	private:
 		void setID( ID id );		
 	};
-
+	
 	static Type TypeB1        = Type( Type::BIT,        1, Type::STATE::LOCKED );
 	static Type TypeB32       = Type( Type::BIT,       32, Type::STATE::LOCKED );
 	static Type TypeB48       = Type( Type::BIT,       48, Type::STATE::LOCKED );
 	static Type TypeB64       = Type( Type::BIT,       64, Type::STATE::LOCKED );
-	static Type TypeFunction  = Type( Type::FUNCTION,  -1, Type::STATE::LOCKED );
-	static Type TypeStructure = Type( Type::STRUCTURE, -1, Type::STATE::LOCKED );
 	static Type TypeId        = TypeB48;
+	
+	static Type TypeStructure = Type( Type::STRUCTURE, -1, Type::STATE::LOCKED );
+
+	static Type TypeFunction  = Type( Type::FUNCTION,  -1, Type::STATE::LOCKED );
+
+	static Type TypeCharacter = Type( Type::STRING, 1, Type::STATE::LOCKED );
 }
 
 #endif /* _LIB_NOVEL_TYPE_H_ */

@@ -93,7 +93,7 @@ namespace libnovel
 		static inline Value::ID classid( void ) { return Value::ARITHMETIC_INSTRUCTION; };
 		static bool classof( Value const* obj );
 	};
-
+	
 	class LogicalInstruction : public BinaryInstruction
 	{
 	public:
@@ -128,7 +128,6 @@ namespace libnovel
 	{
 	public :
 		IdInstruction( Value* src );
-		//void dump( void ) const;
 		static inline Value::ID classid( void ) { return Value::ID_INSTRUCTION; };
 		static bool classof( Value const* obj );
 	};
@@ -137,7 +136,6 @@ namespace libnovel
 	{
 	public :
 		LoadInstruction( Value* src );
-		//void dump( void ) const;
 		static inline Value::ID classid( void ) { return Value::LOAD_INSTRUCTION; };
 		static bool classof( Value const* obj );
 	};
@@ -147,7 +145,6 @@ namespace libnovel
 	{
 	public:
 	    StoreInstruction( Value* src, Value* dst );
-		//void dump( void ) const;
 		static inline Value::ID classid( void ) { return Value::STORE_INSTRUCTION; };
 		static bool classof( Value const* obj );
 	};
@@ -156,18 +153,35 @@ namespace libnovel
 	{
 	public:
 	    ExtractInstruction( Value* ref, Value* element );
-		//void dump( void ) const;
 		static inline Value::ID classid( void ) { return Value::EXTRACT_INSTRUCTION; };
 		static bool classof( Value const* obj );
 	};
-	
-	
+    
 	class CallInstruction : public Instruction
 	{
 	public:
 		CallInstruction( Value* symbol );
-		//void dump( void ) const;
-		static inline Value::ID classid( void ) { return Value::CALL_INSTRUCTION; };
+    	static inline Value::ID classid( void ) { return Value::CALL_INSTRUCTION; };
+		static bool classof( Value const* obj );
+	};
+	
+	class StreamInstruction : public Instruction
+	{
+	public:
+		enum Channel
+		{ INPUT
+		, OUTPUT
+		, ERROR
+		, WARNING
+		};
+
+	private:
+		Channel channel;
+		
+	public:
+		StreamInstruction( Channel channel );
+		const Channel getChannel( void ) const;
+    	static inline Value::ID classid( void ) { return Value::STREAM_INSTRUCTION; };
 		static bool classof( Value const* obj );
 	};
 	

@@ -79,7 +79,6 @@ namespace libnovel
 		static bool classof( Value const* obj );
 	};
 	
-	
 	class StructureConstant : public Constant< std::vector< Value* > >, public libstdhl::Binding< StructureConstant >
 	{
 	private:
@@ -115,6 +114,22 @@ namespace libnovel
 		static inline Value::ID classid( void ) { return Value::IDENTIFIER; };
 		static bool classof( Value const* obj );
 	};
+
+	
+	class StringConstant : public Constant< Type::String >
+	{
+	public:
+		StringConstant( Type* type, Type::String value );
+		static StringConstant* create( Type::String value, u16 length );
+		
+		void dump( void ) const;
+		
+		static inline Value::ID classid( void ) { return Value::STRING_CONSTANT; };
+		static bool classof( Value const* obj );
+		
+	};	
+
+	static StringConstant StringLF = StringConstant( &TypeCharacter, "\n" );
 }
 
 
