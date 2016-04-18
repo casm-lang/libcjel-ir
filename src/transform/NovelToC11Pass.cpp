@@ -202,11 +202,11 @@ void NovelToC11Pass::visit_interlog( Function& value )
 			{
 			    fprintf
 			    ( stream
-			    , "%s* %s = &%s; // '%s'\n"
+			    , "%s* %s = &%s; // linkage '%s'\n"
 			    , getTypeString( *ref )
-			    , ref->getIdentifier()->getName()
+			    , ref->getLabel()
 			    , origin->getLabel() 
-			    , ref->getLabel() 
+			    , ref->getIdentifier()->getName()
 			    );
 			}
 			origin = ref->getRef< Memory >();
@@ -215,17 +215,17 @@ void NovelToC11Pass::visit_interlog( Function& value )
 				Memory* mem = (Memory*)origin;				
 			    fprintf
 			    ( stream
-				, "%s = malloc( sizeof( %s ) * %u );\n"
+				, "%s = malloc( sizeof( %s ) * %u ); // linkage '%s'\n"
 				  "assert( %s );\n"
-				  "%s* %s = %s; // '%s'\n"
+				  "%s* %s = %s;\n"
 				, mem->getLabel()
 				, getTypeString( *mem )
 				, mem->getSize()
-				, mem->getLabel()
-				, getTypeString( *mem )
 				, ref->getIdentifier()->getName()
 				, mem->getLabel()
+				, getTypeString( *mem )
 				, ref->getLabel()
+				, mem->getLabel()
 			    );
 			}
 		    //assert( origin and " internal error! " );
@@ -244,12 +244,11 @@ void NovelToC11Pass::visit_epilog( Function& value )
 		    Value* origin = ref->getRef< Memory >();
 			if( origin )
 			{
-				Memory* mem = (Memory*)origin;
 				fprintf
 			    ( stream
-				, "free( %s ); // '%s'\n"
+				, "free( %s ); // linkage '%s'\n"
+				, ref->getLabel()
 				, ref->getIdentifier()->getName()
-				, mem->getLabel()
 				);
 			}
 		}
@@ -304,8 +303,8 @@ void NovelToC11Pass::visit_prolog( Reference& value )
 	( stream
 	, "%s* %s // %s%s"
 	, getTypeString( value )
-	, value.getIdentifier()->getName()
 	, value.getLabel()
+	, value.getIdentifier()->getName()
 	, ( value.getCallableUnit()->isLastParameter( &value ) ? "" : "\n, " )
 	);
 }
@@ -612,23 +611,11 @@ void NovelToC11Pass::visit_epilog( LoopStatement& value )
 
 void NovelToC11Pass::visit_prolog( CallInstruction& value )
 {
-	if( Value::isa< CastInstruction >( value.getValue(0) ) )
-	{
-		fprintf
-		( stream
-		, "%s%s( ); // call (indirect)\n"
-		, indention( value )
-		, value.getValue(0)->getLabel()
-		);
-		
-		return;
-	}
-	
 	fprintf
 	( stream
 	, "%s%s( "
 	, indention( value )
-	, value.getValue(0)->getName()
+	, ( Value::isa< CastInstruction >( value.getValue(0) ) ) ? value.getValue(0)->getLabel() : value.getValue(0)->getName()
 	);
 	
 	u8 cnt = 0;
@@ -822,12 +809,13 @@ void NovelToC11Pass::visit_prolog( LoadInstruction& value )
 	
 	fprintf
 	( stream
-	, "%s%s %s = %s->%s;\n"
+	, "%s%s %s = %s->%s; // load '%s'\n"
 	, indention( value )
 	, getTypeString( value )
 	, value.getLabel()
-	, ref->getIdentifier()->getName()
+	, ref->getLabel()
 	, str->getName()
+	, ref->getIdentifier()->getName()
 	);
 	
 }
@@ -866,11 +854,12 @@ void NovelToC11Pass::visit_prolog( StoreInstruction& value )
 		assert( str->getParent() == ref->getStructure() );
 		fprintf
 		( stream
-	    , "%s%s->%s = %s; // store\n"
+	    , "%s%s->%s = %s; // store '%s'\n"
 	    , indention( value )
-		, ref->getIdentifier()->getName()
+		, ref->getLabel()
 	    , str->getName()
 	    , src->getLabel()
+		, ref->getIdentifier()->getName()
 	    );		
 	}
 	else if( Value::isa< Reference >( dst ) )
@@ -880,10 +869,11 @@ void NovelToC11Pass::visit_prolog( StoreInstruction& value )
 		
 		fprintf
 		( stream
-		, "%s*%s = %s; // store\n"
+		, "%s*%s = %s; // store '%s'\n"
 		, indention( value )
-	    , ref->getIdentifier()->getName()
+	    , ref->getLabel()
 	    , src->getLabel()
+	    , ref->getIdentifier()->getName()
 	    );
 	}
 	else
