@@ -120,16 +120,16 @@ namespace libnovel
 	{
 	public:
 		StringConstant( Type* type, Type::String value );
-		static StringConstant* create( Type::String value, u16 length );
+		static StringConstant* create( Type::String value );
 		
 		void dump( void ) const;
 		
 		static inline Value::ID classid( void ) { return Value::STRING_CONSTANT; };
 		static bool classof( Value const* obj );
 		
-	};	
 
-	static StringConstant StringLF = StringConstant( &TypeCharacter, "\n" );
+		static StringConstant LF;
+	};	
 }
 
 

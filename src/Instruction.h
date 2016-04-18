@@ -27,6 +27,7 @@
 #include "User.h"
 #include "Statement.h"
 #include "Intrinsic.h"
+#include "Function.h"
 #include "Variable.h"
 #include "Value.h"
 
@@ -123,12 +124,20 @@ namespace libnovel
 		static inline Value::ID classid( void ) { return Value::ALLOC_INSTRUCTION; };
 		static bool classof( Value const* obj );
 	};
-    
+	
 	class IdInstruction : public UnaryInstruction
 	{
 	public :
 		IdInstruction( Value* src );
 		static inline Value::ID classid( void ) { return Value::ID_INSTRUCTION; };
+		static bool classof( Value const* obj );
+	};
+	
+    class CastInstruction : public UnaryInstruction
+	{
+	public :
+		CastInstruction( Value::ID kind, Value* src );
+		static inline Value::ID classid( void ) { return Value::CAST_INSTRUCTION; };
 		static bool classof( Value const* obj );
 	};
 	

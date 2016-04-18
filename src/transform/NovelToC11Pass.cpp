@@ -139,8 +139,9 @@ void NovelToC11Pass::visit_prolog( Module& value )
 	  "// Module: '%s'\n"
 	  "\n"
 	  "#include <stdio.h>\n"
-	  "//#include <stdlib.h>\n"
+	  "#include <stdlib.h>\n"
 	  "#include <stdint.h>\n"
+	  "#include <assert.h>\n"
 	  "\n"
 	, std::ctime( &timestamp )
 	, value.getName()
@@ -196,19 +197,38 @@ void NovelToC11Pass::visit_interlog( Function& value )
 			assert( Value::isa< Reference >( linkage ) );
 			Reference* ref = (Reference*)linkage;
 			
-		    Value* origin = linkage->getRef< Variable >();
-
-			//assert( !" unimplemented linkage kind/type! " );
-			assert( origin and " internal error! " );
-			
-			fprintf
-			( stream
-			, "%s* %s = &%s; // '%s'\n"
-			, getTypeString( *linkage )
-			, ref->getIdentifier()->getName()
-			, origin->getLabel() 
-			, ref->getLabel() 
-			);
+		    Value* origin = ref->getRef< Variable >();
+			if( origin )
+			{
+			    fprintf
+			    ( stream
+			    , "%s* %s = &%s; // '%s'\n"
+			    , getTypeString( *ref )
+			    , ref->getIdentifier()->getName()
+			    , origin->getLabel() 
+			    , ref->getLabel() 
+			    );
+			}
+			origin = ref->getRef< Memory >();
+			if( origin )
+			{
+				Memory* mem = (Memory*)origin;				
+			    fprintf
+			    ( stream
+				, "%s = malloc( sizeof( %s ) * %u );\n"
+				  "assert( %s );\n"
+				  "%s* %s = %s; // '%s'\n"
+				, mem->getLabel()
+				, getTypeString( *mem )
+				, mem->getSize()
+				, mem->getLabel()
+				, getTypeString( *mem )
+				, ref->getIdentifier()->getName()
+				, mem->getLabel()
+				, ref->getLabel()
+			    );
+			}
+		    //assert( origin and " internal error! " );
 		}
 	}
 }
@@ -216,6 +236,24 @@ void NovelToC11Pass::visit_epilog( Function& value )
 {
 	if( value.getLinkage().size() > 0 )
 	{
+		for( Value* linkage : value.getLinkage() )
+		{
+			assert( Value::isa< Reference >( linkage ) );
+			Reference* ref = (Reference*)linkage;
+			
+		    Value* origin = ref->getRef< Memory >();
+			if( origin )
+			{
+				Memory* mem = (Memory*)origin;
+				fprintf
+			    ( stream
+				, "free( %s ); // '%s'\n"
+				, ref->getIdentifier()->getName()
+				, mem->getLabel()
+				);
+			}
+		}
+		
 	    fprintf
 	    ( stream
 	    , "}\n"
@@ -366,10 +404,33 @@ void NovelToC11Pass::visit_epilog( Variable& value )
 
 void NovelToC11Pass::visit_prolog( Memory& value )
 {
-	TODO;
+	Module* m = value.getRef< Module >();
+	if( m->get< Memory >().front() == &value )
+	{
+		fprintf
+		( stream
+	    , "// Memory\n"
+	    );
+	}
+	
+	fprintf
+	( stream
+	, "%s* %s = 0; // size = '%u'\n"
+    , getTypeString( value )
+	, value.getLabel()
+	, value.getSize()
+	);
 }
 void NovelToC11Pass::visit_epilog( Memory& value )
 {
+	Module* m = value.getRef< Module >();
+	if( m->get< Memory >().back() == &value )
+	{
+		fprintf
+		( stream
+	    , "\n"
+	    );
+	}
 }
 
 
@@ -550,15 +611,26 @@ void NovelToC11Pass::visit_epilog( LoopStatement& value )
 //
 
 void NovelToC11Pass::visit_prolog( CallInstruction& value )
-{	
-	// TODO: FIXME: register notion!!! shall be added to NOVEL directly!!!
+{
+	if( Value::isa< CastInstruction >( value.getValue(0) ) )
+	{
+		fprintf
+		( stream
+		, "%s%s( ); // call (indirect)\n"
+		, indention( value )
+		, value.getValue(0)->getLabel()
+		);
+		
+		return;
+	}
+	
 	fprintf
 	( stream
 	, "%s%s( "
 	, indention( value )
 	, value.getValue(0)->getName()
 	);
-
+	
 	u8 cnt = 0;
 	
 	for( auto v : value.getValues() )
@@ -694,10 +766,30 @@ void NovelToC11Pass::visit_prolog( IdInstruction& value )
 	, getTypeString( value )
 	, value.getLabel()
 	, getTypeString( value )
-	, value.get()->getLabel()
+	, ( Value::isa< CallableUnit >( value.get() ) ? value.get()->getName() : value.get()->getLabel() )
 	);
 }
 void NovelToC11Pass::visit_epilog( IdInstruction& value )
+{}
+
+
+//
+// CastInstruction
+//
+
+void NovelToC11Pass::visit_prolog( CastInstruction& value )
+{
+	assert( value.getType()->getIDKind() == Type::ID::FUNCTION );
+	
+	fprintf
+	( stream
+	, "%svoid (*%s)() = (void (*)())%s;// cast Function\n"
+	, indention( value )
+	, value.getLabel()
+	, value.get()->getLabel()
+	);
+}
+void NovelToC11Pass::visit_epilog( CastInstruction& value )
 {}
 
 

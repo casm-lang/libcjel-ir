@@ -875,6 +875,18 @@ void NovelToVHDLPass::visit_epilog( IdInstruction& value )
 
 
 //
+// CastInstruction
+//
+
+void NovelToVHDLPass::visit_prolog( CastInstruction& value )
+{
+	TODO;
+}
+void NovelToVHDLPass::visit_epilog( CastInstruction& value )
+{}
+
+
+//
 // ExtractInstruction
 //
 

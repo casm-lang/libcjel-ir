@@ -33,10 +33,17 @@ Memory::Memory( Structure* structure, u32 size )
 {
 	assert( structure );
 	assert( size > 0 );
+
+	setType( structure->getType() );
 }
 
 Memory::~Memory( void )
 {			
+}
+
+const u32 Memory::getSize( void ) const
+{
+	return size;
 }
 
 // ParallelBlock* Memory::getContext( void ) const

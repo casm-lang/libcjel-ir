@@ -288,8 +288,10 @@ StringConstant::StringConstant( Type* type, Type::String value )
 {
 }
 
-StringConstant* StringConstant::create( Type::String value, u16 length )
+StringConstant* StringConstant::create( Type::String value )
 {
+	u32 length = strlen( value );
+	
 	assert( length <= 256 and "invalid 'String' constant size" ); // TODO: FIXME: internal limitation for now!
 	
 	StringConstant* obj = new StringConstant( new Type( Type::ID::STRING, length ), value );
@@ -307,6 +309,8 @@ bool StringConstant::classof( Value const* obj )
 	return obj->getValueID() == classid();
 }
 
+
+StringConstant StringConstant::LF = StringConstant( &TypeCharacter, "\n" );
 
 
 

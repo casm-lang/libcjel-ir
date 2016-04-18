@@ -74,6 +74,7 @@ void Visitor::dispatch( Stage stage, Value* value )
 		CASE_VALUE( ALLOC_INSTRUCTION,   AllocInstruction );
 		
 		CASE_VALUE( ID_INSTRUCTION,      IdInstruction );
+		CASE_VALUE( CAST_INSTRUCTION,    CastInstruction );
 		CASE_VALUE( EXTRACT_INSTRUCTION, ExtractInstruction );
 		
 		CASE_VALUE( LOAD_INSTRUCTION,    LoadInstruction );

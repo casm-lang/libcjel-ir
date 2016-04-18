@@ -39,6 +39,8 @@ namespace libnovel
 		Memory( Structure* value, u32 size );
 		
 		~Memory( void );
+
+		const u32 getSize( void ) const;
 		
 		void dump( void ) const;
 		

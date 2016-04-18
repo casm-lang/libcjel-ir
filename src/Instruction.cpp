@@ -150,6 +150,7 @@ bool UnaryInstruction::classof( Value const* obj )
 {
 	return obj->getValueID() == classid()
 		or IdInstruction::classof( obj )
+		or CastInstruction::classof( obj )
 		or LoadInstruction::classof( obj )
 		;
 }
@@ -255,8 +256,13 @@ bool AllocInstruction::classof( Value const* obj )
 CallInstruction::CallInstruction( Value* symbol )
 : Instruction( ".call", 0, Value::CALL_INSTRUCTION )
 {
-	assert( Value::isa< CallableUnit >( symbol ) );
+	assert( symbol );
 	
+	assert( Value::isa< CallableUnit >( symbol ) or Value::isa< CastInstruction >( symbol ) );
+	if( Value::isa< CastInstruction >( symbol ) )
+	{
+		assert( symbol->getType() == &TypeFunction );
+	}
 	
 	//assert( symbol->getType() ); // TODO: FIXME: PPA: MARK:
 	//setType( symbol->getType()->getResultType() );
@@ -292,9 +298,32 @@ bool StreamInstruction::classof( Value const* obj )
 IdInstruction::IdInstruction( Value* src )
 : UnaryInstruction( ".id", &TypeId, src, Value::ID_INSTRUCTION )
 {
-	assert( src and Value::isa< Variable >( src ) );
+	assert( src );
+	assert( Value::isa< Variable >( src ) or Value::isa< Function >( src ) );
 }
 bool IdInstruction::classof( Value const* obj )
+{
+	return obj->getValueID() == classid();
+}
+
+
+CastInstruction::CastInstruction( Value::ID kind, Value* src )
+: UnaryInstruction( ".cast", &TypeId, src, Value::CAST_INSTRUCTION )
+{
+	switch( kind )
+	{
+	    case FUNCTION:
+		{
+			setType( &TypeFunction );
+			break;
+		}
+	    default:
+		{
+			assert( !" unimplemented/unsupported CastInstr type! " );
+		}
+	}
+}
+bool CastInstruction::classof( Value const* obj )
 {
 	return obj->getValueID() == classid();
 }
