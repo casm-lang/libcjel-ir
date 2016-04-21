@@ -29,6 +29,7 @@
 #include "Intrinsic.h"
 #include "Function.h"
 #include "Variable.h"
+#include "Structure.h"
 #include "Value.h"
 
 namespace libnovel
@@ -133,14 +134,6 @@ namespace libnovel
 		static bool classof( Value const* obj );
 	};
 	
-    class CastInstruction : public UnaryInstruction
-	{
-	public :
-		CastInstruction( Value::ID kind, Value* src );
-		static inline Value::ID classid( void ) { return Value::CAST_INSTRUCTION; };
-		static bool classof( Value const* obj );
-	};
-	
 	class LoadInstruction : public UnaryInstruction
 	{
 	public :
@@ -165,7 +158,16 @@ namespace libnovel
 		static inline Value::ID classid( void ) { return Value::EXTRACT_INSTRUCTION; };
 		static bool classof( Value const* obj );
 	};
-    
+
+    class CastInstruction : public BinaryInstruction
+	{
+	public :
+		CastInstruction( Value* kind, Value* src );
+		static inline Value::ID classid( void ) { return Value::CAST_INSTRUCTION; };
+		static bool classof( Value const* obj );
+	};
+	
+	
 	class CallInstruction : public Instruction
 	{
 	public:

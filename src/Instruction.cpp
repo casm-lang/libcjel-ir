@@ -150,7 +150,6 @@ bool UnaryInstruction::classof( Value const* obj )
 {
 	return obj->getValueID() == classid()
 		or IdInstruction::classof( obj )
-		or CastInstruction::classof( obj )
 		or LoadInstruction::classof( obj )
 		;
 }
@@ -180,6 +179,7 @@ bool BinaryInstruction::classof( Value const* obj )
 	    or LogicalInstruction::classof( obj )
 	    or StoreInstruction::classof( obj )
 		or ExtractInstruction::classof( obj )
+		or CastInstruction::classof( obj )
 		;
 }
 
@@ -261,12 +261,9 @@ CallInstruction::CallInstruction( Value* symbol )
 	assert( Value::isa< CallableUnit >( symbol ) or Value::isa< CastInstruction >( symbol ) );
 	if( Value::isa< CastInstruction >( symbol ) )
 	{
-		assert( symbol->getType() == &TypeFunction );
+		assert( symbol->getType()->getIDKind() == Type::FUNCTION );
 	}
 	
-	//assert( symbol->getType() ); // TODO: FIXME: PPA: MARK:
-	//setType( symbol->getType()->getResultType() );
-
 	add( symbol );
 }
 bool CallInstruction::classof( Value const* obj )
@@ -302,28 +299,6 @@ IdInstruction::IdInstruction( Value* src )
 	assert( Value::isa< Variable >( src ) or Value::isa< Function >( src ) );
 }
 bool IdInstruction::classof( Value const* obj )
-{
-	return obj->getValueID() == classid();
-}
-
-
-CastInstruction::CastInstruction( Value::ID kind, Value* src )
-: UnaryInstruction( ".cast", &TypeId, src, Value::CAST_INSTRUCTION )
-{
-	switch( kind )
-	{
-	    case FUNCTION:
-		{
-			setType( &TypeFunction );
-			break;
-		}
-	    default:
-		{
-			assert( !" unimplemented/unsupported CastInstr type! " );
-		}
-	}
-}
-bool CastInstruction::classof( Value const* obj )
 {
 	return obj->getValueID() == classid();
 }
@@ -368,6 +343,23 @@ ExtractInstruction::ExtractInstruction( Value* src, Value* dst )
 	setType( dst->getType() );
 }
 bool ExtractInstruction::classof( Value const* obj )
+{
+	return obj->getValueID() == classid();
+}
+
+CastInstruction::CastInstruction( Value* kind, Value* src )
+: BinaryInstruction( ".cast", &TypeId, kind, src, Value::CAST_INSTRUCTION )
+{
+	if( (not Value::isa< CallableUnit >( kind ))
+	and (not Value::isa< Structure >( kind ))
+	)
+	{
+		assert( !" unimplemented/unsupported CastInstr type! " );	
+	}
+	
+	setType( kind->getType() );
+}
+bool CastInstruction::classof( Value const* obj )
 {
 	return obj->getValueID() == classid();
 }

@@ -641,7 +641,7 @@ void NovelToC11Pass::visit_prolog( CallInstruction& value )
 	fprintf
 	( stream
 	, " ); // call %lu\n"
-	, value.getValues().size()
+	, value.getValues().size() - 1
 	);
 }
 void NovelToC11Pass::visit_epilog( CallInstruction& value )
@@ -766,15 +766,37 @@ void NovelToC11Pass::visit_epilog( IdInstruction& value )
 
 void NovelToC11Pass::visit_prolog( CastInstruction& value )
 {
-	assert( value.getType()->getIDKind() == Type::ID::FUNCTION );
+	Value* kind = value.getLHS();
+	Value* src  = value.getRHS();
 	
-	fprintf
-	( stream
-	, "%svoid (*%s)() = (void (*)())%s;// cast Function\n"
-	, indention( value )
-	, value.getLabel()
-	, value.get()->getLabel()
-	);
+	if( Value::isa< CallableUnit >( kind ) )
+	{
+		// TODO: FIXME: use 'kind' func signature to create better casts!
+	    fprintf
+	    ( stream
+	    , "%svoid (*%s)() = (void (*)())%s;// cast Function\n"
+	    , indention( value )
+	    , value.getLabel()
+	    , src->getLabel()
+	    );
+	}
+	else if( Value::isa< Structure >( kind ) )
+	{
+	    fprintf
+	    ( stream
+		, "%s%s %s = *((%s*)%s%s);\n"
+	    , indention( value )
+		, getTypeString( value )
+	    , value.getLabel()
+		, getTypeString( value )
+		, ( Value::isa< Reference >( src ) ) ? "*" : ""
+	    , src->getLabel()
+	    );
+	}
+	else
+	{
+		assert( !" unsupported feature !!! " );
+	}
 }
 void NovelToC11Pass::visit_epilog( CastInstruction& value )
 {}
@@ -804,7 +826,7 @@ void NovelToC11Pass::visit_prolog( LoadInstruction& value )
 
 	assert( Value::isa< Structure >( ext->getRHS() ) );
 	Structure* str = (Structure*)( ext->getRHS() );
-
+	
 	assert( str->getParent() == ref->getStructure() );
 	
 	fprintf
@@ -829,14 +851,6 @@ void NovelToC11Pass::visit_epilog( LoadInstruction& value )
 
 void NovelToC11Pass::visit_prolog( StoreInstruction& value )
 {
-	// fprintf
-	// ( stream
-	// , "%s*%s = %s;// store\n"
-	// , "" // TODO: FIXME: indention!!!
-	// , value.getValue(1)->getLabel()
-	// , value.getValue(0)->getLabel()
-	// );
-	
 	Value* dst = value.getRHS();
 	Value* src = value.getLHS();
 	
@@ -879,7 +893,7 @@ void NovelToC11Pass::visit_prolog( StoreInstruction& value )
 	else
 	{
 		TODO;
-		assert( !" unimplemented! " );
+		assert( !" unimplemented feature! " );
 	}	
 }
 void NovelToC11Pass::visit_epilog( StoreInstruction& value )
