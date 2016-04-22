@@ -18,10 +18,19 @@
 //  GNU General Public License for more details.
 //  
 //  You should have received a copy of the GNU General Public License
-//  along with this program. If not, see <http://www.gnu.org/licenses/>.
+//  along with libnovel. If not, see <http://www.gnu.org/licenses/>.
 //  
 
 #include "User.h"
+#include "Module.h"
+#include "Memory.h"
+#include "CallableUnit.h"
+#include "Reference.h"
+#include "Structure.h"
+#include "Constant.h"
+#include "Instruction.h"
+#include "Variable.h"
+
 
 using namespace libnovel;
 

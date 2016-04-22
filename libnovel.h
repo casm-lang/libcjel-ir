@@ -18,33 +18,36 @@
 //  GNU General Public License for more details.
 //  
 //  You should have received a copy of the GNU General Public License
-//  along with this program. If not, see <http://www.gnu.org/licenses/>.
+//  along with libnovel. If not, see <http://www.gnu.org/licenses/>.
 //  
 
 #ifndef _LIB_NOVEL_H_
 #define _LIB_NOVEL_H_
 
-#include "Novel.h"
-#include "Type.h"
-#include "Value.h"
-#include "Visitor.h"
+#include "src/Novel.h"
+#include "src/Type.h"
+#include "src/Value.h"
+#include "src/Module.h"
+#include "src/Structure.h"
+#include "src/Variable.h"
+#include "src/Memory.h"
+#include "src/CallableUnit.h"
+#include "src/Function.h"
+#include "src/Intrinsic.h"
+#include "src/Reference.h"
+#include "src/Block.h"
+#include "src/Scope.h"
+#include "src/Statement.h"
+#include "src/Instruction.h"
+#include "src/Visitor.h"
 
-#include "Module.h"
-#include "Structure.h"
-#include "Variable.h"
-#include "Memory.h"
-#include "CallableUnit.h"
-#include "Function.h"
-#include "Intrinsic.h"
-#include "Reference.h"
+#include "src/analyze/NovelDumpPass.h"
 
-#include "Block.h"
-#include "Scope.h"
+#include "src/transform/NovelToC11Pass.h"
+#include "src/transform/NovelToVHDLPass.h"
+#include "src/transform/NovelToLLPass.h"
 
-#include "Statement.h"
-#include "Instruction.h"
-
-#include "stdhl/cpp/Allocator.h"
+// #include "stdhl/cpp/Allocator.h"
 
 namespace libnovel
 {

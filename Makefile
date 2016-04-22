@@ -18,7 +18,7 @@
 #   GNU General Public License for more details.
 #   
 #   You should have received a copy of the GNU General Public License
-#   along with this program. If not, see <http://www.gnu.org/licenses/>.
+#   along with libnovel. If not, see <http://www.gnu.org/licenses/>.
 #   
 
 AR=ar
@@ -36,27 +36,22 @@ CPPFLAG += -Wall
 
 TARGET += libnovel.a
 
-CPPOBJECTS += obj/Value.o
-CPPOBJECTS += obj/Type.o
-CPPOBJECTS += obj/Structure.o
-
-CPPOBJECTS += obj/Module.o
-CPPOBJECTS += obj/Memory.o
-
-CPPOBJECTS += obj/CallableUnit.o
-CPPOBJECTS += obj/Intrinsic.o
-CPPOBJECTS += obj/Function.o
-
-CPPOBJECTS += obj/Variable.o
-CPPOBJECTS += obj/Reference.o
-CPPOBJECTS += obj/Constant.o
-
 CPPOBJECTS += obj/Block.o
-
+CPPOBJECTS += obj/CallableUnit.o
+CPPOBJECTS += obj/Constant.o
+CPPOBJECTS += obj/Function.o
+CPPOBJECTS += obj/Instruction.o
+CPPOBJECTS += obj/Intrinsic.o
+CPPOBJECTS += obj/Memory.o
+CPPOBJECTS += obj/Module.o
+CPPOBJECTS += obj/Reference.o
 CPPOBJECTS += obj/Scope.o
 CPPOBJECTS += obj/Statement.o
-CPPOBJECTS += obj/Instruction.o
-
+CPPOBJECTS += obj/Structure.o
+CPPOBJECTS += obj/Type.o
+CPPOBJECTS += obj/User.o
+CPPOBJECTS += obj/Value.o
+CPPOBJECTS += obj/Variable.o
 CPPOBJECTS += obj/Visitor.o
 
 CPPOBJECTS += obj/analyze/NovelDumpPass.o
@@ -64,11 +59,12 @@ CPPOBJECTS += obj/transform/NovelToLLPass.o
 CPPOBJECTS += obj/transform/NovelToC11Pass.o
 CPPOBJECTS += obj/transform/NovelToVHDLPass.o
 
+INCLUDE += -I ./
 INCLUDE += -I ./src
 INCLUDE += -I ./src/analyze
 INCLUDE += -I ./src/transform
 INCLUDE += -I ../
-INCLUDE += -I ../pass/src
+INCLUDE += -I ../pass
 
 #LIBRARY += 
 
