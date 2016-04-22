@@ -21,29 +21,18 @@
 //  along with libnovel. If not, see <http://www.gnu.org/licenses/>.
 //  
 
-#ifndef _LIB_NOVEL_TO_LL_PASS_H_
-#define _LIB_NOVEL_TO_LL_PASS_H_
+#ifndef _LIB_NOVEL_ALL_H_
+#define _LIB_NOVEL_ALL_H_
 
-#include "libpass.h"
-#include "libnovel.all.h"
+#include "libnovel.h"
 
+#include "src/analyze/NovelDumpPass.h"
 
-namespace libnovel
-{
-	class NovelToLLPass : public libpass::Pass, public Visitor
-	{
-	public:
-		static char id;
-			
-		bool run( libpass::PassResult& pr );
+#include "src/transform/NovelToC11Pass.h"
+#include "src/transform/NovelToVHDLPass.h"
+#include "src/transform/NovelToLLPass.h"
 
-		LIB_NOVEL_VISITOR_INTERFACE;
-	};
-}
-
-
-#endif /* _LIB_NOVEL_TO_LL_PASS_H_ */
-
+#endif /* _LIB_NOVEL_ALL_H_ */
 
 //  
 //  Local variables:

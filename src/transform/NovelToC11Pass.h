@@ -25,7 +25,7 @@
 #define _LIB_NOVEL_TO_C11_PASS_H_
 
 #include "libpass.h"
-#include "libnovel.h"
+#include "libnovel.all.h"
 
 
 namespace libnovel

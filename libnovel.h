@@ -41,16 +41,12 @@
 #include "src/Instruction.h"
 #include "src/Visitor.h"
 
-#include "src/analyze/NovelDumpPass.h"
-
-#include "src/transform/NovelToC11Pass.h"
-#include "src/transform/NovelToVHDLPass.h"
-#include "src/transform/NovelToLLPass.h"
-
-// #include "stdhl/cpp/Allocator.h"
 
 namespace libnovel
 {
+	class Novel
+	{
+	};
 }
 
 #define TODO fprintf( stdout, "%s:%i: '%s' implementation TODO\n", __FILE__, __LINE__, __FUNCTION__ )
