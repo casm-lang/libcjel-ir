@@ -45,7 +45,13 @@ Module::~Module( void )
 void Module::add( Value* value )
 {
 	assert( value );
-	
+
+	Module* m = value->getRef< Module >();
+	if( m )
+	{
+		assert( m != this and " 'value' can only be part of one module" );
+	}
+    
 	if( Value::isa< Structure >( value ) )
 	{
 		content[ Structure::classid() ].push_back( value );

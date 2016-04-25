@@ -50,7 +50,12 @@ bool NovelToC11Pass::run( libpass::PassResult& pr )
 	( Traversal::PREORDER
 	, this
 	);
-    
+
+	if( fclose( stream ) )
+	{
+		fprintf( stderr, "error: unable to close file stream\n" );
+	}
+ 	
 	return false;
 }
 

@@ -218,6 +218,13 @@ Identifier* Identifier::create( Type* type, const char* value, Value* scope )
 	{
 		tmp = libstdhl::Allocator::string( string(scope->getName()) + "::" + string(value) );
 	}
+	else
+	{
+		if( type && type->getIDKind() == Type::STRUCTURE )
+		{
+			tmp = libstdhl::Allocator::string( "@@Structure::" + string(value) );
+		}
+	}
 	
 	auto result = symbols.find( tmp );
 	if( result != symbols.end() )

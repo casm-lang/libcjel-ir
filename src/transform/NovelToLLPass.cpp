@@ -42,12 +42,20 @@ bool NovelToLLPass::run( libpass::PassResult& pr )
 {
     Module* value = (Module*)pr.getResult< NovelDumpPass >();
 	assert( value );
-    
+
+	string fn = "obj/" + string( value->getName() ) + ".vhd"; 
+	stream = fopen( fn.c_str(), "w" );
+	
 	value->iterate
 	( Traversal::PREORDER
 	, this
 	);
-    
+
+	if( fclose( stream ) )
+	{
+		fprintf( stderr, "error: unable to close file stream\n" );
+	}
+ 	
 	return false;
 }
 

@@ -166,6 +166,8 @@ namespace libnovel
 		template< class C >
 		void setRef( Value* reference )
 		{
+			//printf( "[[[ %p ]]]: classID/referenceCNT = %u %u\n"
+			//, reference, C::classid(), references.count( C::classid() ) );
 			assert( references.count( C::classid() ) == 0 );
 			references[ C::classid() ] = reference;
 		}
