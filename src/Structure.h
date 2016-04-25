@@ -58,7 +58,38 @@ namespace libnovel
 		
 		static inline Value::ID classid( void ) { return Value::STRUCTURE; };
 		static bool classof( Value const* obj );
+
+	    size_t hash( void ) const
+		{
+			assert( identifier );
+			return std::hash< string >()( string( identifier->getName() ) );
+		}
 	};
+}
+
+// TODO: FIXME: PPA: IMPROVEMENT: find a generic solution for the hashing/equivalence functionality
+namespace std
+{
+    template<>
+    struct hash< libnovel::Structure* >
+    {
+    public :
+        size_t operator()( const libnovel::Structure* obj ) const
+        {
+			assert( obj and " invalid pointer! " );
+			return obj->hash();
+        }
+    };
+	
+    template <>
+    struct equal_to< libnovel::Structure* >
+    {
+    public :
+        bool operator()( const libnovel::Structure* lhs, const libnovel::Structure* rhs ) const
+        {
+            return lhs->hash() == rhs->hash();
+        }
+    };
 }
 
 
