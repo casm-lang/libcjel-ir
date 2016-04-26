@@ -42,9 +42,10 @@ namespace libnovel
 		, USER
 		
 		, MODULE
+		, INTERCONNECT
 		
 		, MEMORY
-
+		
 		, CALLABLE_UNIT
 		, INTRINSIC
 		, FUNCTION
@@ -59,9 +60,9 @@ namespace libnovel
 		, STRING_CONSTANT
 		
 		, IDENTIFIER
-		  
+		
 		, BLOCK
-		  
+		
 		, SCOPE
 		, PARALLEL_SCOPE
 	    , SEQUENTIAL_SCOPE
@@ -96,11 +97,14 @@ namespace libnovel
 		, ADDS_INSTRUCTION
 		, ADDU_INSTRUCTION
 		, DIVS_INSTRUCTION
+		, MODU_INSTRUCTION
 		
 		, LOGICAL_INSTRUCTION
 		, EQUU_INSTRUCTION
 		, NEQU_INSTRUCTION
-		
+
+	    , ZEXT_INSTRUCTION
+		, TRUNC_INSTRUCTION
 		};
 		
 		typedef std::unordered_map

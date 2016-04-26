@@ -35,6 +35,7 @@
 #include "Variable.h"
 #include "Memory.h"
 #include "Constant.h"
+#include "Interconnect.h"
 
 
 namespace libnovel
@@ -132,17 +133,29 @@ namespace libnovel
 		PREFIX void visit_prolog( DivSignedInstruction& value ) POSTFIX; \
 		PREFIX void visit_epilog( DivSignedInstruction& value ) POSTFIX; \
 																		\
+		PREFIX void visit_prolog( ModUnsignedInstruction& value ) POSTFIX; \
+		PREFIX void visit_epilog( ModUnsignedInstruction& value ) POSTFIX; \
+																		\
 		PREFIX void visit_prolog( EquUnsignedInstruction& value ) POSTFIX; \
 		PREFIX void visit_epilog( EquUnsignedInstruction& value ) POSTFIX; \
 																		\
 		PREFIX void visit_prolog( NeqUnsignedInstruction& value ) POSTFIX; \
 		PREFIX void visit_epilog( NeqUnsignedInstruction& value ) POSTFIX; \
 																		\
+		PREFIX void visit_prolog( ZeroExtendInstruction& value ) POSTFIX; \
+		PREFIX void visit_epilog( ZeroExtendInstruction& value ) POSTFIX; \
+																		\
+		PREFIX void visit_prolog( TruncationInstruction& value ) POSTFIX; \
+		PREFIX void visit_epilog( TruncationInstruction& value ) POSTFIX; \
+																		\
 		PREFIX void visit_prolog( BitConstant& value ) POSTFIX;			\
 		PREFIX void visit_epilog( BitConstant& value ) POSTFIX;			\
 																		\
 		PREFIX void visit_prolog( StructureConstant& value ) POSTFIX;	\
-		PREFIX void visit_epilog( StructureConstant& value ) POSTFIX
+		PREFIX void visit_epilog( StructureConstant& value ) POSTFIX;	\
+																		\
+		PREFIX void visit_prolog( Interconnect& value ) POSTFIX;		\
+		PREFIX void visit_epilog( Interconnect& value ) POSTFIX
 		
 		
 		LIB_NOVEL_VISITOR_INTERFACE_( virtual, = 0 );

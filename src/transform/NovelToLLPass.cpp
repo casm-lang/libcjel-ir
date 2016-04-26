@@ -379,11 +379,66 @@ void NovelToLLPass::visit_prolog( DivSignedInstruction& value )
 void NovelToLLPass::visit_epilog( DivSignedInstruction& value )
 {}
 
-void NovelToLLPass::visit_prolog( EquUnsignedInstruction& value ) { TODO; }
-void NovelToLLPass::visit_epilog( EquUnsignedInstruction& value ) {}
 
-void NovelToLLPass::visit_prolog( NeqUnsignedInstruction& value ) { TODO; }
-void NovelToLLPass::visit_epilog( NeqUnsignedInstruction& value ) {}
+//
+// ModUnsignedInstruction
+//
+
+void NovelToLLPass::visit_prolog( ModUnsignedInstruction& value )
+{
+	TODO;
+}
+void NovelToLLPass::visit_epilog( ModUnsignedInstruction& value )
+{}
+
+
+// 
+// EquUnsignedInstruction
+//
+
+void NovelToLLPass::visit_prolog( EquUnsignedInstruction& value )
+{
+	TODO;
+}
+void NovelToLLPass::visit_epilog( EquUnsignedInstruction& value )
+{}
+
+
+// 
+// NeqUnsignedInstruction
+//
+
+void NovelToLLPass::visit_prolog( NeqUnsignedInstruction& value )
+{
+	TODO;
+}
+void NovelToLLPass::visit_epilog( NeqUnsignedInstruction& value )
+{}
+
+
+//
+// ZeroExtendInstruction
+//
+
+void NovelToLLPass::visit_prolog( ZeroExtendInstruction& value )
+{
+	TODO;
+}
+void NovelToLLPass::visit_epilog( ZeroExtendInstruction& value )
+{}
+
+
+//
+// TruncationInstruction
+//
+
+void NovelToLLPass::visit_prolog( TruncationInstruction& value )
+{
+	TODO;
+}
+void NovelToLLPass::visit_epilog( TruncationInstruction& value )
+{}
+
 
 
 
@@ -399,6 +454,19 @@ void NovelToLLPass::visit_prolog( StructureConstant& value )
 	TODO;
 }
 void NovelToLLPass::visit_epilog( StructureConstant& value )
+{}
+
+
+
+//
+// Interconnect
+//
+
+void NovelToLLPass::visit_prolog( Interconnect& value )
+{
+    TODO;
+}
+void NovelToLLPass::visit_epilog( Interconnect& value )
 {}
 
 

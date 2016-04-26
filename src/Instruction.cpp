@@ -151,6 +151,9 @@ bool UnaryInstruction::classof( Value const* obj )
 	return obj->getValueID() == classid()
 		or IdInstruction::classof( obj )
 		or LoadInstruction::classof( obj )
+		
+		or ZeroExtendInstruction::classof( obj )
+		or TruncationInstruction::classof( obj )
 		;
 }
 
@@ -205,6 +208,7 @@ bool ArithmeticInstruction::classof( Value const* obj )
 	    or AndInstruction::classof( obj )
 	    or AddSignedInstruction::classof( obj )
 	    or DivSignedInstruction::classof( obj )
+	    or ModUnsignedInstruction::classof( obj )
 	    ;
 }
 
@@ -313,6 +317,24 @@ bool LoadInstruction::classof( Value const* obj )
 	return obj->getValueID() == classid();
 }
 
+ZeroExtendInstruction::ZeroExtendInstruction( Value* src, Type* type )
+: UnaryInstruction( ".zext", type, src, classid() )
+{
+}
+bool ZeroExtendInstruction::classof( Value const* obj )
+{
+	return obj->getValueID() == classid();
+}
+
+TruncationInstruction::TruncationInstruction( Value* src, Type* type )
+: UnaryInstruction( ".trunc", type, src, classid() )
+{
+}
+bool TruncationInstruction::classof( Value const* obj )
+{
+	return obj->getValueID() == classid();
+}
+
 
 
 // -----------------------------------------------------------------------------
@@ -396,6 +418,16 @@ DivSignedInstruction::DivSignedInstruction( Value* lhs, Value* rhs )
 {
 }
 bool DivSignedInstruction::classof( Value const* obj )
+{
+	return obj->getValueID() == classid();
+}
+
+
+ModUnsignedInstruction::ModUnsignedInstruction( Value* lhs, Value* rhs )
+	: ArithmeticInstruction( ".modu", lhs, rhs, classid() )
+{
+}
+bool ModUnsignedInstruction::classof( Value const* obj )
 {
 	return obj->getValueID() == classid();
 }

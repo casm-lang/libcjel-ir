@@ -83,9 +83,15 @@ void Visitor::dispatch( Stage stage, Value* value )
 		CASE_VALUE( AND_INSTRUCTION,     AndInstruction );
 		CASE_VALUE( ADDS_INSTRUCTION,    AddSignedInstruction );
 		CASE_VALUE( DIVS_INSTRUCTION,    DivSignedInstruction );
+		CASE_VALUE( MODU_INSTRUCTION,    ModUnsignedInstruction );
 
 		CASE_VALUE( EQUU_INSTRUCTION,    EquUnsignedInstruction );
 		CASE_VALUE( NEQU_INSTRUCTION,    NeqUnsignedInstruction );
+
+		CASE_VALUE( ZEXT_INSTRUCTION,    ZeroExtendInstruction );
+		CASE_VALUE( TRUNC_INSTRUCTION,   TruncationInstruction );
+
+		CASE_VALUE( INTERCONNECT,        Interconnect );
 		
 	    default:
 			printf

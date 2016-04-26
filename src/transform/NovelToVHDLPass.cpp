@@ -1050,6 +1050,18 @@ void NovelToVHDLPass::visit_epilog( DivSignedInstruction& value )
 
 
 //
+// ModUnsignedInstruction
+//
+
+void NovelToVHDLPass::visit_prolog( ModUnsignedInstruction& value )
+{
+	TODO;
+}
+void NovelToVHDLPass::visit_epilog( ModUnsignedInstruction& value )
+{}
+
+
+//
 // EquUnsignedInstruction
 //
 
@@ -1070,6 +1082,31 @@ void NovelToVHDLPass::visit_prolog( NeqUnsignedInstruction& value )
 	TODO;
 }
 void NovelToVHDLPass::visit_epilog( NeqUnsignedInstruction& value )
+{}
+
+
+
+//
+// ZeroExtendInstruction
+//
+
+void NovelToVHDLPass::visit_prolog( ZeroExtendInstruction& value )
+{
+	TODO;
+}
+void NovelToVHDLPass::visit_epilog( ZeroExtendInstruction& value )
+{}
+
+
+//
+// TruncationInstruction
+//
+
+void NovelToVHDLPass::visit_prolog( TruncationInstruction& value )
+{
+	TODO;
+}
+void NovelToVHDLPass::visit_epilog( TruncationInstruction& value )
 {}
 
 
@@ -1155,6 +1192,17 @@ void NovelToVHDLPass::visit_epilog( StructureConstant& value )
 	}
 }
 
+
+//
+// Interconnect
+//
+
+void NovelToVHDLPass::visit_prolog( Interconnect& value )
+{
+    TODO;
+}
+void NovelToVHDLPass::visit_epilog( Interconnect& value )
+{}
 
 
 //  

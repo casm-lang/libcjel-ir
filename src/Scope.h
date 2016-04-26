@@ -55,7 +55,7 @@ namespace libnovel
 	class SequentialScope : public Scope
 	{
 	public:
-		SequentialScope(  );
+		SequentialScope( Value* parent = 0 );
 		
 		void dump( void ) const;
 		
@@ -66,7 +66,7 @@ namespace libnovel
 	class ParallelScope : public Scope
 	{
 	public:
-	    ParallelScope(  );
+	    ParallelScope( Value* parent = 0 );
 		
 		void dump( void ) const;
 		

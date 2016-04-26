@@ -65,7 +65,7 @@ static const char* getTypeString( Value& value )
 	Type* type = value.getType();
 	assert( type );
 	
-	if( type->getIDKind() == Type::ID::BIT )
+	if( type->getIDKind() == Type::BIT )
 	{
 		u16 bitsize = type->getBitsize();
 		u16 bitsize_type = 8;
@@ -80,13 +80,17 @@ static const char* getTypeString( Value& value )
 		string t = "uint" + to_string( bitsize_type ) + "_t";
 		return libstdhl::Allocator::string( t );
 	}
-	else if( type->getIDKind() == Type::ID::STRUCTURE )
+	else if( type->getIDKind() == Type::STRUCTURE )
 	{
 		Value* ty = type->getBound();
 		assert(  Value::isa< Structure >( ty ) );
 		//string t = "struct_" + string( ((Structure*)ty)->getName() );
 		string t = string( ((Structure*)ty)->getName() );
 	    return libstdhl::Allocator::string( t );
+	}
+	else if( type->getIDKind() == Type::INTERCONNECT )
+	{
+	    return libstdhl::Allocator::string( "uint64_t***" );
 	}
 	else
 	{
@@ -207,12 +211,24 @@ void NovelToC11Pass::visit_interlog( Function& value )
 			{
 			    fprintf
 			    ( stream
-			    , "%s* %s = &%s; // linkage '%s'\n"
+			    , "%s  %s_var = { 0 }; // linkage '%s'\n"
+				  "%s* %s = &%s_var; // \n"
 			    , getTypeString( *ref )
 			    , ref->getLabel()
-			    , origin->getLabel() 
 			    , ref->getIdentifier()->getName()
+			    , getTypeString( *ref )
+			    , ref->getLabel()
+			    , ref->getLabel()
+				//, origin->getLabel() 
 			    );
+			    // fprintf
+			    // ( stream
+			    // , "%s* %s = &%s; // linkage '%s'\n"
+			    // , getTypeString( *ref )
+			    // , ref->getLabel()
+			    // , origin->getLabel() 
+			    // , ref->getIdentifier()->getName()
+			    // );
 			}
 			origin = ref->getRef< Memory >();
 			if( origin )
@@ -220,18 +236,63 @@ void NovelToC11Pass::visit_interlog( Function& value )
 				Memory* mem = (Memory*)origin;				
 			    fprintf
 			    ( stream
-				, "%s = malloc( sizeof( %s ) * %u ); // linkage '%s'\n"
+				, "%s* %s = malloc( sizeof( %s ) * %u ); // linkage '%s'\n"
 				  "assert( %s );\n"
-				  "%s* %s = %s;\n"
-				, mem->getLabel()
+				, getTypeString( *mem )
+				, ref->getLabel()
 				, getTypeString( *mem )
 				, mem->getSize()
 				, ref->getIdentifier()->getName()
-				, mem->getLabel()
-				, getTypeString( *mem )
 				, ref->getLabel()
-				, mem->getLabel()
-			    );
+				);
+			    // fprintf
+			    // ( stream
+				// , "%s = malloc( sizeof( %s ) * %u ); // linkage '%s'\n"
+				//   "assert( %s );\n"
+				//   "%s* %s = %s;\n"
+				// , mem->getLabel()
+				// , getTypeString( *mem )
+				// , mem->getSize()
+				// , ref->getIdentifier()->getName()
+				// , mem->getLabel()
+				// , getTypeString( *mem )
+				// , ref->getLabel()
+				// , mem->getLabel()
+			    // );
+			}
+			origin = ref->getRef< Interconnect >();
+			if( origin )
+			{
+				Interconnect* ic = (Interconnect*)origin;
+
+				// TODO: FIXME: PPA: HACK: needs better implemented directly in the NOVEL model
+				Module* m = value.getRef< Module >();
+				assert( m and m->has< Variable >() );
+				
+				fprintf
+				( stream
+				, "uint64_t* %s_var[] = // interconnect '%s'\n"
+				  "{ "
+				, ref->getLabel()
+				, ic->getLabel()
+				);
+				for( Value* v : m->get< Variable >() )
+				{
+					fprintf
+					( stream
+					, "(uint64_t*)%s // '%s'\n%s"
+					, v->getRef< Reference >()->getLabel()
+					, v->getLabel()
+					, m->get< Variable >().back() == v ? "" : ", "
+					);
+				}
+				fprintf
+				( stream
+				, "};\n"
+				  "uint64_t*** %s = (uint64_t***)&%s_var;\n"
+				, ref->getLabel()
+				, ref->getLabel()
+				);
 			}
 		    //assert( origin and " internal error! " );
 		}
@@ -304,12 +365,24 @@ void NovelToC11Pass::visit_epilog( Intrinsic& value )
 
 void NovelToC11Pass::visit_prolog( Reference& value )
 {
+	const char* kind = "link";
+	if( value.isInput() )
+	{
+		kind = "in";
+	}
+	if( value.isOutput() )
+	{
+		kind = "out";
+	}
+	
 	fprintf
 	( stream
-	, "%s* %s // %s%s"
+	, "%s%s %s // %s %s%s"
 	, getTypeString( value )
+	, ( ( value.getType()->getIDKind() == Type::STRUCTURE or value.isOutput() ) ? "*" : "" )
 	, value.getLabel()
 	, value.getIdentifier()->getName()
+	, kind
 	, ( value.getCallableUnit()->isLastParameter( &value ) ? "" : "\n, " )
 	);
 }
@@ -370,7 +443,9 @@ void NovelToC11Pass::visit_epilog( Structure& value )
 
 void NovelToC11Pass::visit_prolog( Variable& value )
 {
-	Module* m = value.getRef< Module >();
+	static Value n( "", &TypeId, libnovel::Value::VALUE );
+
+    Module* m = value.getRef< Module >();
 	
 	if( m->get< Variable >().front() == &value )
 	{
@@ -379,14 +454,27 @@ void NovelToC11Pass::visit_prolog( Variable& value )
 	    , "// Variables\n"
 	    );
 	}
+
+	static u64 var_allocation = 0;
 	
 	fprintf
 	( stream
-	, "%s %s = { 0 }; // '%s'\n"
-	, getTypeString( *value.getType()->getBound() )
+	, "const %s %s = %lu; // '%s'\n"
+	, getTypeString( n )
 	, value.getLabel()
+	, var_allocation
 	, value.getIdent()
 	);
+	
+	var_allocation++;
+
+    // fprintf
+	// ( stream
+	// , "%s %s = { 0 }; // '%s'\n"
+	// , getTypeString( *value.getType()->getBound() )
+	// , value.getLabel()
+	// , value.getIdent()
+	// );
 }
 void NovelToC11Pass::visit_epilog( Variable& value )
 {
@@ -623,6 +711,18 @@ void NovelToC11Pass::visit_prolog( CallInstruction& value )
 	, ( Value::isa< CastInstruction >( value.getValue(0) ) ) ? value.getValue(0)->getLabel() : value.getValue(0)->getName()
 	);
 	
+	CallableUnit* cu = 0;
+	if( Value::isa< CallableUnit >( value.getValue(0) ) )
+	{
+		cu = (CallableUnit*)value.getValue(0);
+	}
+	else if( Value::isa< CastInstruction >( value.getValue(0) ) )
+	{
+		CastInstruction* ci = (CastInstruction*)value.getValue(0);
+		assert( Value::isa< CallableUnit >( ci->getLHS() ) );
+		cu = (CallableUnit*)ci->getLHS();
+	}
+    
 	u8 cnt = 0;
 	
 	for( auto v : value.getValues() )
@@ -635,9 +735,10 @@ void NovelToC11Pass::visit_prolog( CallInstruction& value )
 		
 		fprintf
 		( stream
-		, "%s(%s*)&%s"
+		, "%s(%s%s%s"
 		, ( cnt > 1 ? ", " : "" )
 		, getTypeString( *v )
+		, ( ( v->getType()->getIDKind() == Type::STRUCTURE or cnt > cu->getInParameters().size() ) ? "*)&" : ")" )
 		, v->getLabel()
 		);
 		cnt++;
@@ -753,7 +854,7 @@ void NovelToC11Pass::visit_prolog( IdInstruction& value )
 {
 	fprintf
 	( stream
-	, "%s%s %s = (%s)&%s;// id\n"
+	, "%s%s %s = (%s)%s;// id\n"
 	, indention( value )
 	, getTypeString( value )
 	, value.getLabel()
@@ -794,7 +895,7 @@ void NovelToC11Pass::visit_prolog( CastInstruction& value )
 		, getTypeString( value )
 	    , value.getLabel()
 		, getTypeString( value )
-		, ( Value::isa< Reference >( src ) ) ? "*" : ""
+		, ( Value::isa< Reference >( src ) and src->getType()->getIDKind() == Type::STRUCTURE ) ? "*" : ""
 	    , src->getLabel()
 	    );
 	}
@@ -956,6 +1057,19 @@ void NovelToC11Pass::visit_epilog( DivSignedInstruction& value )
 
 
 //
+// ModUnsignedInstruction
+//
+
+void NovelToC11Pass::visit_prolog( ModUnsignedInstruction& value )
+{
+    instr( value, "%" );
+}
+void NovelToC11Pass::visit_epilog( ModUnsignedInstruction& value )
+{}
+
+
+
+//
 // EquUnsignedInstruction
 //
 
@@ -978,6 +1092,45 @@ void NovelToC11Pass::visit_prolog( NeqUnsignedInstruction& value )
 }
 void NovelToC11Pass::visit_epilog( NeqUnsignedInstruction& value )
 {}
+
+
+static void cast( UnaryInstruction& value, const char* comment )
+{
+	fprintf
+	( stream
+	, "%s%s %s = (%s)%s; // %s\n"
+	, indention( value )
+	, getTypeString( value )
+	, value.getLabel()
+	, getTypeString( value )
+	, value.get()->getLabel()
+	, comment
+	);	
+}
+
+//
+// ZeroExtendInstruction
+//
+
+void NovelToC11Pass::visit_prolog( ZeroExtendInstruction& value )
+{
+	cast( value, "zext" );
+}
+void NovelToC11Pass::visit_epilog( ZeroExtendInstruction& value )
+{}
+
+
+//
+// TruncationInstruction
+//
+
+void NovelToC11Pass::visit_prolog( TruncationInstruction& value )
+{
+	cast( value, "trunc" );	
+}
+void NovelToC11Pass::visit_epilog( TruncationInstruction& value )
+{}
+
 
 
 //
@@ -1066,6 +1219,18 @@ void NovelToC11Pass::visit_epilog( StructureConstant& value )
 	    );
 	}	
 }
+
+
+//
+// Interconnect
+//
+
+void NovelToC11Pass::visit_prolog( Interconnect& value )
+{
+    TODO;
+}
+void NovelToC11Pass::visit_epilog( Interconnect& value )
+{}
 
 
 

@@ -41,6 +41,7 @@ CPPOBJECTS += obj/CallableUnit.o
 CPPOBJECTS += obj/Constant.o
 CPPOBJECTS += obj/Function.o
 CPPOBJECTS += obj/Instruction.o
+CPPOBJECTS += obj/Interconnect.o
 CPPOBJECTS += obj/Intrinsic.o
 CPPOBJECTS += obj/Memory.o
 CPPOBJECTS += obj/Module.o

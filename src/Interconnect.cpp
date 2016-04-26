@@ -21,34 +21,31 @@
 //  along with libnovel. If not, see <http://www.gnu.org/licenses/>.
 //  
 
-#include "User.h"
-#include "Module.h"
-#include "Memory.h"
-#include "CallableUnit.h"
-#include "Reference.h"
-#include "Structure.h"
-#include "Constant.h"
-#include "Instruction.h"
-#include "Variable.h"
 #include "Interconnect.h"
-
 
 using namespace libnovel;
 
-bool User::classof( Value const* obj )
+
+Interconnect::Interconnect( void )
+: User( ".interconnect", &TypeInterconnect, classid() )
 {
-	return obj->getValueID() == classid()
-		or Module::classof( obj )
-		or Memory::classof( obj )
-		or CallableUnit::classof( obj )
-		or Reference::classof( obj )
-		or Structure::classof( obj )
-		or Constants::classof( obj )
-		or Instruction::classof( obj )
-		or Variable::classof( obj )
-		or Interconnect::classof( obj )
-		;
 }
+
+Interconnect::~Interconnect( void )
+{			
+}
+
+void Interconnect::dump( void ) const
+{
+	printf( "[Interconnect ] " );
+	debug();
+}
+
+bool Interconnect::classof( Value const* obj )
+{
+	return obj->getValueID() == classid();
+}
+
 
 
 //  

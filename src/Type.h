@@ -43,6 +43,7 @@ namespace libnovel
 		{ BIT
 		, STRUCTURE
 		, FUNCTION
+		, INTERCONNECT
 		, STRING
 		, _TOP_
 		};
@@ -91,6 +92,8 @@ namespace libnovel
 	static Type TypeB64       = Type( Type::BIT,       64, Type::STATE::LOCKED );
 	static Type TypeId        = TypeB48;
 	
+	static Type TypeInterconnect = Type( Type::INTERCONNECT, -1, Type::STATE::LOCKED );
+
 	static Type TypeStructure = Type( Type::STRUCTURE, -1, Type::STATE::LOCKED );
 
 	static Type TypeFunction  = Type( Type::FUNCTION,  -1, Type::STATE::LOCKED );

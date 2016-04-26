@@ -33,6 +33,7 @@
 #include "src/Memory.h"
 #include "src/CallableUnit.h"
 #include "src/Function.h"
+#include "src/Interconnect.h"
 #include "src/Intrinsic.h"
 #include "src/Reference.h"
 #include "src/Block.h"

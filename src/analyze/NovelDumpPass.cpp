@@ -141,12 +141,25 @@ void NovelDumpPass::visit_epilog( EquUnsignedInstruction& value ) {}
 void NovelDumpPass::visit_prolog( NeqUnsignedInstruction& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
 void NovelDumpPass::visit_epilog( NeqUnsignedInstruction& value ) {}
 
+void NovelDumpPass::visit_prolog( ZeroExtendInstruction& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
+void NovelDumpPass::visit_epilog( ZeroExtendInstruction& value ) {}
+
+void NovelDumpPass::visit_prolog( TruncationInstruction& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
+void NovelDumpPass::visit_epilog( TruncationInstruction& value ) {}
+
+void NovelDumpPass::visit_prolog( ModUnsignedInstruction& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
+void NovelDumpPass::visit_epilog( ModUnsignedInstruction& value ) {}
+
 
 void NovelDumpPass::visit_prolog( BitConstant& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
 void NovelDumpPass::visit_epilog( BitConstant& value ) {}
 
 void NovelDumpPass::visit_prolog( StructureConstant& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
 void NovelDumpPass::visit_epilog( StructureConstant& value ) {}
+
+
+void NovelDumpPass::visit_prolog( Interconnect& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
+void NovelDumpPass::visit_epilog( Interconnect& value ) {}
 
 
 //  

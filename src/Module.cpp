@@ -23,6 +23,7 @@
 
 #include "Module.h"
 #include "Variable.h"
+#include "Interconnect.h"
 
 using namespace libnovel;
 
@@ -51,36 +52,34 @@ void Module::add( Value* value )
 	{
 		assert( m != this and " 'value' can only be part of one module" );
 	}
-    
+	
 	if( Value::isa< Structure >( value ) )
 	{
 		content[ Structure::classid() ].push_back( value );
-		//value->setRef< Module >( this );
 	}
 	else if( Value::isa< Constants >( value ) )
 	{
 		content[ Constants::classid() ].push_back( value );
-		//value->setRef< Constants >( this );
 	}
 	else if( Value::isa< Variable >( value ) )
 	{
 		content[ Variable::classid() ].push_back( value );
-		//value->setRef< Variable >( this );
 	}
 	else if( Value::isa< Memory >( value ) ) 
 	{
 		content[ Memory::classid() ].push_back( value );
-		//value->setRef< Memory >( this );
 	}
 	else if( Value::isa< Intrinsic >( value ) )
 	{
 		content[ Intrinsic::classid() ].push_back( value );
-		//value->setRef< Intrinsic >( this );
 	}
 	else if( Value::isa< Function >( value ) )
 	{
 		content[ Function::classid() ].push_back( value );
-		//value->setRef< Function >( this );
+	}
+	else if( Value::isa< Interconnect >( value ) )
+	{
+		content[ Function::classid() ].push_back( value );
 	}
 	else
 	{

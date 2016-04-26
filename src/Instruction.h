@@ -125,6 +125,8 @@ namespace libnovel
 		static inline Value::ID classid( void ) { return Value::ALLOC_INSTRUCTION; };
 		static bool classof( Value const* obj );
 	};
+
+
 	
 	class IdInstruction : public UnaryInstruction
 	{
@@ -142,6 +144,23 @@ namespace libnovel
 		static bool classof( Value const* obj );
 	};
 	
+	class ZeroExtendInstruction : public UnaryInstruction
+	{
+	public :
+	    ZeroExtendInstruction( Value* src, Type* type );
+		static inline Value::ID classid( void ) { return Value::ZEXT_INSTRUCTION; };
+		static bool classof( Value const* obj );
+	};
+	
+	class TruncationInstruction : public UnaryInstruction
+	{
+	public :
+	    TruncationInstruction( Value* src, Type* type );
+		static inline Value::ID classid( void ) { return Value::TRUNC_INSTRUCTION; };
+		static bool classof( Value const* obj );
+	};
+	
+
 	
 	class StoreInstruction : public BinaryInstruction
 	{
@@ -248,14 +267,15 @@ namespace libnovel
 	// 	RivInstruction( Value* lhs, Value* rhs );
 	// 	static bool classof( Value const* obj );
 	// };
-
-	// class ModInstruction : public OperatorInstruction
-	// {
-	// public:
-	// 	ModInstruction( Value* lhs, Value* rhs );
-	// 	static bool classof( Value const* obj );
-	// };
 	
+	class ModUnsignedInstruction : public ArithmeticInstruction
+	{
+	public:
+		ModUnsignedInstruction( Value* lhs, Value* rhs );
+		static inline Value::ID classid( void ) { return Value::MODU_INSTRUCTION; };
+		static bool classof( Value const* obj );
+	};
+    
 	class EquUnsignedInstruction : public LogicalInstruction
 	{
 	public:
@@ -307,7 +327,7 @@ namespace libnovel
 	// 	MovInstruction( Value* lhs );
 	// 	static bool classof( Value const* obj );
 	// };
-	
+
 }
 
 

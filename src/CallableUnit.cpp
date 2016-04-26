@@ -23,7 +23,6 @@
 
 #include "CallableUnit.h"
 #include "Reference.h"
-
 #include "Intrinsic.h"
 #include "Function.h"
 
@@ -65,6 +64,35 @@ const Identifier* CallableUnit::getIdentifier( void ) const
 	return identifier;
 }
 
+Reference* CallableUnit::add( const char* ref_name, Type* ref_type, u8 ref_kind )
+{
+    Reference* ref = new Reference
+	( ref_name
+	, ref_type
+	, this
+	, (Reference::Kind)ref_kind
+	);
+	assert( ref );
+
+	name2ref[ ref_name ] = ref;
+	
+	return ref;
+}
+
+Reference* CallableUnit::in( const char* ref_name, Type* ref_type )
+{
+	return add( ref_name, ref_type, Reference::INPUT );
+}
+
+Reference* CallableUnit::out( const char* ref_name, Type* ref_type )
+{
+	return add( ref_name, ref_type, Reference::OUTPUT );
+}
+
+Reference* CallableUnit::link( const char* ref_name, Type* ref_type )
+{
+	return add( ref_name, ref_type, Reference::LINKAGE );
+}
 
 void CallableUnit::addParameter( Value* value, u1 input )
 {
@@ -144,6 +172,18 @@ const i16 CallableUnit::getParameterLength( void ) const
 const std::vector< Value* >& CallableUnit::getLinkage( void ) const
 {
 	return linkage;
+}
+
+const Reference* CallableUnit::getReference( const char* name ) const
+{
+	auto result = name2ref.find( name );
+	if( result != name2ref.end() )
+	{
+		assert( Value::isa< Reference >( result->second ) );
+		return (const Reference*)result->second;
+	}
+
+	return 0;
 }
 
 

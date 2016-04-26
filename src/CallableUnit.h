@@ -30,19 +30,21 @@
 #include "Constant.h"
 
 namespace libnovel
-{	
+{
+	class Reference;
+	
 	class CallableUnit : public User
 	{
 	private:
 		Block* context;
-
+		
 		Identifier* identifier;
 	    std::vector< Value* > parameter_in;
 	    std::vector< Value* > parameter_out;
+	    std::vector< Value* > linkage;
 
 		std::unordered_map< Value*, u16 > parameter2index;
-
-	    std::vector< Value* > linkage;
+		std::unordered_map< const char*, Value* > name2ref;
 		
 	public:
 		CallableUnit( const char* name, Type* type, Value::ID id = CALLABLE_UNIT );
@@ -53,7 +55,14 @@ namespace libnovel
 		void setContext( Block* scope );
 
 		const Identifier* getIdentifier( void ) const;
-
+		
+	private:
+		Reference* add( const char* ref_name, Type* ref_type, u8 ref_kind );
+	public:
+		Reference* in( const char* ref_name, Type* ref_type );
+		Reference* out( const char* ref_name, Type* ref_type );
+		Reference* link( const char* ref_name, Type* ref_type );
+		
 		void addParameter( Value* value, u1 input = true );		
 	    void addLinkage( Value* value );		
 	    
@@ -65,6 +74,8 @@ namespace libnovel
 		const i16 getParameterLength( void ) const;
 		
 		const std::vector< Value* >& getLinkage( void ) const;
+
+		const Reference* getReference( const char* name ) const;
 		
 		void dump( void ) const;
 		

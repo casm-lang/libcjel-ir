@@ -30,6 +30,10 @@ using namespace libnovel;
 Scope::Scope( const char* name, Type* type, Value* parent, u1 is_parallel, Value::ID id )
 : Block( name, type, parent, is_parallel, id )
 {
+	if( parent and Value::isa< CallableUnit >( parent ) )
+	{
+		((CallableUnit*)parent)->setContext( this );
+	}
 }
 
 void Scope::add( Value* element )
@@ -70,8 +74,8 @@ bool Scope::classof( Value const* obj )
 }
 
 
-SequentialScope::SequentialScope()
-: Scope( ".seq", 0, 0, false, Value::ID::SEQUENTIAL_SCOPE )
+SequentialScope::SequentialScope( Value* parent )
+: Scope( ".seq", 0, parent, false, Value::ID::SEQUENTIAL_SCOPE )
 {
 }
 
@@ -90,8 +94,8 @@ bool SequentialScope::classof( Value const* obj )
 
 
 
-ParallelScope::ParallelScope()
-: Scope( ".par", 0, 0, false, Value::ID::PARALLEL_SCOPE )
+ParallelScope::ParallelScope( Value* parent )
+: Scope( ".par", 0, parent, false, Value::ID::PARALLEL_SCOPE )
 {
 }
 
