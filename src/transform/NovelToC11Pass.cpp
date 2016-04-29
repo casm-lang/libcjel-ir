@@ -90,7 +90,7 @@ static const char* getTypeString( Value& value )
 	}
 	else if( type->getIDKind() == Type::INTERCONNECT )
 	{
-	    return libstdhl::Allocator::string( "uint64_t***" );
+	    return libstdhl::Allocator::string( "uint64_t**" );
 	}
 	else
 	{
@@ -271,7 +271,7 @@ void NovelToC11Pass::visit_interlog( Function& value )
 				
 				fprintf
 				( stream
-				, "uint64_t* %s_var[] = // interconnect '%s'\n"
+				, "uint64_t* %s[] = // interconnect '%s'\n"
 				  "{ "
 				, ref->getLabel()
 				, ic->getLabel()
@@ -289,9 +289,9 @@ void NovelToC11Pass::visit_interlog( Function& value )
 				fprintf
 				( stream
 				, "};\n"
-				  "uint64_t*** %s = (uint64_t***)&%s_var;\n"
-				, ref->getLabel()
-				, ref->getLabel()
+				  //"uint64_t*** %s = (uint64_t***)&%s_var;\n"
+				// , ref->getLabel()
+				// , ref->getLabel()
 				);
 			}
 		    //assert( origin and " internal error! " );
@@ -733,12 +733,54 @@ void NovelToC11Pass::visit_prolog( CallInstruction& value )
 			continue;
 		}
 		
+		const char* kind = ")";
+		if( Value::isa< Instruction >( v ) and cnt > cu->getInParameters().size() )
+		{
+			kind = "*)&";
+		}
+		else if( Value::isa< Instruction >( v ) and v->getType()->getIDKind() == Type::STRUCTURE )
+		{
+			kind = "*)&";
+		}
+		else if( Value::isa< Reference >( v ) and v->getType()->getIDKind() == Type::STRUCTURE )
+		{
+			kind = "*)";
+		}
+		else if( Value::isa< Constants >( v ) and v->getType()->getIDKind() == Type::STRUCTURE )
+		{
+			kind = "*)&";
+		}
+		else
+		{
+			printf( "\33[07mwarning:\33[0m unhandled 'kind' of a argument for call instr!\n" );
+		}
+		
+		// if( Value::isa< Reference >( v ) )
+		// {
+		// 	kind = "*)";
+		// }
+		// else if( Value::isa< Instruction >( v ) or Value::isa< Constants >( v ) )
+		// {
+		// 	if( v->getType()->getIDKind() == Type::STRUCTURE ) // cnt <= cu->getInParameters().size() ) 
+		// 	{
+		// 		kind = "*)&";
+		// 	}
+		// 	else
+		// 	{
+		// 		assert(0);
+		// 	}
+		// }
+		// else
+		// {
+		// 	assert(0);
+		// }
+		
 		fprintf
 		( stream
 		, "%s(%s%s%s"
 		, ( cnt > 1 ? ", " : "" )
 		, getTypeString( *v )
-		, ( ( v->getType()->getIDKind() == Type::STRUCTURE or cnt > cu->getInParameters().size() ) ? "*)&" : ")" )
+		, kind
 		, v->getLabel()
 		);
 		cnt++;
@@ -890,7 +932,8 @@ void NovelToC11Pass::visit_prolog( CastInstruction& value )
 	{
 	    fprintf
 	    ( stream
-		, "%s%s %s = *((%s*)%s%s);\n"
+		  //, "%s%s %s = *((%s*)%s%s);\n"
+		, "%s%s* %s = (%s*)(%s%s);\n"
 	    , indention( value )
 		, getTypeString( value )
 	    , value.getLabel()
@@ -913,7 +956,51 @@ void NovelToC11Pass::visit_epilog( CastInstruction& value )
 //
 
 void NovelToC11Pass::visit_prolog( ExtractInstruction& value )
-{}
+{
+	Value* base_   = value.getLHS();
+	Value* offset_ = value.getRHS();
+	
+	assert( Value::isa< Reference >( base_ ) );
+	Reference* base = (Reference*)base_;
+    
+	if( Value::isa< Structure >( offset_ ) )
+	{
+		Structure* offset = (Structure*)offset_;
+		assert( offset->getParent() == base->getStructure() and " offset is not a element of base structure! " );
+		
+	    fprintf
+	    ( stream
+	    , "%s%s* %s = &(%s->%s); // extract '%s'\n"
+	    , indention( value )
+	    , getTypeString( value )
+	    , value.getLabel()
+	    , base->getLabel()
+		, offset->getName()
+		, base->getIdentifier()->getName()
+        );
+	}
+	else if( Value::isa< Reference >( offset_ ) )
+	{
+		Reference* offset = (Reference*)offset_;
+	    assert( base->getType()->getIDKind() == Type::INTERCONNECT );
+		
+		fprintf
+	    ( stream
+	    , "%s%s* %s = (%s*)(%s[%s]); // extract '%s'\n"
+	    , indention( value )
+	    , getTypeString( value )
+	    , value.getLabel()
+	    , getTypeString( value )
+	    , base->getLabel()
+		, offset->getLabel()
+		, base->getIdentifier()->getName()
+        );
+	}
+	else if( Value::isa< Instruction >( offset_ ) )
+	{
+		assert( "not implemented yet!" );
+	}
+}
 void NovelToC11Pass::visit_epilog( ExtractInstruction& value )
 {}
 
@@ -924,28 +1011,62 @@ void NovelToC11Pass::visit_epilog( ExtractInstruction& value )
 
 void NovelToC11Pass::visit_prolog( LoadInstruction& value )
 {
-	assert( Value::isa< ExtractInstruction >( value.get() ) );
-	ExtractInstruction* ext = (ExtractInstruction*)( value.get() );
+	Value* addr_ = value.get();
 	
-	assert( Value::isa< Reference >( ext->getLHS() ) );
-	Reference* ref = (Reference*)( ext->getLHS() );
+	if(  Value::isa< ExtractInstruction >( addr_ )
+	  or Value::isa< CastInstruction >( addr_ )
+	  )
+	{
+		fprintf
+	    ( stream
+	    , "%s%s %s = *%s; // load\n"
+	    , indention( value )
+	    , getTypeString( value )
+	    , value.getLabel()
+	    , addr_->getLabel()
+	    );		
+	}
+	else
+	{
+		assert( !"  unimplemented feature! " );
+	}
+	
+	// assert( Value::isa< ExtractInstruction >( value.get() ) );
+	// ExtractInstruction* ext = (ExtractInstruction*)( value.get() );
+	
+	// assert( Value::isa< Reference >( ext->getLHS() ) );
+	// Reference* ref = (Reference*)( ext->getLHS() );
 
-	assert( Value::isa< Structure >( ext->getRHS() ) );
-	Structure* str = (Structure*)( ext->getRHS() );
+	// if( Value::isa< Structure >( ext->getRHS() ) )
+	// {
+	// 	Structure* str = (Structure*)( ext->getRHS() );
+	// 	assert( str->getParent() == ref->getStructure() );
 	
-	assert( str->getParent() == ref->getStructure() );
-	
-	fprintf
-	( stream
-	, "%s%s %s = %s->%s; // load '%s'\n"
-	, indention( value )
-	, getTypeString( value )
-	, value.getLabel()
-	, ref->getLabel()
-	, str->getName()
-	, ref->getIdentifier()->getName()
-	);
-	
+	// 	fprintf
+	//     ( stream
+	//     , "%s%s %s = %s->%s; // load '%s'\n"
+	//     , indention( value )
+	//     , getTypeString( value )
+	//     , value.getLabel()
+	//     , ref->getLabel()
+	//     , str->getName()
+	//     , ref->getIdentifier()->getName()
+	//     );
+	// }
+	// else if( Value::isa< Reference >( ext->getRHS() ) )
+	// {
+	// 	Reference* off = (Reference*)( ext->getRHS() );
+		
+	// 	fprintf
+	//     ( stream
+	// 	, "%s(uint64_t*) %s = %s[%s]; // load '%s'\n" // TODO: FIXME: PPA: HACK: !!!
+	//     , indention( value )
+	//     , value.getLabel()
+	//     , ref->getLabel()
+	//     , off->getLabel()
+	//     , ref->getIdentifier()->getName()
+	//     );
+	// }
 }
 void NovelToC11Pass::visit_epilog( LoadInstruction& value )
 {}
@@ -962,25 +1083,33 @@ void NovelToC11Pass::visit_prolog( StoreInstruction& value )
 	
 	if( Value::isa< ExtractInstruction >( dst ) )
 	{
-		ExtractInstruction* ext = (ExtractInstruction*)( dst );
-		assert( ext );
-		
-		assert( Value::isa< Reference >( ext->getLHS() ) );
-		Reference* ref = (Reference*)( ext->getLHS() );
-		
-		assert( Value::isa< Structure >( ext->getRHS() ) );
-		Structure* str = (Structure*)( ext->getRHS() );
-		
-		assert( str->getParent() == ref->getStructure() );
 		fprintf
 		( stream
-	    , "%s%s->%s = %s; // store '%s'\n"
-	    , indention( value )
-		, ref->getLabel()
-	    , str->getName()
+		, "%s*%s = %s; // store\n"
+		, indention( value )
+	    , dst->getLabel()
 	    , src->getLabel()
-		, ref->getIdentifier()->getName()
-	    );		
+	    );
+		
+		// ExtractInstruction* ext = (ExtractInstruction*)( dst );
+		// assert( ext );
+		
+		// assert( Value::isa< Reference >( ext->getLHS() ) );
+		// Reference* ref = (Reference*)( ext->getLHS() );
+		
+		// assert( Value::isa< Structure >( ext->getRHS() ) );
+		// Structure* str = (Structure*)( ext->getRHS() );
+		
+		// assert( str->getParent() == ref->getStructure() );
+		// fprintf
+		// ( stream
+	    // , "%s%s->%s = %s; // store '%s'\n"
+	    // , indention( value )
+		// , ref->getLabel()
+	    // , str->getName()
+	    // , src->getLabel()
+		// , ref->getIdentifier()->getName()
+	    // );		
 	}
 	else if( Value::isa< Reference >( dst ) )
 	{

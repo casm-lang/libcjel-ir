@@ -359,7 +359,7 @@ ExtractInstruction::ExtractInstruction( Value* src, Value* dst )
 
 	assert( src->getType() );
 	assert( dst->getType() );
-
+	
 	// TODO: IDEA: FIXME: PPA: possible check to implement if 'dst' is inside 'src'
 	
 	setType( dst->getType() );
