@@ -151,6 +151,10 @@ StructureConstant::StructureConstant( Type* type, std::vector< Value* > value )
 		{
 			((StructureConstant*)p)->bind( this );
 		}
+		else if( Value::isa< StringConstant >( p ) )
+		{
+			((StringConstant*)p)->bind( this );
+		}
 		else
 		{
 			assert( !" unimplemented case found! " );

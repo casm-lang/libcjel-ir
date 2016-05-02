@@ -154,6 +154,9 @@ namespace libnovel
 		PREFIX void visit_prolog( StructureConstant& value ) POSTFIX;	\
 		PREFIX void visit_epilog( StructureConstant& value ) POSTFIX;	\
 																		\
+		PREFIX void visit_prolog( StringConstant& value ) POSTFIX;		\
+		PREFIX void visit_epilog( StringConstant& value ) POSTFIX;		\
+																		\
 		PREFIX void visit_prolog( Interconnect& value ) POSTFIX;		\
 		PREFIX void visit_epilog( Interconnect& value ) POSTFIX
 		

@@ -116,7 +116,7 @@ namespace libnovel
 	};
 
 	
-	class StringConstant : public Constant< Type::String >
+	class StringConstant : public Constant< Type::String >, public libstdhl::Binding< StructureConstant >
 	{
 	public:
 		StringConstant( Type* type, Type::String value );

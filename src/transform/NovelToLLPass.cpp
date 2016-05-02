@@ -457,6 +457,18 @@ void NovelToLLPass::visit_epilog( StructureConstant& value )
 {}
 
 
+//
+// StringConstant
+//
+
+void NovelToLLPass::visit_prolog( StringConstant& value )
+{
+	TODO;
+}
+void NovelToLLPass::visit_epilog( StringConstant& value )
+{}
+
+
 
 //
 // Interconnect

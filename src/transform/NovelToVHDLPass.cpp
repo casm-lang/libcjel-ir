@@ -1194,6 +1194,18 @@ void NovelToVHDLPass::visit_epilog( StructureConstant& value )
 
 
 //
+// StringConstant
+//
+
+void NovelToVHDLPass::visit_prolog( StringConstant& value )
+{
+	TODO;
+}
+void NovelToVHDLPass::visit_epilog( StringConstant& value )
+{}
+
+
+//
 // Interconnect
 //
 

@@ -191,6 +191,9 @@ void NovelDumpPass::visit_epilog( BitConstant& value ) {}
 void NovelDumpPass::visit_prolog( StructureConstant& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
 void NovelDumpPass::visit_epilog( StructureConstant& value ) {}
 
+void NovelDumpPass::visit_prolog( StringConstant& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
+void NovelDumpPass::visit_epilog( StringConstant& value ) {}
+
 
 void NovelDumpPass::visit_prolog( Interconnect& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
 void NovelDumpPass::visit_epilog( Interconnect& value ) {}

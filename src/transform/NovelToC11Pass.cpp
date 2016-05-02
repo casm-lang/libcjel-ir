@@ -92,6 +92,10 @@ static const char* getTypeString( Value& value )
 	{
 	    return libstdhl::Allocator::string( "uint64_t**" );
 	}
+	else if( type->getIDKind() == Type::STRING )
+	{
+	    return libstdhl::Allocator::string( "const char*" );
+	}
 	else
 	{
 		assert( !"unimplemented or unsupported type to convert!" );
@@ -832,6 +836,7 @@ void NovelToC11Pass::visit_prolog( StreamInstruction& value )
 			replace( tmp, "\n", "\\n" );
 			fmt += tmp;
 		}
+		
 		else
 		{
 			assert( !" unimplemented Value to 'stream'! " );
@@ -963,11 +968,8 @@ void NovelToC11Pass::visit_prolog( ExtractInstruction& value )
 	assert( Value::isa< Reference >( base_ ) or Value::isa< CastInstruction >( base_ ) );
 	Reference* base = (Reference*)base_;
 
-	printf( "\33[07minfo:\33[0m ExtractInstruction %p\n", &value );
-	
 	if( Value::isa< Structure >( offset_ ) )
 	{
-		printf( "\33[07minfo:\33[0m ExtractInstruction: Structure\n" );		
 		Structure* offset = (Structure*)offset_;
 		if(  Value::isa< Reference >( base_ ) )
 		{
@@ -987,7 +989,6 @@ void NovelToC11Pass::visit_prolog( ExtractInstruction& value )
 	}
     else if( Value::isa< Reference >( offset_ ) )
 	{
-		printf( "\33[07minfo:\33[0m ExtractInstruction: Reference\n" );
 		Reference* offset = (Reference*)offset_;
 	    assert( base->getType()->getIDKind() == Type::INTERCONNECT );
 		
@@ -1005,8 +1006,6 @@ void NovelToC11Pass::visit_prolog( ExtractInstruction& value )
 	}
 	else if( Value::isa< Instruction >( offset_ ) )
 	{
-		printf( "\33[07minfo:\33[0m ExtractInstruction: Instruction\n" );
-		
 		fprintf
 	    ( stream
 	    , "%s%s* %s = (%s*)(&%s[%s]); // extract '%s'\n"
@@ -1353,6 +1352,40 @@ void NovelToC11Pass::visit_epilog( StructureConstant& value )
 	    );
 	}	
 }
+
+
+//
+// StringConstant
+//
+
+void NovelToC11Pass::visit_prolog( StringConstant& value )
+{
+	StructureConstant* sc = 0;
+	if( value.isBound() )
+	{
+		sc = value.getBound();
+		u1 last = sc->getElements().back() == &value;
+	    
+		fprintf
+		( stream
+		, "\"%s\"%s"
+		, value.getValue()
+		, last ? "" : ", "
+		);
+	}
+	else
+	{
+		fprintf
+		( stream
+		, "const %s %s = \"%s\";\n"
+		, getTypeString( value )
+		, value.getLabel()
+		, value.getValue()
+		);
+	}
+}
+void NovelToC11Pass::visit_epilog( StringConstant& value )
+{}
 
 
 //
