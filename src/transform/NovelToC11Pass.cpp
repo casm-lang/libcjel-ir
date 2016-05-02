@@ -1114,26 +1114,6 @@ void NovelToC11Pass::visit_prolog( StoreInstruction& value )
 		, ( Value::isa< ExtractInstruction >( src ) ? "*" : "" )
 	    , src->getLabel()
 	    );
-		
-		// ExtractInstruction* ext = (ExtractInstruction*)( dst );
-		// assert( ext );
-		
-		// assert( Value::isa< Reference >( ext->getLHS() ) );
-		// Reference* ref = (Reference*)( ext->getLHS() );
-		
-		// assert( Value::isa< Structure >( ext->getRHS() ) );
-		// Structure* str = (Structure*)( ext->getRHS() );
-		
-		// assert( str->getParent() == ref->getStructure() );
-		// fprintf
-		// ( stream
-	    // , "%s%s->%s = %s; // store '%s'\n"
-	    // , indention( value )
-		// , ref->getLabel()
-	    // , str->getName()
-	    // , src->getLabel()
-		// , ref->getIdentifier()->getName()
-	    // );		
 	}
 	else if( Value::isa< Reference >( dst ) )
 	{
@@ -1142,9 +1122,10 @@ void NovelToC11Pass::visit_prolog( StoreInstruction& value )
 		
 		fprintf
 		( stream
-		, "%s*%s = %s; // store '%s'\n"
+		, "%s*%s = %s%s; // store '%s'\n"
 		, indention( value )
 	    , ref->getLabel()
+		, ( Value::isa< CastInstruction >( src ) ? "*" : "" )
 	    , src->getLabel()
 	    , ref->getIdentifier()->getName()
 	    );
@@ -1163,7 +1144,7 @@ static void instr( BinaryInstruction& value, const char* op )
 {
 	fprintf
 	( stream
-	, "%s%s %s = %s %s %s;\n"
+	, "%s%s %s = (%s %s %s);\n"
 	, indention( value )
 	, getTypeString( value )
 	, value.getLabel()

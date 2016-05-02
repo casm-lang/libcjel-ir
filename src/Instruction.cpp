@@ -54,10 +54,10 @@ void Instruction::setStatement( Statement* stmt )
 		{
 			fprintf
 				( stderr
-				  , "error: %s:%i: Instruction %p does belong to a different Statement block\n"
+				  , "warning: %s:%i: Instruction %p does belong to a different Statement block\n"
 				  , __FUNCTION__, __LINE__, value
 					);
-			assert(0);
+			//assert(0);
 		}
 	}
 }
