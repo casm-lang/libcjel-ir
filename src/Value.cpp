@@ -172,6 +172,11 @@ void Value::iterate( Traversal order, Visitor* visitor, std::function< void( Val
 			p->iterate( order, visitor, action );
 		}
 		
+		for( Value* p : (obj->has< Interconnect >() ? obj->get< Interconnect >() : empty ) )
+		{
+			p->iterate( order, visitor, action );
+		}
+		
 		for( Value* p : (obj->has< Intrinsic >() ? obj->get< Intrinsic >() : empty ) )
 		{
 			p->iterate( order, visitor, action );

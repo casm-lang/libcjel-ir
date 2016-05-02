@@ -933,7 +933,7 @@ void NovelToC11Pass::visit_prolog( CastInstruction& value )
 	    fprintf
 	    ( stream
 		  //, "%s%s %s = *((%s*)%s%s);\n"
-		, "%s%s* %s = (%s*)(%s%s);\n"
+		, "%s%s* %s = (%s*)(%s%s); // cast Structure\n"
 	    , indention( value )
 		, getTypeString( value )
 	    , value.getLabel()
@@ -960,13 +960,19 @@ void NovelToC11Pass::visit_prolog( ExtractInstruction& value )
 	Value* base_   = value.getLHS();
 	Value* offset_ = value.getRHS();
 	
-	assert( Value::isa< Reference >( base_ ) );
+	assert( Value::isa< Reference >( base_ ) or Value::isa< CastInstruction >( base_ ) );
 	Reference* base = (Reference*)base_;
-    
+
+	printf( "\33[07minfo:\33[0m ExtractInstruction %p\n", &value );
+	
 	if( Value::isa< Structure >( offset_ ) )
 	{
+		printf( "\33[07minfo:\33[0m ExtractInstruction: Structure\n" );		
 		Structure* offset = (Structure*)offset_;
-		assert( offset->getParent() == base->getStructure() and " offset is not a element of base structure! " );
+		if(  Value::isa< Reference >( base_ ) )
+		{
+			assert( offset->getParent() == base->getStructure() and " offset is not a element of base structure! " );
+		}
 		
 	    fprintf
 	    ( stream
@@ -979,8 +985,9 @@ void NovelToC11Pass::visit_prolog( ExtractInstruction& value )
 		, base->getIdentifier()->getName()
         );
 	}
-	else if( Value::isa< Reference >( offset_ ) )
+    else if( Value::isa< Reference >( offset_ ) )
 	{
+		printf( "\33[07minfo:\33[0m ExtractInstruction: Reference\n" );
 		Reference* offset = (Reference*)offset_;
 	    assert( base->getType()->getIDKind() == Type::INTERCONNECT );
 		
@@ -998,7 +1005,23 @@ void NovelToC11Pass::visit_prolog( ExtractInstruction& value )
 	}
 	else if( Value::isa< Instruction >( offset_ ) )
 	{
-		assert( "not implemented yet!" );
+		printf( "\33[07minfo:\33[0m ExtractInstruction: Instruction\n" );
+		
+		fprintf
+	    ( stream
+	    , "%s%s* %s = (%s*)(&%s[%s]); // extract '%s'\n"
+	    , indention( value )
+	    , getTypeString( value )
+	    , value.getLabel()
+	    , getTypeString( value )
+	    , base->getLabel()
+		, offset_->getLabel()
+		, base->getIdentifier()->getName()
+        );
+	}
+	else
+	{
+		assert( !" unsupported/unimplemented feature! " );
 	}
 }
 void NovelToC11Pass::visit_epilog( ExtractInstruction& value )
@@ -1085,9 +1108,10 @@ void NovelToC11Pass::visit_prolog( StoreInstruction& value )
 	{
 		fprintf
 		( stream
-		, "%s*%s = %s; // store\n"
+		, "%s*%s = %s%s; // store\n"
 		, indention( value )
 	    , dst->getLabel()
+		, ( Value::isa< ExtractInstruction >( src ) ? "*" : "" )
 	    , src->getLabel()
 	    );
 		
@@ -1129,7 +1153,7 @@ void NovelToC11Pass::visit_prolog( StoreInstruction& value )
 	{
 		TODO;
 		assert( !" unimplemented feature! " );
-	}	
+	}
 }
 void NovelToC11Pass::visit_epilog( StoreInstruction& value )
 {}

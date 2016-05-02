@@ -50,7 +50,41 @@ bool NovelDumpPass::run( libpass::PassResult& pr )
 }
 
 
-#define DUMP_PREFIX  printf( "%-14s: %p, %s, %s ", __FUNCTION__, &value, value.getLabel(), value.getName() )
+static const char* indention( Value& value )
+{
+	string ind = "";
+	u8 cnt = 0;
+	Value* p = (&value);
+	while( p != 0 )
+	{
+		if( Value::isa< Block >( p ) )
+		{
+			p = (Value*)((Block*)p)->getParent();
+		}
+		else if( Value::isa< Instruction >( p ) )
+		{
+			p = (Value*)((Instruction*)p)->getStatement();
+		}
+		else
+		{
+			break;
+			//assert(0);
+		}
+
+		if( Value::isa< CallableUnit >( p ) )
+		{
+		    break;
+		}
+		
+		cnt++;
+		ind+="  ";
+	}
+	
+	return libstdhl::Allocator::string( ind );
+}
+
+
+#define DUMP_PREFIX  printf( "%-14s: %p, %s, %s%s ", __FUNCTION__, &value, value.getLabel(), indention( value ), value.getName() )
 #define DUMP_POSTFIX printf( "\n" );
 
 
