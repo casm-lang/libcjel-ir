@@ -301,7 +301,11 @@ StringConstant::StringConstant( Type* type, Type::String value )
 
 StringConstant* StringConstant::create( Type::String value )
 {
-	u32 length = strlen( value );
+	u32 length = 0;
+	if( value )
+	{
+		length = strlen( value );
+	}
 	
 	assert( length <= 256 and "invalid 'String' constant size" ); // TODO: FIXME: internal limitation for now!
 	

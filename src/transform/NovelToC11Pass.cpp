@@ -94,7 +94,7 @@ static const char* getTypeString( Value& value )
 	}
 	else if( type->getIDKind() == Type::STRING )
 	{
-	    return libstdhl::Allocator::string( "const char*" );
+	    return libstdhl::Allocator::string( "char*" );
 	}
 	else
 	{
@@ -471,7 +471,7 @@ void NovelToC11Pass::visit_prolog( Variable& value )
 	);
 	
 	var_allocation++;
-
+	
     // fprintf
 	// ( stream
 	// , "%s %s = { 0 }; // '%s'\n"
