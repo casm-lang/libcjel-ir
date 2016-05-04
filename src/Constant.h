@@ -77,6 +77,10 @@ namespace libnovel
 		
 		static inline Value::ID classid( void ) { return Value::BIT_CONSTANT; };
 		static bool classof( Value const* obj );
+
+		static BitConstant TRUE;
+		static BitConstant FALSE;
+		static BitConstant NIL;
 	};
 	
 	class StructureConstant : public Constant< std::vector< Value* > >, public libstdhl::Binding< StructureConstant >

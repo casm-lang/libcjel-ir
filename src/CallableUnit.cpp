@@ -29,8 +29,12 @@
 using namespace libnovel;
 
 
+u64 CallableUnit::allocation_cnt = 0;
+
+
 CallableUnit::CallableUnit( const char* name, Type* type, Value::ID id )
 : User( name, type, id )
+, allocation_id( 0 )
 , context( 0 )
 , identifier( 0 )
 {
@@ -38,12 +42,25 @@ CallableUnit::CallableUnit( const char* name, Type* type, Value::ID id )
 	assert( identifier );
 	
 	(*Value::getSymbols())[ ".callableunit" ].insert( this );
+
+	allocation_id = BitConstant::create( allocation_cnt, TypeId.getBitsize() );
+	allocation_cnt++;
+	
+	assert( allocation_id );
 }
 
 CallableUnit::~CallableUnit( void )
 {			
 	(*Value::getSymbols())[ ".callableunit" ].erase( this );
 }
+
+
+BitConstant* CallableUnit::getAllocationID( void )
+{
+	assert( allocation_id );
+	return allocation_id;
+}
+
 
 Block* CallableUnit::getContext( void ) const
 {

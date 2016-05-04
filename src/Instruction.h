@@ -195,6 +195,14 @@ namespace libnovel
 		static bool classof( Value const* obj );
 	};
 	
+	class IdCallInstruction : public Instruction
+	{
+	public:
+		IdCallInstruction( Value* kind, Value* symbol );
+    	static inline Value::ID classid( void ) { return Value::ID_CALL_INSTRUCTION; };
+		static bool classof( Value const* obj );
+	};
+	
 	class StreamInstruction : public Instruction
 	{
 	public:

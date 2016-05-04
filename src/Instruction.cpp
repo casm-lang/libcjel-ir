@@ -124,6 +124,7 @@ bool Instruction::classof( Value const* obj )
 		or NopInstruction::classof( obj )
 		or AllocInstruction::classof( obj )
 		or CallInstruction::classof( obj )
+		or IdCallInstruction::classof( obj )
 		or StreamInstruction::classof( obj )
 		;
 }
@@ -271,6 +272,23 @@ CallInstruction::CallInstruction( Value* symbol )
 	add( symbol );
 }
 bool CallInstruction::classof( Value const* obj )
+{
+	return obj->getValueID() == classid();
+}
+
+
+IdCallInstruction::IdCallInstruction( Value* kind, Value* symbol )
+: Instruction( ".icall", 0, Value::ID_CALL_INSTRUCTION )
+{
+	assert( kind );
+	assert( symbol );
+	
+	assert( symbol->getType()->getIDKind() == TypeId.getIDKind() );
+	
+	add( kind );
+	add( symbol );
+}
+bool IdCallInstruction::classof( Value const* obj )
 {
 	return obj->getValueID() == classid();
 }

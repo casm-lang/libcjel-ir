@@ -325,6 +325,12 @@ bool StringConstant::classof( Value const* obj )
 }
 
 
+
+
+BitConstant BitConstant::FALSE = BitConstant( &TypeB1, 0 );
+BitConstant BitConstant::TRUE  = BitConstant( &TypeB1, 1 );
+BitConstant BitConstant::NIL   = BitConstant( &TypeId, 0 );
+
 StringConstant StringConstant::LF = StringConstant( &TypeCharacter, "\n" );
 
 

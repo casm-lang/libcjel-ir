@@ -34,11 +34,14 @@ namespace libnovel
 	class Reference;
 	
 	class CallableUnit : public User
-	{
+	{		
 	private:
-		Block* context;
+		static u64 allocation_cnt;
+		BitConstant* allocation_id;		
 		
-		Identifier* identifier;
+		Block* context;
+	    Identifier* identifier;
+		
 	    std::vector< Value* > parameter_in;
 	    std::vector< Value* > parameter_out;
 	    std::vector< Value* > linkage;
@@ -50,6 +53,8 @@ namespace libnovel
 		CallableUnit( const char* name, Type* type, Value::ID id = CALLABLE_UNIT );
 		
 		~CallableUnit( void );
+
+		BitConstant* getAllocationID( void );
 		
 	    Block* getContext( void ) const;		
 		void setContext( Block* scope );
@@ -80,7 +85,7 @@ namespace libnovel
 		void dump( void ) const;
 		
 		static inline Value::ID classid( void ) { return Value::CALLABLE_UNIT; };
-		static bool classof( Value const* obj );
+		static bool classof( Value const* obj );		
 	};
 }
 

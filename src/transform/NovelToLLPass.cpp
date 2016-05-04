@@ -282,6 +282,18 @@ void NovelToLLPass::visit_prolog( CallInstruction& value )
 void NovelToLLPass::visit_epilog( CallInstruction& value )	
 {}
 
+//
+// IdCallInstruction
+//
+
+void NovelToLLPass::visit_prolog( IdCallInstruction& value )
+{
+	TODO;
+	assert(0);
+}
+void NovelToLLPass::visit_epilog( IdCallInstruction& value )
+{}
+
 
 //
 // StreamInstruction

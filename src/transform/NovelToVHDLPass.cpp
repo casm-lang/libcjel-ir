@@ -808,6 +808,19 @@ void NovelToVHDLPass::visit_epilog( CallInstruction& value )
 
 
 //
+// IdCallInstruction
+//
+
+void NovelToVHDLPass::visit_prolog( IdCallInstruction& value )
+{
+	TODO;
+	assert(0);
+}
+void NovelToVHDLPass::visit_epilog( IdCallInstruction& value )
+{}
+
+
+//
 // StreamInstruction
 //
 

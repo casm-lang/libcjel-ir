@@ -79,13 +79,13 @@ void Module::add( Value* value )
 	}
 	else if( Value::isa< Interconnect >( value ) )
 	{
-		content[ Function::classid() ].push_back( value );
+		content[ Interconnect::classid() ].push_back( value );
 	}
 	else
 	{
 		assert( !"unsupported Module content found!" );
 	}
-
+	
 	value->setRef< Module >( this );
 }
 

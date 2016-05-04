@@ -100,6 +100,9 @@ namespace libnovel
 		PREFIX void visit_prolog( CallInstruction& value ) POSTFIX;		\
 		PREFIX void visit_epilog( CallInstruction& value ) POSTFIX;		\
 																		\
+		PREFIX void visit_prolog( IdCallInstruction& value ) POSTFIX;	\
+		PREFIX void visit_epilog( IdCallInstruction& value ) POSTFIX;	\
+																		\
 		PREFIX void visit_prolog( StreamInstruction& value ) POSTFIX;	\
 		PREFIX void visit_epilog( StreamInstruction& value ) POSTFIX;	\
 																		\

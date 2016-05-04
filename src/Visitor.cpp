@@ -69,6 +69,8 @@ void Visitor::dispatch( Stage stage, Value* value )
 		CASE_VALUE_INTER( LOOP_STATEMENT,   LoopStatement );
 		
 		CASE_VALUE( CALL_INSTRUCTION,    CallInstruction );
+		CASE_VALUE( ID_CALL_INSTRUCTION, IdCallInstruction );
+		
 		CASE_VALUE( STREAM_INSTRUCTION,  StreamInstruction );
 		
 		CASE_VALUE( NOP_INSTRUCTION,     NopInstruction );

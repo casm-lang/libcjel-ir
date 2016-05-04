@@ -148,6 +148,9 @@ void NovelDumpPass::visit_epilog( CastInstruction& value ) {}
 void NovelDumpPass::visit_prolog( CallInstruction& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
 void NovelDumpPass::visit_epilog( CallInstruction& value ) {}
 		
+void NovelDumpPass::visit_prolog( IdCallInstruction& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
+void NovelDumpPass::visit_epilog( IdCallInstruction& value ) {}
+
 void NovelDumpPass::visit_prolog( StreamInstruction& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
 void NovelDumpPass::visit_epilog( StreamInstruction& value ) {}
 

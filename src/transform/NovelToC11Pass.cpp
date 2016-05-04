@@ -725,6 +725,8 @@ void NovelToC11Pass::visit_prolog( CallInstruction& value )
 		CastInstruction* ci = (CastInstruction*)value.getValue(0);
 		assert( Value::isa< CallableUnit >( ci->getLHS() ) );
 		cu = (CallableUnit*)ci->getLHS();
+
+		assert( !" DEPRECATED: DO NOT USE CastInstruction with CallInstuction ANY LONGER!!! " );
 	}
     
 	u8 cnt = 0;
@@ -797,6 +799,110 @@ void NovelToC11Pass::visit_prolog( CallInstruction& value )
 	);
 }
 void NovelToC11Pass::visit_epilog( CallInstruction& value )
+{}
+
+
+//
+// IdCallInstruction
+//
+
+void NovelToC11Pass::visit_prolog( IdCallInstruction& value )
+{
+	const char* indent = indention( value );
+	
+	fprintf
+	( stream
+	, "%sswitch( %s ) // idcall '%s'\n"
+	  "%s{\n"
+	, indent
+	, value.getValue(1)->getLabel()
+	, value.getLabel()
+	, indent
+	);
+	
+	// TODO: FIXME: HACK: PPA: !!! should be dynamically fetched through callable signature!!!
+	// TODO: FIXME: HACK: PPA: IDEA: create implementation directly in 'Novel' !!!
+	
+	assert( Value::isa< CallableUnit >( value.getValue(0) ) );
+	CallableUnit* cs = (CallableUnit*)value.getValue(0);
+	
+	u8 cnt = 0;
+	std::string args = "";
+	
+	for( auto v : value.getValues() )
+	{
+		cnt++;
+		
+		if( cnt < 3 )
+		{
+			continue;
+		}
+		
+		const char* kind = ")";
+		if( Value::isa< Instruction >( v ) and cnt > cs->getInParameters().size() )
+		{
+			kind = "*)&";
+		}
+		else if( Value::isa< Instruction >( v ) and v->getType()->getIDKind() == Type::STRUCTURE )
+		{
+			kind = "*)&";
+		}
+		else if( Value::isa< Reference >( v ) and v->getType()->getIDKind() == Type::STRUCTURE )
+		{
+			kind = "*)";
+		}
+		else if( Value::isa< Constants >( v ) and v->getType()->getIDKind() == Type::STRUCTURE )
+		{
+			kind = "*)&";
+		}
+		else
+		{
+			printf( "\33[07mwarning:\33[0m unhandled 'kind' of a argument for call instr!\n" );
+		}
+		args += ( cnt > 3 ? ", " : "" );
+		args += "(";
+		args += getTypeString( *v );
+		args += kind;
+		args += v->getLabel();
+	}
+	
+	Module* m = value.getRef< Module >();
+	
+	for( Value* v : m->get< Function >() )
+	{
+		assert( v and Value::isa< CallableUnit >( v ) );
+		CallableUnit* cu = (CallableUnit*)v;
+		
+		if( cu->getInParameters().size() != cs->getInParameters().size() )
+		{
+			continue;
+		}
+		if( cu->getOutParameters().size() != cs->getOutParameters().size() )
+		{
+			continue;
+		}
+
+		// TODO: FIXME: PPA: HACK: more checks here regarding the indirect ID call argument types!!!
+		
+		fprintf
+	    ( stream
+	    , "%s    case %lu: { %s( %s ); break; }\n"
+	    , indent
+		, cu->getAllocationID()->getValue()[0]
+		, cu->getName()
+	    , args.c_str()
+	    );
+	}
+	
+	fprintf
+	( stream
+	, "%s    default: assert( 0 ); break;\n"
+	  "%s};\n"
+	, indent
+	, indent
+	);
+}
+void NovelToC11Pass::visit_epilog( IdCallInstruction& value )
 {}
 
 
@@ -899,6 +1005,15 @@ void NovelToC11Pass::visit_epilog( AllocInstruction& value )
 
 void NovelToC11Pass::visit_prolog( IdInstruction& value )
 {
+	const char* id = value.get()->getLabel();
+
+	if( Value::isa< CallableUnit >( value.get() ) )
+	{
+		CallableUnit* c = (CallableUnit*)value.get();
+		u64 id_num = c->getAllocationID()->getValue()[0];
+		id = libstdhl::Allocator::string( to_string( id_num ) );
+	}
+	
 	fprintf
 	( stream
 	, "%s%s %s = (%s)%s;// id\n"
@@ -906,7 +1021,7 @@ void NovelToC11Pass::visit_prolog( IdInstruction& value )
 	, getTypeString( value )
 	, value.getLabel()
 	, getTypeString( value )
-	, ( Value::isa< CallableUnit >( value.get() ) ? value.get()->getName() : value.get()->getLabel() )
+	, id
 	);
 }
 void NovelToC11Pass::visit_epilog( IdInstruction& value )
@@ -964,6 +1079,22 @@ void NovelToC11Pass::visit_prolog( ExtractInstruction& value )
 {
 	Value* base_   = value.getLHS();
 	Value* offset_ = value.getRHS();
+
+	if( Value::isa< AllocInstruction >( base_ ) and Value::isa< Structure >( offset_ ) )
+	{
+		Structure* offset = (Structure*)offset_;
+		
+	    fprintf
+	    ( stream
+	    , "%s%s* %s = &(%s.%s); // extract [instr+struct]\n"
+	    , indention( value )
+	    , getTypeString( value )
+	    , value.getLabel()
+	    , base_->getLabel()
+		, offset->getName()
+        );
+		return;
+	}
 	
 	assert( Value::isa< Reference >( base_ ) or Value::isa< CastInstruction >( base_ ) );
 	Reference* base = (Reference*)base_;
