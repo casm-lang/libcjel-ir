@@ -127,8 +127,17 @@ namespace libnovel
 		PREFIX void visit_prolog( StoreInstruction& value ) POSTFIX;	\
 		PREFIX void visit_epilog( StoreInstruction& value ) POSTFIX;	\
 																		\
+		PREFIX void visit_prolog( NotInstruction& value ) POSTFIX;		\
+		PREFIX void visit_epilog( NotInstruction& value ) POSTFIX;		\
+																		\
 		PREFIX void visit_prolog( AndInstruction& value ) POSTFIX;		\
 		PREFIX void visit_epilog( AndInstruction& value ) POSTFIX;		\
+																		\
+		PREFIX void visit_prolog( OrInstruction& value ) POSTFIX;		\
+		PREFIX void visit_epilog( OrInstruction& value ) POSTFIX;		\
+																		\
+		PREFIX void visit_prolog( XorInstruction& value ) POSTFIX;		\
+		PREFIX void visit_epilog( XorInstruction& value ) POSTFIX;		\
 																		\
 		PREFIX void visit_prolog( AddSignedInstruction& value ) POSTFIX; \
 		PREFIX void visit_epilog( AddSignedInstruction& value ) POSTFIX; \

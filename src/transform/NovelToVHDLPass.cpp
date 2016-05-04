@@ -1006,6 +1006,21 @@ void NovelToVHDLPass::visit_epilog( StoreInstruction& value )
 }
 
 
+
+
+//
+// NotInstruction
+//
+
+void NovelToVHDLPass::visit_prolog( NotInstruction& value )
+{
+	TODO;
+	assert(0);
+}
+void NovelToVHDLPass::visit_epilog( NotInstruction& value )
+{}
+
+
 //
 // AndInstruction
 //
@@ -1023,6 +1038,35 @@ void NovelToVHDLPass::visit_prolog( AndInstruction& value )
 void NovelToVHDLPass::visit_epilog( AndInstruction& value )
 {
 }
+
+
+//
+// OrInstruction
+//
+
+void NovelToVHDLPass::visit_prolog( OrInstruction& value )
+{
+	TODO;
+	assert(0);
+}
+void NovelToVHDLPass::visit_epilog( OrInstruction& value )
+{}
+
+
+//
+// XorInstruction
+//
+
+void NovelToVHDLPass::visit_prolog( XorInstruction& value )
+{
+	TODO;
+	assert(0);
+}
+void NovelToVHDLPass::visit_epilog( XorInstruction& value )
+{}
+
+
+
 
 
 //

@@ -369,12 +369,60 @@ void NovelToLLPass::visit_epilog( StoreInstruction& value )
 {}
 
 
+
+
+//
+// NotInstruction
+//
+
+void NovelToLLPass::visit_prolog( NotInstruction& value )
+{
+	TODO;
+	assert(0);
+}
+void NovelToLLPass::visit_epilog( NotInstruction& value )
+{}
+
+
+
+//
+// AndInstruction
+//
+
 void NovelToLLPass::visit_prolog( AndInstruction& value )
 {
 	TODO;
+	assert(0);
 }
 void NovelToLLPass::visit_epilog( AndInstruction& value )
 {}
+
+
+//
+// OrInstruction
+//
+
+void NovelToLLPass::visit_prolog( OrInstruction& value )
+{
+	TODO;
+	assert(0);
+}
+void NovelToLLPass::visit_epilog( OrInstruction& value )
+{}
+
+
+//
+// XorInstruction
+//
+
+void NovelToLLPass::visit_prolog( XorInstruction& value )
+{
+	TODO;
+	assert(0);
+}
+void NovelToLLPass::visit_epilog( XorInstruction& value )
+{}
+
 
 
 void NovelToLLPass::visit_prolog( AddSignedInstruction& value )

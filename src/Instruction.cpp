@@ -151,12 +151,13 @@ bool UnaryInstruction::classof( Value const* obj )
 {
 	return obj->getValueID() == classid()
 		or IdInstruction::classof( obj )
-		or LoadInstruction::classof( obj )
-		
+		or LoadInstruction::classof( obj )		
 		or ZeroExtendInstruction::classof( obj )
 		or TruncationInstruction::classof( obj )
+		or NotInstruction::classof( obj )
 		;
 }
+
 
 
 BinaryInstruction::BinaryInstruction( const char* name, Type* type, Value* lhs, Value* rhs, Value::ID id )
@@ -207,6 +208,8 @@ bool ArithmeticInstruction::classof( Value const* obj )
 {
 	return obj->getValueID() == classid()
 	    or AndInstruction::classof( obj )
+	    or OrInstruction::classof( obj )
+	    or XorInstruction::classof( obj )
 	    or AddSignedInstruction::classof( obj )
 	    or DivSignedInstruction::classof( obj )
 	    or ModUnsignedInstruction::classof( obj )
@@ -412,14 +415,44 @@ bool CastInstruction::classof( Value const* obj )
 // ARITHMETIC INSTRUCTIONS
 // -----------------------------------------------------------------------------
 
+NotInstruction::NotInstruction( Value* lhs )
+: UnaryInstruction( ".not", 0, lhs, classid() )
+{
+	assert( getType() == get()->getType() );
+}
+bool NotInstruction::classof( Value const* obj )
+{
+	return obj->getValueID() == classid();
+}
+
+
 AndInstruction::AndInstruction( Value* lhs, Value* rhs )
-: ArithmeticInstruction( ".and", lhs, rhs, Value::AND_INSTRUCTION )
+: ArithmeticInstruction( ".and", lhs, rhs, classid() )
 {	
 }
 bool AndInstruction::classof( Value const* obj )
 {
 	return obj->getValueID() == classid();
 }
+
+OrInstruction::OrInstruction( Value* lhs, Value* rhs )
+: ArithmeticInstruction( ".or", lhs, rhs, classid() )
+{	
+}
+bool OrInstruction::classof( Value const* obj )
+{
+	return obj->getValueID() == classid();
+}
+
+XorInstruction::XorInstruction( Value* lhs, Value* rhs )
+: ArithmeticInstruction( ".xor", lhs, rhs, classid() )
+{	
+}
+bool XorInstruction::classof( Value const* obj )
+{
+	return obj->getValueID() == classid();
+}
+
 
 
 AddSignedInstruction::AddSignedInstruction( Value* lhs, Value* rhs )

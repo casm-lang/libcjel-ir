@@ -541,7 +541,8 @@ static void non_trivial_statement( Scope& value )
 		
 		Value* expr = (Value*)branch->getInstructions().back();
 		assert( expr );
-		assert( Value::isa< LogicalInstruction >( expr ) );
+		//assert( Value::isa< LogicalInstruction >( expr ) );
+		assert( expr->getType()->getIDKind() == Type::BIT && expr->getType()->getBitsize() == 1 );
 		
 		if( branch->getScopes().front() == &value )
 		{
@@ -1281,8 +1282,29 @@ static void instr( BinaryInstruction& value, const char* op )
 	, value.getLHS()->getLabel()
 	, op
 	, value.getRHS()->getLabel()
-	);	
+	);
 }
+
+
+//
+// NotInstruction
+//
+
+void NovelToC11Pass::visit_prolog( NotInstruction& value )
+{
+	fprintf
+	( stream
+	, "%s%s %s = (~ %s);\n"
+	, indention( value )
+	, getTypeString( value )
+	, value.getLabel()
+	, value.get()->getLabel()
+	);
+}
+void NovelToC11Pass::visit_epilog( NotInstruction& value )
+{}
+
+
 
 //
 // AndInstruction
@@ -1294,6 +1316,33 @@ void NovelToC11Pass::visit_prolog( AndInstruction& value )
 }
 void NovelToC11Pass::visit_epilog( AndInstruction& value )
 {}
+
+
+//
+// OrInstruction
+//
+
+void NovelToC11Pass::visit_prolog( OrInstruction& value )
+{
+	TODO;
+	assert(0);
+}
+void NovelToC11Pass::visit_epilog( OrInstruction& value )
+{}
+
+
+//
+// XorInstruction
+//
+
+void NovelToC11Pass::visit_prolog( XorInstruction& value )
+{
+	instr( value, "^" );
+}
+void NovelToC11Pass::visit_epilog( XorInstruction& value )
+{}
+
+
 
 
 //

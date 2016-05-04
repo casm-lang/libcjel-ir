@@ -222,6 +222,17 @@ namespace libnovel
     	static inline Value::ID classid( void ) { return Value::STREAM_INSTRUCTION; };
 		static bool classof( Value const* obj );
 	};
+
+	
+	class NotInstruction : public UnaryInstruction
+	{
+	public:
+		NotInstruction( Value* lhs );
+		static inline Value::ID classid( void ) { return Value::NOT_INSTRUCTION; };
+		static bool classof( Value const* obj );
+	};
+
+
 	
 	class AndInstruction : public ArithmeticInstruction
 	{
@@ -231,6 +242,22 @@ namespace libnovel
 		static bool classof( Value const* obj );
 	};
 
+	class OrInstruction : public ArithmeticInstruction
+	{
+	public:
+		OrInstruction( Value* lhs, Value* rhs );
+		static inline Value::ID classid( void ) { return Value::OR_INSTRUCTION; };
+		static bool classof( Value const* obj );
+	};
+	
+	class XorInstruction : public ArithmeticInstruction
+	{
+	public:
+		XorInstruction( Value* lhs, Value* rhs );
+		static inline Value::ID classid( void ) { return Value::XOR_INSTRUCTION; };
+		static bool classof( Value const* obj );
+	};
+	
 	
 	class AddSignedInstruction : public ArithmeticInstruction
 	{

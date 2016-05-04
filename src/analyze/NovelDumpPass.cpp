@@ -163,9 +163,20 @@ void NovelDumpPass::visit_epilog( LoadInstruction& value ) {}
 void NovelDumpPass::visit_prolog( StoreInstruction& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
 void NovelDumpPass::visit_epilog( StoreInstruction& value ) {}
 
+
+void NovelDumpPass::visit_prolog( NotInstruction& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
+void NovelDumpPass::visit_epilog( NotInstruction& value ) {}
+
 void NovelDumpPass::visit_prolog( AndInstruction& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
 void NovelDumpPass::visit_epilog( AndInstruction& value ) {}
-		
+
+void NovelDumpPass::visit_prolog( OrInstruction& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
+void NovelDumpPass::visit_epilog( OrInstruction& value ) {}
+
+void NovelDumpPass::visit_prolog( XorInstruction& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
+void NovelDumpPass::visit_epilog( XorInstruction& value ) {}
+
+
 void NovelDumpPass::visit_prolog( AddSignedInstruction& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
 void NovelDumpPass::visit_epilog( AddSignedInstruction& value ) {}
 
