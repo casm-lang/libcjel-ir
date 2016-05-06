@@ -35,6 +35,18 @@ Interconnect::~Interconnect( void )
 {			
 }
 
+void Interconnect::add( Value* object )
+{
+	assert( Value::isa< Variable >( object ) );
+	objects.push_back( object );
+}
+
+const std::vector< Value* >& Interconnect::getObjects( void ) const
+{
+	return objects;
+}
+
+
 void Interconnect::dump( void ) const
 {
 	printf( "[Interconnect ] " );

@@ -45,7 +45,6 @@ CallableUnit::CallableUnit( const char* name, Type* type, Value::ID id )
 
 	allocation_id = BitConstant::create( allocation_cnt, TypeId.getBitsize() );
 	allocation_cnt++;
-	
 	assert( allocation_id );
 }
 

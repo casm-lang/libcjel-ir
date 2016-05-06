@@ -26,17 +26,33 @@
 using namespace libnovel;
 
 
+u64 Variable::allocation_cnt = 0;
+
+
 Variable::Variable( Type* type, Value* expression, const char* ident )
 : User( ".variable", type, Value::VARIABLE )
+, allocation_id( 0 )
 , expression( expression )
 , ident( ident )
 {
 	assert( type );
 	assert( expression && Value::isa< Constants >(expression) );
+
+	allocation_id = BitConstant::create( allocation_cnt, TypeId.getBitsize() );
+	allocation_cnt++;
+	assert( allocation_id );
 }
 
 Variable::~Variable( void )
 {
+}
+
+
+
+BitConstant* Variable::getAllocationID( void )
+{
+	assert( allocation_id );
+	return allocation_id;
 }
 
 

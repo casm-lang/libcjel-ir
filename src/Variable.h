@@ -34,6 +34,9 @@ namespace libnovel
 	class Variable : public User
 	{
 	private:
+		static u64 allocation_cnt;
+		BitConstant* allocation_id;		
+		
 		Value* expression;
 		const char* ident;
 		
@@ -41,7 +44,9 @@ namespace libnovel
 		Variable( Type* type, Value* expression, const char* ident = 0 );
 		
 		~Variable( void );
-		
+
+		BitConstant* getAllocationID( void );
+
 		Value* getExpression( void ) const;
 		const char* getIdent( void ) const;
 		

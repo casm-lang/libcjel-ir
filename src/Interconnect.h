@@ -27,16 +27,24 @@
 #include "Value.h"
 #include "User.h"
 #include "Structure.h"
+#include "Variable.h"
 
 namespace libnovel
 {
 	class Interconnect : public User
 	{
+	private:
+		std::vector< Value* > objects;
+		
 	public:
 		Interconnect( void );
 		
 		~Interconnect( void );
 
+		void add( Value* object );
+
+		const std::vector< Value* >& getObjects( void ) const;
+		
 		void dump( void ) const;
 		
 		static inline Value::ID classid( void ) { return Value::INTERCONNECT; };

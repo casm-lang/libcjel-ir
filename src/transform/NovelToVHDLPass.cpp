@@ -91,6 +91,10 @@ static const char* getTypeString( Value& value )
 		string t = "struct_" + string( ((Structure*)ty)->getName() );
 	    return libstdhl::Allocator::string( t );
 	}
+	else if( type->getIDKind() == Type::INTERCONNECT )
+	{
+	    return libstdhl::Allocator::string( "Interconnect" );
+	}
 	else
 	{
 		assert( !"unimplemented or unsupported type to convert!" );
@@ -374,9 +378,7 @@ void NovelToVHDLPass::visit_prolog( Variable& value )
 	    );
 	}
 
-	static u64 var_allocation = 0;
-	std::bitset< 48 > v( var_allocation );
-	var_allocation++;
+	std::bitset< 48 > v( value.getAllocationID()->getValue()[0] );
 	
 	fprintf
 	( stream
@@ -680,7 +682,9 @@ void NovelToVHDLPass::visit_prolog( TrivialStatement& value )
 	{
 		if( Value::isa< ExtractInstruction >( instr )
 		or  Value::isa< StoreInstruction >( instr )
-		or  Value::isa< NopInstruction >( instr ) )
+		or  Value::isa< NopInstruction >( instr )
+		or  Value::isa< CallInstruction >( instr )
+		)
 		{
 			continue;
 		}
@@ -997,7 +1001,7 @@ void NovelToVHDLPass::visit_prolog( StoreInstruction& value )
 	{
 		Reference* ref = (Reference*)( dst );
 		assert( ref );
-
+		
 		fprintf
 		( stream
 	    , "     %s <= transport %s after 20 ns; -- store '%s'\n"
@@ -1313,10 +1317,82 @@ void NovelToVHDLPass::visit_epilog( StringConstant& value )
 
 void NovelToVHDLPass::visit_prolog( Interconnect& value )
 {
-    TODO;
+	static Value n( "", &TypeId, libnovel::Value::VALUE );
+	
+    fprintf
+	( stream
+	, "-- Interconnect '%s'\n"
+	  "library IEEE;\n"
+	  "use IEEE.std_logic_1164.all;\n"
+	  "use IEEE.numeric_std.all;\n"
+	  "use work.Structure.all;\n"
+	  "use work.Constants.all;\n"
+	  "use work.Variables.all;\n"
+	  "entity %s is port\n"
+	  "( req  : in  std_logic\n"
+	  "; ack  : out std_logic\n"
+	  "; addr : in  %s\n"
+	  "; data : out std_logic_vector( 64 downto 0 ) -- TBD\n"
+	, value.getLabel()
+	, value.getLabel()
+	, getTypeString( n )
+	);
+	
+	for( auto v : value.getObjects() )
+	{
+	    fprintf
+	    ( stream
+	    , "; %s : in %s\n"
+	    , v->getLabel()
+		, getTypeString( *v )
+	    );
+	}
+	
+	fprintf
+	( stream
+	, ";)\n"
+	  "end %s\n"
+	  "architecture \\@%s@\\ of %s is\n"
+	  "begin\n"
+	  "  process( req ) is\n"
+	  "  begin\n"
+	  "    if rising_edge( req ) then\n"
+	  "      case addr is\n"
+	, value.getLabel()
+	, value.getLabel()
+	, value.getLabel()
+	);
+
+	for( auto v : value.getObjects() )
+	{
+		assert( Value::isa< Variable >( v ) );
+		Variable* var = (Variable*)v;
+
+		std::bitset< 48 > bits( var->getAllocationID()->getValue()[0] );
+	    
+	    fprintf
+	    ( stream
+	    , "        when \"%s\" =>\n"
+		  "          data <= ( others => 'U' );\n"
+		, bits.to_string().c_str()
+	    );
+	}
+	
+	fprintf
+	( stream
+	, "        when others => data <= ( others => 'U' );\n"
+	  "      end case;\n"
+	  "      ack <= transport '1' after 5 ns;\n"
+	  "    end if;\n"
+	  "  end process;\n"
+	  "end \\@%s@\\;\n"
+	  "\n"
+	, value.getLabel()
+	);
 }
 void NovelToVHDLPass::visit_epilog( Interconnect& value )
 {}
+
 
 
 //  

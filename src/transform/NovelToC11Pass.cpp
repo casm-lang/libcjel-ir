@@ -84,7 +84,6 @@ static const char* getTypeString( Value& value )
 	{
 		Value* ty = type->getBound();
 		assert(  Value::isa< Structure >( ty ) );
-		//string t = "struct_" + string( ((Structure*)ty)->getName() );
 		string t = string( ((Structure*)ty)->getName() );
 	    return libstdhl::Allocator::string( t );
 	}
@@ -463,18 +462,18 @@ void NovelToC11Pass::visit_prolog( Variable& value )
 	    );
 	}
 
-	static u64 var_allocation = 0;
+	// static u64 var_allocation = 0;
 	
 	fprintf
 	( stream
 	, "const %s %s = %lu; // '%s'\n"
 	, getTypeString( n )
 	, value.getLabel()
-	, var_allocation
+	, value.getAllocationID()->getValue()[0]
 	, value.getIdent()
 	);
 	
-	var_allocation++;
+	//var_allocation++;
 	
     // fprintf
 	// ( stream
