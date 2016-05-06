@@ -178,6 +178,7 @@ void NovelToVHDLPass::visit_prolog( Function& value )
 	  "entity %s is port\n"
 	  "( req : in  std_logic\n"
 	  "; ack : out std_logic\n"
+	  "; "
 	, value.getLabel()
 	, value.getName()
 	);
@@ -194,7 +195,8 @@ void NovelToVHDLPass::visit_interlog( Function& value )
 	
 	fprintf
 	( stream
-	, ");\n"
+	, "\n"
+	  ");\n"
 	  "end %s;\n"
 	  "architecture \\@%s@\\ of %s is\n"
 	, value.getName()
@@ -238,6 +240,7 @@ void NovelToVHDLPass::visit_prolog( Intrinsic& value )
 	  "entity %s is port\n"
 	  "( req : in  std_logic\n"
 	  "; ack : out std_logic\n"
+	  "; "
 	, value.getLabel()
 	, value.getName()
 	);
@@ -258,23 +261,29 @@ void NovelToVHDLPass::visit_epilog( Intrinsic& value )
 
 void NovelToVHDLPass::visit_prolog( Reference& value )
 {
-	const char* kind = 0;
-	
+ 	const char* kind = "link";
 	if( value.isInput() )
 	{
 		kind = "in";
 	}
-	else
+	else if( value.isOutput() )
 	{
 		kind = "out";
+	}
+	else
+	{
+		assert(0);
 	}
 	
 	fprintf
 	( stream
-	, "; %s : %s %s\n"
-	, value.getIdentifier()->getName()
+	, "%s : %s %s -- %s %s%s"
+	, value.getLabel()
 	, kind
 	, getTypeString( value )
+	, value.getIdentifier()->getName()
+	, kind
+	, ( value.getCallableUnit()->isLastParameter( &value ) ? "" : "\n; " )
 	);
 }
 void NovelToVHDLPass::visit_epilog( Reference& value )
@@ -977,10 +986,11 @@ void NovelToVHDLPass::visit_prolog( StoreInstruction& value )
 		
 		fprintf
 		( stream
-	    , "      %s.%s <= transport %s after 20 ns;\n"
+	    , "      %s.%s <= transport %s after 20 ns; -- store '%s'\n"
 	    , ref->getIdentifier()->getName()
 	    , str->getName()
 	    , src->getLabel()
+		, ref->getIdentifier()->getName()
 	    );
 	}
 	else if( Value::isa< Reference >( dst ) )
@@ -990,9 +1000,10 @@ void NovelToVHDLPass::visit_prolog( StoreInstruction& value )
 
 		fprintf
 		( stream
-	    , "     %s <= transport %s after 20 ns;\n"
-	    , ref->getIdentifier()->getName()
+	    , "     %s <= transport %s after 20 ns; -- store '%s'\n"
+	    , ref->getLabel()
 	    , src->getLabel()
+	    , ref->getIdentifier()->getName()
 	    );
 	}
 	else
@@ -1077,7 +1088,7 @@ void NovelToVHDLPass::visit_prolog( AddSignedInstruction& value )
 {
 	fprintf
 	( stream
-	, "      %s := std_logic_vector( signed( %s ) + signed( %s ) );\n"
+	, "      %s := std_logic_vector( signed( %s ) + signed( %s ) ); -- adds\n"
 	, value.getLabel()
 	, value.getLHS()->getLabel()
 	, value.getRHS()->getLabel()
@@ -1096,11 +1107,11 @@ void NovelToVHDLPass::visit_prolog( DivSignedInstruction& value )
 {
 	fprintf
 	( stream
-	, "      %s := std_logic_vector( signed( %s ) / signed( %s ) );\n"
+	, "      %s := std_logic_vector( signed( %s ) / signed( %s ) ); -- divu\n"
 	, value.getLabel()
 	, value.getLHS()->getLabel()
 	, value.getRHS()->getLabel()
-	);	
+	);
 }
 void NovelToVHDLPass::visit_epilog( DivSignedInstruction& value )
 {}
@@ -1112,7 +1123,13 @@ void NovelToVHDLPass::visit_epilog( DivSignedInstruction& value )
 
 void NovelToVHDLPass::visit_prolog( ModUnsignedInstruction& value )
 {
-	TODO;
+	fprintf
+	( stream
+	, "      %s := std_logic_vector( unsigned( %s ) mod unsigned( %s ) ); -- modu\n"
+	, value.getLabel()
+	, value.getLHS()->getLabel()
+	, value.getRHS()->getLabel()
+	);
 }
 void NovelToVHDLPass::visit_epilog( ModUnsignedInstruction& value )
 {}
@@ -1149,7 +1166,20 @@ void NovelToVHDLPass::visit_epilog( NeqUnsignedInstruction& value )
 
 void NovelToVHDLPass::visit_prolog( ZeroExtendInstruction& value )
 {
-	TODO;
+	u16 bs = value.getType()->getBitsize() - value.get()->getType()->getBitsize();
+    std::bitset< 256 > v( 0 );
+	const char* bits = &(v.to_string().c_str()[ 256 - bs ]);
+	const char* fmt = ( bs > 1 ? "\"" : "'" );
+	
+	fprintf
+	( stream
+	, "      %s := %s%s%s & %s; -- zext\n"
+	, value.getLabel()
+	, fmt
+	, bits
+	, fmt
+	, value.get()->getLabel()
+	);
 }
 void NovelToVHDLPass::visit_epilog( ZeroExtendInstruction& value )
 {}
@@ -1161,7 +1191,13 @@ void NovelToVHDLPass::visit_epilog( ZeroExtendInstruction& value )
 
 void NovelToVHDLPass::visit_prolog( TruncationInstruction& value )
 {
-	TODO;
+	fprintf
+	( stream
+	, "      %s := %s( %lu downto 0 ); -- trunc\n"
+	, value.getLabel()
+	, value.get()->getLabel()
+	, (u64)(value.getType()->getBitsize() - 1)
+	);
 }
 void NovelToVHDLPass::visit_epilog( TruncationInstruction& value )
 {}
@@ -1174,28 +1210,37 @@ void NovelToVHDLPass::visit_epilog( TruncationInstruction& value )
 
 void NovelToVHDLPass::visit_prolog( BitConstant& value )
 {
+	u16 bs = value.getType()->getBitsize();
+	std::bitset< 256 > v( value.getValue()[0] );
+	const char* bits = &(v.to_string().c_str()[ 256 - bs ]);	
+	const char* fmt = ( bs > 1 ? "\"" : "'" );
+	
 	StructureConstant* sc = 0;
 	if( value.isBound() )
 	{
 		sc = value.getBound();
 		u1 last = sc->getElements().back() == &value;
-		u16 bs = value.getType()->getBitsize();
-		std::bitset< 128 > v( value.getValue()[0] );
-		const char* fmt = ( bs > 1 ? "\"" : "'" );
 		
 		fprintf
 		( stream
 		, "%s%s%s%s"
 		, fmt
-		, &(v.to_string().c_str()[ 128 - bs ])
+		, bits
 		, fmt
 		, last ? "" : ", "
 		);
 	}
 	else
 	{
-		//assert( !" unimplemented !!! " );
-		TODO;
+		fprintf
+	    ( stream
+	    , "  constant %s : %s := %s%s%s;\n"
+	    , value.getLabel()
+	    , getTypeString( value )
+		, fmt
+		, bits
+		, fmt
+	    );
 	}
 }
 void NovelToVHDLPass::visit_epilog( BitConstant& value )

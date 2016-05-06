@@ -374,9 +374,13 @@ void NovelToC11Pass::visit_prolog( Reference& value )
 	{
 		kind = "in";
 	}
-	if( value.isOutput() )
+	else if( value.isOutput() )
 	{
 		kind = "out";
+	}
+	else
+	{
+		assert(0);
 	}
 	
 	fprintf
