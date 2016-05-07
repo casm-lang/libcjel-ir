@@ -37,12 +37,14 @@ static libpass::PassRegistration< NovelToVHDLPass > PASS
 
 static FILE* stream = stderr;
 
+static Module* module = 0;
 
 bool NovelToVHDLPass::run( libpass::PassResult& pr )
 {
     Module* value = (Module*)pr.getResult< NovelDumpPass >();
 	assert( value );
-    
+	module = value;
+	
 	string fn = "obj/" + string( value->getName() ) + ".vhd"; 
 	stream = fopen( fn.c_str(), "w" );
 	
@@ -110,7 +112,15 @@ static void emit_wire( Value& value )
 	for( auto link : cunit->getLinkage() )
 	{
 		Reference* linkage = (Reference*)link;
-		
+
+	    fprintf
+	    ( stream
+	    , "      -- %s %s -- linkage\n"
+		, linkage->getIdentifier()->getName()
+	    , linkage->getLabel()
+	    );	
+	    continue;
+    
 		fprintf
 		( stream
 		, "  signal %s : %s := %s;\n"
@@ -600,82 +610,80 @@ void NovelToVHDLPass::visit_epilog( SequentialScope& value )
 
 void NovelToVHDLPass::visit_prolog( TrivialStatement& value )
 {
-	u1 plain = true;
-	for( Value* i : value.getInstructions() )
-	{
-		if( not Value::isa< CallInstruction >( i )
-		and not Value::isa< AllocInstruction >( i ) )
-		{
-			plain = false;
-			break;
-		}
-	}
+	// u1 plain = true;
+	// for( Value* i : value.getInstructions() )
+	// {
+	// 	if( not Value::isa< CallInstruction >( i )
+	// 	and not Value::isa< AllocInstruction >( i ) )
+	// 	{
+	// 		plain = false;
+	// 		break;
+	// 	}
+	// }
 	
-	//if( value.consistsOnlyOf< CallInstruction >() )
-	if( plain ) // TODO: FIXME: PPA: this can be much more generic!!!
-	{
-		fprintf
-		( stream
-		, "  -- stmt %s\n"
-		  "  %s : block\n"
-		, value.getLabel()
-		, value.getLabel()
-		);
+	// //if( value.consistsOnlyOf< CallInstruction >() )
+	// if( plain ) // TODO: FIXME: PPA: this can be much more generic!!!
+	// {
+	// 	fprintf
+	// 	( stream
+	// 	, "  -- stmt %s\n"
+	// 	  "  %s : block\n"
+	// 	, value.getLabel()
+	// 	, value.getLabel()
+	// 	);
 		
-		for( Value* instr : value.getInstructions() )
-		{
-			if( Value::isa< AllocInstruction >( instr ) )
-			{
-				fprintf
-				( stream
-				, "    signal %s : %s;\n"
-				, instr->getLabel()
-				, getTypeString( *instr )
-				);
-				//continue;
-			}
+	// 	for( Value* instr : value.getInstructions() )
+	// 	{
+	// 		if( Value::isa< AllocInstruction >( instr ) )
+	// 		{
+	// 			fprintf
+	// 			( stream
+	// 			, "    signal %s : %s;\n"
+	// 			, instr->getLabel()
+	// 			, getTypeString( *instr )
+	// 			);
+	// 			//continue;
+	// 		}
 			
-			fprintf
-			( stream
-			, "    signal sig_%s : std_logic;\n"
-			, instr->getLabel()
-			);
-		}
-		fprintf
-		( stream
-		, "    signal sig_%s : std_logic;\n"
-		, value.getLabel()
-		);
+	// 		fprintf
+	// 		( stream
+	// 		, "    signal sig_%s : std_logic;\n"
+	// 		, instr->getLabel()
+	// 		);
+	// 	}
+	// 	fprintf
+	// 	( stream
+	// 	, "    signal sig_%s : std_logic;\n"
+	// 	, value.getLabel()
+	// 	);
 
-		// Value* n = value.getNext();
-		// while( n != 0 and Value::isa< AllocInstruction >( n ) )
-		// {
-		// 	n = n->getNext();
-		// }
+	// 	// Value* n = value.getNext();
+	// 	// while( n != 0 and Value::isa< AllocInstruction >( n ) )
+	// 	// {
+	// 	// 	n = n->getNext();
+	// 	// }
 		
-		fprintf
-		( stream
-		, "  begin\n"
-		  "    sig_%s <= req_%s;\n"
-		  "    ack_%s <= sig_%s;\n"
-		  //, n != 0 ? n->getLabel() : ((Instruction*)&value)->getStatement()->getLabel()
-		, value.getInstructions().front()->getLabel()
-		, value.getLabel()
-		, value.getLabel()
-		, value.getLabel()
-		);
+	// 	fprintf
+	// 	( stream
+	// 	, "  begin\n"
+	// 	  "    sig_%s <= req_%s;\n"
+	// 	  "    ack_%s <= sig_%s;\n"
+	// 	  //, n != 0 ? n->getLabel() : ((Instruction*)&value)->getStatement()->getLabel()
+	// 	, value.getInstructions().front()->getLabel()
+	// 	, value.getLabel()
+	// 	, value.getLabel()
+	// 	, value.getLabel()
+	// 	);
 		
-		return;
-	}
+	// 	return;
+	// }
 	
 	string tmp("req_" + std::string(value.getLabel()));
 	
 	fprintf
 	( stream
-	, "  -- stmt %s\n"
-	  "  process( %s ) is\n"
+	, "  %s_stmt: block -- stmt\n"
 	, value.getLabel()
-	, tmp.c_str()
 	);
 	
 	for( Value* instr : value.getInstructions() )
@@ -684,6 +692,7 @@ void NovelToVHDLPass::visit_prolog( TrivialStatement& value )
 		or  Value::isa< StoreInstruction >( instr )
 		or  Value::isa< NopInstruction >( instr )
 		or  Value::isa< CallInstruction >( instr )
+		or  Value::isa< IdCallInstruction >( instr )
 		)
 		{
 			continue;
@@ -691,7 +700,7 @@ void NovelToVHDLPass::visit_prolog( TrivialStatement& value )
 		
 		fprintf
 		( stream
-	    , "    variable %s : %s;\n"
+	    , "    signal %s : %s;\n"
 		, instr->getLabel()
 		, getTypeString( *instr )
 		);
@@ -700,34 +709,36 @@ void NovelToVHDLPass::visit_prolog( TrivialStatement& value )
 	fprintf
 	( stream
 	, "  begin\n"
+	  "  process( %s ) is\n"	  
 	  "    if rising_edge( %s ) then\n"
+	, tmp.c_str()
 	, tmp.c_str()
 	);
 }
 void NovelToVHDLPass::visit_epilog( TrivialStatement& value )
 {
-	u1 plain = true;
-	for( Value* i : value.getInstructions() )
-	{
-		if( not Value::isa< CallInstruction >( i )
-		and not Value::isa< AllocInstruction >( i ) )
-		{
-			plain = false;
-			break;
-		}
-	}
+	// u1 plain = true;
+	// for( Value* i : value.getInstructions() )
+	// {
+	// 	if( not Value::isa< CallInstruction >( i )
+	// 	and not Value::isa< AllocInstruction >( i ) )
+	// 	{
+	// 		plain = false;
+	// 		break;
+	// 	}
+	// }
 	
-	//if( value.consistsOnlyOf< CallInstruction >() )
-	if( plain ) // TODO: FIXME: PPA: this can be much more generic!!!
-	{
-		fprintf
-		( stream
-		, "  end block;\n"
-		  "\n"
-		);
+	// //if( value.consistsOnlyOf< CallInstruction >() )
+	// if( plain ) // TODO: FIXME: PPA: this can be much more generic!!!
+	// {
+	// 	fprintf
+	// 	( stream
+	// 	, "  end block;\n"
+	// 	  "\n"
+	// 	);
 		
-		return;
-	}
+	// 	return;
+	// }
 	
 	string tmp("ack_" + std::string(value.getLabel()));
 	
@@ -736,6 +747,7 @@ void NovelToVHDLPass::visit_epilog( TrivialStatement& value )
 	, "      ack_%s <= transport ( '1' ) after 25 ns;\n"
 	  "    end if;\n"
 	  "  end process;\n"
+	  "  end block;"
 	  "\n"
 	, value.getLabel()
 	);
@@ -776,9 +788,21 @@ void NovelToVHDLPass::visit_epilog( LoopStatement& value )
 
 void NovelToVHDLPass::visit_prolog( CallInstruction& value )
 {
+	if( value.getStatement()->getInstructions().front() != &value )
+	{
+		fprintf
+	    ( stream
+	    , "      ack_%s <= transport ( '1' ) after 25 ns;\n"
+	      "    end if;\n"
+	      "  end process;\n"
+	    , value.getLabel()
+	    );
+	}
+	
 	fprintf
 	( stream
-	, "    call_%s : entity work.%-15s port map( "
+//	, "    call_%s : entity work.%-15s port map( "
+	, "  call_%s : entity work.%s port map( "
 	, value.getLabel()
 	, value.getValue(0)->getName()
 	);
@@ -793,8 +817,8 @@ void NovelToVHDLPass::visit_prolog( CallInstruction& value )
 	( stream
 	, "sig_%s, sig_%s"
 	, value.getLabel()
-	  //, n != 0 ? n->getLabel() : ((Instruction*)&value)->getStatement()->getLabel()
-	, value.getNext() != 0 ? value.getNext()->getLabel() : ((Instruction*)&value)->getStatement()->getLabel()
+	// , value.getNext() != 0 ? value.getNext()->getLabel() : ((Instruction*)&value)->getStatement()->getLabel()
+	, value.getLabel()
 	);
 	
 	u1 first = true;
@@ -812,8 +836,19 @@ void NovelToVHDLPass::visit_prolog( CallInstruction& value )
 	fprintf
 	( stream
 	, " ); -- call %lu\n"
-	, value.getValues().size()
+	, value.getValues().size() - 1
 	);
+
+	if( value.getStatement()->getInstructions().back() != &value )
+	{
+		fprintf
+	    ( stream
+	    , "  process( %s ) is\n"	  
+		  "    if rising_edge( %s ) then\n"
+	    , value.getLabel()
+	    , value.getLabel()
+	    );
+	}	
 }
 void NovelToVHDLPass::visit_epilog( CallInstruction& value )	
 {
@@ -826,8 +861,13 @@ void NovelToVHDLPass::visit_epilog( CallInstruction& value )
 
 void NovelToVHDLPass::visit_prolog( IdCallInstruction& value )
 {
-	TODO;
-	assert(0);
+    fprintf
+	( stream
+	, "      -- %s = %s %s() -- id call\n"
+	, value.getLabel()
+	, value.getValue(0)->getLabel()
+	, value.getValue(1)->getLabel()
+	);	
 }
 void NovelToVHDLPass::visit_epilog( IdCallInstruction& value )
 {}
@@ -868,12 +908,12 @@ void NovelToVHDLPass::visit_epilog( NopInstruction& value )
 
 void NovelToVHDLPass::visit_prolog( AllocInstruction& value )
 {
-	fprintf
-	( stream
-	, "    sig_%s <= sig_%s;\n"
-	, value.getNext() != 0 ? value.getNext()->getLabel() : ((Instruction*)&value)->getStatement()->getLabel()
-	, value.getLabel()
-	);
+	// fprintf
+	// ( stream
+	// , "    sig_%s <= sig_%s;\n"
+	// , value.getNext() != 0 ? value.getNext()->getLabel() : ((Instruction*)&value)->getStatement()->getLabel()
+	// , value.getLabel()
+	// );
 }
 void NovelToVHDLPass::visit_epilog( AllocInstruction& value )
 {
@@ -897,8 +937,12 @@ void NovelToVHDLPass::visit_prolog( IdInstruction& value )
 	}
 	else
 	{
-		TODO;
-		assert( !"unimplemented!" );
+	    fprintf
+		( stream
+		, "      -- %s = %s -- id\n"
+		, value.getLabel()
+		, value.get()->getLabel()
+		);	
 	}
 }
 void NovelToVHDLPass::visit_epilog( IdInstruction& value )		
@@ -911,7 +955,13 @@ void NovelToVHDLPass::visit_epilog( IdInstruction& value )
 
 void NovelToVHDLPass::visit_prolog( CastInstruction& value )
 {
-	TODO;
+    fprintf
+	( stream
+	, "      -- %s = %s %s -- cast\n"
+	, value.getLabel()
+	, value.getLHS()->getLabel()
+	, value.getRHS()->getLabel()
+	);	
 }
 void NovelToVHDLPass::visit_epilog( CastInstruction& value )
 {}
@@ -923,6 +973,13 @@ void NovelToVHDLPass::visit_epilog( CastInstruction& value )
 
 void NovelToVHDLPass::visit_prolog( ExtractInstruction& value )
 {
+	fprintf
+	( stream
+	, "      -- %s = %s %s -- extract\n"
+	, value.getLabel()
+	, value.getLHS()->getLabel()
+	, value.getRHS()->getLabel()
+	);
 }
 void NovelToVHDLPass::visit_epilog( ExtractInstruction& value )
 {
@@ -935,6 +992,14 @@ void NovelToVHDLPass::visit_epilog( ExtractInstruction& value )
 
 void NovelToVHDLPass::visit_prolog( LoadInstruction& value )
 {
+	fprintf
+	( stream
+	, "      -- %s = %s -- load\n"
+	, value.getLabel()
+	, value.get()->getLabel()
+	);
+	return;
+	
 	assert( Value::isa< ExtractInstruction >( value.get() ) );
 	ExtractInstruction* ext = (ExtractInstruction*)( value.get() );
 	
@@ -974,6 +1039,14 @@ void NovelToVHDLPass::visit_prolog( StoreInstruction& value )
 {
 	Value* dst = value.getRHS();
 	Value* src = value.getLHS();
+
+	fprintf
+	( stream
+	, "      -- %s <- %s -- store\n"
+	, dst->getLabel()
+	, src->getLabel()
+	);
+	return;
 	
 	if( Value::isa< ExtractInstruction >( dst ) )
 	{
@@ -1029,8 +1102,12 @@ void NovelToVHDLPass::visit_epilog( StoreInstruction& value )
 
 void NovelToVHDLPass::visit_prolog( NotInstruction& value )
 {
-	TODO;
-	assert(0);
+	fprintf
+	( stream
+	, "      %s <= not %s;\n"
+	, value.getLabel()
+	, value.get()->getLabel()
+	);	
 }
 void NovelToVHDLPass::visit_epilog( NotInstruction& value )
 {}
@@ -1074,8 +1151,13 @@ void NovelToVHDLPass::visit_epilog( OrInstruction& value )
 
 void NovelToVHDLPass::visit_prolog( XorInstruction& value )
 {
-	TODO;
-	assert(0);
+	fprintf
+	( stream
+	, "      %s <= %s xor %s; -- xor\n"
+	, value.getLabel()
+	, value.getLHS()->getLabel()
+	, value.getRHS()->getLabel()
+	);
 }
 void NovelToVHDLPass::visit_epilog( XorInstruction& value )
 {}
@@ -1214,6 +1296,19 @@ void NovelToVHDLPass::visit_epilog( TruncationInstruction& value )
 
 void NovelToVHDLPass::visit_prolog( BitConstant& value )
 {
+	if( module->get< Constants >().front() == &value )
+	{
+		fprintf
+		( stream
+	    , "-- Constants\n"
+	      "library IEEE;\n"
+	      "use IEEE.std_logic_1164.all;\n"
+	      "use IEEE.numeric_std.all;\n"
+		  "use work.Structure.all;\n"
+		  "package Constants is\n"
+	    );
+	}
+
 	u16 bs = value.getType()->getBitsize();
 	std::bitset< 256 > v( value.getValue()[0] );
 	const char* bits = &(v.to_string().c_str()[ 256 - bs ]);	
@@ -1248,7 +1343,16 @@ void NovelToVHDLPass::visit_prolog( BitConstant& value )
 	}
 }
 void NovelToVHDLPass::visit_epilog( BitConstant& value )
-{}
+{
+	if( module->get< Constants >().back() == &value )
+	{
+		fprintf
+		( stream
+	    , "end;\n"
+		  "\n"
+	    );
+	}
+}
 
 
 //
@@ -1257,9 +1361,7 @@ void NovelToVHDLPass::visit_epilog( BitConstant& value )
 
 void NovelToVHDLPass::visit_prolog( StructureConstant& value )
 {
-	Module* m = value.getRef<Module>();
-	
-	if( m->get< Constants >().front() == &value )
+	if( module->get< Constants >().front() == &value )
 	{
 		fprintf
 		( stream
@@ -1281,14 +1383,12 @@ void NovelToVHDLPass::visit_prolog( StructureConstant& value )
 }
 void NovelToVHDLPass::visit_epilog( StructureConstant& value )
 {
-	Module* m = value.getRef<Module>();
-	
 	fprintf
 	( stream
 	, ");\n"
 	);
 	
-	if( m->get< Constants >().back() == &value )
+	if( module->get< Constants >().back() == &value )
 	{
 		fprintf
 		( stream
@@ -1350,8 +1450,8 @@ void NovelToVHDLPass::visit_prolog( Interconnect& value )
 	
 	fprintf
 	( stream
-	, ";)\n"
-	  "end %s\n"
+	, ");\n"
+	  "end %s;\n"
 	  "architecture \\@%s@\\ of %s is\n"
 	  "begin\n"
 	  "  process( req ) is\n"
@@ -1362,19 +1462,65 @@ void NovelToVHDLPass::visit_prolog( Interconnect& value )
 	, value.getLabel()
 	, value.getLabel()
 	);
-
+	
 	for( auto v : value.getObjects() )
 	{
 		assert( Value::isa< Variable >( v ) );
 		Variable* var = (Variable*)v;
-
+		
+		Value* ty = var->getType()->getBound();
+		assert(  Value::isa< Structure >( ty ) );
+		Structure* sty = (Structure*)ty;
+		
 		std::bitset< 48 > bits( var->getAllocationID()->getValue()[0] );
-	    
+		
+		// TODO: FIXME: PPA: HACK: this needs to be generic in the future!!! 
 	    fprintf
 	    ( stream
-	    , "        when \"%s\" =>\n"
-		  "          data <= ( others => 'U' );\n"
+	    , "        when \"%s\" => data <= "
 		, bits.to_string().c_str()
+	    );
+
+		u64 padding = 0;
+		for( auto e : sty->getElements() )
+		{
+			padding += e->getType()->getBitsize();
+	    }
+		
+		u1 first = true;
+		
+		if( padding < 65 )
+		{
+			std::bitset< 256 > bits( 0 );
+			
+	        fprintf
+	        ( stream
+	        , "\"%s\""
+			, &bits.to_string().c_str()[ 256 - (65-padding) ]
+	        );
+			
+			first = false;
+		}
+		
+		for( auto e : sty->getElements() )
+		{
+	        fprintf
+	        ( stream
+	        , "%s%s.%s"
+			, ( first ? "" : " & " )
+			, var->getLabel()
+			, e->getName()
+	        );
+			
+			if( first )
+			{
+				first = false;
+			}
+		}
+
+		fprintf
+	    ( stream
+	    , ";\n"
 	    );
 	}
 	

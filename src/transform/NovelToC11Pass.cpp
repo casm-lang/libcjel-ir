@@ -37,11 +37,14 @@ static libpass::PassRegistration< NovelToC11Pass > PASS
 
 static FILE* stream = stderr;
 
+static Module* module = 0;
+
 
 bool NovelToC11Pass::run( libpass::PassResult& pr )
 {
     Module* value = (Module*)pr.getResult< NovelDumpPass >();
 	assert( value );
+	module = value;
 	
 	string fn = "obj/" + string( value->getName() ) + ".c"; 
 	stream = fopen( fn.c_str(), "w" );
@@ -1455,6 +1458,14 @@ void NovelToC11Pass::visit_epilog( TruncationInstruction& value )
 
 void NovelToC11Pass::visit_prolog( BitConstant& value )
 {
+	if( module->get< Constants >().front() == &value )
+	{
+		fprintf
+		( stream
+	    , "// Constants\n"
+	    );
+	}
+
 	StructureConstant* sc = 0;
 	if( value.isBound() )
 	{
@@ -1483,9 +1494,7 @@ void NovelToC11Pass::visit_epilog( BitConstant& value )
 {
 	if( not value.isBound() )
 	{
-		Module* m = value.getRef<Module>();
-	
-		if( m->get< Constants >().back() == &value )
+		if( module->get< Constants >().back() == &value )
 		{
 			fprintf
 			( stream
@@ -1502,9 +1511,7 @@ void NovelToC11Pass::visit_epilog( BitConstant& value )
 
 void NovelToC11Pass::visit_prolog( StructureConstant& value )
 {
-	Module* m = value.getRef<Module>();
-	
-	if( m->get< Constants >().front() == &value )
+	if( module->get< Constants >().front() == &value )
 	{
 		fprintf
 		( stream
@@ -1526,8 +1533,7 @@ void NovelToC11Pass::visit_epilog( StructureConstant& value )
 	, " };\n"
 	);
 
-	Module* m = value.getRef<Module>();	
-	if( m->get< Constants >().back() == &value )
+	if( module->get< Constants >().back() == &value )
 	{
 		fprintf
 		( stream
