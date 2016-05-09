@@ -567,7 +567,7 @@ static void non_trivial_statement( Scope& value )
 	        , indention( value )
 	        );
 		}
-	}	
+	}
 }
 
 

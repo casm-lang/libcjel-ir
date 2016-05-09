@@ -715,23 +715,79 @@ void NovelToVHDLPass::visit_epilog( TrivialStatement& value )
 
 void NovelToVHDLPass::visit_prolog( BranchStatement& value )
 {
+ 	TODO;
+	
 	fprintf
 	( stream
-	, "  \n"
-	  "  -- BRANCH STATEMENT BEGIN;\n"
-	  "\n"
+	, "  -- branch '%s' BRANCH STATEMENT BEGIN;\n"
+	, value.getLabel()
 	);
 	
- 	TODO;
+	visit_prolog( *((TrivialStatement*)&value) );
 }
 void NovelToVHDLPass::visit_interlog( BranchStatement& value )
-{}
+{
+	fprintf
+	( stream
+	, "    process( sig_%s ) is\n"
+	  "    begin\n"
+	  "      if rising_edge( sig_%s ) then\n"
+	  "        ack_%s <= transport '1' after 5 ns;\n"
+	  "      end if;\n"
+	  "    end process;\n"
+	  "  end block;\n"
+	  "\n"
+	, value.getLabel()
+	, value.getLabel()
+	, value.getLabel()
+	);
+
+
+
+	const Value* parent = value.getParent();
+	assert( parent );
+	
+	if( Value::isa< BranchStatement >( parent ) )
+	{
+		BranchStatement* branch = (BranchStatement*)parent;
+		
+		Value* expr = (Value*)branch->getInstructions().back();
+		assert( expr );
+		//assert( Value::isa< LogicalInstruction >( expr ) );
+		assert( expr->getType()->getIDKind() == Type::BIT && expr->getType()->getBitsize() == 1 );
+		
+		if( branch->getScopes().front() == &value )
+		{
+	        fprintf
+	        ( stream
+	        , "%sif( %s )\n"
+	        , indention( value )
+			, expr->getLabel()
+	        );
+		}
+		else if( branch->getScopes().back() == &value )
+		{
+	        fprintf
+	        ( stream
+	        , "%selse\n"
+	        , indention( value )
+	        );
+		}
+	}	
+
+	
+	
+	fprintf
+	( stream
+	, "  -- BRANCH STATEMENT INTER;\n"
+	  "\n"
+	);
+}
 void NovelToVHDLPass::visit_epilog( BranchStatement& value )
 {
 	fprintf
 	( stream
-	, "  \n"
-	  "  -- BRANCH STATEMENT END;\n"
+	, "  -- BRANCH STATEMENT END;\n"
 	  "\n"
 	);
 }
@@ -745,21 +801,25 @@ void NovelToVHDLPass::visit_prolog( LoopStatement& value )
 {
 	fprintf
 	( stream
-	, "  \n"
-	  "  -- LOOP STATEMENT BEGIN;\n"
+	, "  -- LOOP STATEMENT BEGIN;\n"
 	  "\n"
 	);
 
 	TODO;
 }
 void NovelToVHDLPass::visit_interlog( LoopStatement& value )
-{}
+{
+	fprintf
+	( stream
+	, "  -- LOOP STATEMENT INTER;\n"
+	  "\n"
+	);
+}
 void NovelToVHDLPass::visit_epilog( LoopStatement& value )
 {
 	fprintf
 	( stream
-	, "  \n"
-	  "  -- LOOP STATEMENT END;\n"
+	, "  -- LOOP STATEMENT END;\n"
 	  "\n"
 	);
 }
@@ -1572,6 +1632,131 @@ void NovelToVHDLPass::visit_prolog( Interconnect& value )
 }
 void NovelToVHDLPass::visit_epilog( Interconnect& value )
 {}
+
+
+
+
+
+library IEEE;
+use IEEE.std_logic_1164.all;
+use IEEE.numeric_std.all;
+use work.Structure.all;
+use work.Constants.all;
+use work.Variables.all;
+entity zext is
+generic
+( FROM_BIT_WIDTH : integer
+  ; TO_BIT_WIDTH   : integer
+	);
+port
+( req : in  std_logic
+  ; ack : out std_logic
+  ; t   : out std_logic_vector( (TO_BIT_WIDTH-1) downto 0 )
+  ; a   : in std_logic_vector( (FROM_BIT_WIDTH-1) downto 0 )
+	);
+end zext;
+architecture \@zext@\ of zext is
+constant padding : std_logic_vector( (TO_BIT_WIDTH-FROM_BIT_WIDTH-1) downto 0 ) := ( others => '0');
+begin
+process( req ) is
+	  begin
+	if rising_edge( req ) then
+	ack <= transport '1' after 5 ns;
+end if;
+end process;
+t <= padding & a;
+end \@zext@\;
+
+
+
+library IEEE;
+use IEEE.std_logic_1164.all;
+use IEEE.numeric_std.all;
+use work.Structure.all;
+use work.Constants.all;
+use work.Variables.all;
+entity trunc is
+generic
+( FROM_BIT_WIDTH : integer
+  ; TO_BIT_WIDTH   : integer
+	);
+port
+( req : in  std_logic
+  ; ack : out std_logic
+  ; t   : out std_logic_vector( (TO_BIT_WIDTH-1) downto 0 )
+  ; a   : in std_logic_vector( (FROM_BIT_WIDTH-1) downto 0 )
+	);
+end trunc;
+architecture \@trunc@\ of trunc is
+begin
+process( req ) is
+  begin
+if rising_edge( req ) then
+ack <= transport '1' after 5 ns;
+end if;
+end process;
+t <= a( TO_BIT_WIDTH-1 downto 0 );
+end \@trunc@\;
+
+
+library IEEE;
+use IEEE.std_logic_1164.all;
+use IEEE.numeric_std.all;
+use work.Structure.all;
+use work.Constants.all;
+use work.Variables.all;
+entity modu is
+generic
+( BIT_WIDTH : integer
+	);
+port
+( req : in  std_logic
+  ; ack : out std_logic
+  ; t   : out std_logic_vector( (BIT_WIDTH-1) downto 0 )
+  ; a   : in std_logic_vector(  (BIT_WIDTH-1) downto 0 )
+  ; b   : in std_logic_vector(  (BIT_WIDTH-1) downto 0 )
+	);
+end modu;
+architecture \@modu@\ of modu is
+begin
+process( req ) is
+  begin
+if rising_edge( req ) then
+ack <= transport '1' after 5 ns;
+end if;
+end process;
+t <= std_logic_vector( unsigned( a ) mod unsigned( b ) );
+end \@modu@\;
+
+
+library IEEE;
+use IEEE.std_logic_1164.all;
+use IEEE.numeric_std.all;
+use work.Structure.all;
+use work.Constants.all;
+use work.Variables.all;
+entity store is
+generic
+( BIT_WIDTH : integer
+	);
+port
+( req : in  std_logic
+  ; ack : out std_logic
+  ; src : in  std_logic_vector( (BIT_WIDTH-1) downto 0 )
+  ; dst : out std_logic_vector(  (BIT_WIDTH-1) downto 0 )
+	);
+end store;
+architecture \@store@\ of store is
+begin
+process( req ) is
+  begin
+if rising_edge( req ) then
+ack <= transport '1' after 5 ns;
+end if;
+end process;
+dst <= src;
+end \@store@\;
+
 
 
 
