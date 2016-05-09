@@ -39,6 +39,8 @@ static FILE* stream = stderr;
 
 static Module* module = 0;
 
+static u1 instruction_implementation = false;
+
 bool NovelToVHDLPass::run( libpass::PassResult& pr )
 {
     Module* value = (Module*)pr.getResult< NovelDumpPass >();
@@ -53,6 +55,19 @@ bool NovelToVHDLPass::run( libpass::PassResult& pr )
 	, this
 	);
 
+	instruction_implementation = true;
+	
+	value->iterate
+	( Traversal::PREORDER
+	, [ this ]( Value* value )
+	  {
+		  if( Value::isa< Instruction >( value ) )
+		  {
+			  this->dispatch( Visitor::Stage::PROLOG, value );
+		  }
+	  }
+	);
+	
 	if( fclose( stream ) )
 	{
 		fprintf( stderr, "error: unable to close file stream\n" );
@@ -445,7 +460,7 @@ void NovelToVHDLPass::visit_prolog( ParallelScope& value )
 	  "  process( %s ) is\n"
 	  "  begin\n"
 	  "    if rising_edge( %s ) then\n"
-	, value.getLabel()
+, value.getLabel()
 	, tmp.c_str()
 	, tmp.c_str()
 	);
@@ -610,145 +625,85 @@ void NovelToVHDLPass::visit_epilog( SequentialScope& value )
 
 void NovelToVHDLPass::visit_prolog( TrivialStatement& value )
 {
-	// u1 plain = true;
-	// for( Value* i : value.getInstructions() )
-	// {
-	// 	if( not Value::isa< CallInstruction >( i )
-	// 	and not Value::isa< AllocInstruction >( i ) )
-	// 	{
-	// 		plain = false;
-	// 		break;
-	// 	}
-	// }
-	
-	// //if( value.consistsOnlyOf< CallInstruction >() )
-	// if( plain ) // TODO: FIXME: PPA: this can be much more generic!!!
-	// {
-	// 	fprintf
-	// 	( stream
-	// 	, "  -- stmt %s\n"
-	// 	  "  %s : block\n"
-	// 	, value.getLabel()
-	// 	, value.getLabel()
-	// 	);
-		
-	// 	for( Value* instr : value.getInstructions() )
-	// 	{
-	// 		if( Value::isa< AllocInstruction >( instr ) )
-	// 		{
-	// 			fprintf
-	// 			( stream
-	// 			, "    signal %s : %s;\n"
-	// 			, instr->getLabel()
-	// 			, getTypeString( *instr )
-	// 			);
-	// 			//continue;
-	// 		}
-			
-	// 		fprintf
-	// 		( stream
-	// 		, "    signal sig_%s : std_logic;\n"
-	// 		, instr->getLabel()
-	// 		);
-	// 	}
-	// 	fprintf
-	// 	( stream
-	// 	, "    signal sig_%s : std_logic;\n"
-	// 	, value.getLabel()
-	// 	);
-
-	// 	// Value* n = value.getNext();
-	// 	// while( n != 0 and Value::isa< AllocInstruction >( n ) )
-	// 	// {
-	// 	// 	n = n->getNext();
-	// 	// }
-		
-	// 	fprintf
-	// 	( stream
-	// 	, "  begin\n"
-	// 	  "    sig_%s <= req_%s;\n"
-	// 	  "    ack_%s <= sig_%s;\n"
-	// 	  //, n != 0 ? n->getLabel() : ((Instruction*)&value)->getStatement()->getLabel()
-	// 	, value.getInstructions().front()->getLabel()
-	// 	, value.getLabel()
-	// 	, value.getLabel()
-	// 	, value.getLabel()
-	// 	);
-		
-	// 	return;
-	// }
-	
-	string tmp("req_" + std::string(value.getLabel()));
-	
 	fprintf
 	( stream
-	, "  %s_stmt: block -- stmt\n"
+	, "  stmt_%s: block -- stmt\n"
+	  "    signal sig_%s : std_logic := '0';\n"
+	, value.getLabel()
 	, value.getLabel()
 	);
 	
 	for( Value* instr : value.getInstructions() )
 	{
-		if( Value::isa< ExtractInstruction >( instr )
-		or  Value::isa< StoreInstruction >( instr )
-		or  Value::isa< NopInstruction >( instr )
-		or  Value::isa< CallInstruction >( instr )
-		or  Value::isa< IdCallInstruction >( instr )
-		)
+		if( Value::isa< AllocInstruction >( instr ) )
 		{
-			continue;
+		    fprintf
+		    ( stream
+	        , "    signal     %s : %s; -- %s\n"
+		    , instr->getLabel()
+		    , getTypeString( *instr )
+		    , instr->getName()
+		    );
 		}
 		
-		fprintf
-		( stream
-	    , "    signal %s : %s;\n"
-		, instr->getLabel()
-		, getTypeString( *instr )
-		);
+		if
+		(   not Value::isa< AllocInstruction  >( instr )
+		and not Value::isa< StoreInstruction  >( instr )
+		and not Value::isa< CallInstruction   >( instr )
+		and not Value::isa< IdCallInstruction >( instr )
+		)
+		{
+		    fprintf
+		    ( stream
+	        , "    signal sig_%s : std_logic := '0'; -- %s\n"
+		    , instr->getLabel()
+		    , instr->getName()
+		    );
+			
+			fprintf
+		    ( stream
+	        , "    signal     %s : %s; -- %s\n"
+		    , instr->getLabel()
+		    , getTypeString( *instr )
+		    , instr->getName()
+		    );
+		}
+	}
+	
+	Value* v = value.getInstructions().front();
+	while( Value::isa< AllocInstruction >( v ) )
+	{
+		v = v->getNext();
 	}
 	
 	fprintf
 	( stream
 	, "  begin\n"
-	  "  process( %s ) is\n"	  
-	  "    if rising_edge( %s ) then\n"
-	, tmp.c_str()
-	, tmp.c_str()
+	  "    process( req_%s ) is\n"
+	  "    begin\n"
+	  "      if rising_edge( req_%s ) then\n"
+	  "        sig_%s <= transport '1' after 5 ns;\n"
+	  "      end if;\n"
+	  "    end process;\n"
+	, value.getLabel()
+	, value.getLabel()
+	, v->getLabel()
 	);
 }
 void NovelToVHDLPass::visit_epilog( TrivialStatement& value )
 {
-	// u1 plain = true;
-	// for( Value* i : value.getInstructions() )
-	// {
-	// 	if( not Value::isa< CallInstruction >( i )
-	// 	and not Value::isa< AllocInstruction >( i ) )
-	// 	{
-	// 		plain = false;
-	// 		break;
-	// 	}
-	// }
-	
-	// //if( value.consistsOnlyOf< CallInstruction >() )
-	// if( plain ) // TODO: FIXME: PPA: this can be much more generic!!!
-	// {
-	// 	fprintf
-	// 	( stream
-	// 	, "  end block;\n"
-	// 	  "\n"
-	// 	);
-		
-	// 	return;
-	// }
-	
-	string tmp("ack_" + std::string(value.getLabel()));
-	
 	fprintf
 	( stream
-	, "      ack_%s <= transport ( '1' ) after 25 ns;\n"
-	  "    end if;\n"
-	  "  end process;\n"
-	  "  end block;"
+	, "    process( sig_%s ) is\n"
+	  "    begin\n"
+	  "      if rising_edge( sig_%s ) then\n"
+	  "        ack_%s <= transport '1' after 5 ns;\n"
+	  "      end if;\n"
+	  "    end process;\n"
+	  "  end block;\n"
 	  "\n"
+	, value.getLabel()
+	, value.getLabel()
 	, value.getLabel()
 	);
 }
@@ -760,12 +715,26 @@ void NovelToVHDLPass::visit_epilog( TrivialStatement& value )
 
 void NovelToVHDLPass::visit_prolog( BranchStatement& value )
 {
-	TODO;
+	fprintf
+	( stream
+	, "  \n"
+	  "  -- BRANCH STATEMENT BEGIN;\n"
+	  "\n"
+	);
+	
+ 	TODO;
 }
 void NovelToVHDLPass::visit_interlog( BranchStatement& value )
 {}
 void NovelToVHDLPass::visit_epilog( BranchStatement& value )
-{}
+{
+	fprintf
+	( stream
+	, "  \n"
+	  "  -- BRANCH STATEMENT END;\n"
+	  "\n"
+	);
+}
 
 
 //
@@ -774,12 +743,26 @@ void NovelToVHDLPass::visit_epilog( BranchStatement& value )
 
 void NovelToVHDLPass::visit_prolog( LoopStatement& value )
 {
+	fprintf
+	( stream
+	, "  \n"
+	  "  -- LOOP STATEMENT BEGIN;\n"
+	  "\n"
+	);
+
 	TODO;
 }
 void NovelToVHDLPass::visit_interlog( LoopStatement& value )
 {}
 void NovelToVHDLPass::visit_epilog( LoopStatement& value )
-{}
+{
+	fprintf
+	( stream
+	, "  \n"
+	  "  -- LOOP STATEMENT END;\n"
+	  "\n"
+	);
+}
 
 
 //
@@ -788,37 +771,13 @@ void NovelToVHDLPass::visit_epilog( LoopStatement& value )
 
 void NovelToVHDLPass::visit_prolog( CallInstruction& value )
 {
-	if( value.getStatement()->getInstructions().front() != &value )
-	{
-		fprintf
-	    ( stream
-	    , "      ack_%s <= transport ( '1' ) after 25 ns;\n"
-	      "    end if;\n"
-	      "  end process;\n"
-	    , value.getLabel()
-	    );
-	}
-	
 	fprintf
 	( stream
-//	, "    call_%s : entity work.%-15s port map( "
-	, "  call_%s : entity work.%s port map( "
+	, "    call_%s : entity work.%s port map( sig_%s, sig_%s"
 	, value.getLabel()
 	, value.getValue(0)->getName()
-	);
-
-	// Value* n = value.getNext();
-	// while( n != 0 and Value::isa< AllocInstruction >( n ) )
-	// {
-	// 	n = n->getNext();
-	// }
-	
-	fprintf
-	( stream
-	, "sig_%s, sig_%s"
 	, value.getLabel()
-	// , value.getNext() != 0 ? value.getNext()->getLabel() : ((Instruction*)&value)->getStatement()->getLabel()
-	, value.getLabel()
+	, value.getNext() != 0 ? value.getNext()->getLabel() : value.getStatement()->getLabel()
 	);
 	
 	u1 first = true;
@@ -838,17 +797,6 @@ void NovelToVHDLPass::visit_prolog( CallInstruction& value )
 	, " ); -- call %lu\n"
 	, value.getValues().size() - 1
 	);
-
-	if( value.getStatement()->getInstructions().back() != &value )
-	{
-		fprintf
-	    ( stream
-	    , "  process( %s ) is\n"	  
-		  "    if rising_edge( %s ) then\n"
-	    , value.getLabel()
-	    , value.getLabel()
-	    );
-	}	
 }
 void NovelToVHDLPass::visit_epilog( CallInstruction& value )	
 {
@@ -894,12 +842,12 @@ void NovelToVHDLPass::visit_prolog( NopInstruction& value )
 {
 	fprintf
 	( stream
-	, "      null; -- NO OPERATION\n"
+	, "      null; -- %s\n"
+	, value.getName()
 	);
 }
 void NovelToVHDLPass::visit_epilog( NopInstruction& value )
-{
-}
+{}
 
 
 //
@@ -907,16 +855,44 @@ void NovelToVHDLPass::visit_epilog( NopInstruction& value )
 //
 
 void NovelToVHDLPass::visit_prolog( AllocInstruction& value )
-{
-	// fprintf
-	// ( stream
-	// , "    sig_%s <= sig_%s;\n"
-	// , value.getNext() != 0 ? value.getNext()->getLabel() : ((Instruction*)&value)->getStatement()->getLabel()
-	// , value.getLabel()
-	// );
-}
+{}
 void NovelToVHDLPass::visit_epilog( AllocInstruction& value )
+{}
+
+
+
+
+
+
+static void instr_unary( UnaryInstruction& value )
 {
+	fprintf
+	( stream
+	, "    iuna_%s : entity work.%s port map( sig_%s, sig_%s, %s, %s ); -- %s\n"
+	, value.getLabel()
+	, &value.getName()[1]
+	, value.getLabel()
+	, value.getNext() != 0 ? value.getNext()->getLabel() : value.getStatement()->getLabel()
+	, value.getLabel()
+	, value.get()->getLabel()
+	, &value.getName()[1]
+	);
+}
+
+static void instr_binary( BinaryInstruction& value )
+{
+	fprintf
+	( stream
+	, "    ibin_%s : entity work.%s port map( sig_%s, sig_%s, %s, %s, %s ); -- %s\n"
+	, value.getLabel()
+	, &value.getName()[1]
+	, value.getLabel()
+	, value.getNext() != 0 ? value.getNext()->getLabel() : value.getStatement()->getLabel()
+	, value.getLabel()
+	, value.getLHS()->getLabel()
+	, value.getRHS()->getLabel()
+	, &value.getName()[1]
+	);
 }
 
 
@@ -926,24 +902,24 @@ void NovelToVHDLPass::visit_epilog( AllocInstruction& value )
 
 void NovelToVHDLPass::visit_prolog( IdInstruction& value )
 {
-	if( Value::isa< Variable >( value.get() ) )
-	{
-		fprintf
-		( stream
-		, "      %s := %s_id;\n "
-		, value.getLabel()
-		, value.get()->getLabel()
-		);
-	}
-	else
-	{
+	// if( Value::isa< Variable >( value.get() ) )
+	// {
+	// 	fprintf
+	// 	( stream
+	// 	, "      %s := %s_id;\n "
+	// 	, value.getLabel()
+	// 	, value.get()->getLabel()
+	// 	);
+	// }
+	// else
+	// {
 	    fprintf
 		( stream
-		, "      -- %s = %s -- id\n"
+		, "    -- %s = %s -- id\n"
 		, value.getLabel()
 		, value.get()->getLabel()
 		);	
-	}
+		//}
 }
 void NovelToVHDLPass::visit_epilog( IdInstruction& value )		
 {}
@@ -955,16 +931,12 @@ void NovelToVHDLPass::visit_epilog( IdInstruction& value )
 
 void NovelToVHDLPass::visit_prolog( CastInstruction& value )
 {
-    fprintf
-	( stream
-	, "      -- %s = %s %s -- cast\n"
-	, value.getLabel()
-	, value.getLHS()->getLabel()
-	, value.getRHS()->getLabel()
-	);	
+	instr_binary( value );	
 }
 void NovelToVHDLPass::visit_epilog( CastInstruction& value )
 {}
+
+
 
 
 //
@@ -973,13 +945,7 @@ void NovelToVHDLPass::visit_epilog( CastInstruction& value )
 
 void NovelToVHDLPass::visit_prolog( ExtractInstruction& value )
 {
-	fprintf
-	( stream
-	, "      -- %s = %s %s -- extract\n"
-	, value.getLabel()
-	, value.getLHS()->getLabel()
-	, value.getRHS()->getLabel()
-	);
+	instr_binary( value );
 }
 void NovelToVHDLPass::visit_epilog( ExtractInstruction& value )
 {
@@ -994,37 +960,43 @@ void NovelToVHDLPass::visit_prolog( LoadInstruction& value )
 {
 	fprintf
 	( stream
-	, "      -- %s = %s -- load\n"
+	, "    load_%s : entity work.%s port map( sig_%s, sig_%s, %s, %s ); -- %s\n"
+	, value.getLabel()
+	, &value.getName()[1]
+	, value.getLabel()
+	, value.getNext() != 0 ? value.getNext()->getLabel() : value.getStatement()->getLabel()
 	, value.getLabel()
 	, value.get()->getLabel()
+	, &value.getName()[1]
 	);
+
 	return;
 	
-	assert( Value::isa< ExtractInstruction >( value.get() ) );
-	ExtractInstruction* ext = (ExtractInstruction*)( value.get() );
+	// assert( Value::isa< ExtractInstruction >( value.get() ) );
+	// ExtractInstruction* ext = (ExtractInstruction*)( value.get() );
 	
-	assert( Value::isa< Reference >( ext->getLHS() ) );
-	Reference* ref = (Reference*)( ext->getLHS() );
+	// assert( Value::isa< Reference >( ext->getLHS() ) );
+	// Reference* ref = (Reference*)( ext->getLHS() );
 
-	assert( Value::isa< Structure >( ext->getRHS() ) );
-	Structure* str = (Structure*)( ext->getRHS() );
+	// assert( Value::isa< Structure >( ext->getRHS() ) );
+	// Structure* str = (Structure*)( ext->getRHS() );
 
-	assert( str->getParent() == ref->getStructure() );
-	
-	fprintf
-	( stream
-	, "      %s := %s.%s;\n"
-	, value.getLabel()
-	, ref->getIdentifier()->getName()
-	, str->getName()
-	);
+	// assert( str->getParent() == ref->getStructure() );
 	
 	// fprintf
 	// ( stream
-	// , "      %s := %s;\n"
+	// , "      %s := %s.%s;\n"
 	// , value.getLabel()
-	//   , value.get()->getLabel()
+	// , ref->getIdentifier()->getName()
+	// , str->getName()
 	// );
+	
+	// // fprintf
+	// // ( stream
+	// // , "      %s := %s;\n"
+	// // , value.getLabel()
+	// //   , value.get()->getLabel()
+	// // );
 }
 void NovelToVHDLPass::visit_epilog( LoadInstruction& value )		
 {
@@ -1037,57 +1009,63 @@ void NovelToVHDLPass::visit_epilog( LoadInstruction& value )
 
 void NovelToVHDLPass::visit_prolog( StoreInstruction& value )
 {
-	Value* dst = value.getRHS();
-	Value* src = value.getLHS();
-
+	// Value* dst = value.getRHS();
+	// Value* src = value.getLHS();
+	
 	fprintf
 	( stream
-	, "      -- %s <- %s -- store\n"
-	, dst->getLabel()
-	, src->getLabel()
+	, "    stor_%s : entity work.%s port map( sig_%s, sig_%s, %s, %s ); -- %s\n"
+	, value.getLabel()
+	, &value.getName()[1]
+	, value.getLabel()
+	, value.getNext() != 0 ? value.getNext()->getLabel() : value.getStatement()->getLabel()
+	, value.getLHS()->getLabel()
+	, value.getRHS()->getLabel()
+	, &value.getName()[1]
 	);
+	
 	return;
 	
-	if( Value::isa< ExtractInstruction >( dst ) )
-	{
-		ExtractInstruction* ext = (ExtractInstruction*)( dst );
-		assert( ext );
+	// if( Value::isa< ExtractInstruction >( dst ) )
+	// {
+	// 	ExtractInstruction* ext = (ExtractInstruction*)( dst );
+	// 	assert( ext );
 		
-		assert( Value::isa< Reference >( ext->getLHS() ) );
-		Reference* ref = (Reference*)( ext->getLHS() );
+	// 	assert( Value::isa< Reference >( ext->getLHS() ) );
+	// 	Reference* ref = (Reference*)( ext->getLHS() );
 		
-		assert( Value::isa< Structure >( ext->getRHS() ) );
-		Structure* str = (Structure*)( ext->getRHS() );
+	// 	assert( Value::isa< Structure >( ext->getRHS() ) );
+	// 	Structure* str = (Structure*)( ext->getRHS() );
 		
-		assert( str->getParent() == ref->getStructure() );
+	// 	assert( str->getParent() == ref->getStructure() );
 		
-		fprintf
-		( stream
-	    , "      %s.%s <= transport %s after 20 ns; -- store '%s'\n"
-	    , ref->getIdentifier()->getName()
-	    , str->getName()
-	    , src->getLabel()
-		, ref->getIdentifier()->getName()
-	    );
-	}
-	else if( Value::isa< Reference >( dst ) )
-	{
-		Reference* ref = (Reference*)( dst );
-		assert( ref );
+	// 	fprintf
+	// 	( stream
+	//     , "      %s.%s <= transport %s after 20 ns; -- store '%s'\n"
+	//     , ref->getIdentifier()->getName()
+	//     , str->getName()
+	//     , src->getLabel()
+	// 	, ref->getIdentifier()->getName()
+	//     );
+	// }
+	// else if( Value::isa< Reference >( dst ) )
+	// {
+	// 	Reference* ref = (Reference*)( dst );
+	// 	assert( ref );
 		
-		fprintf
-		( stream
-	    , "     %s <= transport %s after 20 ns; -- store '%s'\n"
-	    , ref->getLabel()
-	    , src->getLabel()
-	    , ref->getIdentifier()->getName()
-	    );
-	}
-	else
-	{
-		TODO;
-		assert( !" unimplemented! " );
-	}
+	// 	fprintf
+	// 	( stream
+	//     , "     %s <= transport %s after 20 ns; -- store '%s'\n"
+	//     , ref->getLabel()
+	//     , src->getLabel()
+	//     , ref->getIdentifier()->getName()
+	//     );
+	// }
+	// else
+	// {
+	// 	TODO;
+	// 	assert( !" unimplemented! " );
+	// }
 }
 void NovelToVHDLPass::visit_epilog( StoreInstruction& value )		
 {
@@ -1102,12 +1080,14 @@ void NovelToVHDLPass::visit_epilog( StoreInstruction& value )
 
 void NovelToVHDLPass::visit_prolog( NotInstruction& value )
 {
-	fprintf
-	( stream
-	, "      %s <= not %s;\n"
-	, value.getLabel()
-	, value.get()->getLabel()
-	);	
+	instr_unary( value );
+
+	// fprintf
+	// ( stream
+	// , "      %s <= not %s;\n"
+	// , value.getLabel()
+	// , value.get()->getLabel()
+	// );	
 }
 void NovelToVHDLPass::visit_epilog( NotInstruction& value )
 {}
@@ -1119,13 +1099,15 @@ void NovelToVHDLPass::visit_epilog( NotInstruction& value )
 
 void NovelToVHDLPass::visit_prolog( AndInstruction& value )
 {
-	fprintf
-	( stream
-	, "      %s := %s and %s;\n"
-	, value.getLabel()
-	, value.getLHS()->getLabel()
-	, value.getRHS()->getLabel()
-	);	
+	instr_binary( value );
+
+	// fprintf
+	// ( stream
+	// , "      %s := %s and %s;\n"
+	// , value.getLabel()
+	// , value.getLHS()->getLabel()
+	// , value.getRHS()->getLabel()
+	// );
 }
 void NovelToVHDLPass::visit_epilog( AndInstruction& value )
 {
@@ -1138,6 +1120,8 @@ void NovelToVHDLPass::visit_epilog( AndInstruction& value )
 
 void NovelToVHDLPass::visit_prolog( OrInstruction& value )
 {
+	instr_binary( value );
+	
 	TODO;
 	assert(0);
 }
@@ -1151,13 +1135,15 @@ void NovelToVHDLPass::visit_epilog( OrInstruction& value )
 
 void NovelToVHDLPass::visit_prolog( XorInstruction& value )
 {
-	fprintf
-	( stream
-	, "      %s <= %s xor %s; -- xor\n"
-	, value.getLabel()
-	, value.getLHS()->getLabel()
-	, value.getRHS()->getLabel()
-	);
+	instr_binary( value );
+
+	// fprintf
+	// ( stream
+	// , "      %s <= %s xor %s; -- xor\n"
+	// , value.getLabel()
+	// , value.getLHS()->getLabel()
+	// , value.getRHS()->getLabel()
+	// );
 }
 void NovelToVHDLPass::visit_epilog( XorInstruction& value )
 {}
@@ -1172,13 +1158,15 @@ void NovelToVHDLPass::visit_epilog( XorInstruction& value )
 
 void NovelToVHDLPass::visit_prolog( AddSignedInstruction& value )
 {
-	fprintf
-	( stream
-	, "      %s := std_logic_vector( signed( %s ) + signed( %s ) ); -- adds\n"
-	, value.getLabel()
-	, value.getLHS()->getLabel()
-	, value.getRHS()->getLabel()
-	);
+	instr_binary( value );
+	
+	// fprintf
+	// ( stream
+	// , "      %s := std_logic_vector( signed( %s ) + signed( %s ) ); -- adds\n"
+	// , value.getLabel()
+	// , value.getLHS()->getLabel()
+	// , value.getRHS()->getLabel()
+	// );
 }
 void NovelToVHDLPass::visit_epilog( AddSignedInstruction& value )
 {
@@ -1191,13 +1179,15 @@ void NovelToVHDLPass::visit_epilog( AddSignedInstruction& value )
 
 void NovelToVHDLPass::visit_prolog( DivSignedInstruction& value )
 {
-	fprintf
-	( stream
-	, "      %s := std_logic_vector( signed( %s ) / signed( %s ) ); -- divu\n"
-	, value.getLabel()
-	, value.getLHS()->getLabel()
-	, value.getRHS()->getLabel()
-	);
+	instr_binary( value );
+
+	// fprintf
+	// ( stream
+	// , "      %s := std_logic_vector( signed( %s ) / signed( %s ) ); -- divu\n"
+	// , value.getLabel()
+	// , value.getLHS()->getLabel()
+	// , value.getRHS()->getLabel()
+	// );
 }
 void NovelToVHDLPass::visit_epilog( DivSignedInstruction& value )
 {}
@@ -1209,13 +1199,15 @@ void NovelToVHDLPass::visit_epilog( DivSignedInstruction& value )
 
 void NovelToVHDLPass::visit_prolog( ModUnsignedInstruction& value )
 {
-	fprintf
-	( stream
-	, "      %s := std_logic_vector( unsigned( %s ) mod unsigned( %s ) ); -- modu\n"
-	, value.getLabel()
-	, value.getLHS()->getLabel()
-	, value.getRHS()->getLabel()
-	);
+	instr_binary( value );
+
+	// fprintf
+	// ( stream
+	// , "      %s := std_logic_vector( unsigned( %s ) mod unsigned( %s ) ); -- modu\n"
+	// , value.getLabel()
+	// , value.getLHS()->getLabel()
+	// , value.getRHS()->getLabel()
+	// );
 }
 void NovelToVHDLPass::visit_epilog( ModUnsignedInstruction& value )
 {}
@@ -1227,6 +1219,7 @@ void NovelToVHDLPass::visit_epilog( ModUnsignedInstruction& value )
 
 void NovelToVHDLPass::visit_prolog( EquUnsignedInstruction& value )
 {
+	instr_binary( value );
 	TODO;
 }
 void NovelToVHDLPass::visit_epilog( EquUnsignedInstruction& value )
@@ -1239,6 +1232,7 @@ void NovelToVHDLPass::visit_epilog( EquUnsignedInstruction& value )
 
 void NovelToVHDLPass::visit_prolog( NeqUnsignedInstruction& value )
 {
+	instr_binary( value );
 	TODO;
 }
 void NovelToVHDLPass::visit_epilog( NeqUnsignedInstruction& value )
@@ -1252,20 +1246,58 @@ void NovelToVHDLPass::visit_epilog( NeqUnsignedInstruction& value )
 
 void NovelToVHDLPass::visit_prolog( ZeroExtendInstruction& value )
 {
-	u16 bs = value.getType()->getBitsize() - value.get()->getType()->getBitsize();
-    std::bitset< 256 > v( 0 );
-	const char* bits = &(v.to_string().c_str()[ 256 - bs ]);
-	const char* fmt = ( bs > 1 ? "\"" : "'" );
+	static u1 emitted = false;
+	if( instruction_implementation )
+	{
+		if( not emitted )
+		{
+			// const char* name = &value.getName()[1];
+			
+			// fprintf
+	        // ( stream
+	        // , "-- Instruction '%s'\n"
+	        //   "library IEEE;\n"
+	        //   "use IEEE.std_logic_1164.all;\n"
+	        //   "use IEEE.numeric_std.all;\n"
+	        //   "use work.Structure.all;\n"
+	        //   "use work.Constants.all;\n"
+	        //   "use work.Variables.all;\n"
+	        //   "entity %s is port\n"
+	        //   "( req : in  std_logic\n"
+	        //   "; ack : out std_logic\n"
+	        //   "; res : out %s\n"
+			//   "\n"
+			//   ");\n"
+			//   "end %s;\n"
+			//   "architecture \\@%s@\\ of %s is\n"
+			//   "begin\n"
+			//   "end \\@%s@\\;\n"
+			//   "\n"
+			// , name
+			// , name
+			//   , 
+			// );
+			
+		}
+		return;
+	}
 	
-	fprintf
-	( stream
-	, "      %s := %s%s%s & %s; -- zext\n"
-	, value.getLabel()
-	, fmt
-	, bits
-	, fmt
-	, value.get()->getLabel()
-	);
+	instr_unary( value );
+	
+	// u16 bs = value.getType()->getBitsize() - value.get()->getType()->getBitsize();
+    // std::bitset< 256 > v( 0 );
+	// const char* bits = &(v.to_string().c_str()[ 256 - bs ]);
+	// const char* fmt = ( bs > 1 ? "\"" : "'" );
+	
+	// fprintf
+	// ( stream
+	// , "      %s := %s%s%s & %s; -- zext\n"
+	// , value.getLabel()
+	// , fmt
+	// , bits
+	// , fmt
+	// , value.get()->getLabel()
+	// );
 }
 void NovelToVHDLPass::visit_epilog( ZeroExtendInstruction& value )
 {}
@@ -1277,13 +1309,15 @@ void NovelToVHDLPass::visit_epilog( ZeroExtendInstruction& value )
 
 void NovelToVHDLPass::visit_prolog( TruncationInstruction& value )
 {
-	fprintf
-	( stream
-	, "      %s := %s( %lu downto 0 ); -- trunc\n"
-	, value.getLabel()
-	, value.get()->getLabel()
-	, (u64)(value.getType()->getBitsize() - 1)
-	);
+	instr_unary( value );
+	
+	// fprintf
+	// ( stream
+	// , "      %s := %s( %lu downto 0 ); -- trunc\n"
+	// , value.getLabel()
+	// , value.get()->getLabel()
+	// , (u64)(value.getType()->getBitsize() - 1)
+	// );
 }
 void NovelToVHDLPass::visit_epilog( TruncationInstruction& value )
 {}
