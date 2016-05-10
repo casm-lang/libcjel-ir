@@ -177,7 +177,7 @@ namespace libnovel
 	};
 }
 
-#define LIB_NOVEL_VISITOR_INTERFACE LIB_NOVEL_VISITOR_INTERFACE_(,)
+#define LIB_NOVEL_VISITOR_INTERFACE LIB_NOVEL_VISITOR_INTERFACE_(, override final )
 
 
 
