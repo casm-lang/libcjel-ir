@@ -222,7 +222,7 @@ namespace libnovel
     	static inline Value::ID classid( void ) { return Value::STREAM_INSTRUCTION; };
 		static bool classof( Value const* obj );
 	};
-
+	
 	
 	class NotInstruction : public UnaryInstruction
 	{

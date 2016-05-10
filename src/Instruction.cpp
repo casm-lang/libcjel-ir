@@ -416,7 +416,7 @@ bool CastInstruction::classof( Value const* obj )
 // -----------------------------------------------------------------------------
 
 NotInstruction::NotInstruction( Value* lhs )
-: UnaryInstruction( ".not", 0, lhs, classid() )
+: UnaryInstruction( ".lnot", 0, lhs, classid() )
 {
 	assert( getType() == get()->getType() );
 }
@@ -427,7 +427,7 @@ bool NotInstruction::classof( Value const* obj )
 
 
 AndInstruction::AndInstruction( Value* lhs, Value* rhs )
-: ArithmeticInstruction( ".and", lhs, rhs, classid() )
+: ArithmeticInstruction( ".land", lhs, rhs, classid() )
 {	
 }
 bool AndInstruction::classof( Value const* obj )
@@ -436,7 +436,7 @@ bool AndInstruction::classof( Value const* obj )
 }
 
 OrInstruction::OrInstruction( Value* lhs, Value* rhs )
-: ArithmeticInstruction( ".or", lhs, rhs, classid() )
+: ArithmeticInstruction( ".lor", lhs, rhs, classid() )
 {	
 }
 bool OrInstruction::classof( Value const* obj )
@@ -445,7 +445,7 @@ bool OrInstruction::classof( Value const* obj )
 }
 
 XorInstruction::XorInstruction( Value* lhs, Value* rhs )
-: ArithmeticInstruction( ".xor", lhs, rhs, classid() )
+: ArithmeticInstruction( ".lxor", lhs, rhs, classid() )
 {	
 }
 bool XorInstruction::classof( Value const* obj )
