@@ -97,7 +97,8 @@ static const char* getTypeString( Value& value )
 	}
 	else if( type->getIDKind() == Type::INTERCONNECT )
 	{
-	    return libstdhl::Allocator::string( "Interconnect" );
+		assert(0);
+	    //return libstdhl::Allocator::string( "Interconnect" );
 	}
 	else
 	{
@@ -292,17 +293,36 @@ void NovelToVHDLPass::visit_prolog( Reference& value )
 	{
 		assert(0);
 	}
-	
-	fprintf
-	( stream
-	, "%s : %s %s -- %s %s%s"
-	, value.getLabel()
-	, kind
-	, getTypeString( value )
-	, value.getIdentifier()->getName()
-	, kind
-	, ( value.getCallableUnit()->isLastParameter( &value ) ? "" : "\n; " )
-	);
+
+	if( value.getType() and value.getType()->getIDKind() == Type::INTERCONNECT )
+	{
+	    fprintf
+	    ( stream
+	    , "ict_req_%s  : out std_logic -- interconnect '%s'\n; "
+		  "ict_ack_%s  : in  std_logic\n; "
+		  "ict_addr_%s : out std_logic_vector( 47 downto 0 )\n; "
+		  "ict_data_%s : in  std_logic_vector( 64 downto 0 )%s"
+	    , value.getLabel()
+	    , value.getLabel()
+	    , value.getLabel()
+	    , value.getLabel()
+	    , value.getLabel()
+	    , ( value.getCallableUnit()->isLastParameter( &value ) ? "" : "\n; " )
+	    );		
+	}
+	else
+	{
+	    fprintf
+	    ( stream
+	    , "%s : %s %s -- %s %s%s"
+	    , value.getLabel()
+	    , kind
+	    , getTypeString( value )
+	    , value.getIdentifier()->getName()
+	    , kind
+	    , ( value.getCallableUnit()->isLastParameter( &value ) ? "" : "\n; " )
+	    );
+	}
 }
 void NovelToVHDLPass::visit_epilog( Reference& value )
 {}
@@ -1141,39 +1161,93 @@ void NovelToVHDLPass::visit_epilog( LoadInstruction& value )
 
 void NovelToVHDLPass::visit_prolog( StoreInstruction& value )
 {
-	if( not instruction_implementation )
+	Value* src = value.getLHS();
+	Value* dst = value.getRHS();
+	
+	if
+	(   Value::isa< Instruction >( src )
+	and Value::isa< Reference   >( dst )
+	and src->getType()->getIDKind() == Type::BIT
+	and dst->getType()->getIDKind() == Type::BIT
+	)
 	{
-		instr_generic_port( value );
+		if( not instruction_implementation )
+		{
+			instr_generic_port( value, { src } );
+			return;
+		}
 		
-		// fprintf
-		// ( stream
-	    // , " -- stor_%s : entity work.%s port map( sig_%s, sig_%s, %s, %s ); -- %s\n"
-	    // , value.getLabel()
-	    // , &value.getName()[1]
-	    // , value.getLabel()
-	    // , value.getNext() != 0 ? value.getNext()->getLabel() : value.getStatement()->getLabel()
-	    // , value.getLHS()->getLabel()
-	    // , value.getRHS()->getLabel()
-	    // , &value.getName()[1]
-	    // );
-		return;
+	    static u1 bitbit = false;
+	    if( bitbit )
+	    {
+	    	return;
+	    }
+	    bitbit = true;
+	    
+	    const char* name = &value.getName()[1];
+	    fprintf
+	    ( stream
+	    , "-- Instruction '%s'\n"
+	      "library IEEE;\n"
+	      "use IEEE.std_logic_1164.all;\n"
+	      "use IEEE.numeric_std.all;\n"
+	      "entity %s is\n"
+	      "  generic\n"
+	      "  ( BIT_WIDTH : integer\n"
+	      "  );\n"
+	      "  port\n"
+	      "  ( req : in  std_logic\n"
+          "  ; ack : out std_logic\n"
+          "  ; src : in  std_logic_vector( (BIT_WIDTH-1) downto 0 )\n"
+          "  ; dst : out std_logic_vector( (BIT_WIDTH-1) downto 0 )\n"
+	      "  );\n"
+	      "end %s;\n"
+	      "architecture \\@%s@\\ of %s is\n"
+	      "begin\n"
+	      "  process( req ) is\n"
+          "  begin\n"
+	      "    if rising_edge( req ) then\n"
+	      "      ack <= transport '1' after 5 ns;\n"
+	      "    end if;\n"
+	      "  end process;\n"
+	      "  dst <= src;\n"
+	      "end \\@%s@\\;\n"
+	      "\n"
+	    , name
+	    , name
+	    , name
+	    , name
+	    , name
+	    , name
+	    );
 	}
-	
-	static u1 used = false;
-	if( used )
+	else
 	{
-		return;
+		if( not instruction_implementation )
+		{
+			//instr_generic_port( value );
+			fprintf( stream, " -- instr_%s: store\n", value.getLabel() );
+			return;
+		}
+	    
+	    static u1 used = false;
+	    if( used )
+	    {
+	    	return;
+	    }
+	    used = true;
+	    
+	    const char* name = &value.getName()[1];
+	    fprintf
+	    ( stream
+	    , "-- Instruction '%s'\n"
+	      "-- TODO\n"
+	      "\n"
+	    , name
+	    );
 	}
-	used = true;
 	
-	const char* name = &value.getName()[1];
-	fprintf
-	( stream
-	, "-- Instruction '%s'\n"
-	  "-- TODO\n"
-	  "\n"
-	, name
-	);
+	
 	
 	// if( Value::isa< ExtractInstruction >( dst ) )
 	// {
