@@ -30,6 +30,7 @@ const char* Type::ID2str[ Type::ID::_TOP_ ] =
 { "Bit"          // BIT
 , "Structure"    // STRUCTURE
 , "Function"     // FUNCTION
+, "Memory"       // MEMORY
 , "Interconnect" // INTERCONNECT
 , "String"       // STRING
 };
@@ -143,8 +144,14 @@ void Type::addSubType( Type* subtype )
 {
 	assert( subtype );
 	assert( type_state != Type::STATE::LOCKED );
-	subtypes.push_back( subtype );
 
+	if( bitsize < 0 )
+	{
+		bitsize = 0;
+	}
+	bitsize += subtype->getBitsize();	
+	subtypes.push_back( subtype );
+	
 	type_state = Type::STATE::CHANGED;
 	getName();
 	type_state = Type::STATE::UNCHANGED;

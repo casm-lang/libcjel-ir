@@ -22,6 +22,7 @@
 //  
 
 #include "Instruction.h"
+#include "Reference.h"
 
 using namespace libnovel;
 
@@ -382,8 +383,17 @@ ExtractInstruction::ExtractInstruction( Value* src, Value* dst )
 	assert( dst->getType() );
 	
 	// TODO: IDEA: FIXME: PPA: possible check to implement if 'dst' is inside 'src'
-	
-	setType( dst->getType() );
+
+	if( Value::isa< Reference >( src ) and src->getType()->getIDKind() == Type::MEMORY )
+	{
+		Value* bind = src->getType()->getBound();
+		assert( Value::isa< Memory >( bind ) );
+		setType( ((Memory*)bind)->getStructure()->getType() );
+	}
+	else
+	{
+		setType( dst->getType() );
+	}
 }
 bool ExtractInstruction::classof( Value const* obj )
 {

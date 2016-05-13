@@ -100,6 +100,11 @@ static const char* getTypeString( Value& value )
 		assert(0);
 	    //return libstdhl::Allocator::string( "Interconnect" );
 	}
+	else if( type->getIDKind() == Type::MEMORY )
+	{
+		assert(0);
+	    //return libstdhl::Allocator::string( "Interconnect" );
+	}
 	else
 	{
 		assert( !"unimplemented or unsupported type to convert!" );
@@ -310,6 +315,29 @@ void NovelToVHDLPass::visit_prolog( Reference& value )
 	    , ( value.getCallableUnit()->isLastParameter( &value ) ? "" : "\n; " )
 	    );		
 	}
+	else if( value.getType() and value.getType()->getIDKind() == Type::MEMORY )
+	{
+		Value* bind = value.getType()->getBound();
+		assert( Value::isa< Memory >( bind ) );
+		Memory* mem = (Memory*)bind;
+		
+	    fprintf
+	    ( stream
+	    , "mem_req_%s  : out std_logic -- memory '%s'\n; "
+		  "mem_ack_%s  : in  std_logic\n; "
+		  "mem_mode_%s : out std_logic\n; "
+		  "mem_addr_%s : out std_logic_vector( 15 downto 0 )\n; "
+		  "mem_data_%s : inout std_logic_vector( %u downto 0 )%s"
+	    , value.getLabel()
+	    , value.getLabel()
+	    , value.getLabel()
+	    , value.getLabel()
+	    , value.getLabel()
+	    , value.getLabel()
+		, mem->getStructure()->getType()->getBitsize() - 1
+	    , ( value.getCallableUnit()->isLastParameter( &value ) ? "" : "\n; " )
+	    );		
+	}
 	else
 	{
 	    fprintf
@@ -443,7 +471,62 @@ void NovelToVHDLPass::visit_epilog( Variable& value )
 
 void NovelToVHDLPass::visit_prolog( Memory& value )
 {
-	TODO;
+	static u1 used = false;
+	assert( used == false );
+	used = true;
+	
+	const char* name = &value.getName()[1];
+	fprintf
+	( stream
+	, "-- Memory '%s'\n"
+	  "library IEEE;\n"
+	  "use IEEE.std_logic_1164.all;\n"
+	  "use IEEE.numeric_std.all;\n"
+	  "use work.Structure.all;\n"
+	  "use work.Constants.all;\n"
+	  "use work.Variables.all;\n"
+	  "entity %s is\n"
+	  "  generic\n"
+	  "  ( ADDR_WIDTH : integer\n"
+	  "  ; DATA_WIDTH : integer\n"
+	  "  );\n"
+	  "  port\n"
+	  "  ( req : in     std_logic\n"
+      "  ; ack : out    std_logic\n"
+	  "  ; mode : in    std_logic -- '0' read, '1' write\n"
+	  "  ; addr : in    std_logic_vector( ADDR_WIDTH-1 downto 0 )\n"
+	  "  ; data : inout std_logic_vector( DATA_WIDTH-1 downto 0 )\n"
+	  "  );\n"
+	  "end %s;\n"
+	  "architecture \\@%s@\\ of %s is\n"
+	  "  type RAM is array( 0 to %u-1 ) of std_logic_vector( DATA_WIDTH-1 downto 0 );\n"
+	  "  signal mem : RAM;\n"
+	  "  signal data_out : std_logic_vector( DATA_WIDTH-1 downto 0 );\n"
+	  "begin\n"
+	  "  process( req ) is\n"
+      "  begin\n"
+	  "    if rising_edge( req ) then\n"
+	  "      if( req = '1' and mode = '1' ) then\n"
+	  "        mem( to_integer(unsigned(addr)) ) <= data;\n"
+	  "      end if;\n"
+	  "      if( req = '1' and mode = '0' ) then\n"
+	  "        data_out <= mem( to_integer(unsigned(addr)) );\n"
+	  "      end if;\n"
+	  "      ack <= transport '1' after 50 ps;\n"
+	  "    end if;\n"
+	  "  end process;\n"
+	  "  \n"
+	  "  data <= data_out when ( req = '1' and mode = '0' ) else ( others => 'Z' );\n"
+	  "end \\@%s@\\;\n"
+	  "\n"
+	, name
+	, name
+	, name
+	, name
+	, name
+	, value.getSize()  
+	, name
+	);
 }
 void NovelToVHDLPass::visit_epilog( Memory& value )
 {
@@ -479,7 +562,7 @@ void NovelToVHDLPass::visit_prolog( ParallelScope& value )
 		fprintf
 		( stream
 		, "      " // TODO: FIXME: dynamic indention calculation 
-		  "req_%s <= transport '1' after 5 ns;\n"
+		  "req_%s <= transport '1' after 50 ps;\n"
 		, block->getLabel()
 		);
 	}
@@ -541,7 +624,7 @@ void NovelToVHDLPass::visit_epilog( ParallelScope& value )
 	
 	fprintf
 	( stream
-	, " ) after 5 ns;\n"
+	, " ) after 50 ps;\n"
 	);
 }
 
@@ -586,7 +669,7 @@ void NovelToVHDLPass::visit_prolog( SequentialScope& value )
 		, "  process( %s ) is\n"
 		  "  begin\n"
 		  "    if rising_edge( %s ) then\n"
-		  "      req_%s <= transport '1' after 5 ns;\n" // TODO: FIXME: dynamic indention calculation
+		  "      req_%s <= transport '1' after 50 ps;\n" // TODO: FIXME: dynamic indention calculation
 		  "    end if;\n"
 		  "  end process;\n"
 		  "\n"
@@ -619,7 +702,7 @@ void NovelToVHDLPass::visit_epilog( SequentialScope& value )
 	fprintf
 	( stream
 	, "  -- ack %s -- seq end\n"
-	  "  %s <= transport ( %s%s ) after 5 ns;\n"
+	  "  %s <= transport ( %s%s ) after 50 ps;\n"
 	, value.getLabel()
 	, tmp.c_str()
 	, value.getBlocks().size() > 0 ? "ack_" : ""
@@ -713,7 +796,7 @@ void NovelToVHDLPass::visit_prolog( TrivialStatement& value )
 	  "    process( req_%s ) is\n"
 	  "    begin\n"
 	  "      if rising_edge( req_%s ) then\n"
-	  "        sig_%s <= transport '1' after 5 ns;\n"
+	  "        sig_%s <= transport '1' after 50 ps;\n"
 	  "      end if;\n"
 	  "    end process;\n"
 	, value.getLabel()
@@ -728,7 +811,7 @@ void NovelToVHDLPass::visit_epilog( TrivialStatement& value )
 	, "    process( sig_%s ) is\n"
 	  "    begin\n"
 	  "      if rising_edge( sig_%s ) then\n"
-	  "        ack_%s <= transport '1' after 5 ns;\n"
+	  "        ack_%s <= transport '1' after 50 ps;\n"
 	  "      end if;\n"
 	  "    end process;\n"
 	  "  end block;\n"
@@ -763,7 +846,7 @@ void NovelToVHDLPass::visit_interlog( BranchStatement& value )
 	, "    process( sig_%s ) is\n"
 	  "    begin\n"
 	  "      if rising_edge( sig_%s ) then\n"
-	  "        ack_%s <= transport '1' after 5 ns;\n"
+	  "        ack_%s <= transport '1' after 50 ps;\n"
 	  "      end if;\n"
 	  "    end process;\n"
 	  "  end block;\n"
@@ -958,15 +1041,18 @@ void NovelToVHDLPass::visit_epilog( AllocInstruction& value )
 static void instr_generic_port
 ( Instruction& value
 , const std::vector< Value* >& args = {}
+, const char* specializer = 0
 )
 {
 	const char* name = &value.getName()[1];
 	
 	fprintf
 	( stream
-	, "    inst_%s : entity work.%s"
+	, "    inst_%s : entity work.%s%s%s"
 	, value.getLabel()
 	, name
+	, ( specializer ? "_" : "" )
+	, ( specializer ? specializer : "" )
 	);
 	
 	for( u32 c = 0; c < args.size(); c++ )
@@ -989,11 +1075,30 @@ static void instr_generic_port
 	
 	for( Value* v : value.getValues() )
 	{
-		fprintf
-		( stream
-	    , ", %s"
-		, v->getLabel()
-		);
+		if( Value::isa< Reference >( v ) and v->getType()->getIDKind() == Type::MEMORY )
+		{
+		    fprintf
+		    ( stream
+			, ", mem_req_%s"
+			  ", mem_ack_%s"
+			  ", mem_mode_%s"
+			  ", mem_addr_%s"
+			  ", mem_data_%s"
+	        , v->getLabel()
+	        , v->getLabel()
+	        , v->getLabel()
+	        , v->getLabel()
+	        , v->getLabel()
+		    );
+		}
+		else
+		{
+		    fprintf
+		    ( stream
+	        , ", %s"
+		    , v->getLabel()
+		    );
+		}
 	}
 	
 	fprintf
@@ -1057,27 +1162,112 @@ void NovelToVHDLPass::visit_epilog( CastInstruction& value )
 
 void NovelToVHDLPass::visit_prolog( ExtractInstruction& value )
 {
-	if( not instruction_implementation )
-	{
-		instr_generic_port( value );
-		return;
-	}
+	Value* base   = value.getLHS();
+	Value* offset = value.getRHS();
 	
-	static u1 used = false;
-	if( used )
+	if
+	(   Value::isa< Reference >( base )
+	and Value::isa< Instruction >( offset )
+	and base->getType()->getIDKind() == Type::MEMORY
+	and offset->getType()->getIDKind() == Type::BIT
+	)
 	{
-		return;
+		if( not instruction_implementation )
+		{
+			Value* bind = base->getType()->getBound();
+			assert( Value::isa< Memory >( bind ) );
+			Memory* mem = (Memory*)bind;
+			
+			instr_generic_port( value, { offset, mem->getStructure() }, "memory" );
+
+			return;
+		}
+		
+	    static u1 bitbit = false;
+	    if( bitbit )
+	    {
+	    	return;
+	    }
+	    bitbit = true;
+	    
+	    const char* name = &value.getName()[1];
+	    fprintf
+	    ( stream
+	    , "-- Instruction '%s'\n"
+	      "library IEEE;\n"
+	      "use IEEE.std_logic_1164.all;\n"
+	      "use IEEE.numeric_std.all;\n"
+	      "entity %s_memory is\n"
+	      "  generic\n"
+	      "  ( ADDR_WIDTH : integer\n"
+	      "  ; DATA_WIDTH : integer\n"
+	      "  );\n"
+	      "  port\n"
+	      "  ( req : in  std_logic\n"
+          "  ; ack : out std_logic\n"
+          "  ; mem_req  : out   std_logic -- memory\n"
+		  "  ; mem_ack  : in    std_logic\n"
+		  "  ; mem_mode : out   std_logic\n"
+		  "  ; mem_addr : out   std_logic_vector( (ADDR_WIDTH-1) downto 0 )\n"
+		  "  ; mem_data : inout std_logic_vector( (DATA_WIDTH-1) downto 0 )\n"
+          "  ; src      : in    std_logic_vector( (ADDR_WIDTH-1) downto 0 )\n"
+          "  ; dst      : out   std_logic_vector( (DATA_WIDTH-1) downto 0 )\n"
+	      "  );\n"
+	      "end %s_memory;\n"
+	      "architecture \\@%s_memory@\\ of %s_memory is\n"
+	      "begin\n"
+	      "  process( req, addr ) is\n"
+          "  begin\n"
+	      "    if rising_edge( req ) then\n"
+	      "      mem_mode <= '0'; -- read\n"
+		  "      mem_addr <= addr;\n"
+	      "      mem_req  <= transport '1' after 50 ps;\n"
+	      "    end if;\n"
+	      "  end process;\n"
+		  "  \n"
+	      "  process( mem_ack, mem_data ) is\n"
+          "  begin\n"
+	      "    if rising_edge( mem_ack ) then\n"
+	      "      data <= mem_data;\n"
+	      "      ack <= transport '1' after 50 ps;\n"
+	      "    end if;\n"
+	      "  end process;\n"
+	      "end \\@%s_memory@\\;\n"
+	      "\n"
+	    , name
+	    , name
+	    , name
+	    , name
+	    , name
+	    , name
+	    );
 	}
-	used = true;
-	
-	const char* name = &value.getName()[1];
-	fprintf
-	( stream
-	, "-- Instruction '%s'\n"
-	  "-- TODO\n"
-	  "\n"
-	, name
-	);	
+	else
+	{
+	    if( not instruction_implementation )
+	    {
+	    	instr_generic_port( value );
+	    
+	    	// assert(0);
+	    	return;
+	    }
+	    
+	    static u1 used = false;
+	    if( used )
+	    {
+	    	return;
+	    }
+	    used = true;
+	    
+	    const char* name = &value.getName()[1];
+	    fprintf
+	    ( stream
+	    , "-- Instruction '%s'\n"
+	      "-- TODO\n"
+	      "\n"
+	    , name
+	    );
+	}
 }
 void NovelToVHDLPass::visit_epilog( ExtractInstruction& value )
 {
@@ -1207,7 +1397,7 @@ void NovelToVHDLPass::visit_prolog( StoreInstruction& value )
 	      "  process( req ) is\n"
           "  begin\n"
 	      "    if rising_edge( req ) then\n"
-	      "      ack <= transport '1' after 5 ns;\n"
+	      "      ack <= transport '1' after 50 ps;\n"
 	      "    end if;\n"
 	      "  end process;\n"
 	      "  dst <= src;\n"
@@ -1264,7 +1454,7 @@ void NovelToVHDLPass::visit_prolog( StoreInstruction& value )
 		
 	// 	fprintf
 	// 	( stream
-	//     , "      %s.%s <= transport %s after 20 ns; -- store '%s'\n"
+	//     , "      %s.%s <= transport %s after 200 ps; -- store '%s'\n"
 	//     , ref->getIdentifier()->getName()
 	//     , str->getName()
 	//     , src->getLabel()
@@ -1278,7 +1468,7 @@ void NovelToVHDLPass::visit_prolog( StoreInstruction& value )
 		
 	// 	fprintf
 	// 	( stream
-	//     , "     %s <= transport %s after 20 ns; -- store '%s'\n"
+	//     , "     %s <= transport %s after 200 ps; -- store '%s'\n"
 	//     , ref->getLabel()
 	//     , src->getLabel()
 	//     , ref->getIdentifier()->getName()
@@ -1339,7 +1529,7 @@ void NovelToVHDLPass::visit_prolog( NotInstruction& value )
 	  "  process( req ) is\n"
       "  begin\n"
 	  "    if rising_edge( req ) then\n"
-	  "      ack <= transport '1' after 5 ns;\n"
+	  "      ack <= transport '1' after 50 ps;\n"
 	  "    end if;\n"
 	  "  end process;\n"
 	  "  t <= not a;\n"
@@ -1400,7 +1590,7 @@ void NovelToVHDLPass::visit_prolog( AndInstruction& value )
 	  "  process( req ) is\n"
       "  begin\n"
 	  "    if rising_edge( req ) then\n"
-	  "      ack <= transport '1' after 5 ns;\n"
+	  "      ack <= transport '1' after 50 ps;\n"
 	  "    end if;\n"
 	  "  end process;\n"
 	  "  t <= a and b;\n"
@@ -1462,7 +1652,7 @@ void NovelToVHDLPass::visit_prolog( OrInstruction& value )
 	  "  process( req ) is\n"
       "  begin\n"
 	  "    if rising_edge( req ) then\n"
-	  "      ack <= transport '1' after 5 ns;\n"
+	  "      ack <= transport '1' after 50 ps;\n"
 	  "    end if;\n"
 	  "  end process;\n"
 	  "  t <= a or b;\n"
@@ -1523,7 +1713,7 @@ void NovelToVHDLPass::visit_prolog( XorInstruction& value )
 	  "  process( req ) is\n"
       "  begin\n"
 	  "    if rising_edge( req ) then\n"
-	  "      ack <= transport '1' after 5 ns;\n"
+	  "      ack <= transport '1' after 50 ps;\n"
 	  "    end if;\n"
 	  "  end process;\n"
 	  "  t <= a xor b;\n"
@@ -1587,7 +1777,7 @@ void NovelToVHDLPass::visit_prolog( AddSignedInstruction& value )
 	  "  process( req ) is\n"
       "  begin\n"
 	  "    if rising_edge( req ) then\n"
-	  "      ack <= transport '1' after 5 ns;\n"
+	  "      ack <= transport '1' after 50 ps;\n"
 	  "    end if;\n"
 	  "  end process;\n"
 	  "  t <= std_logic_vector( signed( a ) + signed( b ) );\n"
@@ -1649,7 +1839,7 @@ void NovelToVHDLPass::visit_prolog( DivSignedInstruction& value )
 	  "  process( req ) is\n"
       "  begin\n"
 	  "    if rising_edge( req ) then\n"
-	  "      ack <= transport '1' after 5 ns;\n"
+	  "      ack <= transport '1' after 50 ps;\n"
 	  "    end if;\n"
 	  "  end process;\n"
 	  "  t <= std_logic_vector( signed( a ) / signed( b ) );\n"
@@ -1710,7 +1900,7 @@ void NovelToVHDLPass::visit_prolog( ModUnsignedInstruction& value )
 	  "  process( req ) is\n"
       "  begin\n"
 	  "    if rising_edge( req ) then\n"
-	  "      ack <= transport '1' after 5 ns;\n"
+	  "      ack <= transport '1' after 50 ps;\n"
 	  "    end if;\n"
 	  "  end process;\n"
 	  "  t <= std_logic_vector( unsigned( a ) mod unsigned( b ) );\n"
@@ -1771,7 +1961,7 @@ void NovelToVHDLPass::visit_prolog( EquUnsignedInstruction& value )
 	  "  process( req ) is\n"
       "  begin\n"
 	  "    if rising_edge( req ) then\n"
-	  "      ack <= transport '1' after 5 ns;\n"
+	  "      ack <= transport '1' after 50 ps;\n"
 	  "    end if;\n"
 	  "  end process;\n"
 	  "  t <= '1' when ( unsigned( a ) = unsigned( b ) ) else '0';\n"
@@ -1832,7 +2022,7 @@ void NovelToVHDLPass::visit_prolog( NeqUnsignedInstruction& value )
 	  "  process( req ) is\n"
       "  begin\n"
 	  "    if rising_edge( req ) then\n"
-	  "      ack <= transport '1' after 5 ns;\n"
+	  "      ack <= transport '1' after 50 ps;\n"
 	  "    end if;\n"
 	  "  end process;\n"
 	  "  t <= '0' when ( unsigned( a ) = unsigned( b ) ) else '1';\n"
@@ -1895,7 +2085,7 @@ void NovelToVHDLPass::visit_prolog( ZeroExtendInstruction& value )
 	  "  process( req ) is\n"
       "  begin\n"
 	  "    if rising_edge( req ) then\n"
-	  "      ack <= transport '1' after 5 ns;\n"
+	  "      ack <= transport '1' after 50 ps;\n"
 	  "    end if;\n"
 	  "  end process;\n"
 	  "  t <= padding & a;\n"
@@ -1971,7 +2161,7 @@ void NovelToVHDLPass::visit_prolog( TruncationInstruction& value )
 	  "  process( req ) is\n"
       "  begin\n"
 	  "    if rising_edge( req ) then\n"
-	  "      ack <= transport '1' after 5 ns;\n"
+	  "      ack <= transport '1' after 50 ps;\n"
 	  "    end if;\n"
 	  "  end process;\n"
 	  "  t <= a( TO_BIT_WIDTH-1 downto 0 );\n"
@@ -2228,7 +2418,7 @@ void NovelToVHDLPass::visit_prolog( Interconnect& value )
 	( stream
 	, "        when others => data <= ( others => 'U' );\n"
 	  "      end case;\n"
-	  "      ack <= transport '1' after 5 ns;\n"
+	  "      ack <= transport '1' after 50 ps;\n"
 	  "    end if;\n"
 	  "  end process;\n"
 	  "end \\@%s@\\;\n"

@@ -46,6 +46,10 @@ Reference::Reference( const char* name, Type* type, CallableUnit* callable, Kind
 		{
 			structure = (Structure*)bind;
 		}
+		else if( bind and libnovel::Value::isa< libnovel::Memory >( bind ) )
+		{
+			structure = ((Memory*)bind)->getStructure();
+		}
 	}
 	
 	if( callable )

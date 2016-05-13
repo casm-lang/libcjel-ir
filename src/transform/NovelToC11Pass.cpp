@@ -90,6 +90,13 @@ static const char* getTypeString( Value& value )
 		string t = string( ((Structure*)ty)->getName() );
 	    return libstdhl::Allocator::string( t );
 	}
+	else if( type->getIDKind() == Type::MEMORY )
+	{
+		Value* ty = type->getBound();
+		assert(  Value::isa< Memory >( ty ) );		
+		string t = string( ((Memory*)ty)->getStructure()->getName() ) + "*";
+	    return libstdhl::Allocator::string( t );
+	}
 	else if( type->getIDKind() == Type::INTERCONNECT )
 	{
 	    return libstdhl::Allocator::string( "uint64_t**" );
@@ -240,13 +247,18 @@ void NovelToC11Pass::visit_interlog( Function& value )
 			if( origin )
 			{
 				Memory* mem = (Memory*)origin;				
-			    fprintf
+
+				const char* mem_type = getTypeString( *mem );
+				std::string tmp = string( mem_type );
+				tmp[ tmp.size()-1 ] = '\0';
+				
+				fprintf
 			    ( stream
-				, "%s* %s = malloc( sizeof( %s ) * %u ); // linkage '%s'\n"
+				, "%s %s = malloc( sizeof( %s ) * %u ); // linkage '%s'\n"
 				  "assert( %s );\n"
-				, getTypeString( *mem )
+				, mem_type
 				, ref->getLabel()
-				, getTypeString( *mem )
+				, tmp.c_str()
 				, mem->getSize()
 				, ref->getIdentifier()->getName()
 				, ref->getLabel()
@@ -517,7 +529,7 @@ void NovelToC11Pass::visit_prolog( Memory& value )
 	
 	fprintf
 	( stream
-	, "%s* %s = 0; // size = '%u'\n"
+	, "//%s* %s = 0; // size = '%u'\n"
     , getTypeString( value )
 	, value.getLabel()
 	, value.getSize()
@@ -1093,7 +1105,7 @@ void NovelToC11Pass::visit_prolog( ExtractInstruction& value )
 		
 	    fprintf
 	    ( stream
-	    , "%s%s* %s = &(%s.%s); // extract [instr+struct]\n"
+	    , "%s%s* %s = &(%s.%s); // extract (T1) [instr+struct]\n"
 	    , indention( value )
 	    , getTypeString( value )
 	    , value.getLabel()
@@ -1116,7 +1128,7 @@ void NovelToC11Pass::visit_prolog( ExtractInstruction& value )
 		
 	    fprintf
 	    ( stream
-	    , "%s%s* %s = &(%s->%s); // extract '%s'\n"
+	    , "%s%s* %s = &(%s->%s); // extract (T2) '%s'\n"
 	    , indention( value )
 	    , getTypeString( value )
 	    , value.getLabel()
@@ -1132,7 +1144,7 @@ void NovelToC11Pass::visit_prolog( ExtractInstruction& value )
 		
 		fprintf
 	    ( stream
-	    , "%s%s* %s = (%s*)(%s[%s]); // extract '%s'\n"
+	    , "%s%s* %s = (%s*)(%s[%s]); // extract (T3) '%s'\n"
 	    , indention( value )
 	    , getTypeString( value )
 	    , value.getLabel()
@@ -1146,11 +1158,9 @@ void NovelToC11Pass::visit_prolog( ExtractInstruction& value )
 	{
 		fprintf
 	    ( stream
-	    , "%s%s* %s = (%s*)(&%s[%s]); // extract '%s'\n"
+	    , "%svoid* %s = (void*)(&%s[%s]); // extract (T4) '%s'\n"
 	    , indention( value )
-	    , getTypeString( value )
 	    , value.getLabel()
-	    , getTypeString( value )
 	    , base->getLabel()
 		, offset_->getLabel()
 		, base->getIdentifier()->getName()

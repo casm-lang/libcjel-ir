@@ -27,19 +27,26 @@ using namespace libnovel;
 
 
 Memory::Memory( Structure* structure, u32 size )
-: User( ".memory", 0, Value::MEMORY )
+: User( ".memory", &TypeMemory, Value::MEMORY )
 , structure( structure )
 , size( size )
 {
 	assert( structure );
 	assert( size > 0 );
-
-	setType( structure->getType() );
+	
+	//setType( structure->getType() );
 }
 
 Memory::~Memory( void )
 {			
 }
+
+Structure* Memory::getStructure( void ) const
+{
+	assert( structure );
+	return structure;
+}
+
 
 const u32 Memory::getSize( void ) const
 {

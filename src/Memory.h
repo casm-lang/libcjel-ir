@@ -40,6 +40,8 @@ namespace libnovel
 		
 		~Memory( void );
 
+	    Structure* getStructure( void ) const;
+		
 		const u32 getSize( void ) const;
 		
 		void dump( void ) const;

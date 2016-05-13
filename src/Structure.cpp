@@ -35,7 +35,7 @@ Structure::Structure( const char* name, Type* type, Structure* parent )
 	
 	if( !type )
 	{
-		Type* ty = new Type( Type::STRUCTURE, -1, Type::STATE::LOCKED );
+		Type* ty = new Type( Type::STRUCTURE );
 		assert( ty );
 		setType( ty );
 	}
@@ -70,6 +70,8 @@ void Structure::add( Value* value )
 	
 	element.push_back( s );
 
+	getType()->addSubType( value->getType() );
+	
 	assert( s->getParent() == this );
 }
 
