@@ -34,6 +34,7 @@ namespace libnovel
 	class Interconnect : public User
 	{
 	private:
+		i16 bs_max;
 		std::vector< Value* > objects;
 		
 	public:
@@ -44,7 +45,9 @@ namespace libnovel
 		void add( Value* object );
 
 		const std::vector< Value* >& getObjects( void ) const;
-		
+
+		const i16 getBitsizeMax( void ) const;
+
 		void dump( void ) const;
 		
 		static inline Value::ID classid( void ) { return Value::INTERCONNECT; };

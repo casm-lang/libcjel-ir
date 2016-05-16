@@ -1255,11 +1255,12 @@ void NovelToC11Pass::visit_prolog( StoreInstruction& value )
 	{
 		fprintf
 		( stream
-		, "%s*%s = %s%s; // store\n"
+		, "%s*%s = %s%s; // store '%s'\n"
 		, indention( value )
 	    , dst->getLabel()
 		, ( Value::isa< ExtractInstruction >( src ) ? "*" : "" )
 	    , src->getLabel()
+		, value.getLabel()
 	    );
 	}
 	else if( Value::isa< Reference >( dst ) )
@@ -1269,11 +1270,12 @@ void NovelToC11Pass::visit_prolog( StoreInstruction& value )
 		
 		fprintf
 		( stream
-		, "%s*%s = %s%s; // store '%s'\n"
+		, "%s*%s = %s%s; // store '%s' ['%s']\n"
 		, indention( value )
 	    , ref->getLabel()
 		, ( Value::isa< CastInstruction >( src ) ? "*" : "" )
 	    , src->getLabel()
+		, value.getLabel()
 	    , ref->getIdentifier()->getName()
 	    );
 	}

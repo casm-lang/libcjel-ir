@@ -199,6 +199,7 @@ void NovelToVHDLPass::visit_prolog( Function& value )
 	  "use work.Structure.all;\n"
 	  "use work.Constants.all;\n"
 	  "use work.Variables.all;\n"
+	  "use work.Instruction.all;\n"
 	  "entity %s is port\n"
 	  "( req : in  std_logic\n"
 	  "; ack : out std_logic\n"
@@ -261,6 +262,7 @@ void NovelToVHDLPass::visit_prolog( Intrinsic& value )
 	  "use work.Structure.all;\n"
 	  "use work.Constants.all;\n"
 	  "use work.Variables.all;\n"
+	  "use work.Instruction.all;\n"
 	  "entity %s is port\n"
 	  "( req : in  std_logic\n"
 	  "; ack : out std_logic\n"
@@ -1042,6 +1044,8 @@ static void instr_generic_port
 ( Instruction& value
 , const std::vector< Value* >& args = {}
 , const char* specializer = 0
+, u32 overwrite_pos = 0
+, const char* overwrite_str = 0
 )
 {
 	const char* name = &value.getName()[1];
@@ -1098,21 +1102,90 @@ static void instr_generic_port
 	        , v->getLabel()
 		    );
 		}
-		else
+		else if( Value::isa< Reference >( v ) and v->getType()->getIDKind() == Type::INTERCONNECT )
 		{
 		    fprintf
 		    ( stream
-	        , ", %s"
-		    , v->getLabel()
+			, ", ict_req_%s"
+			  ", ict_ack_%s"
+			  ", ict_addr_%s"
+			  ", ict_data_%s"
+	        , v->getLabel()
+	        , v->getLabel()
+	        , v->getLabel()
+	        , v->getLabel()
+		    );
+		}
+		else
+		{
+			const char* lbl = v->getLabel();
+			
+			if( c == overwrite_pos and overwrite_str )
+			{
+				lbl = overwrite_str;
+			}
+
+			const char* pre = "";
+			const char* post = "";
+			
+			if( v->getType()->getBitsize() == 1 )
+			{
+				if( Value::isa< StoreInstruction >( &value ) and c == 2 )
+				{
+					pre = "to_slb( dst ) => ";
+				}
+				else
+				{
+					pre = "to_slv( ";
+					post = " )";
+				}
+			}
+			
+			fprintf
+		    ( stream
+			, ", %s%s%s"
+			, pre
+			, lbl
+			, post
 		    );
 		}
 	}
+
+	if( not value.getType() )
+	{
+		fprintf
+		( stream
+		, " ); -- %s\n"
+		, name
+		);
+	    return;
+	}
+
+	const char* pre = "";
 	
+	if( value.getType()->getBitsize() == 1 )
+	{
+		if( Value::isa< AndInstruction >( &value )
+		or  Value::isa< XorInstruction >( &value )
+		or  Value::isa<  OrInstruction >( &value )
+		or  Value::isa< NotInstruction >( &value )
+		or  Value::isa< EquUnsignedInstruction >( &value )
+		or  Value::isa< NeqUnsignedInstruction >( &value )
+		)
+		{
+			pre = "to_slb( t ) => ";
+		}
+		else
+		{
+			assert(0);
+		}
+	}
+    
 	fprintf
 	( stream
-	, "%s%s ); -- %s\n"
-	, ( value.getType() ? ", " : "" )
-	, ( value.getType() ? value.getLabel() : "" )
+	, ", %s%s ); -- %s\n"
+	, pre
+	, value.getLabel()
 	, name
 	);
 }
@@ -1140,7 +1213,8 @@ void NovelToVHDLPass::visit_prolog( CastInstruction& value )
 	
 	if
 	(   Value::isa< ExtractInstruction >( src )
-	and src->getType()->getIDKind() == Type::STRUCTURE
+	and Value::isa< Structure >( kind )
+		//and src->getType()->getIDKind() == Type::STRUCTURE
 	)
 	{
 		const char* type_name = getTypeString( value );
@@ -1240,7 +1314,7 @@ void NovelToVHDLPass::visit_prolog( CastInstruction& value )
 	    {
 	    	instr_generic_port( value );
 	    
-	    	// assert(0);
+	        assert(0);
 	    	return;
 	    }
 	    
@@ -1379,41 +1453,106 @@ void NovelToVHDLPass::visit_prolog( ExtractInstruction& value )
 	    );
 	}
 	else if
-	(   Value::isa< CastInstruction >( base )
+	( ( Value::isa< CastInstruction >( base ) or Value::isa< Reference >( base ) )
 	and Value::isa< Structure >( offset )
 	and base->getType()->getIDKind() == Type::STRUCTURE
 	)
 	{
-		fprintf( stream, " -- inst_%s: extract omitted, direct access possible!\n", value.getLabel() );
+		if( not instruction_implementation )
+		{
+		    fprintf
+		    ( stream
+		    , "    sig_%s <= sig_%s; -- instr_%s: extract omitted due to direct access!\n"
+		    , value.getNext()->getLabel()
+		    , value.getLabel()
+		    , value.getLabel()
+		    );
+		}
 	}
-	else
+	else if
+	(   Value::isa< Reference >( base )
+	and base->getType()->getIDKind() == Type::INTERCONNECT
+	and offset->getType()->getIDKind() == Type::BIT
+	)
 	{
-	    fprintf( stream, " -- inst_%s: extract TODO\n", value.getLabel() );
-		return;
+		if( not instruction_implementation )
+		{
+			Value* bind = base->getType()->getBound();
+			assert( Value::isa< Interconnect >( bind ) );
+			Interconnect* ict = (Interconnect*)bind;
+
+			static Value addr( "", &TypeId, libnovel::Value::VALUE );
+			static Value data( "", new Type( Type::BIT, ict->getBitsizeMax(), Type::STATE::LOCKED ), libnovel::Value::VALUE );
+			
+			instr_generic_port( value, { &addr, &data }, "interconnect" );
+	    	return;
+		}
 		
-	    if( not instruction_implementation )
-	    {
-	    	instr_generic_port( value );
-	    
-	    	// assert(0);
-	    	return;
-	    }
-	    
-	    static u1 used = false;
-	    if( used )
+	    static u1 used_ict = false;
+	    if( used_ict )
 	    {
 	    	return;
 	    }
-	    used = true;
+	    used_ict = true;
 	    
 	    const char* name = &value.getName()[1];
 	    fprintf
 	    ( stream
 	    , "-- Instruction '%s'\n"
-	      "-- TODO\n"
+	      "library IEEE;\n"
+	      "use IEEE.std_logic_1164.all;\n"
+	      "use IEEE.numeric_std.all;\n"
+	      "entity %s_interconnect is\n"
+	      "  generic\n"
+	      "  ( ADDR_WIDTH : integer\n"
+	      "  ; DATA_WIDTH : integer\n"
+	      "  );\n"
+	      "  port\n"
+	      "  ( req : in  std_logic\n"
+          "  ; ack : out std_logic\n"
+          "  ; ict_req  : out   std_logic -- interconnect\n"
+		  "  ; ict_ack  : in    std_logic\n"
+		  "  ; ict_addr : out   std_logic_vector( (ADDR_WIDTH-1) downto 0 )\n"
+		  "  ; ict_data : in    std_logic_vector( (DATA_WIDTH-1) downto 0 )\n"
+          "  ; src      : in    std_logic_vector( (ADDR_WIDTH-1) downto 0 )\n"
+          "  ; dst      : out   std_logic_vector( (DATA_WIDTH-1) downto 0 )\n"
+	      "  );\n"
+	      "end %s_interconnect;\n"
+	      "architecture \\@%s_interconnect@\\ of %s_interconnect is\n"
+	      "begin\n"
+	      "  process( req, src ) is\n"
+          "  begin\n"
+	      "    if rising_edge( req ) then\n"
+	      "      ict_addr <= src;\n"
+	      "      ict_req  <= transport '1' after 50 ps;\n"
+	      "    end if;\n"
+	      "  end process;\n"
+		  "  \n"
+	      "  process( ict_ack, ict_data ) is\n"
+          "  begin\n"
+	      "    if rising_edge( ict_ack ) then\n"
+	      "      dst <= ict_data;\n"
+	      "      ack <= transport '1' after 50 ps;\n"
+	      "    end if;\n"
+	      "  end process;\n"
+	      "end \\@%s_interconnect@\\;\n"
 	      "\n"
 	    , name
+	    , name
+	    , name
+	    , name
+	    , name
+	    , name
 	    );
+	}
+	else
+	{
+		if( not instruction_implementation )
+		{
+			fprintf( stream, " -- inst_%s: extract TODO\n", value.getLabel() );
+			//assert(0);
+		}
+		//assert( !" unsupported/unimplemented extract feature! " );
 	}
 }
 void NovelToVHDLPass::visit_epilog( ExtractInstruction& value )
@@ -1431,17 +1570,26 @@ void NovelToVHDLPass::visit_prolog( LoadInstruction& value )
 	if( not instruction_implementation )
 	{
 		fprintf
-	    ( stream
-	    , "    load_%s : entity work.%s port map( sig_%s, sig_%s, %s, %s ); -- %s\n"
-	    , value.getLabel()
-	    , &value.getName()[1]
-	    , value.getLabel()
-	    , value.getNext() != 0 ? value.getNext()->getLabel() : value.getStatement()->getLabel()
-	    , value.getLabel()
+		( stream
+		, " -- load_%s: %s -- %s\n"
+		, value.getLabel()
 	    , value.get()->getLabel()
 	    , &value.getName()[1]
 	    );
 		return;
+
+		// fprintf
+	    // ( stream
+	    // , "    load_%s : entity work.%s port map( sig_%s, sig_%s, %s, %s ); -- %s\n"
+	    // , value.getLabel()
+	    // , &value.getName()[1]
+	    // , value.getLabel()
+	    // , value.getNext() != 0 ? value.getNext()->getLabel() : value.getStatement()->getLabel()
+	    // , value.getLabel()
+	    // , value.get()->getLabel()
+	    // , &value.getName()[1]
+	    // );
+		// return;
 	}
 	
 	static u1 used = false;
@@ -1498,6 +1646,8 @@ void NovelToVHDLPass::visit_epilog( LoadInstruction& value )
 
 void NovelToVHDLPass::visit_prolog( StoreInstruction& value )
 {
+	i16 store_bitsize = -1;
+	
 	Value* src = value.getLHS();
 	Value* dst = value.getRHS();
 	
@@ -1508,20 +1658,174 @@ void NovelToVHDLPass::visit_prolog( StoreInstruction& value )
 	and dst->getType()->getIDKind() == Type::BIT
 	)
 	{
+		store_bitsize = src->getType()->getBitsize();
+		
 		if( not instruction_implementation )
 		{
 			instr_generic_port( value, { src } );
 			return;
 		}
 		
-	    static u1 bitbit = false;
-	    if( bitbit )
-	    {
-	    	return;
-	    }
-	    bitbit = true;
+		
+	    // static u1 bitbit = false;
+	    // if( bitbit )
+	    // {
+	    // 	return;
+	    // }
+	    // bitbit = true;
 	    
-	    const char* name = &value.getName()[1];
+	    // const char* name = &value.getName()[1];
+	    // fprintf
+	    // ( stream
+	    // , "-- Instruction '%s'\n"
+	    //   "library IEEE;\n"
+	    //   "use IEEE.std_logic_1164.all;\n"
+	    //   "use IEEE.numeric_std.all;\n"
+	    //   "entity %s is\n"
+	    //   "  generic\n"
+	    //   "  ( BIT_WIDTH : integer\n"
+	    //   "  );\n"
+	    //   "  port\n"
+	    //   "  ( req : in  std_logic\n"
+        //   "  ; ack : out std_logic\n"
+        //   "  ; src : in  std_logic_vector( (BIT_WIDTH-1) downto 0 )\n"
+        //   "  ; dst : out std_logic_vector( (BIT_WIDTH-1) downto 0 )\n"
+	    //   "  );\n"
+	    //   "end %s;\n"
+	    //   "architecture \\@%s@\\ of %s is\n"
+	    //   "begin\n"
+	    //   "  process( req ) is\n"
+        //   "  begin\n"
+	    //   "    if rising_edge( req ) then\n"
+	    //   "      ack <= transport '1' after 50 ps;\n"
+	    //   "    end if;\n"
+	    //   "  end process;\n"
+	    //   "  dst <= src;\n"
+	    //   "end \\@%s@\\;\n"
+	    //   "\n"
+	    // , name
+	    // , name
+	    // , name
+	    // , name
+	    // , name
+	    // , name
+	    // );
+	}
+	else if( Value::isa< ExtractInstruction >( dst ) )
+	{
+		store_bitsize = src->getType()->getBitsize();
+		
+		if( not instruction_implementation )
+		{
+			ExtractInstruction* ext = (ExtractInstruction*)dst;
+			Value* base   = ext->getLHS();
+			Value* offset = ext->getRHS();
+		
+			if( ( Value::isa< CastInstruction >( base ) or Value::isa< Reference >( base ) )
+			and Value::isa< Structure >( offset )
+			and base->getType()->getIDKind() == Type::STRUCTURE
+			)
+			{
+				if( not instruction_implementation )
+				{
+					std::string tmp = std::string( base->getLabel() ) + "." + std::string( offset->getName() );
+					
+					// if( store_bitsize == 1 )
+					// {
+					// 	instr_generic_port( value, {}, "bit", 2, tmp.c_str() );
+					// }
+					// else
+					// {
+						instr_generic_port( value, { src }, 0, 2, tmp.c_str() );
+					// }
+					return;
+				}				
+			}
+			else
+			{
+				assert( !" internal error! " );
+			}
+		}
+	}
+	else
+	{
+		if( not instruction_implementation )
+		{
+			//instr_generic_port( value );
+			fprintf( stream, " -- inst_%s: store\n", value.getLabel() );
+			return;
+		}
+	    
+	    // static u1 used = false;
+	    // if( used )
+	    // {
+	    // 	return;
+	    // }
+	    // used = true;
+	    
+	    // const char* name = &value.getName()[1];
+	    // fprintf
+	    // ( stream
+	    // , "-- Instruction '%s'\n"
+	    //   "-- TODO\n"
+	    //   "\n"
+	    // , name
+	    // );
+	}
+
+	printf( "^^^^ %p '%s' %i\n", &value, value.getLabel(), store_bitsize );
+	
+	if( store_bitsize < 0 )
+	{
+		return;
+	}
+	
+	static std::unordered_set< i16 > used;
+	if( used.count( store_bitsize ) > 0 )
+	{
+		return;
+	}
+
+	used.insert( store_bitsize );
+    
+	const char* name = &value.getName()[1];
+	// if( store_bitsize == 1 )
+	// {
+	//     fprintf
+	//     ( stream
+	//     , "-- Instruction '%s_bit'\n"
+	//       "library IEEE;\n"
+	//       "use IEEE.std_logic_1164.all;\n"
+	//       "use IEEE.numeric_std.all;\n"
+	//       "entity %s_bit is\n"
+	//       "  port\n"
+	//       "  ( req : in  std_logic\n"
+    //       "  ; ack : out std_logic\n"
+    //       "  ; src : in  std_logic\n"
+    //       "  ; dst : out std_logic\n"
+	//       "  );\n"
+	//       "end %s_bit;\n"
+	//       "architecture \\@%s_bit@\\ of %s_bit is\n"
+	//       "begin\n"
+	//       "  process( req ) is\n"
+    //       "  begin\n"
+	//       "    if rising_edge( req ) then\n"
+	//       "      ack <= transport '1' after 50 ps;\n"
+	//       "    end if;\n"
+	//       "  end process;\n"
+	//       "  dst <= src;\n"
+	//       "end \\@%s_bit@\\;\n"
+	//       "\n"
+	//     , name
+	//     , name
+	//     , name
+	//     , name
+	//     , name
+	//     , name
+	//     );
+	// }
+	// else
+	{
 	    fprintf
 	    ( stream
 	    , "-- Instruction '%s'\n"
@@ -1558,80 +1862,10 @@ void NovelToVHDLPass::visit_prolog( StoreInstruction& value )
 	    , name
 	    );
 	}
-	else
-	{
-		if( not instruction_implementation )
-		{
-			//instr_generic_port( value );
-			fprintf( stream, " -- inst_%s: store\n", value.getLabel() );
-			return;
-		}
-	    
-	    static u1 used = false;
-	    if( used )
-	    {
-	    	return;
-	    }
-	    used = true;
-	    
-	    const char* name = &value.getName()[1];
-	    fprintf
-	    ( stream
-	    , "-- Instruction '%s'\n"
-	      "-- TODO\n"
-	      "\n"
-	    , name
-	    );
-	}
-	
-	
-	
-	// if( Value::isa< ExtractInstruction >( dst ) )
-	// {
-	// 	ExtractInstruction* ext = (ExtractInstruction*)( dst );
-	// 	assert( ext );
-		
-	// 	assert( Value::isa< Reference >( ext->getLHS() ) );
-	// 	Reference* ref = (Reference*)( ext->getLHS() );
-		
-	// 	assert( Value::isa< Structure >( ext->getRHS() ) );
-	// 	Structure* str = (Structure*)( ext->getRHS() );
-		
-	// 	assert( str->getParent() == ref->getStructure() );
-		
-	// 	fprintf
-	// 	( stream
-	//     , "      %s.%s <= transport %s after 200 ps; -- store '%s'\n"
-	//     , ref->getIdentifier()->getName()
-	//     , str->getName()
-	//     , src->getLabel()
-	// 	, ref->getIdentifier()->getName()
-	//     );
-	// }
-	// else if( Value::isa< Reference >( dst ) )
-	// {
-	// 	Reference* ref = (Reference*)( dst );
-	// 	assert( ref );
-		
-	// 	fprintf
-	// 	( stream
-	//     , "     %s <= transport %s after 200 ps; -- store '%s'\n"
-	//     , ref->getLabel()
-	//     , src->getLabel()
-	//     , ref->getIdentifier()->getName()
-	//     );
-	// }
-	// else
-	// {
-	// 	TODO;
-	// 	assert( !" unimplemented! " );
-	// }
 }
 void NovelToVHDLPass::visit_epilog( StoreInstruction& value )		
 {
 }
-
-
 
 
 //
@@ -2469,10 +2703,11 @@ void NovelToVHDLPass::visit_prolog( Interconnect& value )
 	  "( req  : in  std_logic\n"
 	  "; ack  : out std_logic\n"
 	  "; addr : in  %s\n"
-	  "; data : out std_logic_vector( 64 downto 0 ) -- TBD\n"
+	  "; data : out std_logic_vector( %i downto 0 )\n"
 	, value.getLabel()
 	, value.getLabel()
 	, getTypeString( n )
+	, value.getBitsizeMax()
 	);
 	
 	for( auto v : value.getObjects() )
@@ -2581,6 +2816,36 @@ void NovelToVHDLPass::visit_epilog( Interconnect& value )
 	( stream
 	, "\n"
 	  "-- Instruction Implementations\n"
+	  "library IEEE;\n"
+	  "use IEEE.std_logic_1164.all;\n"
+	  "use IEEE.numeric_std.all;\n"
+	  "package Instruction is\n"
+	  "  function to_slv( s : std_logic ) return std_logic_vector;\n"
+	  "  function to_slv( v : std_logic_vector ) return std_logic_vector;\n"
+	  "  function to_slb( v : in std_logic_vector) return std_logic;\n"
+	  "end;\n"
+	  "package body Instruction is\n"
+	  "  function to_slv( s : std_logic ) return std_logic_vector\n"
+	  "    is\n"
+	  "      variable v: std_logic_vector( 0 downto 0 );\n"
+	  "    begin\n"
+	  "      v(0) := s;\n"
+	  "      return v;\n"
+	  "  end;\n"
+	  "  function to_slv( v : std_logic_vector ) return std_logic_vector\n"
+	  "    is\n"
+	  "    begin\n"
+	  "      return v;\n"
+	  "  end;\n"
+	  "  function to_slb( v: in std_logic_vector ) return std_ulogic\n"
+	  "    is\n"
+	  "    begin\n"
+	  "      assert v'length = 1\n"
+	  "      report \"scalarize: output port must be single bit!\"\n"
+	  "      severity FAILURE;\n"
+	  "      return v(v'LEFT);\n"
+	  "  end;\n"
+	  "end;\n"
 	);
     module->iterate
 	( Traversal::PREORDER
