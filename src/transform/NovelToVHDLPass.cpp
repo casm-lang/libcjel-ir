@@ -69,7 +69,7 @@ static const char* getTypeString( Value& value )
 	Type* type = value.getType();
 	assert( type );
 	
-	if( type->getIDKind() == Type::ID::BIT )
+	if( type->getIDKind() == Type::ID::BIT or Value::isa< ExtractInstruction  >( &value ) )
 	{
 		if( type->getBitsize() == 1 )
 		{
@@ -778,7 +778,7 @@ void NovelToVHDLPass::visit_prolog( TrivialStatement& value )
 		        , getTypeString( *instr )
 		        , instr->getName()
 		        );
-			}
+			}		    
 		}
 	}
 	
@@ -1072,9 +1072,16 @@ static void instr_generic_port
 	, value.getLabel()
 	, value.getNext() != 0 ? value.getNext()->getLabel() : value.getStatement()->getLabel()
 	);
-	
+
+	u32 c = 0;
 	for( Value* v : value.getValues() )
 	{
+		c++;
+		if( Value::isa< CastInstruction >( &value ) and c == 1 )
+		{
+			continue;
+		}
+		
 		if( Value::isa< Reference >( v ) and v->getType()->getIDKind() == Type::MEMORY )
 		{
 		    fprintf
@@ -1128,6 +1135,135 @@ void NovelToVHDLPass::visit_epilog( IdInstruction& value )
 
 void NovelToVHDLPass::visit_prolog( CastInstruction& value )
 {
+	Value* kind = value.getLHS();
+	Value* src = value.getRHS();
+	
+	if
+	(   Value::isa< ExtractInstruction >( src )
+	and src->getType()->getIDKind() == Type::STRUCTURE
+	)
+	{
+		const char* type_name = getTypeString( value );
+		
+		if( not instruction_implementation )
+		{
+			instr_generic_port( value, {}, type_name );
+			return;
+		}
+		
+	    static std::unordered_set< std::string > used;
+	    if( used.count( std::string(type_name) ) > 0 )
+	    {
+	    	return;
+	    }
+		used.insert( std::string(type_name) );
+		
+	    const char* name = &value.getName()[1];
+	    fprintf
+	    ( stream
+	    , "-- Instruction '%s'\n"
+	      "library IEEE;\n"
+	      "use IEEE.std_logic_1164.all;\n"
+	      "use IEEE.numeric_std.all;\n"
+		  "use work.Structure.all;\n"
+		  "use work.Constants.all;\n"
+		  "use work.Variables.all;\n"
+	      "entity %s_%s is\n"
+	      "  port\n"
+	      "  ( req : in  std_logic\n"
+          "  ; ack : out std_logic\n"
+          "  ; src : in  %s\n"
+          "  ; dst : out %s\n"
+	      "  );\n"
+	      "end %s_%s;\n"
+	      "architecture \\@%s_%s@\\ of %s_%s is\n"
+	      "begin\n"
+	      "  process( req, src ) is\n"
+          "  begin\n"
+	      "    if rising_edge( req ) then\n"
+	    , name
+	    , name
+		, type_name
+		, getTypeString( *src )
+		, getTypeString( value )
+		, name
+	    , type_name
+		, name
+	    , type_name
+		, name
+	    , type_name
+		);
+
+		assert( Value::isa< Structure >( kind ) );
+		Structure* sty = (Structure*)kind;
+		i16 bs = sty->getType()->getBitsize() - 1;
+		
+		for( Value* v : sty->getElements() )
+		{
+			if( v->getType()->getBitsize() > 1 )
+			{
+	            fprintf
+	            ( stream
+	            , "      dst.%s <= src( %u downto %u );\n"
+			    , v->getName()
+			    , bs
+			    , bs - v->getType()->getBitsize() + 1
+		        );
+			}
+			else
+			{
+			    fprintf
+	            ( stream
+	            , "      dst.%s <= src( %u );\n"
+			    , v->getName()
+			    , bs
+		        );
+			}
+			
+			bs = bs - v->getType()->getBitsize();
+		}
+		
+	    fprintf
+	    ( stream
+	    , "      ack <= transport '1' after 50 ps;\n"
+	      "    end if;\n"
+	      "  end process;\n"
+	      "end \\@%s_%s@\\;\n"
+	      "\n"
+		, name
+	    , type_name
+		);
+	}
+	else
+	{
+	    if( not instruction_implementation )
+	    {
+	    	instr_generic_port( value );
+	    
+	    	// assert(0);
+	    	return;
+	    }
+	    
+	    static u1 used = false;
+	    if( used )
+	    {
+	    	return;
+	    }
+	    used = true;
+	    
+	    const char* name = &value.getName()[1];
+	    fprintf
+	    ( stream
+	    , "-- Instruction '%s'\n"
+	      "-- TODO\n"
+	      "\n"
+	    , name
+	    );
+	}
+
+
+
+	//####################################
 	if( not instruction_implementation )
 	{
 		instr_generic_port( value );
@@ -1216,11 +1352,11 @@ void NovelToVHDLPass::visit_prolog( ExtractInstruction& value )
 	      "end %s_memory;\n"
 	      "architecture \\@%s_memory@\\ of %s_memory is\n"
 	      "begin\n"
-	      "  process( req, addr ) is\n"
+	      "  process( req, src ) is\n"
           "  begin\n"
 	      "    if rising_edge( req ) then\n"
 	      "      mem_mode <= '0'; -- read\n"
-		  "      mem_addr <= addr;\n"
+		  "      mem_addr <= src;\n"
 	      "      mem_req  <= transport '1' after 50 ps;\n"
 	      "    end if;\n"
 	      "  end process;\n"
@@ -1228,7 +1364,7 @@ void NovelToVHDLPass::visit_prolog( ExtractInstruction& value )
 	      "  process( mem_ack, mem_data ) is\n"
           "  begin\n"
 	      "    if rising_edge( mem_ack ) then\n"
-	      "      data <= mem_data;\n"
+	      "      dst <= mem_data;\n"
 	      "      ack <= transport '1' after 50 ps;\n"
 	      "    end if;\n"
 	      "  end process;\n"
@@ -1242,8 +1378,19 @@ void NovelToVHDLPass::visit_prolog( ExtractInstruction& value )
 	    , name
 	    );
 	}
+	else if
+	(   Value::isa< CastInstruction >( base )
+	and Value::isa< Structure >( offset )
+	and base->getType()->getIDKind() == Type::STRUCTURE
+	)
+	{
+		fprintf( stream, " -- inst_%s: extract omitted, direct access possible!\n", value.getLabel() );
+	}
 	else
 	{
+	    fprintf( stream, " -- inst_%s: extract TODO\n", value.getLabel() );
+		return;
+		
 	    if( not instruction_implementation )
 	    {
 	    	instr_generic_port( value );
@@ -1416,7 +1563,7 @@ void NovelToVHDLPass::visit_prolog( StoreInstruction& value )
 		if( not instruction_implementation )
 		{
 			//instr_generic_port( value );
-			fprintf( stream, " -- instr_%s: store\n", value.getLabel() );
+			fprintf( stream, " -- inst_%s: store\n", value.getLabel() );
 			return;
 		}
 	    
