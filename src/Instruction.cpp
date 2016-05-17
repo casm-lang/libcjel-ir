@@ -390,6 +390,12 @@ ExtractInstruction::ExtractInstruction( Value* src, Value* dst )
 		assert( Value::isa< Memory >( bind ) );
 		setType( ((Memory*)bind)->getStructure()->getType() );
 	}
+	else if( Value::isa< Reference >( src ) and src->getType()->getIDKind() == Type::INTERCONNECT )
+	{
+		Value* bind = src->getType()->getBound();
+		assert( Value::isa< Interconnect >( bind ) );
+		setType( ((Interconnect*)bind)->getType() );
+	}
 	else
 	{
 		setType( dst->getType() );

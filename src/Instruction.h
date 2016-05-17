@@ -30,6 +30,7 @@
 #include "Function.h"
 #include "Variable.h"
 #include "Structure.h"
+#include "Interconnect.h"
 #include "Value.h"
 
 namespace libnovel

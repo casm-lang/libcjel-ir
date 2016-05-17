@@ -50,10 +50,37 @@ bool NovelToVHDLPass::run( libpass::PassResult& pr )
 	string fn = "obj/" + string( value->getName() ) + ".vhd"; 
 	stream = fopen( fn.c_str(), "w" );
 	
-	value->iterate
+	libnovel::Function* f = new libnovel::Function( "func" );
+	libnovel::Scope* s = new libnovel::ParallelScope( f );
+	
+	libnovel::Statement* b = new libnovel::BranchStatement( s );
+	b->add( new libnovel::NotInstruction( libnovel::BitConstant::create( false, 1 ) ) );
+	
+	libnovel::Scope* bt = new libnovel::ParallelScope();
+	libnovel::Scope* bf = new libnovel::SequentialScope();
+	b->addScope( bt );
+	b->addScope( bf );
+	
+	libnovel::Statement* t0 = new libnovel::TrivialStatement( bt );
+	t0->add( new libnovel::NopInstruction() );
+	libnovel::Statement* t01 = new libnovel::TrivialStatement( bt );
+	t01->add( new libnovel::NopInstruction() );
+	
+	libnovel::Statement* t1 = new libnovel::TrivialStatement( bf );
+	t1->add( new libnovel::NopInstruction() );
+	libnovel::Statement* t11 = new libnovel::TrivialStatement( bf );
+	t11->add( new libnovel::NopInstruction() );
+	
+	
+	f->iterate
 	( Traversal::PREORDER
 	, this
 	);
+	
+	// value->iterate
+	// ( Traversal::PREORDER
+	// , this
+	// );
 	
 	if( fclose( stream ) )
 	{
@@ -69,7 +96,7 @@ static const char* getTypeString( Value& value )
 	Type* type = value.getType();
 	assert( type );
 	
-	if( type->getIDKind() == Type::ID::BIT or Value::isa< ExtractInstruction  >( &value ) )
+	if( type->getIDKind() == Type::BIT or Value::isa< ExtractInstruction  >( &value ) )
 	{
 		if( type->getBitsize() == 1 )
 		{
@@ -85,6 +112,19 @@ static const char* getTypeString( Value& value )
 		}
 		else
 		{
+			if( type->getIDKind() == Type::INTERCONNECT )
+			{
+				Value* bind = type->getBound();
+				assert( Value::isa< Interconnect >( bind ) );
+				Interconnect* ict = (Interconnect*)bind;
+				
+				string t
+				= "std_logic_vector( "
+				+ to_string( ict->getBitsizeMax() - 1 )
+				+ " downto 0 )";
+				return libstdhl::Allocator::string( t );
+			}
+			
 			assert( !"invalid type bit size" );
 		}
 	}
@@ -108,6 +148,44 @@ static const char* getTypeString( Value& value )
 	else
 	{
 		assert( !"unimplemented or unsupported type to convert!" );
+	}
+}
+
+
+static void emit_wire_req_ack( Value* context, u1 root = false )
+{
+	//if( not root )
+	{
+		fprintf
+		( stream
+		, "  signal req_%s : std_logic := '0'; -- '%s'\n"
+		  "  signal ack_%s : std_logic := '0';\n"
+		, context->getLabel()
+		, context->getName()
+		, context->getLabel()
+		);
+	}
+
+	if( Value::isa< Scope >( context ) )
+	{
+		for( auto block : ((Scope*)context)->getBlocks() )
+		{
+			emit_wire_req_ack( block );
+		}
+	}
+	else if( Value::isa< BranchStatement >( context ) )
+	{
+		for( auto inner_block : ((BranchStatement*)context)->getScopes() )
+		{
+			emit_wire_req_ack( inner_block );
+		}
+	}
+	else if( Value::isa< LoopStatement >( context ) )
+	{
+		for( auto inner_block : ((LoopStatement*)context)->getScopes() )
+		{
+			emit_wire_req_ack( inner_block );
+		}
 	}
 }
 
@@ -143,16 +221,17 @@ static void emit_wire( Value& value )
 	
 	if( Value::isa< Scope >( context ) )
 	{
-		for( auto block : ((Scope*)context)->getBlocks() )
-		{
-			fprintf
-			( stream
-			, "  signal req_%s : std_logic := '0';\n"
-			  "  signal ack_%s : std_logic := '0';\n"
-			, block->getLabel()
-			, block->getLabel()
-			);
-		}
+		emit_wire_req_ack( context, true );
+		// for( auto block : ((Scope*)context)->getBlocks() )
+		// {
+		// 	fprintf
+		// 	( stream
+		// 	, "  signal req_%s : std_logic := '0';\n"
+		// 	  "  signal ack_%s : std_logic := '0';\n"
+		// 	, block->getLabel()
+		// 	, block->getLabel()
+		// 	);
+		// }
 	}
 }
 
@@ -202,10 +281,10 @@ void NovelToVHDLPass::visit_prolog( Function& value )
 	  "use work.Instruction.all;\n"
 	  "entity %s is port\n"
 	  "( req : in  std_logic\n"
-	  "; ack : out std_logic\n"
-	  "; "
+	  "; ack : out std_logic%s"
 	, value.getLabel()
 	, value.getName()
+	, value.getParameterLength() == 0 ? "" : "\n; "
 	);
 }
 void NovelToVHDLPass::visit_interlog( Function& value )
@@ -234,14 +313,20 @@ void NovelToVHDLPass::visit_interlog( Function& value )
 	fprintf
 	( stream
 	, "begin\n"
+	  "  req_%s <= req;\n"
+	  "\n"
+	, value.getContext()->getLabel()
 	);
 }
 void NovelToVHDLPass::visit_epilog( Function& value )
 {
 	fprintf
 	( stream
-	, "end \\@%s@\\;\n"
+	, "\n"
+	  "  ack <= ack_%s;\n"
+	  "end \\@%s@\\;\n"
 	  "\n"
+	, value.getContext()->getLabel()
 	, value.getName()
 	);
 }
@@ -265,10 +350,10 @@ void NovelToVHDLPass::visit_prolog( Intrinsic& value )
 	  "use work.Instruction.all;\n"
 	  "entity %s is port\n"
 	  "( req : in  std_logic\n"
-	  "; ack : out std_logic\n"
-	  "; "
+	  "; ack : out std_logic%s"
 	, value.getLabel()
 	, value.getName()
+	, value.getParameterLength() == 0 ? "" : "\n; "
 	);
 }
 void NovelToVHDLPass::visit_interlog( Intrinsic& value )
@@ -541,30 +626,23 @@ void NovelToVHDLPass::visit_epilog( Memory& value )
 
 void NovelToVHDLPass::visit_prolog( ParallelScope& value )
 {
-	string tmp("req");
-		
-	if( not Value::isa< CallableUnit >( value.getParent() ) )
-	{
-		tmp += "_" + std::string( value.getLabel() );
-	}
-	
 	fprintf
 	( stream
-	, "  -- req %s -- par begin\n"
-	  "  process( %s ) is\n"
+	, "  -- par '%s' begin\n"
+	  "  process( req_%s, ack_%s ) is\n"
 	  "  begin\n"
-	  "    if rising_edge( %s ) then\n"
-, value.getLabel()
-	, tmp.c_str()
-	, tmp.c_str()
+	  "    if ack_%s = '1' then\n"
+	, value.getLabel()
+	, value.getLabel()
+	, value.getLabel()
+	, value.getLabel()
 	);
 	
 	for( auto block : value.getBlocks() )
 	{
 		fprintf
 		( stream
-		, "      " // TODO: FIXME: dynamic indention calculation 
-		  "req_%s <= transport '1' after 50 ps;\n"
+		, "      req_%s <= transport '0' after 10 ps;\n"
 		, block->getLabel()
 		);
 	}
@@ -572,33 +650,48 @@ void NovelToVHDLPass::visit_prolog( ParallelScope& value )
 	{
 		fprintf
 		( stream
-		, "      " // TODO: FIXME: dynamic indention calculation 
-		  "null; -- EMPTY SCOPE!\n"
+		, "      null; -- EMPTY SCOPE!\n"
 	    );
 	}
 	
 	fprintf
 	( stream
-	, "    end if;\n"
+	, "    else\n"
+	  "      if rising_edge( req_%s ) then\n"
+    , value.getLabel()
+	);
+	
+	for( auto block : value.getBlocks() )
+	{
+		fprintf
+		( stream
+		, "        req_%s <= transport '1' after 50 ps;\n"
+		, block->getLabel()
+		);
+	}
+	if( value.getBlocks().size() == 0 )
+	{
+		fprintf
+		( stream
+		, "        null; -- EMPTY SCOPE!\n"
+	    );
+	}
+	
+	fprintf
+	( stream
+	, "      end if;\n"
+	  "    end if;\n"
 	  "  end process;\n"
 	  "\n"
 	);	
 }
 void NovelToVHDLPass::visit_epilog( ParallelScope& value )		
-{
-	string tmp("ack");
-		
-	if( not Value::isa< CallableUnit >( value.getParent() ) )
-	{
-		tmp += "_" + std::string( value.getLabel() );
-	}
-	
+{	
 	fprintf
 	( stream
-	, "  -- ack %s -- par end\n"
-	  "  %s <= transport ( "
+	, "  -- par end\n"
+	  "  ack_%s <= transport ( "
 	, value.getLabel()
-	, tmp.c_str()
 	);
 	
 	u1 first = true;
@@ -627,6 +720,7 @@ void NovelToVHDLPass::visit_epilog( ParallelScope& value )
 	fprintf
 	( stream
 	, " ) after 50 ps;\n"
+	  "\n"
 	);
 }
 
@@ -639,44 +733,42 @@ void NovelToVHDLPass::visit_prolog( SequentialScope& value )
 {
 	fprintf
 	( stream
-	, "  -- req %s -- seq begin\n"
+	, "  -- seq '%s' begin\n"
 	, value.getLabel()
-	);	
-
+    );	
+	
 	u1 first = true;
 	Value* last = &value;
 	
 	for( Value* block : value.getBlocks() )
 	{
-		string tmp("");
-		
+		const char* tmp = "ack";
+
 		if( first )
 		{
-			if( not Value::isa< CallableUnit >( value.getParent() ) )
-			{
-				tmp += "req_" + std::string(last->getLabel());
-			}
-			else
-			{
-				tmp = "req";
-			}
-		}
-		else
-		{
-			tmp += "ack_" + std::string(last->getLabel());
+			tmp = "req";
 		}
 		
 		fprintf
 		( stream
-		, "  process( %s ) is\n"
+		, "  process( %s_%s, ack_%s ) is\n"
 		  "  begin\n"
-		  "    if rising_edge( %s ) then\n"
-		  "      req_%s <= transport '1' after 50 ps;\n" // TODO: FIXME: dynamic indention calculation
+		  "    if ack_%s = '1' then\n"
+		  "      req_%s <= transport '0' after 10 ps;\n"
+		  "    else\n"
+		  "      if rising_edge( %s_%s ) then\n"
+		  "        req_%s <= transport '1' after 50 ps;\n"
+		  "      end if;\n"
 		  "    end if;\n"
 		  "  end process;\n"
 		  "\n"
-		, tmp.c_str()
-		, tmp.c_str()
+		, tmp
+		, last->getLabel()
+		, last->getLabel()
+		, last->getLabel()		
+		, block->getLabel()
+		, tmp
+		, last->getLabel()
 		, block->getLabel()
 		);
 		
@@ -705,6 +797,7 @@ void NovelToVHDLPass::visit_epilog( SequentialScope& value )
 	( stream
 	, "  -- ack %s -- seq end\n"
 	  "  %s <= transport ( %s%s ) after 50 ps;\n"
+	  "\n"
 	, value.getLabel()
 	, tmp.c_str()
 	, value.getBlocks().size() > 0 ? "ack_" : ""
@@ -768,9 +861,10 @@ void NovelToVHDLPass::visit_prolog( TrivialStatement& value )
 		// {
 
 			if
-			(   not Value::isa< StoreInstruction  >( instr )
-			and not Value::isa< CallInstruction  >( instr )
-			and not Value::isa< IdCallInstruction  >( instr )
+			(   not Value::isa< NopInstruction    >( instr )
+			and not Value::isa< CallInstruction   >( instr )
+			and not Value::isa< IdCallInstruction >( instr )
+			and not Value::isa< StoreInstruction  >( instr )
 			)
 			{
 			    fprintf
@@ -843,68 +937,42 @@ void NovelToVHDLPass::visit_prolog( BranchStatement& value )
 }
 void NovelToVHDLPass::visit_interlog( BranchStatement& value )
 {
+	Value* instr = value.getInstructions().back();
+	assert( instr );
+	
 	fprintf
 	( stream
-	, "    process( sig_%s ) is\n"
+	, "    process( sig_%s, %s ) is -- branch\n"
 	  "    begin\n"
 	  "      if rising_edge( sig_%s ) then\n"
-	  "        ack_%s <= transport '1' after 50 ps;\n"
+	  "        if %s = '1' then\n"
+	  "          req_%s <= transport '1' after 50 ps;\n"
+	  "        else\n"
+	  "          req_%s <= transport '1' after 50 ps;\n"
+	  "        end if;\n"
 	  "      end if;\n"
 	  "    end process;\n"
 	  "  end block;\n"
 	  "\n"
 	, value.getLabel()
+	, instr->getLabel()
 	, value.getLabel()
-	, value.getLabel()
-	);
-
-
-
-	// const Value* parent = value.getParent();
-	// assert( parent );
-	
-	// if( Value::isa< BranchStatement >( parent ) )
-	// {
-	// 	BranchStatement* branch = (BranchStatement*)parent;
-		
-	// 	Value* expr = (Value*)branch->getInstructions().back();
-	// 	assert( expr );
-	// 	//assert( Value::isa< LogicalInstruction >( expr ) );
-	// 	assert( expr->getType()->getIDKind() == Type::BIT && expr->getType()->getBitsize() == 1 );
-		
-	// 	if( branch->getScopes().front() == &value )
-	// 	{
-	//         fprintf
-	//         ( stream
-	//         , "%sif( %s )\n"
-	//         , indention( value )
-	// 		, expr->getLabel()
-	//         );
-	// 	}
-	// 	else if( branch->getScopes().back() == &value )
-	// 	{
-	//         fprintf
-	//         ( stream
-	//         , "%selse\n"
-	//         , indention( value )
-	//         );
-	// 	}
-	// }	
-
-	
-	
-	fprintf
-	( stream
-	, "  -- BRANCH STATEMENT INTER;\n"
-	  "\n"
+	, instr->getLabel()
+	, value.getScopes()[0]->getLabel()
+	, value.getScopes()[1]->getLabel()
 	);
 }
 void NovelToVHDLPass::visit_epilog( BranchStatement& value )
 {
 	fprintf
 	( stream
-	, "  -- BRANCH STATEMENT END;\n"
+	, "  -- ack %s -- branch end\n"
+	  "  ack_%s <= transport ( ack_%s or ack_%s ) after 50 ps;"
 	  "\n"
+    , value.getLabel()
+	, value.getLabel()
+	, value.getScopes()[0]->getLabel()
+	, value.getScopes()[1]->getLabel()
 	);
 }
 
@@ -1018,8 +1086,11 @@ void NovelToVHDLPass::visit_prolog( NopInstruction& value )
 {
 	fprintf
 	( stream
-	, "      null; -- %s\n"
-	, value.getName()
+	, " -- inst_%s: %s\n"
+	  "    sig_%s <= sig_%s;\n"
+	, value.getLabel()
+	, &value.getName()[1]
+	, value.getNext() != 0 ? value.getNext()->getLabel() : value.getStatement()->getLabel()	, value.getLabel()
 	);
 }
 void NovelToVHDLPass::visit_epilog( NopInstruction& value )
@@ -1334,31 +1405,32 @@ void NovelToVHDLPass::visit_prolog( CastInstruction& value )
 	    , name
 	    );
 	}
-
-
-
-	//####################################
-	if( not instruction_implementation )
-	{
-		instr_generic_port( value );
-		return;
-	}
 	
-	static u1 used = false;
-	if( used )
-	{
-		return;
-	}
-	used = true;
 	
-	const char* name = &value.getName()[1];
-	fprintf
-	( stream
-	, "-- Instruction '%s'\n"
-	  "-- TODO\n"
-	  "\n"
-	, name
-	);	
+	
+	// //####################################
+	// if( not instruction_implementation )
+	// {
+	// 	instr_generic_port( value );
+	// 	return;
+	// }
+	
+	// static u1 used = false;
+	// if( used )
+	// {
+	// 	return;
+	// }
+	// used = true;
+	
+	// const char* name = &value.getName()[1];
+	// fprintf
+	// ( stream
+	// , "-- Instruction '%s'\n"
+	//   "-- TODO\n"
+	//   "\n"
+	// , name
+	// );
+	
 }
 void NovelToVHDLPass::visit_epilog( CastInstruction& value )
 {}
@@ -2665,7 +2737,7 @@ void NovelToVHDLPass::visit_prolog( Interconnect& value )
 	, value.getLabel()
 	, value.getLabel()
 	, getTypeString( n )
-	, value.getBitsizeMax()
+	, value.getBitsizeMax() - 1
 	);
 	
 	for( auto v : value.getObjects() )
