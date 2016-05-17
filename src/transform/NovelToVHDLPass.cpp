@@ -1569,13 +1569,34 @@ void NovelToVHDLPass::visit_prolog( LoadInstruction& value )
 
 	if( not instruction_implementation )
 	{
-		fprintf
-		( stream
-		, " -- load_%s: %s -- %s\n"
-		, value.getLabel()
-	    , value.get()->getLabel()
-	    , &value.getName()[1]
-	    );
+		Value* src = value.get();
+		
+		if( Value::isa< CastInstruction >( src ) )
+		{
+			fprintf
+		    ( stream
+		    , " -- load_%s: -- %s '%s'\n"
+			  "    sig_%s <= sig_%s;\n"
+			  "    %s <= %s;\n"
+		    , value.getLabel()
+	        , &value.getName()[1]
+	        , src->getLabel()
+			, value.getNext()->getLabel()
+		    , value.getLabel()
+		    , value.getLabel()
+	        , src->getLabel()
+	        );			
+		}
+		else
+		{
+			fprintf
+		    ( stream
+		    , " -- load_%s: %s -- %s TODO\n"
+		    , value.getLabel()
+	        , value.get()->getLabel()
+	        , &value.getName()[1]
+	        );
+		}
 		return;
 
 		// fprintf
@@ -1730,14 +1751,7 @@ void NovelToVHDLPass::visit_prolog( StoreInstruction& value )
 				{
 					std::string tmp = std::string( base->getLabel() ) + "." + std::string( offset->getName() );
 					
-					// if( store_bitsize == 1 )
-					// {
-					// 	instr_generic_port( value, {}, "bit", 2, tmp.c_str() );
-					// }
-					// else
-					// {
-						instr_generic_port( value, { src }, 0, 2, tmp.c_str() );
-					// }
+					instr_generic_port( value, { src }, 0, 2, tmp.c_str() );
 					return;
 				}				
 			}
@@ -1755,26 +1769,8 @@ void NovelToVHDLPass::visit_prolog( StoreInstruction& value )
 			fprintf( stream, " -- inst_%s: store\n", value.getLabel() );
 			return;
 		}
-	    
-	    // static u1 used = false;
-	    // if( used )
-	    // {
-	    // 	return;
-	    // }
-	    // used = true;
-	    
-	    // const char* name = &value.getName()[1];
-	    // fprintf
-	    // ( stream
-	    // , "-- Instruction '%s'\n"
-	    //   "-- TODO\n"
-	    //   "\n"
-	    // , name
-	    // );
 	}
-
-	printf( "^^^^ %p '%s' %i\n", &value, value.getLabel(), store_bitsize );
-	
+    
 	if( store_bitsize < 0 )
 	{
 		return;
@@ -1789,79 +1785,41 @@ void NovelToVHDLPass::visit_prolog( StoreInstruction& value )
 	used.insert( store_bitsize );
     
 	const char* name = &value.getName()[1];
-	// if( store_bitsize == 1 )
-	// {
-	//     fprintf
-	//     ( stream
-	//     , "-- Instruction '%s_bit'\n"
-	//       "library IEEE;\n"
-	//       "use IEEE.std_logic_1164.all;\n"
-	//       "use IEEE.numeric_std.all;\n"
-	//       "entity %s_bit is\n"
-	//       "  port\n"
-	//       "  ( req : in  std_logic\n"
-    //       "  ; ack : out std_logic\n"
-    //       "  ; src : in  std_logic\n"
-    //       "  ; dst : out std_logic\n"
-	//       "  );\n"
-	//       "end %s_bit;\n"
-	//       "architecture \\@%s_bit@\\ of %s_bit is\n"
-	//       "begin\n"
-	//       "  process( req ) is\n"
-    //       "  begin\n"
-	//       "    if rising_edge( req ) then\n"
-	//       "      ack <= transport '1' after 50 ps;\n"
-	//       "    end if;\n"
-	//       "  end process;\n"
-	//       "  dst <= src;\n"
-	//       "end \\@%s_bit@\\;\n"
-	//       "\n"
-	//     , name
-	//     , name
-	//     , name
-	//     , name
-	//     , name
-	//     , name
-	//     );
-	// }
-	// else
-	{
-	    fprintf
-	    ( stream
-	    , "-- Instruction '%s'\n"
-	      "library IEEE;\n"
-	      "use IEEE.std_logic_1164.all;\n"
-	      "use IEEE.numeric_std.all;\n"
-	      "entity %s is\n"
-	      "  generic\n"
-	      "  ( BIT_WIDTH : integer\n"
-	      "  );\n"
-	      "  port\n"
-	      "  ( req : in  std_logic\n"
-          "  ; ack : out std_logic\n"
-          "  ; src : in  std_logic_vector( (BIT_WIDTH-1) downto 0 )\n"
-          "  ; dst : out std_logic_vector( (BIT_WIDTH-1) downto 0 )\n"
-	      "  );\n"
-	      "end %s;\n"
-	      "architecture \\@%s@\\ of %s is\n"
-	      "begin\n"
-	      "  process( req ) is\n"
-          "  begin\n"
-	      "    if rising_edge( req ) then\n"
-	      "      ack <= transport '1' after 50 ps;\n"
-	      "    end if;\n"
-	      "  end process;\n"
-	      "  dst <= src;\n"
-	      "end \\@%s@\\;\n"
-	      "\n"
-	    , name
-	    , name
-	    , name
-	    , name
-	    , name
-	    , name
-	    );
-	}
+	fprintf
+	( stream
+	, "-- Instruction '%s'\n"
+	  "library IEEE;\n"
+	  "use IEEE.std_logic_1164.all;\n"
+	  "use IEEE.numeric_std.all;\n"
+	  "entity %s is\n"
+	  "  generic\n"
+	  "  ( BIT_WIDTH : integer\n"
+	  "  );\n"
+	  "  port\n"
+	  "  ( req : in  std_logic\n"
+      "  ; ack : out std_logic\n"
+      "  ; src : in  std_logic_vector( (BIT_WIDTH-1) downto 0 )\n"
+      "  ; dst : out std_logic_vector( (BIT_WIDTH-1) downto 0 )\n"
+	  "  );\n"
+	  "end %s;\n"
+	  "architecture \\@%s@\\ of %s is\n"
+	  "begin\n"
+	  "  process( req ) is\n"
+      "  begin\n"
+	  "    if rising_edge( req ) then\n"
+	  "      ack <= transport '1' after 50 ps;\n"
+	  "    end if;\n"
+	  "  end process;\n"
+	  "  dst <= src;\n"
+	  "end \\@%s@\\;\n"
+	  "\n"
+	, name
+	, name
+	, name
+	, name
+	, name
+	, name
+	);
 }
 void NovelToVHDLPass::visit_epilog( StoreInstruction& value )		
 {
