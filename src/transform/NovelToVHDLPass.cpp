@@ -41,6 +41,9 @@ static Module* module = 0;
 
 static u1 instruction_implementation = false;
 
+static void emit_conversion_functions( void );
+
+
 bool NovelToVHDLPass::run( libpass::PassResult& pr )
 {
     Module* value = (Module*)pr.getResult< NovelDumpPass >();
@@ -49,38 +52,50 @@ bool NovelToVHDLPass::run( libpass::PassResult& pr )
 	
 	string fn = "obj/" + string( value->getName() ) + ".vhd"; 
 	stream = fopen( fn.c_str(), "w" );
+
+	libnovel::Module* m = new libnovel::Module( "func_module" );
+	libnovel::BitConstant* c = libnovel::BitConstant::create( false, 1 );
 	
 	libnovel::Function* f = new libnovel::Function( "func" );
 	libnovel::Scope* s = new libnovel::ParallelScope( f );
+	libnovel::Statement* tr = new libnovel::TrivialStatement( s );
+	libnovel::NotInstruction* ti = new libnovel::NotInstruction( c );
+	tr->add( ti );
+    
+	// libnovel::Statement* b = new libnovel::BranchStatement( s );
+	// libnovel::NotInstruction* i = new libnovel::NotInstruction( c );
+	// b->add( i );
 	
-	libnovel::Statement* b = new libnovel::BranchStatement( s );
-	b->add( new libnovel::NotInstruction( libnovel::BitConstant::create( false, 1 ) ) );
+	// libnovel::Scope* bt = new libnovel::ParallelScope();
+	// libnovel::Scope* bf = new libnovel::SequentialScope();
+	// b->addScope( bt );
+	// b->addScope( bf );
 	
-	libnovel::Scope* bt = new libnovel::ParallelScope();
-	libnovel::Scope* bf = new libnovel::SequentialScope();
-	b->addScope( bt );
-	b->addScope( bf );
+	// libnovel::Statement* t0 = new libnovel::TrivialStatement( bt );
+	// t0->add( new libnovel::NopInstruction() );
+	// libnovel::Statement* t01 = new libnovel::TrivialStatement( bt );
+	// t01->add( new libnovel::NopInstruction() );
 	
-	libnovel::Statement* t0 = new libnovel::TrivialStatement( bt );
-	t0->add( new libnovel::NopInstruction() );
-	libnovel::Statement* t01 = new libnovel::TrivialStatement( bt );
-	t01->add( new libnovel::NopInstruction() );
+	// libnovel::Statement* t1 = new libnovel::TrivialStatement( bf );
+	// t1->add( new libnovel::NopInstruction() );
+	// libnovel::Statement* t11 = new libnovel::TrivialStatement( bf );
+	// t11->add( new libnovel::NopInstruction() );
 	
-	libnovel::Statement* t1 = new libnovel::TrivialStatement( bf );
-	t1->add( new libnovel::NopInstruction() );
-	libnovel::Statement* t11 = new libnovel::TrivialStatement( bf );
-	t11->add( new libnovel::NopInstruction() );
+	m->add(f);
+	m->add(c);
 	
+	// emit_conversion_functions();
+	// instruction_implementation = true;
+	// visit_prolog( *c );
+	// visit_prolog( *i );
+	// instruction_implementation = false;
 	
-	f->iterate
+	value = m;
+	module = m;
+	value->iterate
 	( Traversal::PREORDER
 	, this
 	);
-	
-	// value->iterate
-	// ( Traversal::PREORDER
-	// , this
-	// );
 	
 	if( fclose( stream ) )
 	{
@@ -235,6 +250,46 @@ static void emit_wire( Value& value )
 	}
 }
 
+static void emit_conversion_functions( void )
+{
+	fprintf
+	( stream
+	, "\n"
+	  "-- Instruction Implementations\n"
+	  "library IEEE;\n"
+	  "use IEEE.std_logic_1164.all;\n"
+	  "use IEEE.numeric_std.all;\n"
+	  "package Instruction is\n"
+	  "  function to_slv( s : std_logic ) return std_logic_vector;\n"
+	  "  function to_slv( v : std_logic_vector ) return std_logic_vector;\n"
+	  "  function to_slb( v : in std_logic_vector) return std_logic;\n"
+	  "end;\n"
+	  "package body Instruction is\n"
+	  "  function to_slv( s : std_logic ) return std_logic_vector\n"
+	  "    is\n"
+	  "      variable v: std_logic_vector( 0 downto 0 );\n"
+	  "    begin\n"
+	  "      v(0) := s;\n"
+	  "      return v;\n"
+	  "  end;\n"
+	  "  function to_slv( v : std_logic_vector ) return std_logic_vector\n"
+	  "    is\n"
+	  "    begin\n"
+	  "      return v;\n"
+	  "  end;\n"
+	  "  function to_slb( v: in std_logic_vector ) return std_ulogic\n"
+	  "    is\n"
+	  "    begin\n"
+	  "      assert v'length = 1\n"
+	  "      report \"scalarize: output port must be single bit!\"\n"
+	  "      severity FAILURE;\n"
+	  "      return v(v'LEFT);\n"
+	  "  end;\n"
+	  "end;\n"
+	);
+}
+
+
 
 //
 // Module
@@ -256,6 +311,29 @@ void NovelToVHDLPass::visit_prolog( Module& value )
 	, std::ctime( &timestamp )
 	, value.getName()
 	);
+
+	
+	instruction_implementation = true;
+
+	emit_conversion_functions();
+	
+    module->iterate
+	( Traversal::PREORDER
+	, [ this ]( Value* v )
+	  {
+		  if
+		  ( Value::isa< Instruction >( v )
+		  and not Value::isa< IdInstruction >( v )
+		  and not Value::isa< CallInstruction >( v )
+		  and not Value::isa< IdCallInstruction >( v )
+		  )
+		  {
+			  this->dispatch( Visitor::Stage::PROLOG, v );
+		  }
+	  }
+	);
+	
+	instruction_implementation = false;	
 }
 void NovelToVHDLPass::visit_epilog( Module& value )
 {	
@@ -313,8 +391,26 @@ void NovelToVHDLPass::visit_interlog( Function& value )
 	fprintf
 	( stream
 	, "begin\n"
-	  "  req_%s <= req;\n"
+	  "  process( req, ack_%s ) is\n"
+	  "  begin\n"
+	  "    if req = '0' and ack_%s = '1' then\n"
+	  "      req_%s <= transport '0' after 25 ps;\n"
+	  "    else\n"
+	  "      if rising_edge( req ) then\n"
+	  "        if ack_%s = '0' then\n"
+	  "          req_%s <= transport '1' after 25 ps;\n"
+	  "        else\n"
+	  "          req_%s <= transport '0' after 25 ps;\n"
+	  "        end if;\n"
+	  "      end if;\n"
+	  "    end if;\n"
+	  "  end process;\n"
 	  "\n"
+	, value.getContext()->getLabel()
+	, value.getContext()->getLabel()
+	, value.getContext()->getLabel()
+	, value.getContext()->getLabel()
+	, value.getContext()->getLabel()
 	, value.getContext()->getLabel()
 	);
 }
@@ -323,7 +419,7 @@ void NovelToVHDLPass::visit_epilog( Function& value )
 	fprintf
 	( stream
 	, "\n"
-	  "  ack <= ack_%s;\n"
+	  "  ack <= transport ack_%s after 25 ps;\n"
 	  "end \\@%s@\\;\n"
 	  "\n"
 	, value.getContext()->getLabel()
@@ -629,98 +725,73 @@ void NovelToVHDLPass::visit_prolog( ParallelScope& value )
 	fprintf
 	( stream
 	, "  -- par '%s' begin\n"
-	  "  process( req_%s, ack_%s ) is\n"
-	  "  begin\n"
-	  "    if ack_%s = '1' then\n"
-	, value.getLabel()
-	, value.getLabel()
-	, value.getLabel()
 	, value.getLabel()
 	);
 	
 	for( auto block : value.getBlocks() )
 	{
 		fprintf
-		( stream
-		, "      req_%s <= transport '0' after 10 ps;\n"
-		, block->getLabel()
-		);
-	}
-	if( value.getBlocks().size() == 0 )
-	{
-		fprintf
-		( stream
-		, "      null; -- EMPTY SCOPE!\n"
+	    ( stream
+	    , "  process( req_%s, ack_%s ) is\n"
+	      "  begin\n"
+	      "    if req_%s = '0' and ack_%s = '1' then\n"
+	      "      req_%s <= transport '0' after 25 ps;\n"
+	      "    else\n"
+	      "      if rising_edge( req_%s ) then\n"
+	      "        if ack_%s = '0' then\n"
+	      "          req_%s <= transport '1' after 25 ps;\n"
+	      "        else\n"
+	      "          req_%s <= transport '0' after 25 ps;\n"
+	      "        end if;\n"
+	      "      end if;\n"
+	      "    end if;\n"
+	      "  end process;\n"
+	      "\n"
+		, value.getLabel()
+	    , block->getLabel()
+		, value.getLabel()
+	    , block->getLabel()
+	    , block->getLabel()
+		, value.getLabel()
+	    , block->getLabel()
+	    , block->getLabel()
+	    , block->getLabel()
 	    );
 	}
 	
 	fprintf
 	( stream
-	, "    else\n"
-	  "      if rising_edge( req_%s ) then\n"
-    , value.getLabel()
+	, "\n"
 	);
-	
-	for( auto block : value.getBlocks() )
-	{
-		fprintf
-		( stream
-		, "        req_%s <= transport '1' after 50 ps;\n"
-		, block->getLabel()
-		);
-	}
-	if( value.getBlocks().size() == 0 )
-	{
-		fprintf
-		( stream
-		, "        null; -- EMPTY SCOPE!\n"
-	    );
-	}
-	
-	fprintf
-	( stream
-	, "      end if;\n"
-	  "    end if;\n"
-	  "  end process;\n"
-	  "\n"
-	);	
 }
 void NovelToVHDLPass::visit_epilog( ParallelScope& value )		
-{	
-	fprintf
-	( stream
-	, "  -- par end\n"
-	  "  ack_%s <= transport ( "
-	, value.getLabel()
-	);
+{
+	//std::string sens = "";
+	std::string cond = "";
 	
-	u1 first = true;
 	for( auto block : value.getBlocks() )
 	{
-		fprintf
-		( stream
-		, "%sack_%s"
-		, first ? "" : " and "
-		, block->getLabel()
-		);
-			
-		if( first )
+		if( value.getBlocks().front() != block )
 		{
-			first = false;
+		    //sens += ", ";
+		    cond += " and ";
 		}
-	}
-	if( value.getBlocks().size() == 0 )
-	{
-		fprintf
-		( stream
-		, "'1'"
-		);
+		//sens += "ack_";
+		//sens += block->getLabel();
+		cond += "ack_";
+		cond += block->getLabel();
+		// cond += " = '1'";
 	}
 	
 	fprintf
 	( stream
-	, " ) after 50 ps;\n"
+	, "\n"
+	  "  ack_%s <= transport %s after 25 ps;\n"
+	  "  -- par '%s' end\n"
 	  "\n"
+	, value.getLabel()
+	, cond.c_str()
+	, value.getLabel()
 	);
 }
 
@@ -735,73 +806,68 @@ void NovelToVHDLPass::visit_prolog( SequentialScope& value )
 	( stream
 	, "  -- seq '%s' begin\n"
 	, value.getLabel()
-    );	
-	
-	u1 first = true;
+	);
+
 	Value* last = &value;
 	
-	for( Value* block : value.getBlocks() )
+	for( auto block : value.getBlocks() )
 	{
-		const char* tmp = "ack";
-
-		if( first )
+		const char* last_kind = "ack";
+		if( last == &value )
 		{
-			tmp = "req";
+			last_kind = "req";
 		}
 		
 		fprintf
-		( stream
-		, "  process( %s_%s, ack_%s ) is\n"
-		  "  begin\n"
-		  "    if ack_%s = '1' then\n"
-		  "      req_%s <= transport '0' after 10 ps;\n"
-		  "    else\n"
-		  "      if rising_edge( %s_%s ) then\n"
-		  "        req_%s <= transport '1' after 50 ps;\n"
-		  "      end if;\n"
-		  "    end if;\n"
-		  "  end process;\n"
-		  "\n"
-		, tmp
-		, last->getLabel()
-		, last->getLabel()
-		, last->getLabel()		
-		, block->getLabel()
-		, tmp
-		, last->getLabel()
-		, block->getLabel()
-		);
+	    ( stream
+	    , "  process( %s_%s, ack_%s ) is\n"
+	      "  begin\n"
+	      "    if %s_%s = '0' and ack_%s = '1' then\n"
+	      "      req_%s <= transport '0' after 25 ps;\n"
+	      "    else\n"
+	      "      if rising_edge( %s_%s ) then\n"
+	      "        if ack_%s = '0' then\n"
+	      "          req_%s <= transport '1' after 25 ps;\n"
+	      "        else\n"
+	      "          req_%s <= transport '0' after 25 ps;\n"
+	      "        end if;\n"
+	      "      end if;\n"
+	      "    end if;\n"
+	      "  end process;\n"
+	      "\n"
+		, last_kind
+	    , last->getLabel()
+	    , block->getLabel()
+		, last_kind
+	    , last->getLabel()
+	    , block->getLabel()
+	    , block->getLabel()
+		, last_kind
+	    , last->getLabel()
+	    , block->getLabel()
+	    , block->getLabel()
+	    , block->getLabel()
+	    );
 		
-		first = false;
 		last = block;
 	}
-	
-	if( value.getBlocks().size() == 0 )
-	{
-		fprintf
-		( stream
-		, "  -- EMPTY SCOPE!\n"
-	    );
-	}	
+
+	fprintf
+	( stream
+	, "\n"
+    );
 }
 void NovelToVHDLPass::visit_epilog( SequentialScope& value )
 {
-	string tmp("ack");
-
-	if( not Value::isa< CallableUnit >( value.getParent() ) )
-	{
-		tmp += "_" + std::string(value.getLabel());
-	}
-	
 	fprintf
 	( stream
-	, "  -- ack %s -- seq end\n"
-	  "  %s <= transport ( %s%s ) after 50 ps;\n"
+	, "\n"
+	  "  ack_%s <= transport %s after 25 ps;\n"
+	  "  -- seq '%s' end\n"
 	  "\n"
 	, value.getLabel()
-	, tmp.c_str()
-	, value.getBlocks().size() > 0 ? "ack_" : ""
-	, value.getBlocks().size() > 0 ? value.getBlocks().back()->getLabel() : "'1'"
+	, value.getBlocks().front()->getLabel()
+	, value.getLabel()
 	);
 }
 
@@ -814,8 +880,10 @@ void NovelToVHDLPass::visit_prolog( TrivialStatement& value )
 {
 	fprintf
 	( stream
-	, "  stmt_%s: block -- stmt\n"
+	, "  -- stmt '%s' begin\n"
+	  "  stmt_%s: block\n"
 	  "    signal sig_%s : std_logic := '0';\n"
+	, value.getLabel()
 	, value.getLabel()
 	, value.getLabel()
 	);
@@ -878,44 +946,34 @@ void NovelToVHDLPass::visit_prolog( TrivialStatement& value )
 		}
 	}
 	
-	Value* v = value.getInstructions().front();
+	Value* first = value.getInstructions().front();
 	while
-	(  Value::isa< AllocInstruction >( v )
-	or Value::isa< IdInstruction >( v ) )
+	(  Value::isa< AllocInstruction >( first )
+	or Value::isa< IdInstruction >( first ) )
 	{
-		v = v->getNext();
+		first = first->getNext();
 	}
-	
+
 	fprintf
 	( stream
 	, "  begin\n"
-	  "    process( req_%s ) is\n"
-	  "    begin\n"
-	  "      if rising_edge( req_%s ) then\n"
-	  "        sig_%s <= transport '1' after 50 ps;\n"
-	  "      end if;\n"
-	  "    end process;\n"
+	  "    sig_%s <= transport req_%s after 25 ps;\n"
+	, first->getLabel()
 	, value.getLabel()
-	, value.getLabel()
-	, v->getLabel()
 	);
 }
 void NovelToVHDLPass::visit_epilog( TrivialStatement& value )
 {
 	fprintf
 	( stream
-	, "    process( sig_%s ) is\n"
-	  "    begin\n"
-	  "      if rising_edge( sig_%s ) then\n"
-	  "        ack_%s <= transport '1' after 50 ps;\n"
-	  "      end if;\n"
-	  "    end process;\n"
-	  "  end block;\n"
+	, "    ack_%s <= transport sig_%s after 25 ps;\n"
+	  "  end block;"
+	  "  -- stmt '%s' end\n"
 	  "\n"
 	, value.getLabel()
 	, value.getLabel()
 	, value.getLabel()
-	);
+	);	
 }
 
 
@@ -1087,7 +1145,7 @@ void NovelToVHDLPass::visit_prolog( NopInstruction& value )
 	fprintf
 	( stream
 	, " -- inst_%s: %s\n"
-	  "    sig_%s <= sig_%s;\n"
+	  "    sig_%s <= transport sig_%s after 100 ps;\n"
 	, value.getLabel()
 	, &value.getName()[1]
 	, value.getNext() != 0 ? value.getNext()->getLabel() : value.getStatement()->getLabel()	, value.getLabel()
@@ -1937,13 +1995,8 @@ void NovelToVHDLPass::visit_prolog( NotInstruction& value )
 	  "end %s;\n"
 	  "architecture \\@%s@\\ of %s is\n"
 	  "begin\n"
-	  "  process( req ) is\n"
-      "  begin\n"
-	  "    if rising_edge( req ) then\n"
-	  "      ack <= transport '1' after 50 ps;\n"
-	  "    end if;\n"
-	  "  end process;\n"
-	  "  t <= not a;\n"
+	  "  ack <= transport req after 100 ps;\n"
+	  "  t   <= not a;\n"
 	  "end \\@%s@\\;\n"
 	  "\n"
 	, name
@@ -2840,60 +2893,6 @@ void NovelToVHDLPass::visit_prolog( Interconnect& value )
 }
 void NovelToVHDLPass::visit_epilog( Interconnect& value )
 {
-	instruction_implementation = true;
-	
-	fprintf
-	( stream
-	, "\n"
-	  "-- Instruction Implementations\n"
-	  "library IEEE;\n"
-	  "use IEEE.std_logic_1164.all;\n"
-	  "use IEEE.numeric_std.all;\n"
-	  "package Instruction is\n"
-	  "  function to_slv( s : std_logic ) return std_logic_vector;\n"
-	  "  function to_slv( v : std_logic_vector ) return std_logic_vector;\n"
-	  "  function to_slb( v : in std_logic_vector) return std_logic;\n"
-	  "end;\n"
-	  "package body Instruction is\n"
-	  "  function to_slv( s : std_logic ) return std_logic_vector\n"
-	  "    is\n"
-	  "      variable v: std_logic_vector( 0 downto 0 );\n"
-	  "    begin\n"
-	  "      v(0) := s;\n"
-	  "      return v;\n"
-	  "  end;\n"
-	  "  function to_slv( v : std_logic_vector ) return std_logic_vector\n"
-	  "    is\n"
-	  "    begin\n"
-	  "      return v;\n"
-	  "  end;\n"
-	  "  function to_slb( v: in std_logic_vector ) return std_ulogic\n"
-	  "    is\n"
-	  "    begin\n"
-	  "      assert v'length = 1\n"
-	  "      report \"scalarize: output port must be single bit!\"\n"
-	  "      severity FAILURE;\n"
-	  "      return v(v'LEFT);\n"
-	  "  end;\n"
-	  "end;\n"
-	);
-    module->iterate
-	( Traversal::PREORDER
-	, [ this ]( Value* v )
-	  {
-		  if
-		  ( Value::isa< Instruction >( v )
-		  and not Value::isa< IdInstruction >( v )
-		  and not Value::isa< CallInstruction >( v )
-		  and not Value::isa< IdCallInstruction >( v )
-		  )
-		  {
-			  this->dispatch( Visitor::Stage::PROLOG, v );
-		  }
-	  }
-	);
-	
-	instruction_implementation = false;
 }
 
 
