@@ -84,12 +84,6 @@ bool NovelToVHDLPass::run( libpass::PassResult& pr )
 	m->add(f);
 	m->add(c);
 	
-	// emit_conversion_functions();
-	// instruction_implementation = true;
-	// visit_prolog( *c );
-	// visit_prolog( *i );
-	// instruction_implementation = false;
-	
 	value = m;
 	module = m;
 	value->iterate
@@ -167,19 +161,16 @@ static const char* getTypeString( Value& value )
 }
 
 
-static void emit_wire_req_ack( Value* context, u1 root = false )
+static void emit_wire_req_ack( Value* context )
 {
-	//if( not root )
-	{
-		fprintf
-		( stream
-		, "  signal req_%s : std_logic := '0'; -- '%s'\n"
-		  "  signal ack_%s : std_logic := '0';\n"
-		, context->getLabel()
-		, context->getName()
-		, context->getLabel()
-		);
-	}
+	fprintf
+	( stream
+	, "  signal req_%s : std_logic := '0'; -- '%s'\n"
+	  "  signal ack_%s : std_logic := '0';\n"
+	, context->getLabel()
+	, context->getName()
+	, context->getLabel()
+	);
 
 	if( Value::isa< Scope >( context ) )
 	{
@@ -236,17 +227,7 @@ static void emit_wire( Value& value )
 	
 	if( Value::isa< Scope >( context ) )
 	{
-		emit_wire_req_ack( context, true );
-		// for( auto block : ((Scope*)context)->getBlocks() )
-		// {
-		// 	fprintf
-		// 	( stream
-		// 	, "  signal req_%s : std_logic := '0';\n"
-		// 	  "  signal ack_%s : std_logic := '0';\n"
-		// 	, block->getLabel()
-		// 	, block->getLabel()
-		// 	);
-		// }
+		emit_wire_req_ack( context );
 	}
 }
 
@@ -286,6 +267,96 @@ static void emit_conversion_functions( void )
 	  "      return v(v'LEFT);\n"
 	  "  end;\n"
 	  "end;\n"
+	  "\n"
+	  "library IEEE;\n"
+	  "use IEEE.std_logic_1164.all;\n"
+	  "use IEEE.numeric_std.all;\n"
+	  "entity handshake is\n"
+	  "  port\n"
+	  "  ( req      : in  std_logic\n"
+	  "  ; req_next : out std_logic\n"
+	  "  ; ack_next : in  std_logic\n"
+	  "  );\n"
+	  "end handshake;\n"
+	  "architecture \\@handshake@\\ of handshake is\n"
+	  "  signal sig_req      : std_logic := '0';\n"
+	  "  signal sig_req_next : std_logic := '0';\n"
+	  "  signal sig_ack_next : std_logic := '0';\n"
+	  "begin\n"
+	  "  sig_req      <=     req;\n"
+	  "      req_next <= sig_req_next;\n"
+	  "  sig_ack_next <=     ack_next;\n"
+	  "  \n"
+	  "  process( sig_req, sig_ack_next ) is\n"
+	  "  begin\n"
+	  "    if sig_req = '0' and sig_ack_next = '1' then\n"
+	  "      sig_req_next <= transport '0' after 25 ps;\n"
+	  "    else\n"
+	  "      if rising_edge( sig_req ) then\n"
+	  "        if sig_ack_next = '0' then\n"
+	  "          sig_req_next <= transport '1' after 25 ps;\n"
+	  "        else\n"
+	  "          sig_req_next <= transport '0' after 25 ps;\n"
+	  "        end if;\n"
+	  "      end if;\n"
+	  "    end if;\n"
+	  "  end process;\n"
+	  "end \\@handshake@\\;\n"
+	  "\n"
+	  "library IEEE;\n"
+	  "use IEEE.std_logic_1164.all;\n"
+	  "use IEEE.numeric_std.all;\n"
+	  "entity handshake_branch is\n"
+	  "  port\n"
+	  "  ( req       : in  std_logic\n"
+	  "  ; ack       : out std_logic\n"
+	  "  ; req_true  : out std_logic\n"
+	  "  ; ack_true  : in  std_logic\n"
+	  "  ; req_false : out std_logic\n"
+	  "  ; ack_false : in  std_logic\n"
+	  "  ; condition : in  std_logic\n"
+	  "  );\n"
+	  "end handshake_branch;\n"
+	  "architecture \\@handshake_branch@\\ of handshake_branch is\n"
+	  "  signal sig_req       : std_logic := '0';\n"
+	  "  signal sig_ack       : std_logic := '0';\n"
+	  "  signal sig_req_true  : std_logic := '0';\n"
+	  "  signal sig_ack_true  : std_logic := '0';\n"
+	  "  signal sig_req_false : std_logic := '0';\n"
+	  "  signal sig_ack_false : std_logic := '0';\n"
+	  "begin\n"
+	  "  sig_req       <=     req;\n"
+	  "      ack       <= sig_ack;\n"
+	  "      req_true  <= sig_req_true;\n"
+	  "  sig_ack_true  <=     ack_true;\n"
+	  "      req_false <= sig_req_false;\n"
+	  "  sig_ack_false <=     ack_false;\n"
+	  "  \n"
+	  "  process( sig_req, sig_ack_true, sig_ack_false, condition ) is\n"
+	  "  begin\n"
+	  "    if sig_req = '0' and ( sig_ack_true = '1' or sig_ack_false = '1' ) then\n"
+	  "      sig_req_true  <= transport '0' after 25 ps;\n"
+	  "      sig_req_false <= transport '0' after 25 ps;\n"
+	  "    else\n"
+	  "      if rising_edge( sig_req ) then\n"
+	  "        if condition = '1' then\n"
+	  "          if sig_ack_true = '0' then\n"
+	  "            sig_req_true <= transport '1' after 25 ps;\n"
+	  "          else\n"
+	  "            sig_req_true <= transport '0' after 25 ps;\n"
+	  "          end if;\n"
+	  "        else\n"
+	  "          if sig_ack_false = '0' then\n"
+	  "            sig_req_false <= transport '1' after 25 ps;\n"
+	  "          else\n"
+	  "            sig_req_false <= transport '0' after 25 ps;\n"
+	  "          end if;\n"
+	  "        end if;\n"
+	  "      end if;\n"
+	  "    end if;\n"
+	  "  end process;\n"
+	  "  sig_ack <= transport ( sig_ack_true or sig_ack_false ) after 25 ps;\n"
+	  "end \\@handshake_branch@\\;\n"
 	);
 }
 
@@ -732,60 +803,29 @@ void NovelToVHDLPass::visit_prolog( ParallelScope& value )
 	{
 		fprintf
 	    ( stream
-	    , "  process( req_%s, ack_%s ) is\n"
-	      "  begin\n"
-	      "    if req_%s = '0' and ack_%s = '1' then\n"
-	      "      req_%s <= transport '0' after 25 ps;\n"
-	      "    else\n"
-	      "      if rising_edge( req_%s ) then\n"
-	      "        if ack_%s = '0' then\n"
-	      "          req_%s <= transport '1' after 25 ps;\n"
-	      "        else\n"
-	      "          req_%s <= transport '0' after 25 ps;\n"
-	      "        end if;\n"
-	      "      end if;\n"
-	      "    end if;\n"
-	      "  end process;\n"
-		, value.getLabel()
+	    , "  %s : entity work.handshake port map ( req_%s, req_%s, ack_%s );\n"
 	    , block->getLabel()
 		, value.getLabel()
 	    , block->getLabel()
 	    , block->getLabel()
-		, value.getLabel()
-	    , block->getLabel()
-	    , block->getLabel()
-	    , block->getLabel()
-	    );
+		);
 	}
-	
-	fprintf
-	( stream
-	, "\n"
-	);
-}
-void NovelToVHDLPass::visit_epilog( ParallelScope& value )		
-{
-	//std::string sens = "";
+    
 	std::string cond = "";
 	
 	for( auto block : value.getBlocks() )
 	{
 		if( value.getBlocks().front() != block )
 		{
-		    //sens += ", ";
 		    cond += " and ";
 		}
-		//sens += "ack_";
-		//sens += block->getLabel();
 		cond += "ack_";
 		cond += block->getLabel();
-		// cond += " = '1'";
 	}
 	
 	fprintf
 	( stream
-	, "\n"
-	  "  ack_%s <= transport ( %s ) after 25 ps;\n"
+	, "  ack_%s <= transport ( %s ) after 25 ps;\n"
 	  "  -- par '%s' end\n"
 	  "\n"
 	, value.getLabel()
@@ -793,6 +833,8 @@ void NovelToVHDLPass::visit_epilog( ParallelScope& value )
 	, value.getLabel()
 	);
 }
+void NovelToVHDLPass::visit_epilog( ParallelScope& value )		
+{}
 
 
 //
@@ -819,49 +861,20 @@ void NovelToVHDLPass::visit_prolog( SequentialScope& value )
 		
 		fprintf
 	    ( stream
-	    , "  process( %s_%s, ack_%s ) is\n"
-	      "  begin\n"
-	      "    if %s_%s = '0' and ack_%s = '1' then\n"
-	      "      req_%s <= transport '0' after 25 ps;\n"
-	      "    else\n"
-	      "      if rising_edge( %s_%s ) then\n"
-	      "        if ack_%s = '0' then\n"
-	      "          req_%s <= transport '1' after 25 ps;\n"
-	      "        else\n"
-	      "          req_%s <= transport '0' after 25 ps;\n"
-	      "        end if;\n"
-	      "      end if;\n"
-	      "    end if;\n"
-	      "  end process;\n"
-	      "\n"
-		, last_kind
-	    , last->getLabel()
+	    , "  %s : entity work.handshake port map ( %s_%s, req_%s, ack_%s );\n"
 	    , block->getLabel()
 		, last_kind
 	    , last->getLabel()
 	    , block->getLabel()
 	    , block->getLabel()
-		, last_kind
-	    , last->getLabel()
-	    , block->getLabel()
-	    , block->getLabel()
-	    , block->getLabel()
-	    );
+		);
 		
 		last = block;
 	}
-
+	
 	fprintf
 	( stream
-	, "\n"
-    );
-}
-void NovelToVHDLPass::visit_epilog( SequentialScope& value )
-{
-	fprintf
-	( stream
-	, "\n"
-	  "  ack_%s <= transport ack_%s after 25 ps;\n"
+	, "  ack_%s <= transport ack_%s after 25 ps;\n"
 	  "  -- seq '%s' end\n"
 	  "\n"
 	, value.getLabel()
@@ -869,6 +882,8 @@ void NovelToVHDLPass::visit_epilog( SequentialScope& value )
 	, value.getLabel()
 	);
 }
+void NovelToVHDLPass::visit_epilog( SequentialScope& value )
+{}
 
 
 //
@@ -996,55 +1011,20 @@ void NovelToVHDLPass::visit_interlog( BranchStatement& value )
 	
 	Value* instr = value.getInstructions().back();
 	assert( instr );
-	
+
 	fprintf
 	( stream
-	, "    process( sig_%s, req_%s, ack_%s, ack_%s ) is\n"
-	  "    begin\n"
-	  "      if req_%s = '0' and ( ack_%s = '1' or ack_%s = '1' ) then\n"
-	  "        req_%s <= transport '0' after 25 ps;\n"
-	  "        req_%s <= transport '0' after 25 ps;\n"
-	  "      else\n"
-	  "        if rising_edge( sig_%s ) then\n"
-	  "          if %s = '1' then\n"
-	  "            if ack_%s = '0' then\n"
-	  "              req_%s <= transport '1' after 25 ps;\n"
-	  "            else\n"
-	  "              req_%s <= transport '0' after 25 ps;\n"
-	  "            end if;\n"
-	  "          else\n"
-	  "            if ack_%s = '0' then\n"
-	  "              req_%s <= transport '1' after 25 ps;\n"
-	  "            else\n"
-	  "              req_%s <= transport '0' after 25 ps;\n"
-	  "            end if;\n"
-	  "          end if;\n"
-	  "        end if;\n"
-	  "      end if;\n"
-	  "    end process;\n"
+	, "    %s : entity work.handshake_branch port map ( req_%s, ack_%s, req_%s, ack_%s, req_%s, ack_%s, %s );\n"
 	  "  end block;\n"
+	  "  -- branch '%s' branching;\n"
+	, value.getLabel()
 	, value.getLabel()
 	, value.getLabel()
 	, value.getScopes()[0]->getLabel()
-	, value.getScopes()[1]->getLabel()
-	, value.getLabel()
 	, value.getScopes()[0]->getLabel()
 	, value.getScopes()[1]->getLabel()
-	, value.getScopes()[0]->getLabel()
 	, value.getScopes()[1]->getLabel()
-	, value.getLabel()
 	, instr->getLabel()
-	, value.getScopes()[0]->getLabel()
-	, value.getScopes()[0]->getLabel()
-	, value.getScopes()[0]->getLabel()
-	, value.getScopes()[1]->getLabel()
-	, value.getScopes()[1]->getLabel()
-	, value.getScopes()[1]->getLabel()
-	);
-	
-	fprintf
-	( stream
-	, "  -- branch '%s' branching;\n"
 	, value.getLabel()
 	);
 }
@@ -1053,12 +1033,12 @@ void NovelToVHDLPass::visit_epilog( BranchStatement& value )
 	fprintf
 	( stream
 	, "  -- branch '%s' end\n"
-	  "  ack_%s <= transport ( ack_%s or ack_%s ) after 25 ps;"
+	  //"  ack_%s <= transport ( ack_%s or ack_%s ) after 25 ps;"
 	  "\n"
     , value.getLabel()
-	, value.getLabel()
-	, value.getScopes()[0]->getLabel()
-	, value.getScopes()[1]->getLabel()
+	  //, value.getLabel()
+	// , value.getScopes()[0]->getLabel()
+	// , value.getScopes()[1]->getLabel()
 	);
 }
 
