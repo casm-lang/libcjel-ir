@@ -62,24 +62,24 @@ bool NovelToVHDLPass::run( libpass::PassResult& pr )
 	libnovel::NotInstruction* ti = new libnovel::NotInstruction( c );
 	tr->add( ti );
     
-	// libnovel::Statement* b = new libnovel::BranchStatement( s );
-	// libnovel::NotInstruction* i = new libnovel::NotInstruction( c );
-	// b->add( i );
+	libnovel::Statement* b = new libnovel::BranchStatement( s );
+	libnovel::NotInstruction* i = new libnovel::NotInstruction( c );
+	b->add( i );
 	
-	// libnovel::Scope* bt = new libnovel::ParallelScope();
-	// libnovel::Scope* bf = new libnovel::SequentialScope();
-	// b->addScope( bt );
-	// b->addScope( bf );
+	libnovel::Scope* bt = new libnovel::ParallelScope();
+	libnovel::Scope* bf = new libnovel::SequentialScope();
+	b->addScope( bt );
+	b->addScope( bf );
 	
-	// libnovel::Statement* t0 = new libnovel::TrivialStatement( bt );
-	// t0->add( new libnovel::NopInstruction() );
-	// libnovel::Statement* t01 = new libnovel::TrivialStatement( bt );
-	// t01->add( new libnovel::NopInstruction() );
+	libnovel::Statement* t0 = new libnovel::TrivialStatement( bt );
+	t0->add( new libnovel::NopInstruction() );
+	libnovel::Statement* t01 = new libnovel::TrivialStatement( bt );
+	t01->add( new libnovel::NopInstruction() );
 	
-	// libnovel::Statement* t1 = new libnovel::TrivialStatement( bf );
-	// t1->add( new libnovel::NopInstruction() );
-	// libnovel::Statement* t11 = new libnovel::TrivialStatement( bf );
-	// t11->add( new libnovel::NopInstruction() );
+	libnovel::Statement* t1 = new libnovel::TrivialStatement( bf );
+	t1->add( new libnovel::NopInstruction() );
+	libnovel::Statement* t11 = new libnovel::TrivialStatement( bf );
+	t11->add( new libnovel::NopInstruction() );
 	
 	m->add(f);
 	m->add(c);
@@ -746,7 +746,6 @@ void NovelToVHDLPass::visit_prolog( ParallelScope& value )
 	      "      end if;\n"
 	      "    end if;\n"
 	      "  end process;\n"
-	      "\n"
 		, value.getLabel()
 	    , block->getLabel()
 		, value.getLabel()
@@ -786,7 +785,7 @@ void NovelToVHDLPass::visit_epilog( ParallelScope& value )
 	fprintf
 	( stream
 	, "\n"
-	  "  ack_%s <= transport %s after 25 ps;\n"
+	  "  ack_%s <= transport ( %s ) after 25 ps;\n"
 	  "  -- par '%s' end\n"
 	  "\n"
 	, value.getLabel()
@@ -862,11 +861,11 @@ void NovelToVHDLPass::visit_epilog( SequentialScope& value )
 	fprintf
 	( stream
 	, "\n"
-	  "  ack_%s <= transport %s after 25 ps;\n"
+	  "  ack_%s <= transport ack_%s after 25 ps;\n"
 	  "  -- seq '%s' end\n"
 	  "\n"
 	, value.getLabel()
-	, value.getBlocks().front()->getLabel()
+	, value.getBlocks().back()->getLabel()
 	, value.getLabel()
 	);
 }
@@ -967,7 +966,7 @@ void NovelToVHDLPass::visit_epilog( TrivialStatement& value )
 	fprintf
 	( stream
 	, "    ack_%s <= transport sig_%s after 25 ps;\n"
-	  "  end block;"
+	  "  end block;\n"
 	  "  -- stmt '%s' end\n"
 	  "\n"
 	, value.getLabel()
@@ -983,11 +982,9 @@ void NovelToVHDLPass::visit_epilog( TrivialStatement& value )
 
 void NovelToVHDLPass::visit_prolog( BranchStatement& value )
 {
- 	TODO;
-	
 	fprintf
 	( stream
-	, "  -- branch '%s' BRANCH STATEMENT BEGIN;\n"
+	, "  -- branch '%s' begin;\n"
 	, value.getLabel()
 	);
 	
@@ -995,37 +992,68 @@ void NovelToVHDLPass::visit_prolog( BranchStatement& value )
 }
 void NovelToVHDLPass::visit_interlog( BranchStatement& value )
 {
+	// visit_epilog( *((TrivialStatement*)&value) );
+	
 	Value* instr = value.getInstructions().back();
 	assert( instr );
 	
 	fprintf
 	( stream
-	, "    process( sig_%s, %s ) is -- branch\n"
+	, "    process( sig_%s, req_%s, ack_%s, ack_%s ) is\n"
 	  "    begin\n"
-	  "      if rising_edge( sig_%s ) then\n"
-	  "        if %s = '1' then\n"
-	  "          req_%s <= transport '1' after 50 ps;\n"
-	  "        else\n"
-	  "          req_%s <= transport '1' after 50 ps;\n"
+	  "      if req_%s = '0' and ( ack_%s = '1' or ack_%s = '1' ) then\n"
+	  "        req_%s <= transport '0' after 25 ps;\n"
+	  "        req_%s <= transport '0' after 25 ps;\n"
+	  "      else\n"
+	  "        if rising_edge( sig_%s ) then\n"
+	  "          if %s = '1' then\n"
+	  "            if ack_%s = '0' then\n"
+	  "              req_%s <= transport '1' after 25 ps;\n"
+	  "            else\n"
+	  "              req_%s <= transport '0' after 25 ps;\n"
+	  "            end if;\n"
+	  "          else\n"
+	  "            if ack_%s = '0' then\n"
+	  "              req_%s <= transport '1' after 25 ps;\n"
+	  "            else\n"
+	  "              req_%s <= transport '0' after 25 ps;\n"
+	  "            end if;\n"
+	  "          end if;\n"
 	  "        end if;\n"
 	  "      end if;\n"
 	  "    end process;\n"
 	  "  end block;\n"
-	  "\n"
 	, value.getLabel()
-	, instr->getLabel()
+	, value.getLabel()
+	, value.getScopes()[0]->getLabel()
+	, value.getScopes()[1]->getLabel()
+	, value.getLabel()
+	, value.getScopes()[0]->getLabel()
+	, value.getScopes()[1]->getLabel()
+	, value.getScopes()[0]->getLabel()
+	, value.getScopes()[1]->getLabel()
 	, value.getLabel()
 	, instr->getLabel()
 	, value.getScopes()[0]->getLabel()
+	, value.getScopes()[0]->getLabel()
+	, value.getScopes()[0]->getLabel()
 	, value.getScopes()[1]->getLabel()
+	, value.getScopes()[1]->getLabel()
+	, value.getScopes()[1]->getLabel()
+	);
+	
+	fprintf
+	( stream
+	, "  -- branch '%s' branching;\n"
+	, value.getLabel()
 	);
 }
 void NovelToVHDLPass::visit_epilog( BranchStatement& value )
 {
 	fprintf
 	( stream
-	, "  -- ack %s -- branch end\n"
-	  "  ack_%s <= transport ( ack_%s or ack_%s ) after 50 ps;"
+	, "  -- branch '%s' end\n"
+	  "  ack_%s <= transport ( ack_%s or ack_%s ) after 25 ps;"
 	  "\n"
     , value.getLabel()
 	, value.getLabel()
