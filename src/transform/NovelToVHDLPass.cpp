@@ -2042,7 +2042,6 @@ void NovelToVHDLPass::visit_epilog( ExtractInstruction& value )
 
 void NovelToVHDLPass::visit_prolog( LoadInstruction& value )
 {
-
 	if( not instruction_implementation )
 	{
 		Value* src = value.get();
@@ -2101,6 +2100,13 @@ void NovelToVHDLPass::visit_prolog( LoadInstruction& value )
 		return;
 	}
 
+	static u1 used = false;
+	if( used )
+	{
+		return;
+	}
+	used = true;
+	
 	const char* name = &value.getName()[1];
 	fprintf
 	( stream
