@@ -52,53 +52,7 @@ bool NovelToVHDLPass::run( libpass::PassResult& pr )
 	
 	string fn = "obj/" + string( value->getName() ) + ".vhd"; 
 	stream = fopen( fn.c_str(), "w" );
-
-	libnovel::Module* m = new libnovel::Module( "func_module" );
-	libnovel::BitConstant* c = libnovel::BitConstant::create( false, 1 );
 	
-	libnovel::Function* f = new libnovel::Function( "func" );
-	libnovel::Scope* s = new libnovel::ParallelScope( f );
-	libnovel::Statement* tr = new libnovel::TrivialStatement( s );
-	libnovel::NotInstruction* ti = new libnovel::NotInstruction( c );
-	tr->add( ti );
-    
-	// libnovel::Statement* b = new libnovel::BranchStatement( s );
-	// // libnovel::NotInstruction* i_ = new libnovel::NotInstruction( c );
-	// // libnovel::NotInstruction* i = new libnovel::NotInstruction( i_ );
-	// libnovel::NotInstruction* i = new libnovel::NotInstruction( c );
-	// b->add( i );
-	
-	// libnovel::Scope* bt = new libnovel::SequentialScope();
-	// // libnovel::Scope* bf = new libnovel::SequentialScope();
-	// b->addScope( bt );
-	// // b->addScope( bf );
-	
-	// libnovel::Statement* t0 = new libnovel::TrivialStatement( bt );
-	// t0->add( new libnovel::NopInstruction() );
-	// libnovel::Statement* t01 = new libnovel::TrivialStatement( bt );
-	// t01->add( new libnovel::NopInstruction() );
-	
-	// // libnovel::Statement* t1 = new libnovel::TrivialStatement( bf );
-	// // t1->add( new libnovel::NopInstruction() );
-	// // libnovel::Statement* t11 = new libnovel::TrivialStatement( bf );
-	// // t11->add( new libnovel::NopInstruction() );
-	
-	libnovel::Statement* loop = new libnovel::LoopStatement( s );
-	libnovel::NotInstruction* i = new libnovel::NotInstruction( c );
-	loop->add( i );
-	
-	libnovel::Scope* body = new libnovel::SequentialScope( );
-	loop->addScope( body );
-	libnovel::Statement* body0 = new libnovel::TrivialStatement( body );
-	body0->add( new libnovel::NopInstruction() );
-	
-	
-	m->add(f);
-	m->add(c);
-	
-	value = m;
-	module = m;
-
 	value->iterate
 	( Traversal::PREORDER
 	, this
@@ -2135,12 +2089,7 @@ void NovelToVHDLPass::visit_prolog( StoreInstruction& value )
 	  "end %s;\n"
 	  "architecture \\@%s@\\ of %s is\n"
 	  "begin\n"
-	  "  process( req ) is\n"
-      "  begin\n"
-	  "    if rising_edge( req ) then\n"
-	  "      ack <= transport '1' after 50 ps;\n"
-	  "    end if;\n"
-	  "  end process;\n"
+	  "  ack <= transport req after 100 ps;\n"
 	  "  dst <= src;\n"
 	  "end \\@%s@\\;\n"
 	  "\n"
@@ -2252,12 +2201,7 @@ void NovelToVHDLPass::visit_prolog( AndInstruction& value )
 	  "end %s;\n"
 	  "architecture \\@%s@\\ of %s is\n"
 	  "begin\n"
-	  "  process( req ) is\n"
-      "  begin\n"
-	  "    if rising_edge( req ) then\n"
-	  "      ack <= transport '1' after 50 ps;\n"
-	  "    end if;\n"
-	  "  end process;\n"
+	  "  ack <= transport req after 100 ps;\n"
 	  "  t <= a and b;\n"
 	  "end \\@%s@\\;\n"
 	  "\n"
@@ -2314,12 +2258,7 @@ void NovelToVHDLPass::visit_prolog( OrInstruction& value )
 	  "end %s;\n"
 	  "architecture \\@%s@\\ of %s is\n"
 	  "begin\n"
-	  "  process( req ) is\n"
-      "  begin\n"
-	  "    if rising_edge( req ) then\n"
-	  "      ack <= transport '1' after 50 ps;\n"
-	  "    end if;\n"
-	  "  end process;\n"
+	  "  ack <= transport req after 100 ps;\n"
 	  "  t <= a or b;\n"
 	  "end \\@%s@\\;\n"
 	  "\n"
@@ -2375,12 +2314,7 @@ void NovelToVHDLPass::visit_prolog( XorInstruction& value )
 	  "end %s;\n"
 	  "architecture \\@%s@\\ of %s is\n"
 	  "begin\n"
-	  "  process( req ) is\n"
-      "  begin\n"
-	  "    if rising_edge( req ) then\n"
-	  "      ack <= transport '1' after 50 ps;\n"
-	  "    end if;\n"
-	  "  end process;\n"
+	  "  ack <= transport req after 100 ps;\n"
 	  "  t <= a xor b;\n"
 	  "end \\@%s@\\;\n"
 	  "\n"
@@ -2439,13 +2373,8 @@ void NovelToVHDLPass::visit_prolog( AddSignedInstruction& value )
 	  "end %s;\n"
 	  "architecture \\@%s@\\ of %s is\n"
 	  "begin\n"
-	  "  process( req ) is\n"
-      "  begin\n"
-	  "    if rising_edge( req ) then\n"
-	  "      ack <= transport '1' after 50 ps;\n"
-	  "    end if;\n"
-	  "  end process;\n"
-	  "  t <= std_logic_vector( signed( a ) + signed( b ) );\n"
+	  "  ack <= transport req after 100 ps;\n"
+	  "  t   <= std_logic_vector( signed( a ) + signed( b ) );\n"
 	  "end \\@%s@\\;\n"
 	  "\n"
 	, name
@@ -2501,13 +2430,8 @@ void NovelToVHDLPass::visit_prolog( DivSignedInstruction& value )
 	  "end %s;\n"
 	  "architecture \\@%s@\\ of %s is\n"
 	  "begin\n"
-	  "  process( req ) is\n"
-      "  begin\n"
-	  "    if rising_edge( req ) then\n"
-	  "      ack <= transport '1' after 50 ps;\n"
-	  "    end if;\n"
-	  "  end process;\n"
-	  "  t <= std_logic_vector( signed( a ) / signed( b ) );\n"
+	  "  ack <= transport req after 100 ps;\n"
+	  "  t   <= std_logic_vector( signed( a ) / signed( b ) );\n"
 	  "end \\@%s@\\;\n"
 	  "\n"
 	, name
@@ -2562,13 +2486,8 @@ void NovelToVHDLPass::visit_prolog( ModUnsignedInstruction& value )
 	  "end %s;\n"
 	  "architecture \\@%s@\\ of %s is\n"
 	  "begin\n"
-	  "  process( req ) is\n"
-      "  begin\n"
-	  "    if rising_edge( req ) then\n"
-	  "      ack <= transport '1' after 50 ps;\n"
-	  "    end if;\n"
-	  "  end process;\n"
-	  "  t <= std_logic_vector( unsigned( a ) mod unsigned( b ) );\n"
+	  "  ack <= transport req after 100 ps;\n"
+	  "  t   <= std_logic_vector( unsigned( a ) mod unsigned( b ) );\n"
 	  "end \\@%s@\\;\n"
 	  "\n"
 	, name
@@ -2623,13 +2542,8 @@ void NovelToVHDLPass::visit_prolog( EquUnsignedInstruction& value )
 	  "end %s;\n"
 	  "architecture \\@%s@\\ of %s is\n"
 	  "begin\n"
-	  "  process( req ) is\n"
-      "  begin\n"
-	  "    if rising_edge( req ) then\n"
-	  "      ack <= transport '1' after 50 ps;\n"
-	  "    end if;\n"
-	  "  end process;\n"
-	  "  t <= '1' when ( unsigned( a ) = unsigned( b ) ) else '0';\n"
+	  "  ack <= transport req after 100 ps;\n"
+	  "  t   <= '1' when ( unsigned( a ) = unsigned( b ) ) else '0';\n"
 	  "end \\@%s@\\;\n"
 	  "\n"
 	, name
@@ -2684,13 +2598,8 @@ void NovelToVHDLPass::visit_prolog( NeqUnsignedInstruction& value )
 	  "end %s;\n"
 	  "architecture \\@%s@\\ of %s is\n"
 	  "begin\n"
-	  "  process( req ) is\n"
-      "  begin\n"
-	  "    if rising_edge( req ) then\n"
-	  "      ack <= transport '1' after 50 ps;\n"
-	  "    end if;\n"
-	  "  end process;\n"
-	  "  t <= '0' when ( unsigned( a ) = unsigned( b ) ) else '1';\n"
+	  "  ack <= transport req after 100 ps;\n"
+	  "  t   <= '0' when ( unsigned( a ) = unsigned( b ) ) else '1';\n"
 	  "end \\@%s@\\;\n"
 	  "\n"
 	, name
@@ -2747,12 +2656,7 @@ void NovelToVHDLPass::visit_prolog( ZeroExtendInstruction& value )
 	  "architecture \\@%s@\\ of %s is\n"
 	  "  constant padding : std_logic_vector( (TO_BIT_WIDTH-FROM_BIT_WIDTH-1) downto 0 ) := ( others => '0');\n"
 	  "begin\n"
-	  "  process( req ) is\n"
-      "  begin\n"
-	  "    if rising_edge( req ) then\n"
-	  "      ack <= transport '1' after 50 ps;\n"
-	  "    end if;\n"
-	  "  end process;\n"
+	  "  ack <= transport req after 100 ps;\n"
 	  "  t <= padding & a;\n"
 	  "end \\@%s@\\;\n"
 	  "\n"
@@ -2823,12 +2727,7 @@ void NovelToVHDLPass::visit_prolog( TruncationInstruction& value )
 	  "end %s;\n"
 	  "architecture \\@%s@\\ of %s is\n"
 	  "begin\n"
-	  "  process( req ) is\n"
-      "  begin\n"
-	  "    if rising_edge( req ) then\n"
-	  "      ack <= transport '1' after 50 ps;\n"
-	  "    end if;\n"
-	  "  end process;\n"
+	  "  ack <= transport req after 100 ps;\n"
 	  "  t <= a( TO_BIT_WIDTH-1 downto 0 );\n"
 	  "end \\@%s@\\;\n"
 	  "\n"
@@ -3084,9 +2983,9 @@ void NovelToVHDLPass::visit_prolog( Interconnect& value )
 	( stream
 	, "        when others => data <= ( others => 'U' );\n"
 	  "      end case;\n"
-	  "      ack <= transport '1' after 50 ps;\n"
 	  "    end if;\n"
 	  "  end process;\n"
+	  "  ack <= transport req after 100 ps;\n"
 	  "end \\@%s@\\;\n"
 	  "\n"
 	, value.getLabel()
