@@ -46,6 +46,8 @@ namespace libnovel
 	public:
 		Instruction( const char* name, Type* type, Value::ID id = Value::INSTRUCTION );
 
+		~Instruction( void );
+		
 		void setStatement( Statement* stmt );
 		Statement* getStatement( void ) const;
 		

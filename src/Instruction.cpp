@@ -30,7 +30,13 @@ using namespace libnovel;
 Instruction::Instruction( const char* name, Type* type, Value::ID id )
 : User( name, type, id )
 , statement( 0 )
-{
+{			
+	(*Value::getSymbols())[ ".instruction" ].insert( this );
+}
+
+Instruction::~Instruction( void )
+{			
+	(*Value::getSymbols())[ ".instruction" ].erase( this );
 }
 
 void Instruction::setStatement( Statement* stmt )

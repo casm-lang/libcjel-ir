@@ -36,6 +36,7 @@ Value::Value( const char* name, Type* type, Value::ID id )
 , type( type )
 , id( id )
 , type_lock( false )
+, next( 0 )
 {
 	SymbolTable& symbols = *getSymbols();
 	symbols[ name ].insert( this );
