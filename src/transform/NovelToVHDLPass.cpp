@@ -1433,10 +1433,13 @@ void NovelToVHDLPass::visit_prolog( IdCallInstruction& value )
 {
     fprintf
 	( stream
-	, "      -- %s = %s %s() -- id call\n"
+	, "    -- %s = %s %s() -- id call\n"
+	  "    sig_%s <= sig_%s;"
 	, value.getLabel()
 	, value.getValue(0)->getLabel()
 	, value.getValue(1)->getLabel()
+	, value.getNext() != 0 ? value.getNext()->getLabel() : value.getStatement()->getLabel()
+	, value.getLabel()
 	);	
 }
 void NovelToVHDLPass::visit_epilog( IdCallInstruction& value )
@@ -1791,33 +1794,7 @@ void NovelToVHDLPass::visit_prolog( CastInstruction& value )
 	      "\n"
 	    , name
 	    );
-	}
-	
-	
-	
-	// //####################################
-	// if( not instruction_implementation )
-	// {
-	// 	instr_generic_port( value );
-	// 	return;
-	// }
-	
-	// static u1 used = false;
-	// if( used )
-	// {
-	// 	return;
-	// }
-	// used = true;
-	
-	// const char* name = &value.getName()[1];
-	// fprintf
-	// ( stream
-	// , "-- Instruction '%s'\n"
-	//   "-- TODO\n"
-	//   "\n"
-	// , name
-	// );
-	
+	}	
 }
 void NovelToVHDLPass::visit_epilog( CastInstruction& value )
 {}
@@ -1912,23 +1889,6 @@ void NovelToVHDLPass::visit_prolog( ExtractInstruction& value )
 	    );
 	}
 	else if
-	( ( Value::isa< CastInstruction >( base ) or Value::isa< Reference >( base ) )
-	and Value::isa< Structure >( offset )
-	and base->getType()->getIDKind() == Type::STRUCTURE
-	)
-	{
-		if( not instruction_implementation )
-		{
-		    fprintf
-		    ( stream
-		    , "    sig_%s <= sig_%s; -- instr_%s: extract omitted due to direct access!\n"
-		    , value.getNext()->getLabel()
-		    , value.getLabel()
-		    , value.getLabel()
-		    );
-		}
-	}
-	else if
 	(   Value::isa< Reference >( base )
 	and base->getType()->getIDKind() == Type::INTERCONNECT
 	and offset->getType()->getIDKind() == Type::BIT
@@ -2004,6 +1964,23 @@ void NovelToVHDLPass::visit_prolog( ExtractInstruction& value )
 	    , name
 	    );
 	}
+	// else if
+	// ( ( Value::isa< CastInstruction >( base ) or Value::isa< Reference >( base ) )
+	// and Value::isa< Structure >( offset )
+	// and base->getType()->getIDKind() == Type::STRUCTURE
+	// )
+	// {
+	// 	if( not instruction_implementation )
+	// 	{
+	// 	    fprintf
+	// 	    ( stream
+	// 	    , "    sig_%s <= transport sig_%s after 25 ps; -- instr_%s: extract omitted due to direct access!\n"
+	// 	    , value.getNext()->getLabel()
+	// 	    , value.getLabel()
+	// 	    , value.getLabel()
+	// 	    );
+	// 	}
+	// }
 	else if
 	( ( Value::isa< Instruction >( base ) or Value::isa< Reference >( base ) )
 	and Value::isa< Structure >( offset )
@@ -2014,7 +1991,7 @@ void NovelToVHDLPass::visit_prolog( ExtractInstruction& value )
 		{
 		    fprintf
 		    ( stream
-		    , "    sig_%s <= sig_%s; -- instr_%s: extract omitted due to direct access!\n"
+		    , "    sig_%s <= transport sig_%s after 25 ps; -- instr_%s: extract omitted due to direct access!\n"
 		    , value.getNext()->getLabel()
 		    , value.getLabel()
 		    , value.getLabel()
@@ -2026,9 +2003,9 @@ void NovelToVHDLPass::visit_prolog( ExtractInstruction& value )
 		if( not instruction_implementation )
 		{
 			fprintf( stream, " -- inst_%s: extract TODO\n", value.getLabel() );
-			assert(0);
 		}
 		//assert( !" unsupported/unimplemented extract feature! " );
+		assert(0);
 	}
 }
 void NovelToVHDLPass::visit_epilog( ExtractInstruction& value )
@@ -2061,6 +2038,8 @@ void NovelToVHDLPass::visit_prolog( LoadInstruction& value )
 		    , value.getLabel()
 	        , src->getLabel()
 	        );
+
+			//instr_generic_port( value, { &value } );
 		}
 		else if( Value::isa< ExtractInstruction >( src ) )
 		{
@@ -2072,20 +2051,19 @@ void NovelToVHDLPass::visit_prolog( LoadInstruction& value )
 			
 			instr_generic_port( value, { &value }, 0, 1, tmp_src.c_str() );
 			
-			fprintf
-		    ( stream
-		    , " -- load_%s: -- %s '%s'\n"
-			  "    sig_%s <= sig_%s;\n"
-			  "    %s <= %s;\n"
-		    , value.getLabel()
-	        , &value.getName()[1]
-	        , src->getLabel()
-			, value.getNext()->getLabel()
-		    , value.getLabel()
-		    , value.getLabel()
-	        , tmp_src.c_str()
-	        );
-
+			// fprintf
+		    // ( stream
+		    // , " -- load_%s: -- %s '%s'\n"
+			//   "    sig_%s <= sig_%s;\n"
+			//   "    %s <= %s;\n"
+		    // , value.getLabel()
+	        // , &value.getName()[1]
+	        // , src->getLabel()
+			// , value.getNext()->getLabel()
+		    // , value.getLabel()
+		    // , value.getLabel()
+	        // , tmp_src.c_str()
+	        // );
 		}
 		else
 		{
@@ -2096,6 +2074,7 @@ void NovelToVHDLPass::visit_prolog( LoadInstruction& value )
 	        , value.get()->getLabel()
 	        , &value.getName()[1]
 	        );
+			assert(0);
 		}
 		return;
 	}
@@ -2240,7 +2219,13 @@ void NovelToVHDLPass::visit_prolog( StoreInstruction& value )
 	  "architecture \\@%s@\\ of %s is\n"
 	  "begin\n"
 	  "  ack <= transport req after 100 ps;\n"
-	  "  dst <= src;\n"
+	  "  -- dst <= src;\n"
+	  "  process( req ) is\n"
+	  "  begin\n"
+	  "    if rising_edge( req ) then\n"
+	  "      dst <= src;\n"
+	  "    end if;\n"
+	  "  end process;\n"
 	  "end \\@%s@\\;\n"
 	  "\n"
 	, name
