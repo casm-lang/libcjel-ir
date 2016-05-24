@@ -372,6 +372,10 @@ bool TruncationInstruction::classof( Value const* obj )
 StoreInstruction::StoreInstruction( Value* src, Value* dst )
 : BinaryInstruction( ".store", 0, src, dst, Value::STORE_INSTRUCTION )
 {
+	assert
+	(   src->getType()->getBitsize() == dst->getType()->getBitsize()
+	and " bitsize from src to dst is violated "
+	);
 }
 bool StoreInstruction::classof( Value const* obj )
 {

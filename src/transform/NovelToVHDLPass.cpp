@@ -884,7 +884,7 @@ void NovelToVHDLPass::visit_prolog( Reference& value )
 	    , "mem_req_%s  : out std_logic -- memory '%s'\n; "
 		  "mem_ack_%s  : in  std_logic\n; "
 		  "mem_mode_%s : out std_logic\n; "
-		  "mem_addr_%s : out std_logic_vector( 15 downto 0 )\n; "
+		  "mem_addr_%s : out std_logic_vector( 47 downto 0 )\n; "
 		  "mem_data_%s : inout std_logic_vector( %u downto 0 )%s"
 	    , value.getLabel()
 	    , value.getLabel()
@@ -2810,7 +2810,7 @@ void NovelToVHDLPass::visit_prolog( EquUnsignedInstruction& value )
 {
 	if( not instruction_implementation )
 	{
-		instr_generic_port( value, { &value } );
+		instr_generic_port( value, { value.getLHS() } );
 		return;
 	}
 	
