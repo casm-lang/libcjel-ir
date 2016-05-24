@@ -136,7 +136,7 @@ static void emit_statement_wires( Statement& value )
 		{
 		    fprintf
 		    ( stream
-	        , "    signal     %s : %s; -- %s\n"
+	        , "  signal     %s : %s; -- %s\n"
 		    , instr->getLabel()
 		    , getTypeString( *instr )
 		    , instr->getName()
@@ -165,18 +165,60 @@ static void emit_statement_wires( Statement& value )
 			
 		    fprintf
 		    ( stream
-	        , "    constant   %s : %s := \"%s\"; -- %s\n"
+	        , "  constant   %s : %s := \"%s\"; -- %s\n"
 		    , instr->getLabel()
 		    , getTypeString( *instr )
 			, id
 		    , instr->getName()
 		    );
 		}
+		else if( Value::isa< IdCallInstruction >( instr ) )
+		{
+			IdCallInstruction* idcall = (IdCallInstruction*)instr;
+			assert( Value::isa< CallableUnit >( idcall->getValue( 0 ) ) );
+			CallableUnit* cs = (CallableUnit*)idcall->getValue( 0 );
+			
+			fprintf
+		    ( stream
+	        , "  signal sig_%s : std_logic := '0'; -- %s\n"
+		    , instr->getLabel()
+		    , instr->getName()
+		    );
+
+			Module* m = idcall->getRef< Module >();
+			
+		    for( Value* v : m->get< Function >() )
+			{
+				assert( v and Value::isa< CallableUnit >( v ) );
+				CallableUnit* cu = (CallableUnit*)v;
+		
+				// TODO: FIXME: PPA: HACK: more checks here regarding the indirect ID call argument types!!!
+				if( cu->getInParameters().size() != cs->getInParameters().size() )
+				{
+					continue;
+				}
+				if( cu->getOutParameters().size() != cs->getOutParameters().size() )
+				{
+					continue;
+				}
+				
+				fprintf
+		        ( stream
+	            , "  signal sig_%s_req_%s : std_logic := '0'; -- '%s'\n"
+				  "  signal sig_%s_ack_%s : std_logic := '0';\n"
+				, instr->getLabel()
+				, cu->getLabel()
+				, cu->getName()
+				, instr->getLabel()
+				, cu->getLabel()
+		        );
+			}
+		}
 		else
 		{		
 		    fprintf
 		    ( stream
-	        , "    signal sig_%s : std_logic := '0'; -- %s\n"
+	        , "  signal sig_%s : std_logic := '0'; -- %s\n"
 		    , instr->getLabel()
 		    , instr->getName()
 		    );
@@ -190,12 +232,12 @@ static void emit_statement_wires( Statement& value )
 			{
 			    fprintf
 		        ( stream
-	            , "    signal     %s : %s; -- %s\n"
+	            , "  signal     %s : %s; -- %s\n"
 		        , instr->getLabel()
 		        , getTypeString( *instr )
 		        , instr->getName()
 		        );
-			}		    
+			}				
 		}
 	}	
 }
@@ -1433,13 +1475,136 @@ void NovelToVHDLPass::visit_prolog( IdCallInstruction& value )
 {
     fprintf
 	( stream
-	, "    -- %s = %s %s() -- id call\n"
-	  "    sig_%s <= sig_%s;"
+	, "    \n"
+	  "    -- id call\n"
+	  "    -- %s = %s %s()\n"
+	  "    -- sig_%s <= TODO;\n"
 	, value.getLabel()
 	, value.getValue(0)->getLabel()
 	, value.getValue(1)->getLabel()
 	, value.getNext() != 0 ? value.getNext()->getLabel() : value.getStatement()->getLabel()
+	);
+	
+    fprintf
+	( stream
+	, "    idca_%s : process( sig_%s ) is\n"
+	  "    begin\n"
+	  "      case %s is\n"
 	, value.getLabel()
+	, value.getLabel()
+	, value.getValue(1)->getLabel()
+	);
+    
+	// TODO: FIXME: HACK: PPA: !!! should be dynamically fetched through callable signature!!!
+	// TODO: FIXME: HACK: PPA: IDEA: create implementation directly in 'Novel' !!!
+	
+	assert( Value::isa< CallableUnit >( value.getValue( 0 ) ) );
+	CallableUnit* cs = (CallableUnit*)value.getValue( 0 );
+	
+	Module* m = value.getRef< Module >();
+
+	std::vector< CallableUnit* > selection;
+	for( Value* v : m->get< Function >() )
+	{
+		assert( v and Value::isa< CallableUnit >( v ) );
+		CallableUnit* cu = (CallableUnit*)v;
+		selection.push_back( cu );
+		
+		// TODO: FIXME: PPA: HACK: more checks here regarding the indirect ID call argument types!!!
+		if( cu->getInParameters().size() != cs->getInParameters().size() )
+		{
+			continue;
+		}
+		if( cu->getOutParameters().size() != cs->getOutParameters().size() )
+		{
+			continue;
+		}
+        
+		std::bitset< 48 > bits( cu->getAllocationID()->getValue()[0] );
+		
+	    fprintf
+	    ( stream
+	    , "        when \"%s\" =>\n"
+		  "          sig_%s_req_%s <= transport sig_%s after 25 ps;\n"
+		, bits.to_string().c_str()
+		, value.getLabel()
+		, cu->getLabel()
+		, value.getLabel()
+	    );
+	}
+	
+    fprintf
+	( stream
+	, "        when others =>\n"
+	  "          assert false report \"unspecified function to call\" severity FAILURE;\n"
+	  "      end case;\n"
+	  "    end process;\n"
+	);
+
+	std::string args = "";
+
+	assert( selection.size() > 0 and " at least one function signature has to match the id call! " );
+	u32 cnt = 0;
+	for( auto v : value.getValues() )
+	{
+		cnt++;
+		if( cnt < 3 )
+		{
+			continue;
+		}
+		
+		if( Value::isa< Reference >( v ) and v->getType()->getIDKind() == Type::MEMORY )
+		{
+			args += ", mem_req_"  + std::string( v->getLabel() );
+			args += ", mem_ack_"  + std::string( v->getLabel() );
+			args += ", mem_mode_" + std::string( v->getLabel() );
+			args += ", mem_addr_" + std::string( v->getLabel() );
+			args += ", mem_data_" + std::string( v->getLabel() );
+		}
+		else if( Value::isa< Reference >( v ) and v->getType()->getIDKind() == Type::INTERCONNECT )
+		{
+			args += ", ict_req_"  + std::string( v->getLabel() );
+			args += ", ict_ack_"  + std::string( v->getLabel() );
+			args += ", ict_addr_" + std::string( v->getLabel() );
+			args += ", ict_data_" + std::string( v->getLabel() );
+		}
+		else
+		{
+			args += ", " + std::string( v->getLabel() );
+		}
+	}
+	
+	for( Value* v : m->get< Function >() )
+	{
+		assert( v and Value::isa< CallableUnit >( v ) );
+		CallableUnit* cu = (CallableUnit*)v;
+		
+		// TODO: FIXME: PPA: HACK: more checks here regarding the indirect ID call argument types!!!
+		if( cu->getInParameters().size() != cs->getInParameters().size() )
+		{
+			continue;
+		}
+		if( cu->getOutParameters().size() != cs->getOutParameters().size() )
+		{
+			continue;
+		}
+
+		fprintf
+	    ( stream
+	    , "   idca_%s : entity work.%s port map ( sig_%s_req_%s, sig_%s_ack_%s%s );\n"
+		, cu->getLabel()
+		, cu->getName()
+		, value.getLabel()
+		, cu->getLabel()
+		, value.getLabel()
+		, cu->getLabel()
+		, args.c_str()
+	    );
+	}
+	
+	fprintf
+	( stream
+	, "\n"
 	);	
 }
 void NovelToVHDLPass::visit_epilog( IdCallInstruction& value )
@@ -3044,10 +3209,9 @@ void NovelToVHDLPass::visit_prolog( Interconnect& value )
 	  "end %s;\n"
 	  "architecture \\@%s@\\ of %s is\n"
 	  "begin\n"
-	  "  process( req ) is\n"
+	  "  process( req, addr ) is\n"
 	  "  begin\n"
-	  "    if rising_edge( req ) then\n"
-	  "      case addr is\n"
+	  "    case addr is\n"
 	, value.getLabel()
 	, value.getLabel()
 	, value.getLabel()
@@ -3067,10 +3231,11 @@ void NovelToVHDLPass::visit_prolog( Interconnect& value )
 		// TODO: FIXME: PPA: HACK: this needs to be generic in the future!!! 
 	    fprintf
 	    ( stream
-	    , "        when \"%s\" => data <= "
+	    , "      when \"%s\" =>\n"
+		  "        data <= "
 		, bits.to_string().c_str()
 	    );
-
+		
 		u64 padding = 0;
 		for( auto e : sty->getElements() )
 		{
@@ -3116,9 +3281,10 @@ void NovelToVHDLPass::visit_prolog( Interconnect& value )
 	
 	fprintf
 	( stream
-	, "        when others => data <= ( others => 'U' );\n"
-	  "      end case;\n"
-	  "    end if;\n"
+	, "      when others =>\n"
+	  "        data <= ( others => 'U' );\n"
+	  "        assert false report \"unspecified address to interconnect\" severity FAILURE;\n"
+	  "    end case;\n"
 	  "  end process;\n"
 	  "  ack <= transport req after 100 ps;\n"
 	  "end \\@%s@\\;\n"

@@ -1595,7 +1595,7 @@ void NovelToC11Pass::visit_epilog( StringConstant& value )
 
 void NovelToC11Pass::visit_prolog( Interconnect& value )
 {
-    TODO;
+	// TODO: FIXME: PPA: different implementation in the future here!!!
 }
 void NovelToC11Pass::visit_epilog( Interconnect& value )
 {}
