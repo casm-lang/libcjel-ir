@@ -70,7 +70,7 @@ static const char* indention( Value& value )
 			break;
 			//assert(0);
 		}
-
+		
 		if( Value::isa< CallableUnit >( p ) )
 		{
 		    break;
@@ -86,6 +86,8 @@ static const char* indention( Value& value )
 
 #define DUMP_PREFIX  printf( "%-14s: %p, %s, %s%s ", __FUNCTION__, &value, value.getLabel(), indention( value ), value.getName() )
 #define DUMP_POSTFIX printf( "\n" );
+
+#define DUMP_INSTR for( auto v : value.getValues() ) { printf( ", %s (%s)", v->getLabel(), v->getType()->getName() ); }
 
 
 void NovelDumpPass::visit_prolog( Module& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
@@ -133,69 +135,69 @@ void NovelDumpPass::visit_prolog( LoopStatement& value ) { DUMP_PREFIX; DUMP_POS
 void NovelDumpPass::visit_interlog( LoopStatement& value ) {}
 void NovelDumpPass::visit_epilog( LoopStatement& value ) {}
 		
-void NovelDumpPass::visit_prolog( NopInstruction& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
+void NovelDumpPass::visit_prolog( NopInstruction& value ) { DUMP_PREFIX; DUMP_INSTR; DUMP_POSTFIX; }
 void NovelDumpPass::visit_epilog( NopInstruction& value ) {}
 
-void NovelDumpPass::visit_prolog( AllocInstruction& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
+void NovelDumpPass::visit_prolog( AllocInstruction& value ) { DUMP_PREFIX; DUMP_INSTR; DUMP_POSTFIX; }
 void NovelDumpPass::visit_epilog( AllocInstruction& value ) {}
 
-void NovelDumpPass::visit_prolog( IdInstruction& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
+void NovelDumpPass::visit_prolog( IdInstruction& value ) { DUMP_PREFIX; DUMP_INSTR; DUMP_POSTFIX; }
 void NovelDumpPass::visit_epilog( IdInstruction& value ) {}
 
-void NovelDumpPass::visit_prolog( CastInstruction& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
+void NovelDumpPass::visit_prolog( CastInstruction& value ) { DUMP_PREFIX; DUMP_INSTR; DUMP_POSTFIX; }
 void NovelDumpPass::visit_epilog( CastInstruction& value ) {}
 		
-void NovelDumpPass::visit_prolog( CallInstruction& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
+void NovelDumpPass::visit_prolog( CallInstruction& value ) { DUMP_PREFIX; DUMP_INSTR; DUMP_POSTFIX; }
 void NovelDumpPass::visit_epilog( CallInstruction& value ) {}
 		
-void NovelDumpPass::visit_prolog( IdCallInstruction& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
+void NovelDumpPass::visit_prolog( IdCallInstruction& value ) { DUMP_PREFIX; DUMP_INSTR; DUMP_POSTFIX; }
 void NovelDumpPass::visit_epilog( IdCallInstruction& value ) {}
 
-void NovelDumpPass::visit_prolog( StreamInstruction& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
+void NovelDumpPass::visit_prolog( StreamInstruction& value ) { DUMP_PREFIX; DUMP_INSTR; DUMP_POSTFIX; }
 void NovelDumpPass::visit_epilog( StreamInstruction& value ) {}
 
-void NovelDumpPass::visit_prolog( ExtractInstruction& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
+void NovelDumpPass::visit_prolog( ExtractInstruction& value ) { DUMP_PREFIX; DUMP_INSTR; DUMP_POSTFIX; }
 void NovelDumpPass::visit_epilog( ExtractInstruction& value ) {}
 
-void NovelDumpPass::visit_prolog( LoadInstruction& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
+void NovelDumpPass::visit_prolog( LoadInstruction& value ) { DUMP_PREFIX; DUMP_INSTR; DUMP_POSTFIX; }
 void NovelDumpPass::visit_epilog( LoadInstruction& value ) {}
 
-void NovelDumpPass::visit_prolog( StoreInstruction& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
+void NovelDumpPass::visit_prolog( StoreInstruction& value ) { DUMP_PREFIX; DUMP_INSTR; DUMP_POSTFIX; }
 void NovelDumpPass::visit_epilog( StoreInstruction& value ) {}
 
 
-void NovelDumpPass::visit_prolog( NotInstruction& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
+void NovelDumpPass::visit_prolog( NotInstruction& value ) { DUMP_PREFIX; DUMP_INSTR; DUMP_POSTFIX; }
 void NovelDumpPass::visit_epilog( NotInstruction& value ) {}
 
-void NovelDumpPass::visit_prolog( AndInstruction& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
+void NovelDumpPass::visit_prolog( AndInstruction& value ) { DUMP_PREFIX; DUMP_INSTR; DUMP_POSTFIX; }
 void NovelDumpPass::visit_epilog( AndInstruction& value ) {}
 
-void NovelDumpPass::visit_prolog( OrInstruction& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
+void NovelDumpPass::visit_prolog( OrInstruction& value ) { DUMP_PREFIX; DUMP_INSTR; DUMP_POSTFIX; }
 void NovelDumpPass::visit_epilog( OrInstruction& value ) {}
 
-void NovelDumpPass::visit_prolog( XorInstruction& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
+void NovelDumpPass::visit_prolog( XorInstruction& value ) { DUMP_PREFIX; DUMP_INSTR; DUMP_POSTFIX; }
 void NovelDumpPass::visit_epilog( XorInstruction& value ) {}
 
 
-void NovelDumpPass::visit_prolog( AddSignedInstruction& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
+void NovelDumpPass::visit_prolog( AddSignedInstruction& value ) { DUMP_PREFIX; DUMP_INSTR; DUMP_POSTFIX; }
 void NovelDumpPass::visit_epilog( AddSignedInstruction& value ) {}
 
-void NovelDumpPass::visit_prolog( DivSignedInstruction& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
+void NovelDumpPass::visit_prolog( DivSignedInstruction& value ) { DUMP_PREFIX; DUMP_INSTR; DUMP_POSTFIX; }
 void NovelDumpPass::visit_epilog( DivSignedInstruction& value ) {}
 
-void NovelDumpPass::visit_prolog( EquUnsignedInstruction& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
+void NovelDumpPass::visit_prolog( EquUnsignedInstruction& value ) { DUMP_PREFIX; DUMP_INSTR; DUMP_POSTFIX; }
 void NovelDumpPass::visit_epilog( EquUnsignedInstruction& value ) {}
 
-void NovelDumpPass::visit_prolog( NeqUnsignedInstruction& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
+void NovelDumpPass::visit_prolog( NeqUnsignedInstruction& value ) { DUMP_PREFIX; DUMP_INSTR; DUMP_POSTFIX; }
 void NovelDumpPass::visit_epilog( NeqUnsignedInstruction& value ) {}
 
-void NovelDumpPass::visit_prolog( ZeroExtendInstruction& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
+void NovelDumpPass::visit_prolog( ZeroExtendInstruction& value ) { DUMP_PREFIX; DUMP_INSTR; DUMP_POSTFIX; }
 void NovelDumpPass::visit_epilog( ZeroExtendInstruction& value ) {}
 
-void NovelDumpPass::visit_prolog( TruncationInstruction& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
+void NovelDumpPass::visit_prolog( TruncationInstruction& value ) { DUMP_PREFIX; DUMP_INSTR; DUMP_POSTFIX; }
 void NovelDumpPass::visit_epilog( TruncationInstruction& value ) {}
 
-void NovelDumpPass::visit_prolog( ModUnsignedInstruction& value ) { DUMP_PREFIX; DUMP_POSTFIX; }
+void NovelDumpPass::visit_prolog( ModUnsignedInstruction& value ) { DUMP_PREFIX; DUMP_INSTR; DUMP_POSTFIX; }
 void NovelDumpPass::visit_epilog( ModUnsignedInstruction& value ) {}
 
 

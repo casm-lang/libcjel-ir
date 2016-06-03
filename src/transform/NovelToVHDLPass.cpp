@@ -1097,6 +1097,9 @@ void NovelToVHDLPass::visit_epilog( Memory& value )
 
 void NovelToVHDLPass::visit_prolog( ParallelScope& value )
 {
+	visit_prolog( *((SequentialScope*)(&value)) );
+	return;
+	
 	fprintf
 	( stream
 	, "\n"
@@ -1137,6 +1140,9 @@ void NovelToVHDLPass::visit_prolog( ParallelScope& value )
 }
 void NovelToVHDLPass::visit_epilog( ParallelScope& value )		
 {
+	visit_epilog( *((SequentialScope*)(&value)) );
+	return;
+	
 	fprintf
 	( stream
 	, "  -- par '%s' end\n"
@@ -1536,7 +1542,7 @@ void NovelToVHDLPass::visit_prolog( IdCallInstruction& value )
     fprintf
 	( stream
 	, "        when others =>\n"
-	  "          assert false report \"unspecified function to call\" severity FAILURE;\n"
+	  "          null; -- assert false report \"unspecified function to call\" severity FAILURE;\n"
 	  "      end case;\n"
 	  "    end process;\n"
 	);
@@ -3283,7 +3289,7 @@ void NovelToVHDLPass::visit_prolog( Interconnect& value )
 	( stream
 	, "      when others =>\n"
 	  "        data <= ( others => 'U' );\n"
-	  "        assert false report \"unspecified address to interconnect\" severity FAILURE;\n"
+	  "        null; --assert false report \"unspecified address to interconnect\" severity FAILURE;\n"
 	  "    end case;\n"
 	  "  end process;\n"
 	  "  ack <= transport req after 100 ps;\n"

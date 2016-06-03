@@ -1445,7 +1445,22 @@ static void cast( UnaryInstruction& value, const char* comment )
 
 void NovelToC11Pass::visit_prolog( ZeroExtendInstruction& value )
 {
-	cast( value, "zext" );
+	if( not Value::isa< ExtractInstruction >( value.get() ) )
+	{
+		cast( value, "zext" );
+	}
+	else
+	{
+	    fprintf
+	    ( stream
+	    , "%s%s* %s = %s; // %s\n"
+	    , indention( value )
+	    , getTypeString( value )
+	    , value.getLabel()
+	    , value.get()->getLabel()
+	    , "trunc"
+	    );
+	}
 }
 void NovelToC11Pass::visit_epilog( ZeroExtendInstruction& value )
 {}
@@ -1457,7 +1472,22 @@ void NovelToC11Pass::visit_epilog( ZeroExtendInstruction& value )
 
 void NovelToC11Pass::visit_prolog( TruncationInstruction& value )
 {
-	cast( value, "trunc" );	
+	// if( not Value::isa< LoadInstruction >( value.get() ) )
+	// {
+	// 	cast( value, "trunc" );
+	// }
+	// else
+	{
+	    fprintf
+	    ( stream
+	    , "%s%s %s = %s; // %s\n"
+	    , indention( value )
+	    , getTypeString( value )
+	    , value.getLabel()
+	    , value.get()->getLabel()
+	    , "trunc"
+	    );
+	}
 }
 void NovelToC11Pass::visit_epilog( TruncationInstruction& value )
 {}
