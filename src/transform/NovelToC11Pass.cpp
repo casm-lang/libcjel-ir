@@ -1458,7 +1458,7 @@ void NovelToC11Pass::visit_prolog( ZeroExtendInstruction& value )
 	    , getTypeString( value )
 	    , value.getLabel()
 	    , value.get()->getLabel()
-	    , "trunc"
+	    , "zext"
 	    );
 	}
 }
