@@ -3,7 +3,7 @@
 //  All rights reserved.
 //  
 //  Developed by: Philipp Paulweber
-//                https://github.com/ppaulweber/libnovel
+//                https://github.com/casm-lang/libnovel
 //  
 //  This file is part of libnovel.
 //  
