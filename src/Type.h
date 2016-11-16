@@ -24,8 +24,8 @@
 #ifndef _LIB_NOVEL_TYPE_H_
 #define _LIB_NOVEL_TYPE_H_
 
-#include "stdhl/cpp/Type.h"
-#include "stdhl/cpp/Binding.h"
+#include "cpp/Type.h"
+#include "cpp/Binding.h"
 
 #include "Novel.h"
 

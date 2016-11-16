@@ -27,7 +27,7 @@
 #include "Novel.h"
 #include "Type.h"
 
-#include "stdhl/cpp/Labeling.h"
+#include "cpp/Labeling.h"
 
 namespace libnovel
 {

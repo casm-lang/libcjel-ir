@@ -24,7 +24,7 @@
 #ifndef _LIB_NOVEL_CONSTANT_H_
 #define _LIB_NOVEL_CONSTANT_H_
 
-#include "stdhl/cpp/Binding.h"
+#include "cpp/Binding.h"
 
 #include "Value.h"
 #include "Type.h"
