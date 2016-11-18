@@ -22,93 +22,90 @@
 //
 
 #include "Module.h"
-#include "Variable.h"
 #include "Interconnect.h"
+#include "Variable.h"
 
 using namespace libnovel;
 
-
 Module::Module( const char* name )
 : User( name, 0, Value::MODULE )
-{	
-	assert( name );
+{
+    assert( name );
 
-	//assert(0);
-	
-	(*Value::getSymbols())[ ".module" ].insert( this );
+    // assert(0);
+
+    ( *Value::getSymbols() )[ ".module" ].insert( this );
 }
 
 Module::~Module( void )
-{			
-	(*Value::getSymbols())[ ".module" ].erase( this );
+{
+    ( *Value::getSymbols() )[ ".module" ].erase( this );
 }
 
 void Module::add( Value* value )
 {
-	assert( value );
+    assert( value );
 
-	Module* m = value->getRef< Module >();
-	if( m )
-	{
-		assert( m != this and " 'value' can only be part of one module" );
-	}
-	
-	if( Value::isa< Structure >( value ) )
-	{
-		content[ Structure::classid() ].push_back( value );
-	}
-	else if( Value::isa< Constants >( value ) )
-	{
-		content[ Constants::classid() ].push_back( value );
-	}
-	else if( Value::isa< Variable >( value ) )
-	{
-		content[ Variable::classid() ].push_back( value );
-	}
-	else if( Value::isa< Memory >( value ) ) 
-	{
-		content[ Memory::classid() ].push_back( value );
-	}
-	else if( Value::isa< Intrinsic >( value ) )
-	{
-		content[ Intrinsic::classid() ].push_back( value );
-	}
-	else if( Value::isa< Function >( value ) )
-	{
-		content[ Function::classid() ].push_back( value );
-	}
-	else if( Value::isa< Interconnect >( value ) )
-	{
-		content[ Interconnect::classid() ].push_back( value );
-	}
-	else
-	{
-		assert( !"unsupported Module content found!" );
-	}
-	
-	value->setRef< Module >( this );
+    Module* m = value->getRef< Module >();
+    if( m )
+    {
+        assert( m != this and " 'value' can only be part of one module" );
+    }
+
+    if( Value::isa< Structure >( value ) )
+    {
+        content[ Structure::classid() ].push_back( value );
+    }
+    else if( Value::isa< Constants >( value ) )
+    {
+        content[ Constants::classid() ].push_back( value );
+    }
+    else if( Value::isa< Variable >( value ) )
+    {
+        content[ Variable::classid() ].push_back( value );
+    }
+    else if( Value::isa< Memory >( value ) )
+    {
+        content[ Memory::classid() ].push_back( value );
+    }
+    else if( Value::isa< Intrinsic >( value ) )
+    {
+        content[ Intrinsic::classid() ].push_back( value );
+    }
+    else if( Value::isa< Function >( value ) )
+    {
+        content[ Function::classid() ].push_back( value );
+    }
+    else if( Value::isa< Interconnect >( value ) )
+    {
+        content[ Interconnect::classid() ].push_back( value );
+    }
+    else
+    {
+        assert( !"unsupported Module content found!" );
+    }
+
+    value->setRef< Module >( this );
 }
 
-// const std::unordered_map< u8, std::vector< Value* > >& Module::getContent( void ) const
+// const std::unordered_map< u8, std::vector< Value* > >& Module::getContent(
+// void ) const
 // {
 // 	return content;
 // }
-		
 
 void Module::dump( void ) const
 {
-	printf( "[Module ] " );
-	debug();
+    printf( "[Module ] " );
+    debug();
 }
 
 bool Module::classof( Value const* obj )
 {
-	return obj->getValueID() == classid();
+    return obj->getValueID() == classid();
 }
 
-
-
-//  
+//
 //  Local variables:
 //  mode: c++
 //  indent-tabs-mode: nil
@@ -116,4 +113,4 @@ bool Module::classof( Value const* obj )
 //  tab-width: 4
 //  End:
 //  vim:noexpandtab:sw=4:ts=4:
-//  
+//

@@ -25,44 +25,44 @@
 
 using namespace libnovel;
 
-
-Reference::Reference( const char* name, Type* type, CallableUnit* callable, Kind kind )
+Reference::Reference(
+    const char* name, Type* type, CallableUnit* callable, Kind kind )
 : User( ".reference", type, Value::REFERENCE )
 , identifier( 0 )
 , callable( 0 )
 , kind( kind )
 , structure( 0 )
 {
-	assert( name );
-	assert( type );
+    assert( name );
+    assert( type );
 
     identifier = Identifier::create( type, name, callable /* scope?!?!*/ );
-	assert( identifier );
-	
-	if( type->isBound() )
-	{
-		Value* bind = type->getBound();
-		if( bind and libnovel::Value::isa< libnovel::Structure >( bind ) )
-		{
-			structure = (Structure*)bind;
-		}
-		else if( bind and libnovel::Value::isa< libnovel::Memory >( bind ) )
-		{
-			structure = ((Memory*)bind)->getStructure();
-		}
-	}
-	
-	if( callable )
-	{
-		if( kind != LINKAGE )
-		{
-			callable->addParameter( this, kind == INPUT );
-		}
-		else
-		{
-			callable->addLinkage( this );
-		}
-	}
+    assert( identifier );
+
+    if( type->isBound() )
+    {
+        Value* bind = type->getBound();
+        if( bind and libnovel::Value::isa< libnovel::Structure >( bind ) )
+        {
+            structure = (Structure*)bind;
+        }
+        else if( bind and libnovel::Value::isa< libnovel::Memory >( bind ) )
+        {
+            structure = ( (Memory*)bind )->getStructure();
+        }
+    }
+
+    if( callable )
+    {
+        if( kind != LINKAGE )
+        {
+            callable->addParameter( this, kind == INPUT );
+        }
+        else
+        {
+            callable->addLinkage( this );
+        }
+    }
 }
 
 Reference::~Reference( void )
@@ -71,62 +71,58 @@ Reference::~Reference( void )
 
 const Identifier* Reference::getIdentifier( void ) const
 {
-	return identifier;
+    return identifier;
 }
 
 const CallableUnit* Reference::getCallableUnit( void ) const
 {
-	return callable;
+    return callable;
 }
 
 void Reference::setCallableUnit( CallableUnit* value )
 {
-	assert( !callable );
-	callable = value;
+    assert( !callable );
+    callable = value;
 }
 
 const u1 Reference::isInput( void ) const
 {
-	return kind == INPUT;
+    return kind == INPUT;
 }
 
 const u1 Reference::isOutput( void ) const
 {
-	return kind == OUTPUT;
+    return kind == OUTPUT;
 }
 
 const u1 Reference::isLinkage( void ) const
 {
-	return kind == LINKAGE;
+    return kind == LINKAGE;
 }
 
 const Structure* Reference::getStructure( void ) const
 {
-	assert( structure );
-	return structure;
+    assert( structure );
+    return structure;
 }
-
 
 const u1 Reference::isStructure( void ) const
 {
-	return structure != 0;
+    return structure != 0;
 }
-
 
 void Reference::dump( void ) const
 {
-	printf( "[Reference ] " );
-	debug();
+    printf( "[Reference ] " );
+    debug();
 }
 
 bool Reference::classof( Value const* obj )
 {
-	return obj->getValueID() == classid();
+    return obj->getValueID() == classid();
 }
 
-
-
-//  
+//
 //  Local variables:
 //  mode: c++
 //  indent-tabs-mode: nil
@@ -134,4 +130,4 @@ bool Reference::classof( Value const* obj )
 //  tab-width: 4
 //  End:
 //  vim:noexpandtab:sw=4:ts=4:
-//  
+//

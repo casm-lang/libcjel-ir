@@ -28,37 +28,34 @@
 
 namespace libnovel
 {
-	class Block : public Value
-	{
-	private:
-	    Value* parent;
-		u1 is_parallel;
-		
-  	public:
-		Block
-		( const char* name
-		, Type* type
-		, Value* parent
-		, u1 is_parallel
-		, Value::ID id = Value::BLOCK
-		);
-		
-	    void setParent( Value* parent );
-		const Value* getParent( void ) const;
-		
-		virtual const u1 isParallel( void ) const;
-	    
-		void dump( void ) const;
-		
-		static inline bool classid( void ) { return Value::BLOCK; }
-		static bool classof( Value const* obj );
-	};
-}
+    class Block : public Value
+    {
+      private:
+        Value* parent;
+        u1 is_parallel;
 
+      public:
+        Block( const char* name, Type* type, Value* parent, u1 is_parallel,
+            Value::ID id = Value::BLOCK );
+
+        void setParent( Value* parent );
+        const Value* getParent( void ) const;
+
+        virtual const u1 isParallel( void ) const;
+
+        void dump( void ) const;
+
+        static inline bool classid( void )
+        {
+            return Value::BLOCK;
+        }
+        static bool classof( Value const* obj );
+    };
+}
 
 #endif /* _LIB_NOVEL_BLOCK_H_ */
 
-//  
+//
 //  Local variables:
 //  mode: c++
 //  indent-tabs-mode: nil
@@ -66,4 +63,4 @@ namespace libnovel
 //  tab-width: 4
 //  End:
 //  vim:noexpandtab:sw=4:ts=4:
-//  
+//

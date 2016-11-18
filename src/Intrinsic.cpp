@@ -25,41 +25,38 @@
 
 using namespace libnovel;
 
-
 Intrinsic::Intrinsic( const char* name )
 : CallableUnit( name, /* TODO: FIXME: */ &TypeFunction, Value::INTRINSIC )
 {
-	(*Value::getSymbols())[ ".intrinsic" ].insert( this );
+    ( *Value::getSymbols() )[ ".intrinsic" ].insert( this );
 }
 
 Intrinsic::~Intrinsic( void )
-{			
-	(*Value::getSymbols())[ ".intrinsic" ].erase( this );
+{
+    ( *Value::getSymbols() )[ ".intrinsic" ].erase( this );
 }
 
 void Intrinsic::dump( void ) const
 {
-	printf( "[Intrinsic ] " );
-	debug();
-	
-	if( getContext() )
-	{
-		getContext()->dump();
-	}
-	else
-	{
-		printf( "('context' not set)\n" );
-	}
+    printf( "[Intrinsic ] " );
+    debug();
+
+    if( getContext() )
+    {
+        getContext()->dump();
+    }
+    else
+    {
+        printf( "('context' not set)\n" );
+    }
 }
 
 bool Intrinsic::classof( Value const* obj )
 {
-	return obj->getValueID() == classid();
+    return obj->getValueID() == classid();
 }
 
-
-
-//  
+//
 //  Local variables:
 //  mode: c++
 //  indent-tabs-mode: nil
@@ -67,4 +64,4 @@ bool Intrinsic::classof( Value const* obj )
 //  tab-width: 4
 //  End:
 //  vim:noexpandtab:sw=4:ts=4:
-//  
+//

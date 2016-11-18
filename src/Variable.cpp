@@ -25,9 +25,7 @@
 
 using namespace libnovel;
 
-
 u64 Variable::allocation_cnt = 0;
-
 
 Variable::Variable( Type* type, Value* expression, const char* ident )
 : User( ".variable", type, Value::VARIABLE )
@@ -35,52 +33,46 @@ Variable::Variable( Type* type, Value* expression, const char* ident )
 , expression( expression )
 , ident( ident )
 {
-	assert( type );
-	assert( expression && Value::isa< Constants >(expression) );
+    assert( type );
+    assert( expression && Value::isa< Constants >( expression ) );
 
-	allocation_id = BitConstant::create( allocation_cnt, TypeId.getBitsize() );
-	allocation_cnt++;
-	assert( allocation_id );
+    allocation_id = BitConstant::create( allocation_cnt, TypeId.getBitsize() );
+    allocation_cnt++;
+    assert( allocation_id );
 }
 
 Variable::~Variable( void )
 {
 }
 
-
-
 BitConstant* Variable::getAllocationID( void )
 {
-	assert( allocation_id );
-	return allocation_id;
+    assert( allocation_id );
+    return allocation_id;
 }
-
 
 Value* Variable::getExpression( void ) const
 {
-	return expression;
+    return expression;
 }
 
 const char* Variable::getIdent( void ) const
 {
-	return ident;
+    return ident;
 }
-
 
 void Variable::dump( void ) const
 {
-	printf( "[Variable ] " );
-	debug();
+    printf( "[Variable ] " );
+    debug();
 }
 
 bool Variable::classof( Value const* obj )
 {
-	return obj->getValueID() == classid();
+    return obj->getValueID() == classid();
 }
 
-
-
-//  
+//
 //  Local variables:
 //  mode: c++
 //  indent-tabs-mode: nil
@@ -88,4 +80,4 @@ bool Variable::classof( Value const* obj )
 //  tab-width: 4
 //  End:
 //  vim:noexpandtab:sw=4:ts=4:
-//  
+//

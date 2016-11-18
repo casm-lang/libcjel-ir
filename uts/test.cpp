@@ -47,53 +47,39 @@ int main( int argc, char** argv )
     Reference* rb = new Reference( "b", &TypeB32, f );
     Reference* rc = new Reference( "c", &TypeB32, f, false );
     m->add( f );
-    
+
     Component* c = new Component( "test" );
     c->addParameter( new Reference( "b", &TypeB32 ) );
     c->addParameter( new Reference( "a", &TypeB32 ) );
     c->addParameter( new Reference( "c", &TypeB32, 0, false ) );
     m->add( c );
-    
+
     Block* seq0 = new SequentialScope();
     f->setContext( seq0 );
-    
+
     TrivialStatement* s0 = new TrivialStatement( seq0 );
     s0->add( new AddSignedInstruction( seq0, seq0 ) );
-    
-    
+
     Block* seq1 = new SequentialScope();
     c->setContext( seq1 );
     TrivialStatement* s1 = new TrivialStatement( seq1 );
     s1->add( new CallInstruction( f ) );
-    
+
     printf( "===--- DUMP ---===\n" );
-    
-    m->iterate
-    ( Traversal::PREORDER
-    , &dumper
-    );
-    
+
+    m->iterate( Traversal::PREORDER, &dumper );
+
     printf( "===--- EMIT LL ---===\n" );
-    
-    m->iterate
-    ( Traversal::PREORDER
-    , &n2ll
-    );
-    
+
+    m->iterate( Traversal::PREORDER, &n2ll );
+
     printf( "===--- EMIT C11 ---===\n" );
-    
-    m->iterate
-    ( Traversal::PREORDER
-    , &n2c11
-    );
+
+    m->iterate( Traversal::PREORDER, &n2c11 );
 
     printf( "===--- EMIT VHDL ---===\n" );
-    
-    m->iterate
-    ( Traversal::PREORDER
-    , &n2v
-    );
-    
+
+    m->iterate( Traversal::PREORDER, &n2v );
+
     return 0;
 }
-

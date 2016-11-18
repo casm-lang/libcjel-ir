@@ -24,37 +24,39 @@
 #ifndef _LIB_NOVEL_MEMORY_H_
 #define _LIB_NOVEL_MEMORY_H_
 
-#include "Value.h"
-#include "User.h"
 #include "Structure.h"
+#include "User.h"
+#include "Value.h"
 
 namespace libnovel
 {
-	class Memory : public User
-	{
-	    Structure* structure;
-		u32 size;
-		
-	public:
-		Memory( Structure* value, u32 size );
-		
-		~Memory( void );
+    class Memory : public User
+    {
+        Structure* structure;
+        u32 size;
 
-	    Structure* getStructure( void ) const;
-		
-		const u32 getSize( void ) const;
-		
-		void dump( void ) const;
-		
-		static inline Value::ID classid( void ) { return Value::MEMORY; };
-		static bool classof( Value const* obj );
-	};
+      public:
+        Memory( Structure* value, u32 size );
+
+        ~Memory( void );
+
+        Structure* getStructure( void ) const;
+
+        const u32 getSize( void ) const;
+
+        void dump( void ) const;
+
+        static inline Value::ID classid( void )
+        {
+            return Value::MEMORY;
+        };
+        static bool classof( Value const* obj );
+    };
 }
-
 
 #endif /* _LIB_NOVEL_MEMORY_H_ */
 
-//  
+//
 //  Local variables:
 //  mode: c++
 //  indent-tabs-mode: nil
@@ -62,4 +64,4 @@ namespace libnovel
 //  tab-width: 4
 //  End:
 //  vim:noexpandtab:sw=4:ts=4:
-//  
+//

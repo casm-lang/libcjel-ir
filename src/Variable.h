@@ -24,43 +24,45 @@
 #ifndef _LIB_NOVEL_VARIABLE_H_
 #define _LIB_NOVEL_VARIABLE_H_
 
-#include "Value.h"
-#include "User.h"
 #include "Constant.h"
 #include "Instruction.h"
+#include "User.h"
+#include "Value.h"
 
 namespace libnovel
 {
-	class Variable : public User
-	{
-	private:
-		static u64 allocation_cnt;
-		BitConstant* allocation_id;		
-		
-		Value* expression;
-		const char* ident;
-		
-	public:
-		Variable( Type* type, Value* expression, const char* ident = 0 );
-		
-		~Variable( void );
+    class Variable : public User
+    {
+      private:
+        static u64 allocation_cnt;
+        BitConstant* allocation_id;
 
-		BitConstant* getAllocationID( void );
+        Value* expression;
+        const char* ident;
 
-		Value* getExpression( void ) const;
-		const char* getIdent( void ) const;
-		
-		void dump( void ) const;
+      public:
+        Variable( Type* type, Value* expression, const char* ident = 0 );
 
-		static inline ID classid( void ) { return Value::VARIABLE; };
-		static bool classof( Value const* obj );
-	};
+        ~Variable( void );
+
+        BitConstant* getAllocationID( void );
+
+        Value* getExpression( void ) const;
+        const char* getIdent( void ) const;
+
+        void dump( void ) const;
+
+        static inline ID classid( void )
+        {
+            return Value::VARIABLE;
+        };
+        static bool classof( Value const* obj );
+    };
 }
-
 
 #endif /* _LIB_NOVEL_VARIABLE_H_ */
 
-//  
+//
 //  Local variables:
 //  mode: c++
 //  indent-tabs-mode: nil
@@ -68,4 +70,4 @@ namespace libnovel
 //  tab-width: 4
 //  End:
 //  vim:noexpandtab:sw=4:ts=4:
-//  
+//

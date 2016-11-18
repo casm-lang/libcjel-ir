@@ -24,75 +24,79 @@
 #ifndef _LIB_NOVEL_CALLABLE_UNIT_H_
 #define _LIB_NOVEL_CALLABLE_UNIT_H_
 
-#include "Value.h"
-#include "User.h"
 #include "Block.h"
 #include "Constant.h"
+#include "User.h"
+#include "Value.h"
 
 namespace libnovel
 {
-	class Reference;
-	
-	class CallableUnit : public User
-	{		
-	private:
-		static u64 allocation_cnt;
-		BitConstant* allocation_id;		
-		
-		Block* context;
-	    Identifier* identifier;
-		
-	    std::vector< Value* > parameter_in;
-	    std::vector< Value* > parameter_out;
-	    std::vector< Value* > linkage;
+    class Reference;
 
-		std::unordered_map< Value*, u16 > parameter2index;
-		std::unordered_map< const char*, Value* > name2ref;
-		
-	public:
-		CallableUnit( const char* name, Type* type, Value::ID id = CALLABLE_UNIT );
-		
-		~CallableUnit( void );
+    class CallableUnit : public User
+    {
+      private:
+        static u64 allocation_cnt;
+        BitConstant* allocation_id;
 
-		BitConstant* getAllocationID( void );
-		
-	    Block* getContext( void ) const;		
-		void setContext( Block* scope );
+        Block* context;
+        Identifier* identifier;
 
-		const Identifier* getIdentifier( void ) const;
-		
-	private:
-		Reference* add( const char* ref_name, Type* ref_type, u8 ref_kind );
-	public:
-		Reference* in( const char* ref_name, Type* ref_type );
-		Reference* out( const char* ref_name, Type* ref_type );
-		Reference* link( const char* ref_name, Type* ref_type );
-		
-		void addParameter( Value* value, u1 input = true );		
-	    void addLinkage( Value* value );		
-	    
-		const std::vector< Value* >& getInParameters( void ) const;
-		const std::vector< Value* >& getOutParameters( void ) const;
-		
-		const i16 getIndexOfParameter( Value* value ) const;
-		const u1 isLastParameter( Value* value ) const;
-		const i16 getParameterLength( void ) const;
-		
-		const std::vector< Value* >& getLinkage( void ) const;
+        std::vector< Value* > parameter_in;
+        std::vector< Value* > parameter_out;
+        std::vector< Value* > linkage;
 
-		const Reference* getReference( const char* name ) const;
-		
-		void dump( void ) const;
-		
-		static inline Value::ID classid( void ) { return Value::CALLABLE_UNIT; };
-		static bool classof( Value const* obj );		
-	};
+        std::unordered_map< Value*, u16 > parameter2index;
+        std::unordered_map< const char*, Value* > name2ref;
+
+      public:
+        CallableUnit(
+            const char* name, Type* type, Value::ID id = CALLABLE_UNIT );
+
+        ~CallableUnit( void );
+
+        BitConstant* getAllocationID( void );
+
+        Block* getContext( void ) const;
+        void setContext( Block* scope );
+
+        const Identifier* getIdentifier( void ) const;
+
+      private:
+        Reference* add( const char* ref_name, Type* ref_type, u8 ref_kind );
+
+      public:
+        Reference* in( const char* ref_name, Type* ref_type );
+        Reference* out( const char* ref_name, Type* ref_type );
+        Reference* link( const char* ref_name, Type* ref_type );
+
+        void addParameter( Value* value, u1 input = true );
+        void addLinkage( Value* value );
+
+        const std::vector< Value* >& getInParameters( void ) const;
+        const std::vector< Value* >& getOutParameters( void ) const;
+
+        const i16 getIndexOfParameter( Value* value ) const;
+        const u1 isLastParameter( Value* value ) const;
+        const i16 getParameterLength( void ) const;
+
+        const std::vector< Value* >& getLinkage( void ) const;
+
+        const Reference* getReference( const char* name ) const;
+
+        void dump( void ) const;
+
+        static inline Value::ID classid( void )
+        {
+            return Value::CALLABLE_UNIT;
+        };
+        static bool classof( Value const* obj );
+    };
 }
-
 
 #endif /* _LIB_NOVEL_CALLABLE_UNIT_H_ */
 
-//  
+//
 //  Local variables:
 //  mode: c++
 //  indent-tabs-mode: nil
@@ -100,4 +104,4 @@ namespace libnovel
 //  tab-width: 4
 //  End:
 //  vim:noexpandtab:sw=4:ts=4:
-//  
+//

@@ -26,120 +26,139 @@
 
 #include "cpp/Binding.h"
 
-#include "Value.h"
 #include "Type.h"
 #include "User.h"
+#include "Value.h"
 
 namespace libnovel
 {
-	class Structure;
+    class Structure;
 
-	template< typename V >
-	class Constant : public libnovel::User
-	{
-    protected:
-		V value;
-		Constant( const char* name, Type* type, V value, Value::ID id = Value::CONSTANT );
+    template < typename V >
+    class Constant : public libnovel::User
+    {
+      protected:
+        V value;
+        Constant( const char* name, Type* type, V value,
+            Value::ID id = Value::CONSTANT );
 
-	public:
-		~Constant( void );
-		
-	    const V getValue( void ) const;
-		
-		static inline Value::ID classid( void ) { return Value::CONSTANT; };
-		static bool classof( Value const* obj );
+      public:
+        ~Constant( void );
 
-	protected:
-	    void setValue( V val );
-	};
-	
-	
-	class Constants : public Constant< u1 >
-	{
-	public:
-		static inline Value::ID classid( void ) { return Value::CONSTANT; };
-		static bool classof( Value const* obj );
-	};
+        const V getValue( void ) const;
 
-	
-	class StructureConstant;
-	
-	class BitConstant : public Constant< Type::Bit >, public libstdhl::Binding< StructureConstant >
-	{
-	private:
-		u64 value[1];
-		BitConstant( Type* type, u64 value );
-		
-	public:
-		static BitConstant* create( u64 value, u16 bitsize );
-		
-		void dump( void ) const;
-		
-		static inline Value::ID classid( void ) { return Value::BIT_CONSTANT; };
-		static bool classof( Value const* obj );
+        static inline Value::ID classid( void )
+        {
+            return Value::CONSTANT;
+        };
+        static bool classof( Value const* obj );
 
-		static BitConstant TRUE;
-		static BitConstant FALSE;
-		static BitConstant NIL;
-	};
-	
-	class StructureConstant : public Constant< std::vector< Value* > >, public libstdhl::Binding< StructureConstant >
-	{
-	private:
-		StructureConstant( Type* type, std::vector< Value* > value );
-		
-	public:
-		static StructureConstant* create( Structure* kind, const std::vector< Value* >& value = {} );
+      protected:
+        void setValue( V val );
+    };
 
-		const std::vector< Value* >& getElements( void ) const;
-		
-		void dump( void ) const;
-		
-		static inline Value::ID classid( void ) { return Value::STRUCTURE_CONSTANT; };
-		static bool classof( Value const* obj );
-	};
-	
-	
-	class Identifier : public Constant< const char* >
-	{
-	private:
-		Identifier( Type* type, const char* value );
-				
-	public:
-	    ~Identifier( void );
+    class Constants : public Constant< u1 >
+    {
+      public:
+        static inline Value::ID classid( void )
+        {
+            return Value::CONSTANT;
+        };
+        static bool classof( Value const* obj );
+    };
 
-		static Identifier* create( Type* type, std::string value, Value* scope = 0 );
-		static Identifier* create( Type* type, const char* value, Value* scope = 0 );
-		
-		static void forgetSymbol( const char* value );
-		
-		void dump( void ) const;
+    class StructureConstant;
 
-		static inline Value::ID classid( void ) { return Value::IDENTIFIER; };
-		static bool classof( Value const* obj );
-	};
+    class BitConstant : public Constant< Type::Bit >,
+                        public libstdhl::Binding< StructureConstant >
+    {
+      private:
+        u64 value[ 1 ];
+        BitConstant( Type* type, u64 value );
 
-	
-	class StringConstant : public Constant< Type::String >, public libstdhl::Binding< StructureConstant >
-	{
-	public:
-		StringConstant( Type* type, Type::String value );
-		static StringConstant* create( Type::String value );
-		
-		void dump( void ) const;
-		
-		static inline Value::ID classid( void ) { return Value::STRING_CONSTANT; };
-		static bool classof( Value const* obj );
-		
+      public:
+        static BitConstant* create( u64 value, u16 bitsize );
 
-		static StringConstant LF;
-	};	
+        void dump( void ) const;
+
+        static inline Value::ID classid( void )
+        {
+            return Value::BIT_CONSTANT;
+        };
+        static bool classof( Value const* obj );
+
+        static BitConstant TRUE;
+        static BitConstant FALSE;
+        static BitConstant NIL;
+    };
+
+    class StructureConstant : public Constant< std::vector< Value* > >,
+                              public libstdhl::Binding< StructureConstant >
+    {
+      private:
+        StructureConstant( Type* type, std::vector< Value* > value );
+
+      public:
+        static StructureConstant* create(
+            Structure* kind, const std::vector< Value* >& value = {} );
+
+        const std::vector< Value* >& getElements( void ) const;
+
+        void dump( void ) const;
+
+        static inline Value::ID classid( void )
+        {
+            return Value::STRUCTURE_CONSTANT;
+        };
+        static bool classof( Value const* obj );
+    };
+
+    class Identifier : public Constant< const char* >
+    {
+      private:
+        Identifier( Type* type, const char* value );
+
+      public:
+        ~Identifier( void );
+
+        static Identifier* create(
+            Type* type, std::string value, Value* scope = 0 );
+        static Identifier* create(
+            Type* type, const char* value, Value* scope = 0 );
+
+        static void forgetSymbol( const char* value );
+
+        void dump( void ) const;
+
+        static inline Value::ID classid( void )
+        {
+            return Value::IDENTIFIER;
+        };
+        static bool classof( Value const* obj );
+    };
+
+    class StringConstant : public Constant< Type::String >,
+                           public libstdhl::Binding< StructureConstant >
+    {
+      public:
+        StringConstant( Type* type, Type::String value );
+        static StringConstant* create( Type::String value );
+
+        void dump( void ) const;
+
+        static inline Value::ID classid( void )
+        {
+            return Value::STRING_CONSTANT;
+        };
+        static bool classof( Value const* obj );
+
+        static StringConstant LF;
+    };
 }
-
 
 #endif /* _LIB_NOVEL_CONSTANT_H_ */
 
-//  
+//
 //  Local variables:
 //  mode: c++
 //  indent-tabs-mode: nil
@@ -147,4 +166,4 @@ namespace libnovel
 //  tab-width: 4
 //  End:
 //  vim:noexpandtab:sw=4:ts=4:
-//  
+//

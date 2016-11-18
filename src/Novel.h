@@ -24,18 +24,16 @@
 #ifndef _LIB_NOVEL_H_
 #define _LIB_NOVEL_H_
 
-
 namespace libnovel
 {
-	class Novel
-	{
-	};
+    class Novel
+    {
+    };
 }
-
 
 #endif /* _LIB_NOVEL_H_ */
 
-//  
+//
 //  Local variables:
 //  mode: c++
 //  indent-tabs-mode: nil
@@ -43,4 +41,4 @@ namespace libnovel
 //  tab-width: 4
 //  End:
 //  vim:noexpandtab:sw=4:ts=4:
-//  
+//

@@ -25,41 +25,38 @@
 
 using namespace libnovel;
 
-
 Function::Function( const char* name )
 : CallableUnit( name, /* TODO: FIXME: */ &TypeFunction, Value::FUNCTION )
-{			
-	(*Value::getSymbols())[ ".function" ].insert( this );
+{
+    ( *Value::getSymbols() )[ ".function" ].insert( this );
 }
 
 Function::~Function( void )
-{			
-	(*Value::getSymbols())[ ".function" ].erase( this );
+{
+    ( *Value::getSymbols() )[ ".function" ].erase( this );
 }
 
 void Function::dump( void ) const
 {
-	printf( "[Function ] " );
-	debug();
-	
-	if( getContext() )
-	{
-		getContext()->dump();
-	}
-	else
-	{
-		printf( "('context' not set)\n" );
-	}
+    printf( "[Function ] " );
+    debug();
+
+    if( getContext() )
+    {
+        getContext()->dump();
+    }
+    else
+    {
+        printf( "('context' not set)\n" );
+    }
 }
 
 bool Function::classof( Value const* obj )
 {
-	return obj->getValueID() == classid();
+    return obj->getValueID() == classid();
 }
 
-
-
-//  
+//
 //  Local variables:
 //  mode: c++
 //  indent-tabs-mode: nil
@@ -67,4 +64,4 @@ bool Function::classof( Value const* obj )
 //  tab-width: 4
 //  End:
 //  vim:noexpandtab:sw=4:ts=4:
-//  
+//

@@ -26,8 +26,8 @@
 
 using namespace libnovel;
 
-
-Block::Block( const char* name, Type* type, Value* parent, u1 is_parallel, Value::ID id )
+Block::Block(
+    const char* name, Type* type, Value* parent, u1 is_parallel, Value::ID id )
 : Value( name, type, id )
 , parent( parent )
 , is_parallel( is_parallel )
@@ -36,37 +36,33 @@ Block::Block( const char* name, Type* type, Value* parent, u1 is_parallel, Value
 
 void Block::setParent( Value* parent )
 {
-	assert( parent );
-	this->parent = parent;
+    assert( parent );
+    this->parent = parent;
 }
 
 const Value* Block::getParent( void ) const
 {
-	return parent;
+    return parent;
 }
 
 const u1 Block::isParallel( void ) const
 {
-	return is_parallel;
+    return is_parallel;
 }
 
 void Block::dump( void ) const
 {
-	// printf( "[Block] %p\n", this );
-	((Value*)this)->dump();
+    // printf( "[Block] %p\n", this );
+    ( (Value*)this )->dump();
 }
-
 
 bool Block::classof( Value const* obj )
 {
-	return obj->getValueID() == classid()
-		or Scope::classof( obj )
-		or Statement::classof( obj )
-		;
+    return obj->getValueID() == classid() or Scope::classof( obj )
+           or Statement::classof( obj );
 }
 
-
-//  
+//
 //  Local variables:
 //  mode: c++
 //  indent-tabs-mode: nil
@@ -74,4 +70,4 @@ bool Block::classof( Value const* obj )
 //  tab-width: 4
 //  End:
 //  vim:noexpandtab:sw=4:ts=4:
-//  
+//

@@ -25,32 +25,30 @@
 
 using namespace libnovel;
 
-
 Memory::Memory( Structure* structure, u32 size )
 : User( ".memory", &TypeMemory, Value::MEMORY )
 , structure( structure )
 , size( size )
 {
-	assert( structure );
-	assert( size > 0 );
-	
-	//setType( structure->getType() );
+    assert( structure );
+    assert( size > 0 );
+
+    // setType( structure->getType() );
 }
 
 Memory::~Memory( void )
-{			
+{
 }
 
 Structure* Memory::getStructure( void ) const
 {
-	assert( structure );
-	return structure;
+    assert( structure );
+    return structure;
 }
-
 
 const u32 Memory::getSize( void ) const
 {
-	return size;
+    return size;
 }
 
 // ParallelBlock* Memory::getContext( void ) const
@@ -60,33 +58,31 @@ const u32 Memory::getSize( void ) const
 
 // void Memory::setContext( ParallelBlock* scope )
 // {
-// 	assert( scope );	
+// 	assert( scope );
 // 	context = scope;
 // }
 
 void Memory::dump( void ) const
 {
-	printf( "[Memory ] " );
-	debug();
-	
-	// if( context )
-	// {
-	// 	context->dump();
-	// }
-	// else
-	// {
-	// 	printf( "('context' not set)\n" );
-	// }
+    printf( "[Memory ] " );
+    debug();
+
+    // if( context )
+    // {
+    // 	context->dump();
+    // }
+    // else
+    // {
+    // 	printf( "('context' not set)\n" );
+    // }
 }
 
 bool Memory::classof( Value const* obj )
 {
-	return obj->getValueID() == classid();
+    return obj->getValueID() == classid();
 }
 
-
-
-//  
+//
 //  Local variables:
 //  mode: c++
 //  indent-tabs-mode: nil
@@ -94,4 +90,4 @@ bool Memory::classof( Value const* obj )
 //  tab-width: 4
 //  End:
 //  vim:noexpandtab:sw=4:ts=4:
-//  
+//

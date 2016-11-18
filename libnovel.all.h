@@ -29,12 +29,12 @@
 #include "src/analyze/NovelDumpPass.h"
 
 #include "src/transform/NovelToC11Pass.h"
-#include "src/transform/NovelToVHDLPass.h"
 #include "src/transform/NovelToLLPass.h"
+#include "src/transform/NovelToVHDLPass.h"
 
 #endif /* _LIB_NOVEL_ALL_H_ */
 
-//  
+//
 //  Local variables:
 //  mode: c++
 //  indent-tabs-mode: nil
@@ -42,4 +42,4 @@
 //  tab-width: 4
 //  End:
 //  vim:noexpandtab:sw=4:ts=4:
-//  
+//

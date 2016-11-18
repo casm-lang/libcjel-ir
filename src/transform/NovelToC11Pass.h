@@ -24,28 +24,25 @@
 #ifndef _LIB_NOVEL_TO_C11_PASS_H_
 #define _LIB_NOVEL_TO_C11_PASS_H_
 
-#include "libpass.h"
 #include "libnovel.all.h"
-
+#include "libpass.h"
 
 namespace libnovel
 {
-	class NovelToC11Pass : public libpass::Pass, public Visitor
-	{
-	public:
-		static char id;
-			
-		bool run( libpass::PassResult& pr );
+    class NovelToC11Pass : public libpass::Pass, public Visitor
+    {
+      public:
+        static char id;
 
-		LIB_NOVEL_VISITOR_INTERFACE;
-	};
+        bool run( libpass::PassResult& pr );
+
+        LIB_NOVEL_VISITOR_INTERFACE;
+    };
 }
-
 
 #endif /* _LIB_NOVEL_TO_C11_PASS_H_ */
 
-
-//  
+//
 //  Local variables:
 //  mode: c++
 //  indent-tabs-mode: nil
@@ -53,4 +50,4 @@ namespace libnovel
 //  tab-width: 4
 //  End:
 //  vim:noexpandtab:sw=4:ts=4:
-//  
+//

@@ -24,55 +24,58 @@
 #ifndef _LIB_NOVEL_MODULE_H_
 #define _LIB_NOVEL_MODULE_H_
 
-#include "Value.h"
-#include "User.h"
+#include "Constant.h"
 #include "Function.h"
 #include "Intrinsic.h"
-#include "Constant.h"
-#include "Structure.h"
 #include "Memory.h"
+#include "Structure.h"
+#include "User.h"
+#include "Value.h"
 
 namespace libnovel
 {
-	class Module : public User
-	{
-	private:
-		std::unordered_map< u32, std::vector< Value* > > content;
-		
-	public:
-		Module( const char* name );
-		
-		~Module( void );
-		
-		void add( Value* value );
+    class Module : public User
+    {
+      private:
+        std::unordered_map< u32, std::vector< Value* > > content;
 
-		//const std::unordered_map< u8, std::vector< Value* > >& getContent( void ) const;
-		
-		template< class C >
-		bool has( void ) const
-		{
-			return content.count( C::classid() ) > 0;
-		}
-		
-		template< class C >
-		const std::vector< Value* >& get( void ) const
-		{
-			auto result = content.find( C::classid() );
-			assert( result != content.end() );
-			return result->second;
-		}
-		
-		void dump( void ) const;
-			    
-		static inline Value::ID classid( void ) { return Value::MODULE; };
-		static bool classof( Value const* obj );
-	};
+      public:
+        Module( const char* name );
+
+        ~Module( void );
+
+        void add( Value* value );
+
+        // const std::unordered_map< u8, std::vector< Value* > >& getContent(
+        // void ) const;
+
+        template < class C >
+        bool has( void ) const
+        {
+            return content.count( C::classid() ) > 0;
+        }
+
+        template < class C >
+        const std::vector< Value* >& get( void ) const
+        {
+            auto result = content.find( C::classid() );
+            assert( result != content.end() );
+            return result->second;
+        }
+
+        void dump( void ) const;
+
+        static inline Value::ID classid( void )
+        {
+            return Value::MODULE;
+        };
+        static bool classof( Value const* obj );
+    };
 }
-
 
 #endif /* _LIB_NOVEL_MODULE_H_ */
 
-//  
+//
 //  Local variables:
 //  mode: c++
 //  indent-tabs-mode: nil
@@ -80,4 +83,4 @@ namespace libnovel
 //  tab-width: 4
 //  End:
 //  vim:noexpandtab:sw=4:ts=4:
-//  
+//

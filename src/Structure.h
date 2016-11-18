@@ -24,78 +24,82 @@
 #ifndef _LIB_NOVEL_STRUCTURE_H_
 #define _LIB_NOVEL_STRUCTURE_H_
 
-#include "Value.h"
+#include "Constant.h"
+#include "Intrinsic.h"
 #include "Module.h"
 #include "User.h"
-#include "Intrinsic.h"
-#include "Constant.h"
+#include "Value.h"
 
 namespace libnovel
 {
-	class Structure : public User
-	{
-	private:
-		Identifier* identifier;
-		std::vector< Structure* > element;
-		Structure* parent;
-		
-	public:
-		Structure( const char* name, Type* type = 0, Structure* parent = 0 );
-		
-		~Structure( void );
-		
-		const Identifier* getIdentifier( void ) const;
-
-		void add( Value* value );
-		
-		Value* get( u16 index ) const; 
-		const std::vector< Structure* >& getElements( void ) const;
-
-		void setParent( Structure* value );
-		Structure* getParent( void ) const;
-		
-		void dump( void ) const;
-		
-		static inline Value::ID classid( void ) { return Value::STRUCTURE; };
-		static bool classof( Value const* obj );
-
-	    size_t hash( void ) const
-		{
-			assert( identifier );
-			return std::hash< string >()( string( identifier->getName() ) );
-		}
-	};
-}
-
-// TODO: FIXME: PPA: IMPROVEMENT: find a generic solution for the hashing/equivalence functionality
-namespace std
-{
-    template<>
-    struct hash< libnovel::Structure* >
+    class Structure : public User
     {
-    public :
-        size_t operator()( const libnovel::Structure* obj ) const
+      private:
+        Identifier* identifier;
+        std::vector< Structure* > element;
+        Structure* parent;
+
+      public:
+        Structure( const char* name, Type* type = 0, Structure* parent = 0 );
+
+        ~Structure( void );
+
+        const Identifier* getIdentifier( void ) const;
+
+        void add( Value* value );
+
+        Value* get( u16 index ) const;
+        const std::vector< Structure* >& getElements( void ) const;
+
+        void setParent( Structure* value );
+        Structure* getParent( void ) const;
+
+        void dump( void ) const;
+
+        static inline Value::ID classid( void )
         {
-			assert( obj and " invalid pointer! " );
-			return obj->hash();
+            return Value::STRUCTURE;
+        };
+        static bool classof( Value const* obj );
+
+        size_t hash( void ) const
+        {
+            assert( identifier );
+            return std::hash< string >()( string( identifier->getName() ) );
         }
     };
-	
+}
+
+// TODO: FIXME: PPA: IMPROVEMENT: find a generic solution for the
+// hashing/equivalence functionality
+namespace std
+{
+    template <>
+    struct hash< libnovel::Structure* >
+    {
+      public:
+        size_t operator()( const libnovel::Structure* obj ) const
+        {
+            assert( obj and " invalid pointer! " );
+            return obj->hash();
+        }
+    };
+
     template <>
     struct equal_to< libnovel::Structure* >
     {
-    public :
-        bool operator()( const libnovel::Structure* lhs, const libnovel::Structure* rhs ) const
+      public:
+        bool operator()( const libnovel::Structure* lhs,
+            const libnovel::Structure* rhs ) const
         {
             return lhs->hash() == rhs->hash();
         }
     };
 }
 
-
 #endif /* _LIB_NOVEL_STRUCTURE_H_ */
 
-//  
+//
 //  Local variables:
 //  mode: c++
 //  indent-tabs-mode: nil
@@ -103,4 +107,4 @@ namespace std
 //  tab-width: 4
 //  End:
 //  vim:noexpandtab:sw=4:ts=4:
-//  
+//

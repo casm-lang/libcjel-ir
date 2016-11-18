@@ -28,24 +28,25 @@
 
 namespace libnovel
 {
-	class User : public Value
-	{
-	public:
-		User( const char* name, Type* type, Value::ID id = Value::USER )
-			: Value( name, type, id )
-		{
-			
-		}
-				
-		static inline Value::ID classid( void ) { return Value::USER; };
-		static bool classof( Value const* obj );
-	};
-}
+    class User : public Value
+    {
+      public:
+        User( const char* name, Type* type, Value::ID id = Value::USER )
+        : Value( name, type, id )
+        {
+        }
 
+        static inline Value::ID classid( void )
+        {
+            return Value::USER;
+        };
+        static bool classof( Value const* obj );
+    };
+}
 
 #endif /* _LIB_NOVEL_USER_H_ */
 
-//  
+//
 //  Local variables:
 //  mode: c++
 //  indent-tabs-mode: nil
@@ -53,4 +54,4 @@ namespace libnovel
 //  tab-width: 4
 //  End:
 //  vim:noexpandtab:sw=4:ts=4:
-//  
+//

@@ -24,41 +24,43 @@
 #ifndef _LIB_NOVEL_INTERCONNECT_H_
 #define _LIB_NOVEL_INTERCONNECT_H_
 
-#include "Value.h"
-#include "User.h"
 #include "Structure.h"
+#include "User.h"
+#include "Value.h"
 #include "Variable.h"
 
 namespace libnovel
 {
-	class Interconnect : public User
-	{
-	private:
-		i16 bs_max;
-		std::vector< Value* > objects;
-		
-	public:
-		Interconnect( void );
-		
-		~Interconnect( void );
+    class Interconnect : public User
+    {
+      private:
+        i16 bs_max;
+        std::vector< Value* > objects;
 
-		void add( Value* object );
+      public:
+        Interconnect( void );
 
-		const std::vector< Value* >& getObjects( void ) const;
+        ~Interconnect( void );
 
-		const i16 getBitsizeMax( void ) const;
+        void add( Value* object );
 
-		void dump( void ) const;
-		
-		static inline Value::ID classid( void ) { return Value::INTERCONNECT; };
-		static bool classof( Value const* obj );
-	};
+        const std::vector< Value* >& getObjects( void ) const;
+
+        const i16 getBitsizeMax( void ) const;
+
+        void dump( void ) const;
+
+        static inline Value::ID classid( void )
+        {
+            return Value::INTERCONNECT;
+        };
+        static bool classof( Value const* obj );
+    };
 }
-
 
 #endif /* _LIB_NOVEL_INTERCONNECT_H_ */
 
-//  
+//
 //  Local variables:
 //  mode: c++
 //  indent-tabs-mode: nil
@@ -66,4 +68,4 @@ namespace libnovel
 //  tab-width: 4
 //  End:
 //  vim:noexpandtab:sw=4:ts=4:
-//  
+//

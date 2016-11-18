@@ -26,53 +26,51 @@
 
 using namespace libnovel;
 
-
-Scope::Scope( const char* name, Type* type, Value* parent, u1 is_parallel, Value::ID id )
+Scope::Scope(
+    const char* name, Type* type, Value* parent, u1 is_parallel, Value::ID id )
 : Block( name, type, parent, is_parallel, id )
 {
-	if( parent and Value::isa< CallableUnit >( parent ) )
-	{
-		((CallableUnit*)parent)->setContext( this );
-	}
+    if( parent and Value::isa< CallableUnit >( parent ) )
+    {
+        ( (CallableUnit*)parent )->setContext( this );
+    }
 }
 
 void Scope::add( Value* element )
 {
-	assert( Value::isa< Block >( element ) );
+    assert( Value::isa< Block >( element ) );
 
-	// if( Value::isa< Scope >( element ) )
-	// {
-	// 	((Scope*)element)->setParent( this );
-	// }
-	
-	block.push_back( (Block*)element );
+    // if( Value::isa< Scope >( element ) )
+    // {
+    // 	((Scope*)element)->setParent( this );
+    // }
+
+    block.push_back( (Block*)element );
 }
 
 const std::vector< Block* >& Scope::getBlocks( void ) const
 {
-	return block;
+    return block;
 }
 
 void Scope::dump( void ) const
 {
-	printf( "[%sScope] %p, %p\n", isParallel() ? "Par" : "Seq", this, getParent() );
-	
-	for( Block* blk : getBlocks() )
-	{
-		assert( blk );
-	    blk->dump();
-		//assert(0);
-	}
+    printf(
+        "[%sScope] %p, %p\n", isParallel() ? "Par" : "Seq", this, getParent() );
+
+    for( Block* blk : getBlocks() )
+    {
+        assert( blk );
+        blk->dump();
+        // assert(0);
+    }
 }
 
 bool Scope::classof( Value const* obj )
 {
-	return obj->getValueID() == classid()
-		or SequentialScope::classof( obj )
-		or ParallelScope::classof( obj )
-		;
+    return obj->getValueID() == classid() or SequentialScope::classof( obj )
+           or ParallelScope::classof( obj );
 }
-
 
 SequentialScope::SequentialScope( Value* parent )
 : Scope( ".seq", 0, parent, false, Value::ID::SEQUENTIAL_SCOPE )
@@ -81,18 +79,15 @@ SequentialScope::SequentialScope( Value* parent )
 
 void SequentialScope::dump( void ) const
 {
-	((Scope*)this)->dump();
+    ( (Scope*)this )->dump();
 }
 
 bool SequentialScope::classof( Value const* obj )
 {
-	return obj->getValueID() == classid()
-		//or ???::classof( obj )
-		;
+    return obj->getValueID() == classid()
+        // or ???::classof( obj )
+        ;
 }
-
-
-
 
 ParallelScope::ParallelScope( Value* parent )
 : Scope( ".par", 0, parent, false, Value::ID::PARALLEL_SCOPE )
@@ -101,20 +96,18 @@ ParallelScope::ParallelScope( Value* parent )
 
 void ParallelScope::dump( void ) const
 {
-	((Scope*)this)->dump();
+    ( (Scope*)this )->dump();
 }
 
 bool ParallelScope::classof( Value const* obj )
 {
-	
-	return obj->getValueID() == classid()
-		//or ???::classof( obj )
-		;
+
+    return obj->getValueID() == classid()
+        // or ???::classof( obj )
+        ;
 }
 
-
-
-//  
+//
 //  Local variables:
 //  mode: c++
 //  indent-tabs-mode: nil
@@ -122,4 +115,4 @@ bool ParallelScope::classof( Value const* obj )
 //  tab-width: 4
 //  End:
 //  vim:noexpandtab:sw=4:ts=4:
-//  
+//

@@ -24,61 +24,64 @@
 #ifndef _LIB_NOVEL_SCOPE_H_
 #define _LIB_NOVEL_SCOPE_H_
 
-#include "Value.h"
 #include "Block.h"
+#include "Value.h"
 
 namespace libnovel
 {
-	class Scope : public Block
-	{
-		std::vector< Block* > block;
-	public:
-		Scope
-		( const char* name
-		, Type* type
-		, Value* parent
-		, u1 is_parallel
-		, Value::ID id = Value::ID::SCOPE
-		);
+    class Scope : public Block
+    {
+        std::vector< Block* > block;
 
-		void add( Value* element );
-		
-		const std::vector< Block* >& getBlocks( void ) const;
-		
-		void dump( void ) const;
-		
-		static inline Value::ID classid( void ) { return Value::SCOPE; };
-		static bool classof( Value const* obj );
-	};
-	
-	
-	class SequentialScope : public Scope
-	{
-	public:
-		SequentialScope( Value* parent = 0 );
-		
-		void dump( void ) const;
-		
-		static inline Value::ID classid( void ) { return Value::SEQUENTIAL_SCOPE; };
-		static bool classof( Value const* obj );		
-	};
+      public:
+        Scope( const char* name, Type* type, Value* parent, u1 is_parallel,
+            Value::ID id = Value::ID::SCOPE );
 
-	class ParallelScope : public Scope
-	{
-	public:
-	    ParallelScope( Value* parent = 0 );
-		
-		void dump( void ) const;
-		
-		static inline Value::ID classid( void ) { return Value::PARALLEL_SCOPE; };
-		static bool classof( Value const* obj );		
-	};
+        void add( Value* element );
+
+        const std::vector< Block* >& getBlocks( void ) const;
+
+        void dump( void ) const;
+
+        static inline Value::ID classid( void )
+        {
+            return Value::SCOPE;
+        };
+        static bool classof( Value const* obj );
+    };
+
+    class SequentialScope : public Scope
+    {
+      public:
+        SequentialScope( Value* parent = 0 );
+
+        void dump( void ) const;
+
+        static inline Value::ID classid( void )
+        {
+            return Value::SEQUENTIAL_SCOPE;
+        };
+        static bool classof( Value const* obj );
+    };
+
+    class ParallelScope : public Scope
+    {
+      public:
+        ParallelScope( Value* parent = 0 );
+
+        void dump( void ) const;
+
+        static inline Value::ID classid( void )
+        {
+            return Value::PARALLEL_SCOPE;
+        };
+        static bool classof( Value const* obj );
+    };
 }
-
 
 #endif /* _LIB_NOVEL_SCOPE_H_ */
 
-//  
+//
 //  Local variables:
 //  mode: c++
 //  indent-tabs-mode: nil
@@ -86,4 +89,4 @@ namespace libnovel
 //  tab-width: 4
 //  End:
 //  vim:noexpandtab:sw=4:ts=4:
-//  
+//

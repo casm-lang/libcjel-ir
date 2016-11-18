@@ -24,30 +24,32 @@
 #ifndef _LIB_NOVEL_INTRINSIC_H_
 #define _LIB_NOVEL_INTRINSIC_H_
 
-#include "Value.h"
-#include "Constant.h"
 #include "CallableUnit.h"
+#include "Constant.h"
+#include "Value.h"
 
 namespace libnovel
-{	
-	class Intrinsic : public CallableUnit
-	{
-	public:
-		Intrinsic( const char* name );
-		
-		~Intrinsic( void );
-		
-		void dump( void ) const;
-		
-		static inline Value::ID classid( void ) { return Value::INTRINSIC; };
-		static bool classof( Value const* obj );
-	};
-}
+{
+    class Intrinsic : public CallableUnit
+    {
+      public:
+        Intrinsic( const char* name );
 
+        ~Intrinsic( void );
+
+        void dump( void ) const;
+
+        static inline Value::ID classid( void )
+        {
+            return Value::INTRINSIC;
+        };
+        static bool classof( Value const* obj );
+    };
+}
 
 #endif /* _LIB_NOVEL_INTRINSIC_H_ */
 
-//  
+//
 //  Local variables:
 //  mode: c++
 //  indent-tabs-mode: nil
@@ -55,4 +57,4 @@ namespace libnovel
 //  tab-width: 4
 //  End:
 //  vim:noexpandtab:sw=4:ts=4:
-//  
+//

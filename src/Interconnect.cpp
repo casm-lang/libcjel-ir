@@ -25,7 +25,6 @@
 
 using namespace libnovel;
 
-
 Interconnect::Interconnect( void )
 : User( ".interconnect", &TypeInterconnect, classid() )
 , bs_max( 0 )
@@ -33,41 +32,39 @@ Interconnect::Interconnect( void )
 }
 
 Interconnect::~Interconnect( void )
-{			
+{
 }
 
 void Interconnect::add( Value* object )
 {
-	assert( Value::isa< Variable >( object ) );
-	objects.push_back( object );
+    assert( Value::isa< Variable >( object ) );
+    objects.push_back( object );
 
-	bs_max = std::max( bs_max, object->getType()->getBitsize() );
+    bs_max = std::max( bs_max, object->getType()->getBitsize() );
 }
 
 const std::vector< Value* >& Interconnect::getObjects( void ) const
 {
-	return objects;
+    return objects;
 }
 
 const i16 Interconnect::getBitsizeMax( void ) const
 {
-	return bs_max;
+    return bs_max;
 }
 
 void Interconnect::dump( void ) const
 {
-	printf( "[Interconnect ] " );
-	debug();
+    printf( "[Interconnect ] " );
+    debug();
 }
 
 bool Interconnect::classof( Value const* obj )
 {
-	return obj->getValueID() == classid();
+    return obj->getValueID() == classid();
 }
 
-
-
-//  
+//
 //  Local variables:
 //  mode: c++
 //  indent-tabs-mode: nil
@@ -75,4 +72,4 @@ bool Interconnect::classof( Value const* obj )
 //  tab-width: 4
 //  End:
 //  vim:noexpandtab:sw=4:ts=4:
-//  
+//

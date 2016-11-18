@@ -24,37 +24,38 @@
 #ifndef _LIB_NOVEL_H_
 #define _LIB_NOVEL_H_
 
-#include "src/Novel.h"
-#include "src/Type.h"
-#include "src/Value.h"
-#include "src/Module.h"
-#include "src/Structure.h"
-#include "src/Variable.h"
-#include "src/Memory.h"
+#include "src/Block.h"
 #include "src/CallableUnit.h"
 #include "src/Function.h"
+#include "src/Instruction.h"
 #include "src/Interconnect.h"
 #include "src/Intrinsic.h"
+#include "src/Memory.h"
+#include "src/Module.h"
+#include "src/Novel.h"
 #include "src/Reference.h"
-#include "src/Block.h"
 #include "src/Scope.h"
 #include "src/Statement.h"
-#include "src/Instruction.h"
+#include "src/Structure.h"
+#include "src/Type.h"
+#include "src/Value.h"
+#include "src/Variable.h"
 #include "src/Visitor.h"
-
 
 namespace libnovel
 {
-	class Novel
-	{
-	};
+    class Novel
+    {
+    };
 }
 
-#define TODO fprintf( stdout, "%s:%i: '%s' implementation TODO\n", __FILE__, __LINE__, __FUNCTION__ )
+#define TODO                                                                   \
+    fprintf( stdout, "%s:%i: '%s' implementation TODO\n", __FILE__, __LINE__,  \
+        __FUNCTION__ )
 
 #endif /* _LIB_NOVEL_H_ */
 
-//  
+//
 //  Local variables:
 //  mode: c++
 //  indent-tabs-mode: nil
@@ -62,4 +63,4 @@ namespace libnovel
 //  tab-width: 4
 //  End:
 //  vim:noexpandtab:sw=4:ts=4:
-//  
+//

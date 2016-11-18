@@ -26,89 +26,101 @@
 
 #include "Block.h"
 
-#include "Value.h"
 #include "Constant.h"
 #include "Instruction.h"
 #include "Scope.h"
+#include "Value.h"
 
 namespace libnovel
 {
-	class Statement : public Block
-	{
-	private:
-		std::vector< Value* > instructions;
-		std::vector< Scope* > scopes;
-		
-	public:
-		Statement( const char* name, Type* type, Value* parent, Value::ID id = Value::STATEMENT );
-		
-		const std::vector< Value* >& getInstructions( void ) const;
-		
-		virtual const u1 isParallel( void ) const;
+    class Statement : public Block
+    {
+      private:
+        std::vector< Value* > instructions;
+        std::vector< Scope* > scopes;
 
-		void add( Value* instruction );
+      public:
+        Statement( const char* name, Type* type, Value* parent,
+            Value::ID id = Value::STATEMENT );
 
-		void addScope( Scope* block );
-		const std::vector< Scope* >& getScopes( void ) const;
-		
-		template< class C >
-		bool consistsOnlyOf( void )
-		{
-			for( auto instr : instructions )
-			{
-				if( not Value::isa< C >( instr ) )
-				{
-					return false;
-				}
-			}
+        const std::vector< Value* >& getInstructions( void ) const;
 
-			return true;
-		};
-		
-		void dump( void ) const;
-		
-		static inline Value::ID classid( void ) { return Value::STATEMENT; };
-		static bool classof( Value const* obj );
-	};
-	
-	class TrivialStatement : public Statement
-	{
-	public:
-		TrivialStatement( Value* parent = 0 );
+        virtual const u1 isParallel( void ) const;
 
-		void dump( void ) const;
-		
-		static inline Value::ID classid( void ) { return Value::TRIVIAL_STATEMENT; };
-		static bool classof( Value const* obj );
-	};
-	
-	class BranchStatement : public Statement
-	{
-	public:
-		BranchStatement( Value* parent = 0 );
-		
-		void dump( void ) const;
-		
-		static inline Value::ID classid( void ) { return Value::BRANCH_STATEMENT; };
-		static bool classof( Value const* obj );
-	};
-	
-	class LoopStatement : public Statement
-	{
-	public:
-	    LoopStatement( Value* parent = 0 );
-		
-		void dump( void ) const;
-		
-		static inline Value::ID classid( void ) { return Value::LOOP_STATEMENT; };
-		static bool classof( Value const* obj );
-	};
+        void add( Value* instruction );
+
+        void addScope( Scope* block );
+        const std::vector< Scope* >& getScopes( void ) const;
+
+        template < class C >
+        bool consistsOnlyOf( void )
+        {
+            for( auto instr : instructions )
+            {
+                if( not Value::isa< C >( instr ) )
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        };
+
+        void dump( void ) const;
+
+        static inline Value::ID classid( void )
+        {
+            return Value::STATEMENT;
+        };
+        static bool classof( Value const* obj );
+    };
+
+    class TrivialStatement : public Statement
+    {
+      public:
+        TrivialStatement( Value* parent = 0 );
+
+        void dump( void ) const;
+
+        static inline Value::ID classid( void )
+        {
+            return Value::TRIVIAL_STATEMENT;
+        };
+        static bool classof( Value const* obj );
+    };
+
+    class BranchStatement : public Statement
+    {
+      public:
+        BranchStatement( Value* parent = 0 );
+
+        void dump( void ) const;
+
+        static inline Value::ID classid( void )
+        {
+            return Value::BRANCH_STATEMENT;
+        };
+        static bool classof( Value const* obj );
+    };
+
+    class LoopStatement : public Statement
+    {
+      public:
+        LoopStatement( Value* parent = 0 );
+
+        void dump( void ) const;
+
+        static inline Value::ID classid( void )
+        {
+            return Value::LOOP_STATEMENT;
+        };
+        static bool classof( Value const* obj );
+    };
 }
-
 
 #endif /* _LIB_NOVEL_STATEMENT_H_ */
 
-//  
+//
 //  Local variables:
 //  mode: c++
 //  indent-tabs-mode: nil
@@ -116,4 +128,4 @@ namespace libnovel
 //  tab-width: 4
 //  End:
 //  vim:noexpandtab:sw=4:ts=4:
-//  
+//
