@@ -21,86 +21,144 @@
 #   along with libcsel-ir. If not, see <http://www.gnu.org/licenses/>.
 #
 
-AR=ar
+.PHONY:
 
-CC=clang
-CCFLAG += -std=c11
-CCFLAG += -g -O0
-CCFLAG += -Wall
+default: debug
 
-CPP=clang
-CPPFLAG += -std=c++11
-CPPFLAG += -g -O0
-CPPFLAG += -Wall
-#CPPFLAG += -Wextra
+help:
+	@echo "TODO"
 
-TARGET += libcsel_ir.a
+REPO = libcsel-ir
 
-CPPOBJECTS += obj/Block.o
-CPPOBJECTS += obj/CallableUnit.o
-CPPOBJECTS += obj/Constant.o
-CPPOBJECTS += obj/Function.o
-CPPOBJECTS += obj/Instruction.o
-CPPOBJECTS += obj/Interconnect.o
-CPPOBJECTS += obj/Intrinsic.o
-CPPOBJECTS += obj/Memory.o
-CPPOBJECTS += obj/Module.o
-CPPOBJECTS += obj/Reference.o
-CPPOBJECTS += obj/Scope.o
-CPPOBJECTS += obj/Statement.o
-CPPOBJECTS += obj/Structure.o
-CPPOBJECTS += obj/Type.o
-CPPOBJECTS += obj/User.o
-CPPOBJECTS += obj/Value.o
-CPPOBJECTS += obj/Variable.o
-CPPOBJECTS += obj/Visitor.o
+TARGET = $(REPO).a
 
-CPPOBJECTS += obj/analyze/CselIRDumpPass.o
+TEST_TARGET = test-$(REPO)
 
-INCLUDE += -I ./
-INCLUDE += -I ./src
-INCLUDE += -I ./src/analyze
-INCLUDE += -I ./src/transform
 
-INCLUDE += -I ../stdhl
-INCLUDE += -I ../pass
+CP  = $(shell find src -name '*.cpp' | cut -d'.' -f1)
+CO  = $(CP:%=obj/%.o)
 
-#LIBRARY += 
+CI += -I ./
+CI += -I ./src
+CI += -I ./src/analyze
+#CI += -I ./src/transform
 
-default: $(LIBRARY) obj $(TARGET)
+CI += -I ../stdhl
+CI += -I ../pass
 
-all: clean test
+CL  =
 
-obj:
-	mkdir -p obj
-	mkdir -p obj/analyze
-	mkdir -p obj/transform
+CC  =
+CF  =
 
-obj/%.o: src/%.cpp
-	@echo "CPP " $<
-	@$(CPP) $(CPPFLAG) $(INCLUDE) -c $< -o $@
+  %-gcc: CC = gcc
+%-clang: CC = clang
 
-obj/test.o: uts/test.cpp
-	@echo "CPP " $<
-	@$(CPP) $(CPPFLAG) $(INCLUDE) -c $< -o $@
+  debug-%: CF += -O0 -g
+release-%: CF += -O3 -DNDEBUG
 
-$(TARGET): $(CPPOBJECTS) $(LIBRARY)
+linux%:  CF += -Wall -std=c++11
+linux%:  XF += -Wall -std=c11
+linux3%: CF += -m32
+linux6%: CF += -m64
+
+
+build: config $(TARGET)
+check: build $(TEST_TARGET)
+
+linux32-build: build
+linux64-build: build
+
+linux32-check: check
+linux64-check: check
+
+
+  debug-build-linux32-gcc:   linux32-build
+  debug-check-linux32-gcc:   linux32-check
+release-build-linux32-gcc:   linux32-build
+release-check-linux32-gcc:   linux32-check
+
+  debug-build-linux64-gcc:   linux64-build
+  debug-check-linux64-gcc:   linux64-check
+release-build-linux64-gcc:   linux64-build
+release-check-linux64-gcc:   linux64-check
+
+  debug-build-linux32-clang: linux32-build
+  debug-check-linux32-clang: linux32-check
+release-build-linux32-clang: linux32-build
+release-check-linux32-clang: linux32-check
+
+  debug-build-linux64-clang: linux64-build
+  debug-check-linux64-clang: linux64-check
+release-build-linux64-clang: linux64-build
+release-check-linux64-clang: linux64-check
+
+
+  debug:   debug-build-linux64-clang
+release: clean release-build-linux64-clang
+
+test:           debug-check-linux64-clang
+test-release: release-check-linux64-clang
+
+
+config: CFG=CC="$(CC)" CF="$(CF)"
+config:
+	@echo "CFG  $(CFG)"
+
+
+obj/%.o: %.cpp
+	@mkdir -p `dirname $@`
+	@echo "C++ " $<
+	@$(CC) $(CF) $(CI) -c $< -o $@
+
+obj/%.o: %.c
+	@mkdir -p `dirname $@`
+	@echo "C   " $<
+	@$(CC) $(CF) $(CI) -c $< -o $@
+
+
+$(TARGET): $(CO) $(CL)
 	@echo "AR  " $@
 	@$(AR) rsc $@ $(filter %.o,$^)
-#	@$(AR) rsc $@.a $(filter %.o,$^)
-#	@$(AR) -rcT $@ $@.a $(filter %.a,$^)
 	@ranlib $@
-#	@rm -f $@.a
 
 clean:
 	@echo "RM  " obj
 	@rm -rf obj
 	@echo "RM  " $(TARGET)
 	@rm -f $(TARGET)
+	@echo "RM  " $(TEST_TARGET)
+	@rm -f $(TEST_TARGET)
 
-test:	default obj/test.o 
-	$(CPP) $(CPPFLAG) $(INCLUDE) obj/test.o $(TARGET) -lstdc++ -o $@
-	@echo "################################################################################"
 
-run:	test
-	@./test
+#TEST_TARGET = $(TARGET:%.a=%-test.a)
+
+TF   = $(shell find uts -name '*.cpp' | cut -d'.' -f1)
+TO = $(TF:%=obj/%.o)
+
+TI  = -I ../gtest/googletest/include
+TI += -I ../gtest/googletest
+
+TL  = -lstdc++
+TL += -lm
+TL += -lpthread
+
+obj/uts/%.o: uts/%.cpp
+	@mkdir -p `dirname $@`
+	@echo "C++ " $<
+	@$(CC) $(CF) $(TI) $(CI) -c $< -o $@
+
+$(TEST_TARGET): $(TO) $(CO) $(TARGET)
+	@echo "LD " $@
+	@$(CC) \
+	  $(CF) \
+	  $(TI) \
+	  $(CI) \
+	  $(TL) \
+	  -o $@ \
+	  $(TO) \
+	  $(TARGET) \
+	  ../gtest/googletest/src/gtest-all.cc \
+	  ../gtest/googletest/src/gtest_main.cc 
+	@echo "RUN " $@
+	@./$@
