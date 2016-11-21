@@ -3,28 +3,28 @@
 //  All rights reserved.
 //
 //  Developed by: Philipp Paulweber
-//                https://github.com/casm-lang/libnovel
+//                https://github.com/casm-lang/libcsel-ir
 //
-//  This file is part of libnovel.
+//  This file is part of libcsel-ir.
 //
-//  libnovel is free software: you can redistribute it and/or modify
+//  libcsel-ir is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
 //
-//  libnovel is distributed in the hope that it will be useful,
+//  libcsel-ir is distributed in the hope that it will be useful,
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 //  GNU General Public License for more details.
 //
 //  You should have received a copy of the GNU General Public License
-//  along with libnovel. If not, see <http://www.gnu.org/licenses/>.
+//  along with libcsel-ir. If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef _LIB_NOVEL_VISITOR_H_
-#define _LIB_NOVEL_VISITOR_H_
+#ifndef _LIB_CSELIR_VISITOR_H_
+#define _LIB_CSELIR_VISITOR_H_
 
-//#include "Novel.h"
+//#include "CselIR.h"
 
 #include "Constant.h"
 #include "Function.h"
@@ -37,7 +37,7 @@
 #include "Scope.h"
 #include "Variable.h"
 
-namespace libnovel
+namespace libcsel_ir
 {
     enum class Traversal
     {
@@ -45,7 +45,7 @@ namespace libnovel
         POSTORDER
     };
 
-    class Visitor //: public Novel
+    class Visitor //: public CselIR
     {
       public:
         enum class Stage
@@ -57,7 +57,7 @@ namespace libnovel
 
         virtual void dispatch( Stage stage, Value* value ) final;
 
-#define LIB_NOVEL_VISITOR_INTERFACE_( PREFIX, POSTFIX )                        \
+#define LIB_CSELIR_VISITOR_INTERFACE_( PREFIX, POSTFIX )                        \
     PREFIX void visit_prolog( Module& value ) POSTFIX;                         \
     PREFIX void visit_epilog( Module& value ) POSTFIX;                         \
                                                                                \
@@ -173,14 +173,14 @@ namespace libnovel
     PREFIX void visit_prolog( Interconnect& value ) POSTFIX;                   \
     PREFIX void visit_epilog( Interconnect& value ) POSTFIX
 
-        LIB_NOVEL_VISITOR_INTERFACE_( virtual, = 0 );
+        LIB_CSELIR_VISITOR_INTERFACE_( virtual, = 0 );
     };
 }
 
-#define LIB_NOVEL_VISITOR_INTERFACE                                            \
-    LIB_NOVEL_VISITOR_INTERFACE_(, override final )
+#define LIB_CSELIR_VISITOR_INTERFACE                                            \
+    LIB_CSELIR_VISITOR_INTERFACE_(, override final )
 
-#endif /* _LIB_NOVEL_VISITOR_H_ */
+#endif /* _LIB_CSELIR_VISITOR_H_ */
 
 //
 //  Local variables:

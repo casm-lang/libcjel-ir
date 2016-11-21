@@ -3,22 +3,22 @@
 #   All rights reserved.
 #
 #   Developed by: Philipp Paulweber
-#                 https://github.com/casm-lang/libnovel
+#                 https://github.com/casm-lang/libcsel-ir
 #
-#   This file is part of libnovel.
+#   This file is part of libcsel-ir.
 #
-#   libnovel is free software: you can redistribute it and/or modify
+#   libcsel-ir is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
 #   the Free Software Foundation, either version 3 of the License, or
 #   (at your option) any later version.
 #
-#   libnovel is distributed in the hope that it will be useful,
+#   libcsel-ir is distributed in the hope that it will be useful,
 #   but WITHOUT ANY WARRANTY; without even the implied warranty of
 #   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 #   GNU General Public License for more details.
 #
 #   You should have received a copy of the GNU General Public License
-#   along with libnovel. If not, see <http://www.gnu.org/licenses/>.
+#   along with libcsel-ir. If not, see <http://www.gnu.org/licenses/>.
 #
 
 AR=ar
@@ -34,7 +34,7 @@ CPPFLAG += -g -O0
 CPPFLAG += -Wall
 #CPPFLAG += -Wextra
 
-TARGET += libnovel.a
+TARGET += libcsel_ir.a
 
 CPPOBJECTS += obj/Block.o
 CPPOBJECTS += obj/CallableUnit.o
@@ -55,10 +55,7 @@ CPPOBJECTS += obj/Value.o
 CPPOBJECTS += obj/Variable.o
 CPPOBJECTS += obj/Visitor.o
 
-CPPOBJECTS += obj/analyze/NovelDumpPass.o
-CPPOBJECTS += obj/transform/NovelToLLPass.o
-CPPOBJECTS += obj/transform/NovelToC11Pass.o
-CPPOBJECTS += obj/transform/NovelToVHDLPass.o
+CPPOBJECTS += obj/analyze/CselIRDumpPass.o
 
 INCLUDE += -I ./
 INCLUDE += -I ./src
@@ -87,7 +84,7 @@ obj/test.o: uts/test.cpp
 	@echo "CPP " $<
 	@$(CPP) $(CPPFLAG) $(INCLUDE) -c $< -o $@
 
-libnovel.a: $(CPPOBJECTS) $(LIBRARY)
+$(TARGET): $(CPPOBJECTS) $(LIBRARY)
 	@echo "AR  " $@
 	@$(AR) rsc $@ $(filter %.o,$^)
 #	@$(AR) rsc $@.a $(filter %.o,$^)
@@ -102,7 +99,7 @@ clean:
 	@rm -f $(TARGET)
 
 test:	default obj/test.o 
-	$(CPP) $(CPPFLAG) $(INCLUDE) obj/test.o libnovel.a -lstdc++ -o $@
+	$(CPP) $(CPPFLAG) $(INCLUDE) obj/test.o $(TARGET) -lstdc++ -o $@
 	@echo "################################################################################"
 
 run:	test
