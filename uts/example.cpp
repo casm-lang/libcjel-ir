@@ -21,21 +21,8 @@
 //  along with libcsel-ir. If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef _LIB_CSELIR_ALL_H_
-#define _LIB_CSELIR_ALL_H_
+#include "gtest/gtest.h"
 
-#include "libcsel-ir.h"
-
-#include "src/analyze/CselIRDumpPass.h"
-
-#endif /* _LIB_CSELIR_ALL_H_ */
-
-//
-//  Local variables:
-//  mode: c++
-//  indent-tabs-mode: nil
-//  c-basic-offset: 4
-//  tab-width: 4
-//  End:
-//  vim:noexpandtab:sw=4:ts=4:
-//
+TEST( libcsel_ir, example )
+{
+}
