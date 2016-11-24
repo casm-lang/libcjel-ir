@@ -28,7 +28,7 @@ using namespace libcsel_ir;
 char CselIRDumpPass::id = 0;
 
 static libpass::PassRegistration< CselIRDumpPass > PASS( "CSELIR Dumping Pass",
-    "generates ASCII representation of the CSEL IR", 0, 0 );
+    "generates ASCII representation of the CSEL IR", "el-dump", 0 );
 
 bool CselIRDumpPass::run( libpass::PassResult& pr )
 {
