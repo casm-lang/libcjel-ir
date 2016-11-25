@@ -34,7 +34,7 @@ namespace libcsel_ir
       public:
         static char id;
 
-        bool run( libpass::PassResult& pr );
+        bool run( libpass::PassResult& pr ) override final;
 
         LIB_CSELIR_VISITOR_INTERFACE;
     };
