@@ -34,10 +34,10 @@ bool CselIRDumpPass::run( libpass::PassResult& pr )
 {
     Module* value = (Module*)pr.getResult< CselIRDumpPass >();
     assert( value );
-
+    
     value->iterate( Traversal::PREORDER, this );
 
-    return false;
+    return true;
 }
 
 static const char* indention( Value& value )
