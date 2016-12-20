@@ -34,7 +34,7 @@ bool CselIRDumpPass::run( libpass::PassResult& pr )
 {
     Module* value = (Module*)pr.getResult< CselIRDumpPass >();
     assert( value );
-    
+
     value->iterate( Traversal::PREORDER, this );
 
     return true;
