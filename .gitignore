@@ -1,4 +1,2 @@
-*.a
-obj
-lib*.a
-test*
+/.attic
+/obj
