@@ -1,5 +1,5 @@
 //
-//  Copyright (c) 2015-2016 Philipp Paulweber
+//  Copyright (c) 2015-2017 Philipp Paulweber
 //  All rights reserved.
 //
 //  Developed by: Philipp Paulweber
