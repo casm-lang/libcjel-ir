@@ -65,7 +65,8 @@ namespace libcsel_ir
         size_t hash( void ) const
         {
             assert( identifier );
-            return std::hash< string >()( string( identifier->getName() ) );
+            return std::hash< std::string >()(
+                std::string( identifier->getName() ) );
         }
     };
 }

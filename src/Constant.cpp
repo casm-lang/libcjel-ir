@@ -218,14 +218,14 @@ Identifier* Identifier::create( Type* type, const char* value, Value* scope )
     if( scope )
     {
         tmp = libstdhl::Allocator::string(
-            string( scope->getName() ) + "::" + string( value ) );
+            std::string( scope->getName() ) + "::" + std::string( value ) );
     }
     else
     {
         if( type && type->getIDKind() == Type::STRUCTURE )
         {
             tmp = libstdhl::Allocator::string(
-                "@@Structure::" + string( value ) );
+                "@@Structure::" + std::string( value ) );
         }
     }
 

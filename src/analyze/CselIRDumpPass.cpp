@@ -42,7 +42,7 @@ bool CselIRDumpPass::run( libpass::PassResult& pr )
 
 static const char* indention( Value& value )
 {
-    string ind = "";
+    std::string ind = "";
     u8 cnt = 0;
     Value* p = ( &value );
     while( p != 0 )
