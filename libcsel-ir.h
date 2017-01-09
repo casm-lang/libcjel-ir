@@ -42,11 +42,10 @@
 #include "src/Variable.h"
 #include "src/Visitor.h"
 
+#include "src/analyze/CselIRDumpPass.h"
+
 namespace libcsel_ir
 {
-    class CselIR
-    {
-    };
 }
 
 #define TODO                                                                   \

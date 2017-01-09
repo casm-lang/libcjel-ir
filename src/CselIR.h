@@ -21,8 +21,8 @@
 //  along with libcsel-ir. If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef _LIB_CSELIR_H_
-#define _LIB_CSELIR_H_
+#ifndef _LIB_CSELIR_CSELIR_H_
+#define _LIB_CSELIR_CSELIR_H_
 
 namespace libcsel_ir
 {
@@ -31,7 +31,7 @@ namespace libcsel_ir
     };
 }
 
-#endif /* _LIB_CSELIR_H_ */
+#endif /* _LIB_CSELIR_CSELIR_H_ */
 
 //
 //  Local variables:
