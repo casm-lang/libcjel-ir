@@ -33,7 +33,7 @@ namespace libcsel_ir
     class Function : public CallableUnit
     {
       public:
-        Function( const char* name );
+        Function( const char* name, Type* type );
 
         ~Function( void );
 

@@ -39,18 +39,18 @@ Reference::Reference(
     identifier = Identifier::create( type, name, callable /* scope?!?!*/ );
     assert( identifier );
 
-    if( type->isBound() )
-    {
-        Value* bind = type->getBound();
-        if( bind and libcsel_ir::Value::isa< libcsel_ir::Structure >( bind ) )
-        {
-            structure = (Structure*)bind;
-        }
-        else if( bind and libcsel_ir::Value::isa< libcsel_ir::Memory >( bind ) )
-        {
-            structure = ( (Memory*)bind )->getStructure();
-        }
-    }
+    // if( type->isBound() )
+    // {
+    //     Value* bind = type->getBound();
+    //     if( bind and libcsel_ir::isa< libcsel_ir::Structure >( bind ) )
+    //     {
+    //         structure = (Structure*)bind;
+    //     }
+    //     else if( bind and libcsel_ir::isa< libcsel_ir::Memory >( bind ) )
+    //     {
+    //         structure = ( (Memory*)bind )->getStructure();
+    //     }
+    // }
 
     if( callable )
     {

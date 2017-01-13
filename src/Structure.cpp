@@ -32,12 +32,13 @@ Structure::Structure( const char* name, Type* type, Structure* parent )
 {
     assert( name );
 
-    if( !type )
-    {
-        Type* ty = new Type( Type::STRUCTURE );
-        assert( ty );
-        setType( ty );
-    }
+    assert( !" PPA: continue here!!! " );
+    // if( !type )
+    // {
+    //     Type* ty = new Type( Type::STRUCTURE );
+    //     assert( ty );
+    //     setType( ty );
+    // }
 
     identifier = Identifier::create( getType(), name, parent );
     assert( identifier );
@@ -63,13 +64,13 @@ const Identifier* Structure::getIdentifier( void ) const
 void Structure::add( Value* value )
 {
     assert( value );
-    assert( Value::isa< Structure >( value ) );
+    assert( isa< Structure >( value ) );
     Structure* s = (Structure*)value;
     // s->setParent( this );
 
     element.push_back( s );
 
-    getType()->addSubType( value->getType() );
+    // getType()->addSubType( value->getType() );
 
     assert( s->getParent() == this );
 }

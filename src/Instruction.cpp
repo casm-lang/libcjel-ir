@@ -23,6 +23,7 @@
 
 #include "Instruction.h"
 #include "Reference.h"
+#include "Type.h"
 
 using namespace libcsel_ir;
 
@@ -44,7 +45,7 @@ void Instruction::setStatement( Statement* stmt )
 
     for( Value* value : values )
     {
-        if( not Value::isa< Instruction >( value ) )
+        if( not isa< Instruction >( value ) )
         {
             continue;
         }
@@ -76,11 +77,11 @@ void Instruction::add( Value* value )
 {
     assert( value );
 
-    if( Value::isa< UnaryInstruction >( this ) )
+    if( isa< UnaryInstruction >( this ) )
     {
         assert( values.size() < 1 );
     }
-    else if( Value::isa< BinaryInstruction >( this ) )
+    else if( isa< BinaryInstruction >( this ) )
     {
         assert( values.size() < 2 );
     }
@@ -211,7 +212,7 @@ bool ArithmeticInstruction::classof( Value const* obj )
 
 LogicalInstruction::LogicalInstruction(
     const char* name, Value* lhs, Value* rhs, Value::ID id )
-: BinaryInstruction( name, &TypeB1, lhs, rhs, id )
+: BinaryInstruction( name, Type::getBit( 1 ), lhs, rhs, id )
 {
     Type* lhs_ty = getLHS()->getType();
     Type* rhs_ty = getRHS()->getType();
@@ -255,11 +256,10 @@ CallInstruction::CallInstruction( Value* symbol )
 {
     assert( symbol );
 
-    assert( Value::isa< CallableUnit >( symbol )
-            or Value::isa< CastInstruction >( symbol ) );
-    if( Value::isa< CastInstruction >( symbol ) )
+    assert( isa< CallableUnit >( symbol ) or isa< CastInstruction >( symbol ) );
+    if( isa< CastInstruction >( symbol ) )
     {
-        assert( symbol->getType()->getIDKind() == Type::FUNCTION );
+        assert( symbol->getType()->getID() == Type::RELATION );
     }
 
     add( symbol );
@@ -275,7 +275,8 @@ IdCallInstruction::IdCallInstruction( Value* kind, Value* symbol )
     assert( kind );
     assert( symbol );
 
-    assert( symbol->getType()->getIDKind() == TypeId.getIDKind() );
+    assert( strcmp( symbol->getType()->getName(), Type::getTypeID()->getName() )
+            == 0 );
 
     add( kind );
     add( symbol );
@@ -304,10 +305,10 @@ bool StreamInstruction::classof( Value const* obj )
 // -----------------------------------------------------------------------------
 
 IdInstruction::IdInstruction( Value* src )
-: UnaryInstruction( ".id", &TypeId, src, Value::ID_INSTRUCTION )
+: UnaryInstruction( ".id", Type::getTypeID(), src, Value::ID_INSTRUCTION )
 {
     assert( src );
-    assert( Value::isa< Variable >( src ) or Value::isa< Function >( src ) );
+    assert( isa< Variable >( src ) or isa< Function >( src ) );
 }
 bool IdInstruction::classof( Value const* obj )
 {
@@ -348,8 +349,9 @@ bool TruncationInstruction::classof( Value const* obj )
 StoreInstruction::StoreInstruction( Value* src, Value* dst )
 : BinaryInstruction( ".store", 0, src, dst, Value::STORE_INSTRUCTION )
 {
-    assert( src->getType()->getBitsize() == dst->getType()->getBitsize()
-            and " bitsize from src to dst is violated " );
+    assert( src->getType()->getID() == Type::BIT );
+    assert(
+        strcmp( src->getType()->getName(), dst->getType()->getName() ) == 0 );
 }
 bool StoreInstruction::classof( Value const* obj )
 {
@@ -368,19 +370,10 @@ ExtractInstruction::ExtractInstruction( Value* src, Value* dst )
     // TODO: IDEA: FIXME: PPA: possible check to implement if 'dst' is inside
     // 'src'
 
-    if( Value::isa< Reference >( src )
-        and src->getType()->getIDKind() == Type::MEMORY )
+    if( isa< Reference >( src ) and src->getType()->getID() == Type::VECTOR
+        and src->getType()->getID() == Type::INTERCONNECT )
     {
-        Value* bind = src->getType()->getBound();
-        assert( Value::isa< Memory >( bind ) );
-        setType( ( (Memory*)bind )->getStructure()->getType() );
-    }
-    else if( Value::isa< Reference >( src )
-             and src->getType()->getIDKind() == Type::INTERCONNECT )
-    {
-        Value* bind = src->getType()->getBound();
-        assert( Value::isa< Interconnect >( bind ) );
-        setType( ( (Interconnect*)bind )->getType() );
+        setType( src->getType() );
     }
     else
     {
@@ -393,10 +386,11 @@ bool ExtractInstruction::classof( Value const* obj )
 }
 
 CastInstruction::CastInstruction( Value* kind, Value* src )
-: BinaryInstruction( ".cast", &TypeId, kind, src, Value::CAST_INSTRUCTION )
+: BinaryInstruction(
+      ".cast", Type::getTypeID(), kind, src, Value::CAST_INSTRUCTION )
 {
-    if( ( not Value::isa< CallableUnit >( kind ) )
-        and ( not Value::isa< Structure >( kind ) ) )
+    if( ( not isa< CallableUnit >( kind ) )
+        and ( not isa< Structure >( kind ) ) )
     {
         assert( !" unimplemented/unsupported CastInstr type! " );
     }

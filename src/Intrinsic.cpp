@@ -25,8 +25,8 @@
 
 using namespace libcsel_ir;
 
-Intrinsic::Intrinsic( const char* name )
-: CallableUnit( name, /* TODO: FIXME: */ &TypeFunction, Value::INTRINSIC )
+Intrinsic::Intrinsic( const char* name, Type* result )
+: CallableUnit( name, result, Value::INTRINSIC )
 {
     ( *Value::getSymbols() )[ ".intrinsic" ].insert( this );
 }

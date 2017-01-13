@@ -33,16 +33,16 @@ namespace libcsel_ir
     class Memory : public User
     {
         Structure* structure;
-        u32 size;
+        const u32 length;
 
       public:
-        Memory( Structure* value, u32 size );
+        Memory( Structure* value, u32 length );
 
         ~Memory( void );
 
-        Structure* getStructure( void ) const;
+        const Structure& getStructure( void ) const;
 
-        const u32 getSize( void ) const;
+        const u32 getLength( void ) const;
 
         void dump( void ) const;
 

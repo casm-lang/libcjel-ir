@@ -25,15 +25,15 @@
 
 using namespace libcsel_ir;
 
-Function::Function( const char* name )
-: CallableUnit( name, /* TODO: FIXME: */ &TypeFunction, Value::FUNCTION )
+Function::Function( const char* name, Type* type )
+: CallableUnit( name, type, Value::FUNCTION )
 {
-    ( *Value::getSymbols() )[ ".function" ].insert( this );
+    // ( *Value::getSymbols() )[ ".function" ].insert( this );
 }
 
 Function::~Function( void )
 {
-    ( *Value::getSymbols() )[ ".function" ].erase( this );
+    // ( *Value::getSymbols() )[ ".function" ].erase( this );
 }
 
 void Function::dump( void ) const

@@ -118,7 +118,7 @@ void Value::dump( void ) const
         // case Value::INTEGER_CONSTANT:
         // 	((IntegerConstant*)this)->dump(); break;
         default:
-            if( Value::isa< Instruction >( this ) )
+            if( isa< Instruction >( this ) )
             {
                 ( (Instruction*)this )->dump();
             }
@@ -132,7 +132,7 @@ void Value::dump( void ) const
 void Value::iterate(
     Traversal order, Visitor* visitor, std::function< void( Value* ) > action )
 {
-    if( Value::isa< Structure >( this )
+    if( isa< Structure >( this )
         and ( (Structure*)this )->getElements().size() == 0 )
     {
         return;
@@ -148,7 +148,7 @@ void Value::iterate(
         visitor->dispatch( Visitor::Stage::PROLOG, this );
     }
 
-    if( Value::isa< Module >( this ) )
+    if( isa< Module >( this ) )
     {
         Module* obj = ( (Module*)this );
         const std::vector< Value* > empty = {};
@@ -160,7 +160,7 @@ void Value::iterate(
         }
 
         for( Value* p :
-            ( obj->has< Constants >() ? obj->get< Constants >() : empty ) )
+            ( obj->has< Constant >() ? obj->get< Constant >() : empty ) )
         {
             p->iterate( order, visitor, action );
         }
@@ -196,7 +196,7 @@ void Value::iterate(
             p->iterate( order, visitor, action );
         }
     }
-    else if( Value::isa< Structure >( this ) )
+    else if( isa< Structure >( this ) )
     {
         Structure* obj = ( (Structure*)this );
 
@@ -205,7 +205,7 @@ void Value::iterate(
             p->iterate( order, visitor, action );
         }
     }
-    else if( Value::isa< StructureConstant >( this ) )
+    else if( isa< StructureConstant >( this ) )
     {
         StructureConstant* obj = ( (StructureConstant*)this );
 
@@ -214,7 +214,7 @@ void Value::iterate(
             p->iterate( order, visitor, action );
         }
     }
-    else if( Value::isa< CallableUnit >( this ) )
+    else if( isa< CallableUnit >( this ) )
     {
         CallableUnit* obj = ( (CallableUnit*)this );
 
@@ -238,7 +238,7 @@ void Value::iterate(
 
         context->iterate( order, visitor, action );
     }
-    else if( Value::isa< Statement >( this ) )
+    else if( isa< Statement >( this ) )
     {
         Statement* stmt = (Statement*)this;
         assert( stmt->getInstructions().size() > 0
@@ -250,7 +250,7 @@ void Value::iterate(
             instr->iterate( order, visitor, action );
         }
 
-        if( visitor && not Value::isa< TrivialStatement >( this ) )
+        if( visitor && not isa< TrivialStatement >( this ) )
         {
             visitor->dispatch( Visitor::Stage::INTERLOG, this );
 
@@ -261,7 +261,7 @@ void Value::iterate(
             }
         }
     }
-    else if( Value::isa< Scope >( this ) )
+    else if( isa< Scope >( this ) )
     {
         for( Block* block : ( (Scope*)this )->getBlocks() )
         {

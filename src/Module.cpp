@@ -52,31 +52,31 @@ void Module::add( Value* value )
         assert( m != this and " 'value' can only be part of one module" );
     }
 
-    if( Value::isa< Structure >( value ) )
+    if( isa< Structure >( value ) )
     {
         content[ Structure::classid() ].push_back( value );
     }
-    else if( Value::isa< Constants >( value ) )
+    else if( isa< Constant >( value ) )
     {
-        content[ Constants::classid() ].push_back( value );
+        content[ Constant::classid() ].push_back( value );
     }
-    else if( Value::isa< Variable >( value ) )
+    else if( isa< Variable >( value ) )
     {
         content[ Variable::classid() ].push_back( value );
     }
-    else if( Value::isa< Memory >( value ) )
+    else if( isa< Memory >( value ) )
     {
         content[ Memory::classid() ].push_back( value );
     }
-    else if( Value::isa< Intrinsic >( value ) )
+    else if( isa< Intrinsic >( value ) )
     {
         content[ Intrinsic::classid() ].push_back( value );
     }
-    else if( Value::isa< Function >( value ) )
+    else if( isa< Function >( value ) )
     {
         content[ Function::classid() ].push_back( value );
     }
-    else if( Value::isa< Interconnect >( value ) )
+    else if( isa< Interconnect >( value ) )
     {
         content[ Interconnect::classid() ].push_back( value );
     }

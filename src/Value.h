@@ -152,11 +152,17 @@ namespace libcsel_ir
         ID id;
         u1 type_lock;
 
-        std::vector< Type* > parameters;
-
         std::unordered_map< u32, Value* > references;
 
         Value* next;
+
+      protected:
+        static std::unordered_map< u8, std::unordered_set< Value* > >& id2objs(
+            void )
+        {
+            static std::unordered_map< u8, std::unordered_set< Value* > > cache;
+            return cache;
+        }
 
       public:
         Value( const char* name, Type* type, ID id );
@@ -185,7 +191,7 @@ namespace libcsel_ir
             auto result = references.find( C::classid() );
             if( result != references.end() )
             {
-                assert( Value::isa< C >( result->second ) );
+                assert( isa< C >( result->second ) );
                 return (C*)result->second;
             }
 
@@ -209,18 +215,6 @@ namespace libcsel_ir
         static inline bool classof( Value const* )
         {
             return true;
-        }
-
-        template < class TO >
-        static inline bool isa( Value* value )
-        {
-            return TO::classof( value );
-        }
-
-        template < class TO >
-        static inline bool isa( const Value* value )
-        {
-            return isa< TO >( (Value*)value );
         }
 
         virtual void iterate( Traversal order, Visitor* visitor = 0,

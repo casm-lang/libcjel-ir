@@ -31,80 +31,180 @@
 
 namespace libcsel_ir
 {
-    class Value;
+    class Structure;
+    struct StructureElement;
 
-    class Type : public libstdhl::Binding< Value > //: public CselIR
+    class Type : public CselIR
     {
       public:
         typedef u64* Bit;
-        typedef const char* String;
+        typedef char* String;
+        typedef Structure* Struct;
 
-        enum ID
+        enum ID : u8
         {
+            _BOTTOM_ = 0,
+            LABEL,
+
             BIT,
-            STRUCTURE,
-            FUNCTION,
-            MEMORY,
+            VECTOR,
             INTERCONNECT,
             STRING,
+            RELATION,
+            STRUCTURE,
             _TOP_
         };
 
-        enum STATE
-        {
-            UNCHANGED,
-            CHANGED,
-            LOCKED
-        };
+      protected:
+        const char* name;
+        const char* description;
+        u64 size;
 
       private:
-        ID type_id;
-        u64 type_uid_hash;
-        STATE type_state;
-        i16 bitsize;
-        std::string description;
-        std::vector< Type* > parameters;
-        std::vector< Type* > subtypes;
+        ID id;
 
-        static const char* ID2str[ ID::_TOP_ ];
+      protected:
+        static std::unordered_map< std::string, Type* >& str2obj( void )
+        {
+            static std::unordered_map< std::string, Type* > cache;
+            return cache;
+        }
 
       public:
-        Type( ID id, i16 bitsize = -1, STATE state = STATE::UNCHANGED );
-        const ID getIDKind( void ) const;
-        const u64 getID( void ) const;
-        const char* getName( void );
-        const i16 getBitsize( void );
+        Type( const char* name, const char* description, u64 size, ID id );
+        ~Type() = default;
 
-        const std::vector< Type* >& getParameters( void ) const;
-        const std::vector< Type* >& getSubTypes( void ) const;
+        const ID getID( void ) const;
 
-        void addParameter( Type* parameter );
-        void addSubType( Type* subtype );
+        virtual const u64 getSize( void ) = 0;
+        virtual const char* getName( void ) = 0;
+        virtual const char* getDescription( void ) = 0;
 
-        Type* getResultType( void );
+        Type* getResult( void ) const;
+
+        // PPA: add isTYPEetc. CHECKS
+
+        static Type* getLabel( void );
+
+        static Type* getTypeID( void );
+
+        static Type* getBit( u16 size );
+        static Type* getString( void );
+        static Type* getVector( Type* type, u16 length );
+        static Type* getStructure( std::vector< StructureElement > arguments );
+        static Type* getRelation(
+            Type* result, std::vector< Type* > arguments );
+        static Type* getInterconnect( void );
 
       private:
         void setID( ID id );
     };
 
-    static Type TypeB1 = Type( Type::BIT, 1, Type::STATE::LOCKED );
-    static Type TypeB8 = Type( Type::BIT, 8, Type::STATE::LOCKED );
-    static Type TypeB16 = Type( Type::BIT, 16, Type::STATE::LOCKED );
-    static Type TypeB32 = Type( Type::BIT, 32, Type::STATE::LOCKED );
-    static Type TypeB48 = Type( Type::BIT, 48, Type::STATE::LOCKED );
-    static Type TypeB64 = Type( Type::BIT, 64, Type::STATE::LOCKED );
-    static Type TypeId = TypeB48;
+    class PrimitiveType : public Type
+    {
+      public:
+        PrimitiveType(
+            const char* name, const char* description, u64 size, Type::ID id );
 
-    static Type TypeMemory = Type( Type::MEMORY, -1, Type::STATE::LOCKED );
-    static Type TypeInterconnect
-        = Type( Type::INTERCONNECT, -1, Type::STATE::LOCKED );
+        const u64 getSize( void ) override final;
+        const char* getName( void ) override final;
+        const char* getDescription( void ) override final;
+    };
 
-    static Type TypeStructure
-        = Type( Type::STRUCTURE, -1, Type::STATE::LOCKED );
+    class AggregateType : public Type
+    {
+      public:
+        AggregateType(
+            const char* name, const char* description, u64 size, Type::ID id );
+    };
 
-    static Type TypeFunction = Type( Type::FUNCTION, -1, Type::STATE::LOCKED );
+    class SyntheticType : public Type
+    {
+      public:
+        SyntheticType(
+            const char* name, const char* description, u64 size, Type::ID id );
 
-    static Type TypeCharacter = Type( Type::STRING, 1, Type::STATE::LOCKED );
+        const u64 getSize( void ) override final;
+        const char* getName( void ) override final;
+        const char* getDescription( void ) override final;
+    };
+
+    class LabelType : public PrimitiveType
+    {
+      public:
+        LabelType();
+    };
+
+    class BitType : public PrimitiveType
+    {
+      public:
+        BitType( u16 size );
+    };
+
+    class StringType : public PrimitiveType
+    {
+      public:
+        StringType();
+    };
+
+    class InterconnectType : public SyntheticType
+    {
+      public:
+        InterconnectType();
+    };
+
+    class RelationType : public Type
+    {
+      private:
+        Type* result;
+        std::vector< Type* > arguments;
+
+      public:
+        RelationType( Type* result, std::vector< Type* > arguments );
+
+        const u64 getSize( void ) override final;
+        const char* getName( void ) override final;
+        const char* getDescription( void ) override final;
+
+        const Type* getResult( void ) const;
+        const std::vector< Type* >& getArguments( void ) const;
+    };
+
+    class VectorType : public AggregateType
+    {
+      private:
+        Type* type;
+        u16 length;
+
+      public:
+        VectorType( Type* type, u16 length );
+
+        const u64 getSize( void ) override final;
+        const char* getName( void ) override final;
+        const char* getDescription( void ) override final;
+    };
+
+    struct StructureElement
+    {
+        Type* type;
+        const char* name;
+    };
+
+    class StructureType : public AggregateType
+    {
+      public:
+      private:
+        std::vector< StructureElement > elements;
+
+      public:
+        StructureType( std::vector< StructureElement > elements );
+
+        const u64 getSize( void ) override final;
+        const char* getName( void ) override final;
+        const char* getDescription( void ) override final;
+
+        const std::vector< StructureElement >& getElements( void ) const;
+    };
 }
 
 #endif /* _LIB_CSELIR_TYPE_H_ */

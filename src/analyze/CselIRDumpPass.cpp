@@ -47,11 +47,11 @@ static const char* indention( Value& value )
     Value* p = ( &value );
     while( p != 0 )
     {
-        if( Value::isa< Block >( p ) )
+        if( isa< Block >( p ) )
         {
             p = (Value*)( (Block*)p )->getParent();
         }
-        else if( Value::isa< Instruction >( p ) )
+        else if( isa< Instruction >( p ) )
         {
             p = (Value*)( (Instruction*)p )->getStatement();
         }
@@ -61,7 +61,7 @@ static const char* indention( Value& value )
             // assert(0);
         }
 
-        if( Value::isa< CallableUnit >( p ) )
+        if( isa< CallableUnit >( p ) )
         {
             break;
         }

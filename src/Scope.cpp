@@ -30,7 +30,7 @@ Scope::Scope(
     const char* name, Type* type, Value* parent, u1 is_parallel, Value::ID id )
 : Block( name, type, parent, is_parallel, id )
 {
-    if( parent and Value::isa< CallableUnit >( parent ) )
+    if( parent and isa< CallableUnit >( parent ) )
     {
         ( (CallableUnit*)parent )->setContext( this );
     }
@@ -38,9 +38,9 @@ Scope::Scope(
 
 void Scope::add( Value* element )
 {
-    assert( Value::isa< Block >( element ) );
+    assert( isa< Block >( element ) );
 
-    // if( Value::isa< Scope >( element ) )
+    // if( isa< Scope >( element ) )
     // {
     // 	((Scope*)element)->setParent( this );
     // }

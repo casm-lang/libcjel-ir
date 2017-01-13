@@ -34,9 +34,10 @@ Variable::Variable( Type* type, Value* expression, const char* ident )
 , ident( ident )
 {
     assert( type );
-    assert( expression && Value::isa< Constants >( expression ) );
+    assert( expression && isa< Constant >( expression ) );
 
-    allocation_id = BitConstant::create( allocation_cnt, TypeId.getBitsize() );
+    allocation_id = cast< BitConstant >(
+        Constant::getBit( Type::getTypeID(), allocation_cnt ) );
     allocation_cnt++;
     assert( allocation_id );
 }

@@ -23,10 +23,12 @@
 
 #include "Interconnect.h"
 
+#include "../stdhl/cpp/Math.h"
+
 using namespace libcsel_ir;
 
 Interconnect::Interconnect( void )
-: User( ".interconnect", &TypeInterconnect, classid() )
+: User( ".interconnect", Type::getInterconnect(), classid() )
 , bs_max( 0 )
 {
 }
@@ -37,10 +39,10 @@ Interconnect::~Interconnect( void )
 
 void Interconnect::add( Value* object )
 {
-    assert( Value::isa< Variable >( object ) );
+    assert( isa< Variable >( object ) );
     objects.push_back( object );
 
-    bs_max = std::max( bs_max, object->getType()->getBitsize() );
+    bs_max = std::max( bs_max, object->getType()->getSize() );
 }
 
 const std::vector< Value* >& Interconnect::getObjects( void ) const
@@ -48,7 +50,7 @@ const std::vector< Value* >& Interconnect::getObjects( void ) const
     return objects;
 }
 
-const i16 Interconnect::getBitsizeMax( void ) const
+const u64 Interconnect::getBitsizeMax( void ) const
 {
     return bs_max;
 }

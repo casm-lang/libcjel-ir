@@ -31,11 +31,11 @@ Statement::Statement(
 {
     assert( parent );
 
-    if( Value::isa< Scope >( parent ) )
+    if( isa< Scope >( parent ) )
     {
         ( (Scope*)parent )->add( this );
     }
-    else if( Value::isa< Intrinsic >( parent ) )
+    else if( isa< Intrinsic >( parent ) )
     {
         ( (Intrinsic*)parent )->setContext( this );
     }
@@ -51,11 +51,11 @@ const u1 Statement::isParallel( void ) const
 {
     const Value* parent = getParent();
 
-    if( Value::isa< Scope >( parent ) )
+    if( isa< Scope >( parent ) )
     {
         return ( (Scope*)parent )->isParallel();
     }
-    else if( Value::isa< Intrinsic >( parent ) )
+    else if( isa< Intrinsic >( parent ) )
     {
         return true;
     }
@@ -75,13 +75,13 @@ void Statement::add( Value* instruction )
 {
     assert( instruction );
 
-    // if( Value::isa< ConstantValue >( instruction ) )
+    // if( isa< ConstantValue >( instruction ) )
     // {
     // 	printf( "%s: %p --> Constant, omitted\n", __FUNCTION__, instruction );
     // 	return;
     // }
 
-    if( Value::isa< Instruction >( instruction ) )
+    if( isa< Instruction >( instruction ) )
     {
         static_cast< Instruction* >( instruction )->setStatement( this );
     }
@@ -103,12 +103,12 @@ void Statement::addScope( Scope* scope )
 {
     assert( scope );
 
-    if( Value::isa< TrivialStatement >( this ) )
+    if( isa< TrivialStatement >( this ) )
     {
         assert(
             !" trivial statements are not allowed to have inside scopes! " );
     }
-    else if( Value::isa< LoopStatement >( this ) )
+    else if( isa< LoopStatement >( this ) )
     {
         assert( scopes.size() < 1 );
     }
@@ -125,7 +125,7 @@ void Statement::addScope( Scope* scope )
 
 const std::vector< Scope* >& Statement::getScopes( void ) const
 {
-    if( Value::isa< TrivialStatement >( this ) )
+    if( isa< TrivialStatement >( this ) )
     {
         assert( !" trivial statements do not contain inside scopes! " );
     }

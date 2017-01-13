@@ -57,7 +57,7 @@ namespace libcsel_ir
         {
             for( auto instr : instructions )
             {
-                if( not Value::isa< C >( instr ) )
+                if( not isa< C >( instr ) )
                 {
                     return false;
                 }

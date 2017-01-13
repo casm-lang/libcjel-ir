@@ -25,56 +25,35 @@
 
 using namespace libcsel_ir;
 
-Memory::Memory( Structure* structure, u32 size )
-: User( ".memory", &TypeMemory, Value::MEMORY )
+Memory::Memory( Structure* structure, u32 length )
+: User( ".memory", Type::getVector( structure->getType(), length ),
+      Value::MEMORY )
 , structure( structure )
-, size( size )
+, length( length )
 {
-    assert( structure );
-    assert( size > 0 );
-
-    // setType( structure->getType() );
+    assert( length > 0 );
 }
 
 Memory::~Memory( void )
 {
 }
 
-Structure* Memory::getStructure( void ) const
+const Structure& Memory::getStructure( void ) const
 {
     assert( structure );
-    return structure;
+
+    return *structure;
 }
 
-const u32 Memory::getSize( void ) const
+const u32 Memory::getLength( void ) const
 {
-    return size;
+    return length;
 }
-
-// ParallelBlock* Memory::getContext( void ) const
-// {
-// 	return context;
-// }
-
-// void Memory::setContext( ParallelBlock* scope )
-// {
-// 	assert( scope );
-// 	context = scope;
-// }
 
 void Memory::dump( void ) const
 {
     printf( "[Memory ] " );
     debug();
-
-    // if( context )
-    // {
-    // 	context->dump();
-    // }
-    // else
-    // {
-    // 	printf( "('context' not set)\n" );
-    // }
 }
 
 bool Memory::classof( Value const* obj )

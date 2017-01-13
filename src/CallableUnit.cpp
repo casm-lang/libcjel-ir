@@ -39,9 +39,10 @@ CallableUnit::CallableUnit( const char* name, Type* type, Value::ID id )
     identifier = Identifier::create( type, name, this );
     assert( identifier );
 
-    ( *Value::getSymbols() )[ ".callableunit" ].insert( this );
+    // ( *Value::getSymbols() )[ ".callableunit" ].insert( this );
 
-    allocation_id = BitConstant::create( allocation_cnt, TypeId.getBitsize() );
+    allocation_id = cast< BitConstant >(
+        Constant::getBit( Type::getTypeID(), allocation_cnt ) );
     allocation_cnt++;
     assert( allocation_id );
 }
@@ -106,7 +107,7 @@ Reference* CallableUnit::link( const char* ref_name, Type* ref_type )
 void CallableUnit::addParameter( Value* value, u1 input )
 {
     assert( value );
-    assert( Value::isa< Reference >( value ) );
+    assert( isa< Reference >( value ) );
 
     Reference* ref = (Reference*)value;
     ref->setCallableUnit( this );
@@ -126,7 +127,7 @@ void CallableUnit::addParameter( Value* value, u1 input )
 void CallableUnit::addLinkage( Value* value )
 {
     assert( value );
-    assert( Value::isa< Reference >( value ) );
+    assert( isa< Reference >( value ) );
 
     Reference* ref = (Reference*)value;
     ref->setCallableUnit( this );
@@ -157,7 +158,7 @@ const i16 CallableUnit::getIndexOfParameter( Value* value ) const
 
 const u1 CallableUnit::isLastParameter( Value* value ) const
 {
-    assert( Value::isa< Reference >( value ) );
+    assert( isa< Reference >( value ) );
     Reference* ref = (Reference*)value;
 
     i16 index = getIndexOfParameter( ref );
@@ -188,7 +189,7 @@ const Reference* CallableUnit::getReference( const char* name ) const
     auto result = name2ref.find( name );
     if( result != name2ref.end() )
     {
-        assert( Value::isa< Reference >( result->second ) );
+        assert( isa< Reference >( result->second ) );
         return (const Reference*)result->second;
     }
 

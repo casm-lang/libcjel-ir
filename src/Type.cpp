@@ -23,172 +23,325 @@
 
 #include "Type.h"
 
+#include "../stdhl/cpp/Allocator.h"
+
 using namespace libcsel_ir;
 
-const char* Type::ID2str[ Type::ID::_TOP_ ] = {
-    "Bit" // BIT
-    ,
-    "Structure" // STRUCTURE
-    ,
-    "Function" // FUNCTION
-    ,
-    "Memory" // MEMORY
-    ,
-    "Interconnect" // INTERCONNECT
-    ,
-    "String" // STRING
-};
-
-Type::Type( Type::ID id, i16 bitsize, Type::STATE state )
-: type_id( id )
-, type_uid_hash( 0 )
-, type_state( Type::STATE::CHANGED )
-, bitsize( bitsize )
+Type::Type( const char* name, const char* description, u64 size, Type::ID id )
+: name( name )
+, description( description )
+, size( size )
+, id( id )
 {
-    getName();
-    type_state = state;
 }
 
-const Type::ID Type::getIDKind( void ) const
+const Type::ID Type::getID( void ) const
 {
-    return type_id;
+    return id;
 }
 
-const u64 Type::getID( void ) const
+Type* Type::getResult( void ) const
 {
-    return type_uid_hash;
-}
-
-const char* Type::getName( void )
-{
-    if( type_state != Type::STATE::CHANGED )
+    if( getID() == Type::RELATION )
     {
-        return description.c_str();
+        const RelationType* rt = static_cast< const RelationType* >( this );
+        return (Type*)rt->getResult();
+    }
+    return (Type*)this;
+}
+
+Type* Type::getLabel( void )
+{
+    static LabelType cache = LabelType();
+    return str2obj().emplace( cache.getName(), &cache ).first->second;
+}
+
+Type* Type::getTypeID( void )
+{
+    return getBit( 64 );
+}
+
+Type* Type::getBit( u16 size )
+{
+    BitType tmp( size );
+
+    auto cache = str2obj().find( tmp.getName() );
+    if( cache != str2obj().end() )
+    {
+        return cache->second;
     }
 
-    description.clear();
-    if( parameters.size() > 0 )
+    Type* ptr = new BitType( tmp );
+    str2obj()[ tmp.getName() ] = ptr;
+    return ptr;
+}
+
+Type* Type::getString( void )
+{
+    static StringType cache = StringType();
+    return str2obj().emplace( cache.getName(), &cache ).first->second;
+}
+
+Type* Type::getVector( Type* type, u16 length )
+{
+    VectorType tmp = VectorType( type, length );
+
+    auto cache = str2obj().find( tmp.getName() );
+    if( cache != str2obj().end() )
     {
-        u1 flag = 0;
-        for( auto parameter : parameters )
+        return cache->second;
+    }
+
+    Type* ptr = new VectorType( tmp );
+    str2obj()[ tmp.getName() ] = ptr;
+    return ptr;
+}
+
+Type* Type::getStructure( std::vector< StructureElement > elements )
+{
+    StructureType tmp( elements );
+
+    auto cache = str2obj().find( tmp.getName() );
+    if( cache != str2obj().end() )
+    {
+        return cache->second;
+    }
+
+    Type* ptr = new StructureType( tmp );
+    str2obj()[ tmp.getName() ] = ptr;
+    return ptr;
+}
+
+Type* Type::getRelation( Type* result, std::vector< Type* > arguments )
+{
+    RelationType tmp( result, arguments );
+
+    auto cache = str2obj().find( tmp.getName() );
+    if( cache != str2obj().end() )
+    {
+        return cache->second;
+    }
+
+    Type* ptr = new RelationType( tmp );
+    str2obj()[ tmp.getName() ] = ptr;
+    return ptr;
+}
+
+Type* Type::getInterconnect( void )
+{
+    static InterconnectType cache = InterconnectType();
+    return str2obj().emplace( cache.getName(), &cache ).first->second;
+}
+
+PrimitiveType::PrimitiveType(
+    const char* name, const char* description, u64 size, Type::ID id )
+: Type( name, description, size, id )
+{
+}
+
+const u64 PrimitiveType::getSize( void )
+{
+    return size;
+}
+
+const char* PrimitiveType::getName( void )
+{
+    return name;
+}
+
+const char* PrimitiveType::getDescription( void )
+{
+    return description;
+}
+
+AggregateType::AggregateType(
+    const char* name, const char* description, u64 size, Type::ID id )
+: Type( name, description, size, id )
+{
+}
+
+SyntheticType::SyntheticType(
+    const char* name, const char* description, u64 size, Type::ID id )
+: Type( name, description, size, id )
+{
+}
+
+const u64 SyntheticType::getSize( void )
+{
+    return size;
+}
+
+const char* SyntheticType::getName( void )
+{
+    return name;
+}
+
+const char* SyntheticType::getDescription( void )
+{
+    return description;
+}
+
+LabelType::LabelType()
+: PrimitiveType( "label", "Label", 0, Type::LABEL )
+{
+}
+
+BitType::BitType( u16 size )
+: PrimitiveType( libstdhl::Allocator::string( "u" + std::to_string( size ) ),
+      libstdhl::Allocator::string( "Bit(" + std::to_string( size ) + ")" ),
+      size, Type::BIT )
+{
+}
+
+StringType::StringType()
+: PrimitiveType( "s", "String", 0 /*PPA todo*/, Type::STRING )
+{
+}
+
+VectorType::VectorType( Type* type, u16 length )
+: AggregateType( "v", "Vector", type->getSize() * length, Type::VECTOR )
+, type( type )
+, length( length )
+{
+}
+
+RelationType::RelationType( Type* result, std::vector< Type* > arguments )
+: Type( 0, 0, 0, Type::RELATION )
+, result( result )
+, arguments( arguments )
+{
+    assert( result );
+}
+
+const u64 RelationType::getSize( void )
+{
+    return size;
+}
+
+const char* RelationType::getName( void )
+{
+    if( not name )
+    {
+        u1 first = true;
+        std::string tmp = "(";
+        for( auto argument : arguments )
         {
-            if( flag )
+            if( not first )
             {
-                description.append( " x " );
+                tmp += ", ";
             }
-            else
+            tmp += argument->getName();
+            first = false;
+        }
+
+        tmp += " -> ";
+        tmp += result->getName();
+        tmp += ")";
+
+        name = libstdhl::Allocator::string( tmp );
+    }
+
+    return name;
+}
+
+const char* RelationType::getDescription( void )
+{
+    if( not description )
+    {
+        u1 first = true;
+        std::string tmp = "(";
+        for( auto argument : arguments )
+        {
+            if( not first )
             {
-                flag = 1;
+                tmp += " x ";
             }
-            description.append( parameter->getName() );
+            tmp += argument->getDescription();
+            first = false;
         }
-        description.append( " -> " );
+
+        tmp += " -> ";
+        tmp += result->getDescription();
+        tmp += ")";
+
+        description = libstdhl::Allocator::string( tmp );
     }
 
-    description.append( ID2str[ type_id ] );
-    if( type_id == Type::BIT )
-    {
-        description.append( "(" );
-        description.append( std::to_string( bitsize ) );
-        description.append( ")" );
-    }
+    return description;
+}
 
-    if( subtypes.size() > 0 )
+const Type* RelationType::getResult( void ) const
+{
+    return result;
+}
+
+const std::vector< Type* >& RelationType::getArguments( void ) const
+{
+    return arguments;
+}
+
+StructureType::StructureType( std::vector< StructureElement > elements )
+: AggregateType( 0, 0, 0, Type::STRUCTURE )
+, elements( elements )
+{
+}
+
+const char* StructureType::getName( void )
+{
+    if( not name )
     {
-        u1 flag = 0;
-        description.append( "( " );
-        for( auto subtype : subtypes )
+        u1 first = true;
+        std::string tmp = "[";
+        for( auto element : elements )
         {
-            if( flag )
+            if( not first )
             {
-                description.append( ", " );
+                tmp += ", ";
             }
-            else
+            tmp += element.type->getName();
+            tmp += " : ";
+            tmp += element.name;
+            first = false;
+        }
+        tmp += "]";
+        name = libstdhl::Allocator::string( tmp );
+    }
+
+    return name;
+}
+
+const char* StructureType::getDescription( void )
+{
+    if( not description )
+    {
+        u1 first = true;
+        std::string tmp = "[";
+        for( auto element : elements )
+        {
+            if( not first )
             {
-                flag = 1;
+                tmp += ", ";
             }
-            description.append( subtype->getName() );
+            tmp += element.type->getDescription();
+            tmp += " : ";
+            tmp += element.name;
+            first = false;
         }
-        description.append( " )" );
+        tmp += "]";
+        description = libstdhl::Allocator::string( tmp );
     }
 
-    type_uid_hash = std::hash< std::string >()( description );
-
-    return description.c_str();
+    return description;
 }
 
-const i16 Type::getBitsize( void )
+const std::vector< StructureElement >& StructureType::getElements( void ) const
 {
-    return bitsize;
+    return elements;
 }
 
-const std::vector< Type* >& Type::getParameters( void ) const
+InterconnectType::InterconnectType()
+: SyntheticType( "x", "Interconnect", 0, Type::INTERCONNECT )
 {
-    return parameters;
-}
-
-const std::vector< Type* >& Type::getSubTypes( void ) const
-{
-    return subtypes;
-}
-
-void Type::addParameter( Type* parameter )
-{
-    assert( parameter );
-    assert( type_state != Type::STATE::LOCKED );
-    parameters.push_back( parameter );
-
-    type_state = Type::STATE::CHANGED;
-    getName();
-    type_state = Type::STATE::UNCHANGED;
-}
-
-void Type::addSubType( Type* subtype )
-{
-    assert( subtype );
-    assert( type_state != Type::STATE::LOCKED );
-
-    if( bitsize < 0 )
-    {
-        bitsize = 0;
-    }
-    bitsize += subtype->getBitsize();
-    subtypes.push_back( subtype );
-
-    type_state = Type::STATE::CHANGED;
-    getName();
-    type_state = Type::STATE::UNCHANGED;
-}
-
-Type* Type::getResultType( void )
-{
-    assert( !"DEPRECATED: DO NOT USE THIS FUNCTION" );
-
-    if( subtypes.size() == 0 )
-    {
-        if( type_id == Type::BIT )
-        {
-            return new Type( type_id, bitsize );
-        }
-        else if( type_id == Type::STRUCTURE )
-        {
-            return new Type( type_id, bitsize );
-        }
-        else
-        {
-            assert( 0 && "unimplemented result type with subtypes size zero!" );
-            return 0;
-        }
-    }
-    else
-    {
-        Type* t = new Type( type_id );
-        for( auto subtype : subtypes )
-        {
-            t->addSubType( subtype );
-        }
-        return t;
-    }
 }
 
 //

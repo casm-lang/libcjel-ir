@@ -34,7 +34,7 @@ namespace libcsel_ir
     class Interconnect : public User
     {
       private:
-        i16 bs_max;
+        u64 bs_max;
         std::vector< Value* > objects;
 
       public:
@@ -46,7 +46,7 @@ namespace libcsel_ir
 
         const std::vector< Value* >& getObjects( void ) const;
 
-        const i16 getBitsizeMax( void ) const;
+        const u64 getBitsizeMax( void ) const;
 
         void dump( void ) const;
 

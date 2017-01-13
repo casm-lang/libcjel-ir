@@ -33,7 +33,7 @@ namespace libcsel_ir
     class Intrinsic : public CallableUnit
     {
       public:
-        Intrinsic( const char* name );
+        Intrinsic( const char* name, Type* result );
 
         ~Intrinsic( void );
 
