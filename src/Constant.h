@@ -60,6 +60,21 @@ namespace libcsel_ir
             return cnt++;
         }
 
+        static inline Value* TRUE( void )
+        {
+            return getBit( Type::getBit( 1 ), 1 );
+        }
+
+        static inline Value* FALSE( void )
+        {
+            return getBit( Type::getBit( 1 ), 0 );
+        }
+
+        static inline Value* NIL( void )
+        {
+            return getBit( Type::getTypeID(), 0 );
+        }
+        
         static Value* getBit( Type* result, u64 value );
         static Value* getString( const char* value );
         // static Value* get( void );
@@ -160,7 +175,7 @@ namespace libcsel_ir
       public:
         StructureConstant( Type* type, std::vector< Value* > value );
 
-        const std::vector< Value* >& getElements( void ) const;
+        // const std::vector< Value* >& getElements( void ) const;
 
         void dump( void ) const;
 

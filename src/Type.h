@@ -39,8 +39,8 @@ namespace libcsel_ir
       public:
         typedef u64* Bit;
         typedef char* String;
-        typedef Structure* Struct;
-
+        typedef std::vector< Value* > Struct;
+        
         enum ID : u8
         {
             _BOTTOM_ = 0,
@@ -192,7 +192,6 @@ namespace libcsel_ir
 
     class StructureType : public AggregateType
     {
-      public:
       private:
         std::vector< StructureElement > elements;
 

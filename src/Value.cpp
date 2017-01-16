@@ -209,7 +209,7 @@ void Value::iterate(
     {
         StructureConstant* obj = ( (StructureConstant*)this );
 
-        for( Value* p : obj->getElements() )
+        for( Value* p : obj->getValue() )
         {
             p->iterate( order, visitor, action );
         }

@@ -106,6 +106,83 @@ bool StringConstant::classof( Value const* obj )
     return obj->getValueID() == classid();
 }
 
+StructureConstant::StructureConstant( Type* type, Type::Struct value )
+: ConstantOf< Type::Struct >(
+      ".const_struct", type, value, Value::STRUCTURE_CONSTANT )
+{
+    assert( type );
+
+    assert( !" PPA: TODO: " );
+
+    // libcsel_ir::Value* b = type->getBound();
+    // assert( b and libcsel_ir::isa< libcsel_ir::Structure >( b ) );
+    // libcsel_ir::Structure* s = (libcsel_ir::Structure*)b;
+
+    // if( value.size() == 0 )
+    // {
+    //     if( s->getElements().size() > 0 )
+    //     {
+    //         for( Value* e : s->getElements() )
+    //         {
+    //             if( e->getType()->getIDKind() == Type::BIT )
+    //             {
+    //                 this->value.push_back(
+    //                     BitConstant::create( 0, e->getType()->getBitsize() )
+    //                     );
+    //             }
+    //             else
+    //             {
+    //                 assert( !"struct in struct in ... not implemented yet!"
+    //                 );
+    //             }
+    //         }
+    //     }
+    //     else
+    //     {
+    //         assert( !"empty structure found, should not be possible!" );
+    //     }
+    // }
+
+    // assert( this->value.size() != 0
+    //         && "empty structure found, should not be possible!" );
+
+    // for( Value* p : this->value )
+    // {
+    //     assert( p );
+    //     if( isa< BitConstant >( p ) )
+    //     {
+    //         ( (BitConstant*)p )->bind( this );
+    //     }
+    //     else if( isa< StructureConstant >( p ) )
+    //     {
+    //         ( (StructureConstant*)p )->bind( this );
+    //     }
+    //     else if( isa< StringConstant >( p ) )
+    //     {
+    //         ( (StringConstant*)p )->bind( this );
+    //     }
+    //     else
+    //     {
+    //         assert( !" unimplemented case found! " );
+    //     }
+    // }
+}
+
+// const std::vector< Value* >& StructureConstant::getElements( void ) const
+// {
+//     return value;
+// }
+
+void StructureConstant::dump( void ) const
+{
+    printf( "[Const] %p = structure\n", this );
+}
+
+bool StructureConstant::classof( Value const* obj )
+{
+    return obj->getValueID() == classid();
+}
+
 Identifier::Identifier( Type* type, const char* value )
 : ConstantOf< const char* >( value, type, value, Value::IDENTIFIER )
 {

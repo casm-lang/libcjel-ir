@@ -205,6 +205,41 @@ VectorType::VectorType( Type* type, u16 length )
 {
 }
 
+const u64 VectorType::getSize( void )
+{
+    return size;
+}
+
+const char* VectorType::getName( void )
+{
+    if( not name )
+    {
+        std::string tmp = "< ";
+        tmp += type->getName();
+        tmp += " x ";
+        tmp += std::to_string( length );
+        tmp += ">";
+        name = libstdhl::Allocator::string( tmp );
+    }
+
+    return name;
+}
+
+const char* VectorType::getDescription( void )
+{
+    if( not description )
+    {
+        std::string tmp = "< ";
+        tmp += type->getDescription();
+        tmp += " x ";
+        tmp += std::to_string( length );
+        tmp += ">";
+        description = libstdhl::Allocator::string( tmp );
+    }
+
+    return description;
+}
+
 RelationType::RelationType( Type* result, std::vector< Type* > arguments )
 : Type( 0, 0, 0, Type::RELATION )
 , result( result )
@@ -285,6 +320,25 @@ StructureType::StructureType( std::vector< StructureElement > elements )
 , elements( elements )
 {
 }
+
+const u64 StructureType::getSize( void )
+{
+    if( not size )
+    {
+        u64 tmp = 0;
+
+        for( auto element : elements )
+        {
+            tmp += element.type->getSize();
+        }
+
+        assert( tmp != 0 );
+        size = tmp;
+    }
+    
+    return size;
+}
+
 
 const char* StructureType::getName( void )
 {
