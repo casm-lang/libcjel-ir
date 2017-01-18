@@ -40,14 +40,33 @@ const Type::ID Type::getID( void ) const
     return id;
 }
 
-Type* Type::getResult( void ) const
+u1 Type::isLabel( void ) const
 {
-    if( getID() == Type::RELATION )
-    {
-        const RelationType* rt = static_cast< const RelationType* >( this );
-        return (Type*)rt->getResult();
-    }
-    return (Type*)this;
+    return getID() == Type::LABEL;
+}
+u1 Type::isBit( void ) const
+{
+    return getID() == Type::BIT;
+}
+u1 Type::isString( void ) const
+{
+    return getID() == Type::STRING;
+}
+u1 Type::isVector( void ) const
+{
+    return getID() == Type::VECTOR;
+}
+u1 Type::isStructure( void ) const
+{
+    return getID() == Type::STRUCTURE;
+}
+u1 Type::isRelation( void ) const
+{
+    return getID() == Type::RELATION;
+}
+u1 Type::isInterconnect( void ) const
+{
+    return getID() == Type::INTERCONNECT;
 }
 
 Type* Type::getLabel( void )
@@ -112,7 +131,8 @@ Type* Type::getStructure( std::vector< StructureElement > elements )
     return ptr;
 }
 
-Type* Type::getRelation( Type* result, std::vector< Type* > arguments )
+Type* Type::getRelation(
+    std::vector< Type* > result, std::vector< Type* > arguments )
 {
     RelationType tmp( result, arguments );
 
@@ -132,6 +152,10 @@ Type* Type::getInterconnect( void )
     static InterconnectType cache = InterconnectType();
     return str2obj().emplace( cache.getName(), &cache ).first->second;
 }
+
+//
+// PrimitiveType
+//
 
 PrimitiveType::PrimitiveType(
     const char* name, const char* description, u64 size, Type::ID id )
@@ -154,37 +178,30 @@ const char* PrimitiveType::getDescription( void )
     return description;
 }
 
-AggregateType::AggregateType(
-    const char* name, const char* description, u64 size, Type::ID id )
-: Type( name, description, size, id )
+const std::vector< Type* >& PrimitiveType::getResults( void )
 {
+    static std::vector< Type* > single = { this };
+    return single;
 }
 
-SyntheticType::SyntheticType(
-    const char* name, const char* description, u64 size, Type::ID id )
-: Type( name, description, size, id )
+const std::vector< Type* >& PrimitiveType::getArguments( void )
 {
+    static std::vector< Type* > empty = {};
+    return empty;
 }
 
-const u64 SyntheticType::getSize( void )
-{
-    return size;
-}
-
-const char* SyntheticType::getName( void )
-{
-    return name;
-}
-
-const char* SyntheticType::getDescription( void )
-{
-    return description;
-}
+//
+// LabelType
+//
 
 LabelType::LabelType()
 : PrimitiveType( "label", "Label", 0, Type::LABEL )
 {
 }
+
+//
+// BitType
+//
 
 BitType::BitType( u16 size )
 : PrimitiveType( libstdhl::Allocator::string( "u" + std::to_string( size ) ),
@@ -193,10 +210,28 @@ BitType::BitType( u16 size )
 {
 }
 
+//
+// StringType
+//
+
 StringType::StringType()
 : PrimitiveType( "s", "String", 0 /*PPA todo*/, Type::STRING )
 {
 }
+
+//
+// AggregateType
+//
+
+AggregateType::AggregateType(
+    const char* name, const char* description, u64 size, Type::ID id )
+: Type( name, description, size, id )
+{
+}
+
+//
+// VectorType
+//
 
 VectorType::VectorType( Type* type, u16 length )
 : AggregateType( "v", "Vector", type->getSize() * length, Type::VECTOR )
@@ -240,80 +275,30 @@ const char* VectorType::getDescription( void )
     return description;
 }
 
-RelationType::RelationType( Type* result, std::vector< Type* > arguments )
-: Type( 0, 0, 0, Type::RELATION )
-, result( result )
-, arguments( arguments )
+const std::vector< Type* >& VectorType::getResults( void )
 {
-    assert( result );
-}
+    static std::vector< Type* > vector = {};
 
-const u64 RelationType::getSize( void )
-{
-    return size;
-}
-
-const char* RelationType::getName( void )
-{
-    if( not name )
+    if( vector.size() == 0 )
     {
-        u1 first = true;
-        std::string tmp = "(";
-        for( auto argument : arguments )
+        for( u32 i = 0; i < length; i++ )
         {
-            if( not first )
-            {
-                tmp += ", ";
-            }
-            tmp += argument->getName();
-            first = false;
+            vector.push_back( type );
         }
-
-        tmp += " -> ";
-        tmp += result->getName();
-        tmp += ")";
-
-        name = libstdhl::Allocator::string( tmp );
     }
 
-    return name;
+    return vector;
 }
 
-const char* RelationType::getDescription( void )
+const std::vector< Type* >& VectorType::getArguments( void )
 {
-    if( not description )
-    {
-        u1 first = true;
-        std::string tmp = "(";
-        for( auto argument : arguments )
-        {
-            if( not first )
-            {
-                tmp += " x ";
-            }
-            tmp += argument->getDescription();
-            first = false;
-        }
-
-        tmp += " -> ";
-        tmp += result->getDescription();
-        tmp += ")";
-
-        description = libstdhl::Allocator::string( tmp );
-    }
-
-    return description;
+    static std::vector< Type* > empty = {};
+    return empty;
 }
 
-const Type* RelationType::getResult( void ) const
-{
-    return result;
-}
-
-const std::vector< Type* >& RelationType::getArguments( void ) const
-{
-    return arguments;
-}
+//
+// StructureType
+//
 
 StructureType::StructureType( std::vector< StructureElement > elements )
 : AggregateType( 0, 0, 0, Type::STRUCTURE )
@@ -335,10 +320,9 @@ const u64 StructureType::getSize( void )
         assert( tmp != 0 );
         size = tmp;
     }
-    
+
     return size;
 }
-
 
 const char* StructureType::getName( void )
 {
@@ -392,6 +376,166 @@ const std::vector< StructureElement >& StructureType::getElements( void ) const
 {
     return elements;
 }
+
+const std::vector< Type* >& StructureType::getResults( void )
+{
+    static std::vector< Type* > structure = {};
+
+    if( structure.size() == 0 )
+    {
+        for( auto element : elements )
+        {
+            structure.push_back( element.type );
+        }
+    }
+
+    return structure;
+}
+
+const std::vector< Type* >& StructureType::getArguments( void )
+{
+    static std::vector< Type* > empty = {};
+    return empty;
+}
+
+//
+// RelationType
+//
+
+RelationType::RelationType(
+    std::vector< Type* > results, std::vector< Type* > arguments )
+: Type( 0, 0, 0, Type::RELATION )
+, results( results )
+, arguments( arguments )
+{
+}
+
+const u64 RelationType::getSize( void )
+{
+    return size;
+}
+
+const char* RelationType::getName( void )
+{
+    if( not name )
+    {
+        u1 first = true;
+        std::string tmp = "(";
+        for( auto argument : arguments )
+        {
+            if( not first )
+            {
+                tmp += ", ";
+            }
+            tmp += argument->getName();
+            first = false;
+        }
+        tmp += " -> ";
+
+        first = true;
+        for( auto result : results )
+        {
+            if( not first )
+            {
+                tmp += ", ";
+            }
+            tmp += result->getName();
+            first = false;
+        }
+        tmp += ")";
+
+        name = libstdhl::Allocator::string( tmp );
+    }
+
+    return name;
+}
+
+const char* RelationType::getDescription( void )
+{
+    if( not description )
+    {
+        u1 first = true;
+        std::string tmp = "(";
+        for( auto argument : arguments )
+        {
+            if( not first )
+            {
+                tmp += " x ";
+            }
+            tmp += argument->getDescription();
+            first = false;
+        }
+
+        tmp += " -> ";
+
+        first = true;
+        for( auto result : results )
+        {
+            if( not first )
+            {
+                tmp += ", ";
+            }
+            tmp += result->getDescription();
+            first = false;
+        }
+        tmp += ")";
+
+        description = libstdhl::Allocator::string( tmp );
+    }
+
+    return description;
+}
+
+const std::vector< Type* >& RelationType::getResults( void )
+{
+    return results;
+}
+
+const std::vector< Type* >& RelationType::getArguments( void )
+{
+    return arguments;
+}
+
+//
+// SyntheticType
+//
+
+SyntheticType::SyntheticType(
+    const char* name, const char* description, u64 size, Type::ID id )
+: Type( name, description, size, id )
+{
+}
+
+const u64 SyntheticType::getSize( void )
+{
+    return size;
+}
+
+const char* SyntheticType::getName( void )
+{
+    return name;
+}
+
+const char* SyntheticType::getDescription( void )
+{
+    return description;
+}
+
+const std::vector< Type* >& SyntheticType::getResults( void )
+{
+    static std::vector< Type* > empty = {};
+    return empty;
+}
+
+const std::vector< Type* >& SyntheticType::getArguments( void )
+{
+    static std::vector< Type* > empty = {};
+    return empty;
+}
+
+//
+// InterconnectType
+//
 
 InterconnectType::InterconnectType()
 : SyntheticType( "x", "Interconnect", 0, Type::INTERCONNECT )

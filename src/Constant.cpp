@@ -63,6 +63,20 @@ Value* Constant::getString( const char* value )
     return str2obj().emplace( tmp.getDescription(), ptr ).first->second;
 }
 
+Value* Constant::getStructure( Type* result, std::vector< Value* > values )
+{
+    StructureConstant tmp = StructureConstant( result, values );
+
+    auto cache = str2obj().find( tmp.getDescription() );
+    if( cache != str2obj().end() )
+    {
+        return cache->second;
+    }
+
+    Value* ptr = new StructureConstant( tmp );
+    return str2obj().emplace( tmp.getDescription(), ptr ).first->second;
+}
+
 //
 // Constants
 //
@@ -111,8 +125,16 @@ StructureConstant::StructureConstant( Type* type, Type::Struct value )
       ".const_struct", type, value, Value::STRUCTURE_CONSTANT )
 {
     assert( type );
+    assert( type->isStructure() );
+    assert( type->getArguments().size() == 0 );
+    assert( type->getResults().size() == value.size() );
 
-    assert( !" PPA: TODO: " );
+    for( u32 i = 0; i < value.size(); i++ )
+    {
+        assert( strcmp( type->getResults()[ i ]->getName(),
+                    value[ i ]->getType()->getName() )
+                == 0 );
+    }
 
     // libcsel_ir::Value* b = type->getBound();
     // assert( b and libcsel_ir::isa< libcsel_ir::Structure >( b ) );

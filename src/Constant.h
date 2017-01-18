@@ -74,10 +74,11 @@ namespace libcsel_ir
         {
             return getBit( Type::getTypeID(), 0 );
         }
-        
+
         static Value* getBit( Type* result, u64 value );
         static Value* getString( const char* value );
-        // static Value* get( void );
+        static Value* getStructure(
+            Type* result, std::vector< Value* > values );
     };
 
     template < typename V >
