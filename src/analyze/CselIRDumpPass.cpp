@@ -84,371 +84,371 @@ static const char* indention( Value& value )
         printf( ", %s (%s)", v->getLabel(), v->getType()->getName() );         \
     }
 
-void CselIRDumpPass::visit_prolog( Module& value )
+void CselIRDumpPass::visit_prolog( Module& value, void* cxt )
 {
     DUMP_PREFIX;
     DUMP_POSTFIX;
 }
-void CselIRDumpPass::visit_epilog( Module& value )
+void CselIRDumpPass::visit_epilog( Module& value, void* cxt )
 {
 }
 
-void CselIRDumpPass::visit_prolog( Function& value )
+void CselIRDumpPass::visit_prolog( Function& value, void* cxt )
 {
     DUMP_PREFIX;
     DUMP_POSTFIX;
 }
-void CselIRDumpPass::visit_interlog( Function& value )
+void CselIRDumpPass::visit_interlog( Function& value, void* cxt )
 {
 }
-void CselIRDumpPass::visit_epilog( Function& value )
+void CselIRDumpPass::visit_epilog( Function& value, void* cxt )
 {
 }
 
-void CselIRDumpPass::visit_prolog( Intrinsic& value )
+void CselIRDumpPass::visit_prolog( Intrinsic& value, void* cxt )
 {
     DUMP_PREFIX;
     DUMP_POSTFIX;
 }
-void CselIRDumpPass::visit_interlog( Intrinsic& value )
+void CselIRDumpPass::visit_interlog( Intrinsic& value, void* cxt )
 {
 }
-void CselIRDumpPass::visit_epilog( Intrinsic& value )
+void CselIRDumpPass::visit_epilog( Intrinsic& value, void* cxt )
 {
 }
 
-void CselIRDumpPass::visit_prolog( Reference& value )
+void CselIRDumpPass::visit_prolog( Reference& value, void* cxt )
 {
     DUMP_PREFIX;
     printf( "%s, %s", value.getIdentifier()->getName(),
         value.isInput() ? "in" : "out" );
     DUMP_POSTFIX;
 }
-void CselIRDumpPass::visit_epilog( Reference& value )
+void CselIRDumpPass::visit_epilog( Reference& value, void* cxt )
 {
 }
 
-void CselIRDumpPass::visit_prolog( Structure& value )
+void CselIRDumpPass::visit_prolog( Structure& value, void* cxt )
 {
     DUMP_PREFIX;
     DUMP_POSTFIX;
 }
-void CselIRDumpPass::visit_epilog( Structure& value )
+void CselIRDumpPass::visit_epilog( Structure& value, void* cxt )
 {
 }
 
-void CselIRDumpPass::visit_prolog( Variable& value )
+void CselIRDumpPass::visit_prolog( Variable& value, void* cxt )
 {
     DUMP_PREFIX;
     DUMP_POSTFIX;
 }
-void CselIRDumpPass::visit_epilog( Variable& value )
+void CselIRDumpPass::visit_epilog( Variable& value, void* cxt )
 {
 }
 
-void CselIRDumpPass::visit_prolog( Memory& value )
+void CselIRDumpPass::visit_prolog( Memory& value, void* cxt )
 {
     DUMP_PREFIX;
     DUMP_POSTFIX;
 }
-void CselIRDumpPass::visit_epilog( Memory& value )
+void CselIRDumpPass::visit_epilog( Memory& value, void* cxt )
 {
 }
 
-void CselIRDumpPass::visit_prolog( ParallelScope& value )
+void CselIRDumpPass::visit_prolog( ParallelScope& value, void* cxt )
 {
     DUMP_PREFIX;
     DUMP_POSTFIX;
 }
-void CselIRDumpPass::visit_epilog( ParallelScope& value )
+void CselIRDumpPass::visit_epilog( ParallelScope& value, void* cxt )
 {
 }
 
-void CselIRDumpPass::visit_prolog( SequentialScope& value )
+void CselIRDumpPass::visit_prolog( SequentialScope& value, void* cxt )
 {
     DUMP_PREFIX;
     DUMP_POSTFIX;
 }
-void CselIRDumpPass::visit_epilog( SequentialScope& value )
+void CselIRDumpPass::visit_epilog( SequentialScope& value, void* cxt )
 {
 }
 
-void CselIRDumpPass::visit_prolog( TrivialStatement& value )
+void CselIRDumpPass::visit_prolog( TrivialStatement& value, void* cxt )
 {
     DUMP_PREFIX;
     DUMP_POSTFIX;
 }
-void CselIRDumpPass::visit_epilog( TrivialStatement& value )
+void CselIRDumpPass::visit_epilog( TrivialStatement& value, void* cxt )
 {
 }
 
-void CselIRDumpPass::visit_prolog( BranchStatement& value )
+void CselIRDumpPass::visit_prolog( BranchStatement& value, void* cxt )
 {
     DUMP_PREFIX;
     DUMP_POSTFIX;
 }
-void CselIRDumpPass::visit_interlog( BranchStatement& value )
+void CselIRDumpPass::visit_interlog( BranchStatement& value, void* cxt )
 {
 }
-void CselIRDumpPass::visit_epilog( BranchStatement& value )
+void CselIRDumpPass::visit_epilog( BranchStatement& value, void* cxt )
 {
 }
 
-void CselIRDumpPass::visit_prolog( LoopStatement& value )
+void CselIRDumpPass::visit_prolog( LoopStatement& value, void* cxt )
 {
     DUMP_PREFIX;
     DUMP_POSTFIX;
 }
-void CselIRDumpPass::visit_interlog( LoopStatement& value )
+void CselIRDumpPass::visit_interlog( LoopStatement& value, void* cxt )
 {
 }
-void CselIRDumpPass::visit_epilog( LoopStatement& value )
-{
-}
-
-void CselIRDumpPass::visit_prolog( NopInstruction& value )
-{
-    DUMP_PREFIX;
-    DUMP_INSTR;
-    DUMP_POSTFIX;
-}
-void CselIRDumpPass::visit_epilog( NopInstruction& value )
+void CselIRDumpPass::visit_epilog( LoopStatement& value, void* cxt )
 {
 }
 
-void CselIRDumpPass::visit_prolog( AllocInstruction& value )
+void CselIRDumpPass::visit_prolog( NopInstruction& value, void* cxt )
 {
     DUMP_PREFIX;
     DUMP_INSTR;
     DUMP_POSTFIX;
 }
-void CselIRDumpPass::visit_epilog( AllocInstruction& value )
+void CselIRDumpPass::visit_epilog( NopInstruction& value, void* cxt )
 {
 }
 
-void CselIRDumpPass::visit_prolog( IdInstruction& value )
+void CselIRDumpPass::visit_prolog( AllocInstruction& value, void* cxt )
 {
     DUMP_PREFIX;
     DUMP_INSTR;
     DUMP_POSTFIX;
 }
-void CselIRDumpPass::visit_epilog( IdInstruction& value )
+void CselIRDumpPass::visit_epilog( AllocInstruction& value, void* cxt )
 {
 }
 
-void CselIRDumpPass::visit_prolog( CastInstruction& value )
+void CselIRDumpPass::visit_prolog( IdInstruction& value, void* cxt )
 {
     DUMP_PREFIX;
     DUMP_INSTR;
     DUMP_POSTFIX;
 }
-void CselIRDumpPass::visit_epilog( CastInstruction& value )
+void CselIRDumpPass::visit_epilog( IdInstruction& value, void* cxt )
 {
 }
 
-void CselIRDumpPass::visit_prolog( CallInstruction& value )
+void CselIRDumpPass::visit_prolog( CastInstruction& value, void* cxt )
 {
     DUMP_PREFIX;
     DUMP_INSTR;
     DUMP_POSTFIX;
 }
-void CselIRDumpPass::visit_epilog( CallInstruction& value )
+void CselIRDumpPass::visit_epilog( CastInstruction& value, void* cxt )
 {
 }
 
-void CselIRDumpPass::visit_prolog( IdCallInstruction& value )
+void CselIRDumpPass::visit_prolog( CallInstruction& value, void* cxt )
 {
     DUMP_PREFIX;
     DUMP_INSTR;
     DUMP_POSTFIX;
 }
-void CselIRDumpPass::visit_epilog( IdCallInstruction& value )
+void CselIRDumpPass::visit_epilog( CallInstruction& value, void* cxt )
 {
 }
 
-void CselIRDumpPass::visit_prolog( StreamInstruction& value )
+void CselIRDumpPass::visit_prolog( IdCallInstruction& value, void* cxt )
 {
     DUMP_PREFIX;
     DUMP_INSTR;
     DUMP_POSTFIX;
 }
-void CselIRDumpPass::visit_epilog( StreamInstruction& value )
+void CselIRDumpPass::visit_epilog( IdCallInstruction& value, void* cxt )
 {
 }
 
-void CselIRDumpPass::visit_prolog( ExtractInstruction& value )
+void CselIRDumpPass::visit_prolog( StreamInstruction& value, void* cxt )
 {
     DUMP_PREFIX;
     DUMP_INSTR;
     DUMP_POSTFIX;
 }
-void CselIRDumpPass::visit_epilog( ExtractInstruction& value )
+void CselIRDumpPass::visit_epilog( StreamInstruction& value, void* cxt )
 {
 }
 
-void CselIRDumpPass::visit_prolog( LoadInstruction& value )
+void CselIRDumpPass::visit_prolog( ExtractInstruction& value, void* cxt )
 {
     DUMP_PREFIX;
     DUMP_INSTR;
     DUMP_POSTFIX;
 }
-void CselIRDumpPass::visit_epilog( LoadInstruction& value )
+void CselIRDumpPass::visit_epilog( ExtractInstruction& value, void* cxt )
 {
 }
 
-void CselIRDumpPass::visit_prolog( StoreInstruction& value )
+void CselIRDumpPass::visit_prolog( LoadInstruction& value, void* cxt )
 {
     DUMP_PREFIX;
     DUMP_INSTR;
     DUMP_POSTFIX;
 }
-void CselIRDumpPass::visit_epilog( StoreInstruction& value )
+void CselIRDumpPass::visit_epilog( LoadInstruction& value, void* cxt )
 {
 }
 
-void CselIRDumpPass::visit_prolog( NotInstruction& value )
+void CselIRDumpPass::visit_prolog( StoreInstruction& value, void* cxt )
 {
     DUMP_PREFIX;
     DUMP_INSTR;
     DUMP_POSTFIX;
 }
-void CselIRDumpPass::visit_epilog( NotInstruction& value )
+void CselIRDumpPass::visit_epilog( StoreInstruction& value, void* cxt )
 {
 }
 
-void CselIRDumpPass::visit_prolog( AndInstruction& value )
+void CselIRDumpPass::visit_prolog( NotInstruction& value, void* cxt )
 {
     DUMP_PREFIX;
     DUMP_INSTR;
     DUMP_POSTFIX;
 }
-void CselIRDumpPass::visit_epilog( AndInstruction& value )
+void CselIRDumpPass::visit_epilog( NotInstruction& value, void* cxt )
 {
 }
 
-void CselIRDumpPass::visit_prolog( OrInstruction& value )
+void CselIRDumpPass::visit_prolog( AndInstruction& value, void* cxt )
 {
     DUMP_PREFIX;
     DUMP_INSTR;
     DUMP_POSTFIX;
 }
-void CselIRDumpPass::visit_epilog( OrInstruction& value )
+void CselIRDumpPass::visit_epilog( AndInstruction& value, void* cxt )
 {
 }
 
-void CselIRDumpPass::visit_prolog( XorInstruction& value )
+void CselIRDumpPass::visit_prolog( OrInstruction& value, void* cxt )
 {
     DUMP_PREFIX;
     DUMP_INSTR;
     DUMP_POSTFIX;
 }
-void CselIRDumpPass::visit_epilog( XorInstruction& value )
+void CselIRDumpPass::visit_epilog( OrInstruction& value, void* cxt )
 {
 }
 
-void CselIRDumpPass::visit_prolog( AddSignedInstruction& value )
+void CselIRDumpPass::visit_prolog( XorInstruction& value, void* cxt )
 {
     DUMP_PREFIX;
     DUMP_INSTR;
     DUMP_POSTFIX;
 }
-void CselIRDumpPass::visit_epilog( AddSignedInstruction& value )
+void CselIRDumpPass::visit_epilog( XorInstruction& value, void* cxt )
 {
 }
 
-void CselIRDumpPass::visit_prolog( DivSignedInstruction& value )
+void CselIRDumpPass::visit_prolog( AddSignedInstruction& value, void* cxt )
 {
     DUMP_PREFIX;
     DUMP_INSTR;
     DUMP_POSTFIX;
 }
-void CselIRDumpPass::visit_epilog( DivSignedInstruction& value )
+void CselIRDumpPass::visit_epilog( AddSignedInstruction& value, void* cxt )
 {
 }
 
-void CselIRDumpPass::visit_prolog( EquUnsignedInstruction& value )
+void CselIRDumpPass::visit_prolog( DivSignedInstruction& value, void* cxt )
 {
     DUMP_PREFIX;
     DUMP_INSTR;
     DUMP_POSTFIX;
 }
-void CselIRDumpPass::visit_epilog( EquUnsignedInstruction& value )
+void CselIRDumpPass::visit_epilog( DivSignedInstruction& value, void* cxt )
 {
 }
 
-void CselIRDumpPass::visit_prolog( NeqUnsignedInstruction& value )
+void CselIRDumpPass::visit_prolog( EquUnsignedInstruction& value, void* cxt )
 {
     DUMP_PREFIX;
     DUMP_INSTR;
     DUMP_POSTFIX;
 }
-void CselIRDumpPass::visit_epilog( NeqUnsignedInstruction& value )
+void CselIRDumpPass::visit_epilog( EquUnsignedInstruction& value, void* cxt )
 {
 }
 
-void CselIRDumpPass::visit_prolog( ZeroExtendInstruction& value )
+void CselIRDumpPass::visit_prolog( NeqUnsignedInstruction& value, void* cxt )
 {
     DUMP_PREFIX;
     DUMP_INSTR;
     DUMP_POSTFIX;
 }
-void CselIRDumpPass::visit_epilog( ZeroExtendInstruction& value )
+void CselIRDumpPass::visit_epilog( NeqUnsignedInstruction& value, void* cxt )
 {
 }
 
-void CselIRDumpPass::visit_prolog( TruncationInstruction& value )
+void CselIRDumpPass::visit_prolog( ZeroExtendInstruction& value, void* cxt )
 {
     DUMP_PREFIX;
     DUMP_INSTR;
     DUMP_POSTFIX;
 }
-void CselIRDumpPass::visit_epilog( TruncationInstruction& value )
+void CselIRDumpPass::visit_epilog( ZeroExtendInstruction& value, void* cxt )
 {
 }
 
-void CselIRDumpPass::visit_prolog( ModUnsignedInstruction& value )
+void CselIRDumpPass::visit_prolog( TruncationInstruction& value, void* cxt )
 {
     DUMP_PREFIX;
     DUMP_INSTR;
     DUMP_POSTFIX;
 }
-void CselIRDumpPass::visit_epilog( ModUnsignedInstruction& value )
+void CselIRDumpPass::visit_epilog( TruncationInstruction& value, void* cxt )
 {
 }
 
-void CselIRDumpPass::visit_prolog( BitConstant& value )
+void CselIRDumpPass::visit_prolog( ModUnsignedInstruction& value, void* cxt )
+{
+    DUMP_PREFIX;
+    DUMP_INSTR;
+    DUMP_POSTFIX;
+}
+void CselIRDumpPass::visit_epilog( ModUnsignedInstruction& value, void* cxt )
+{
+}
+
+void CselIRDumpPass::visit_prolog( BitConstant& value, void* cxt )
 {
     DUMP_PREFIX;
     DUMP_POSTFIX;
 }
-void CselIRDumpPass::visit_epilog( BitConstant& value )
+void CselIRDumpPass::visit_epilog( BitConstant& value, void* cxt )
 {
 }
 
-void CselIRDumpPass::visit_prolog( StructureConstant& value )
+void CselIRDumpPass::visit_prolog( StructureConstant& value, void* cxt )
 {
     DUMP_PREFIX;
     DUMP_POSTFIX;
 }
-void CselIRDumpPass::visit_epilog( StructureConstant& value )
+void CselIRDumpPass::visit_epilog( StructureConstant& value, void* cxt )
 {
 }
 
-void CselIRDumpPass::visit_prolog( StringConstant& value )
+void CselIRDumpPass::visit_prolog( StringConstant& value, void* cxt )
 {
     DUMP_PREFIX;
     DUMP_POSTFIX;
 }
-void CselIRDumpPass::visit_epilog( StringConstant& value )
+void CselIRDumpPass::visit_epilog( StringConstant& value, void* cxt )
 {
 }
 
-void CselIRDumpPass::visit_prolog( Interconnect& value )
+void CselIRDumpPass::visit_prolog( Interconnect& value, void* cxt )
 {
     DUMP_PREFIX;
     DUMP_POSTFIX;
 }
-void CselIRDumpPass::visit_epilog( Interconnect& value )
+void CselIRDumpPass::visit_epilog( Interconnect& value, void* cxt )
 {
 }
 

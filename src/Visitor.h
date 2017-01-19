@@ -37,6 +37,8 @@
 #include "Scope.h"
 #include "Variable.h"
 
+#include "CselIR.h"
+
 namespace libcsel_ir
 {
     enum class Traversal
@@ -45,7 +47,7 @@ namespace libcsel_ir
         POSTORDER
     };
 
-    class Visitor //: public CselIR
+    class Visitor : public CselIR
     {
       public:
         enum class Stage
@@ -55,137 +57,197 @@ namespace libcsel_ir
             EPILOG
         };
 
-        virtual void dispatch( Stage stage, Value* value ) final;
+        virtual void dispatch( Stage stage, Value* value, void* cxt ) final;
 
 #define LIB_CSELIR_VISITOR_INTERFACE_( PREFIX, POSTFIX )                       \
-    PREFIX void visit_prolog( libcsel_ir::Module& value ) POSTFIX;             \
-    PREFIX void visit_epilog( libcsel_ir::Module& value ) POSTFIX;             \
+    PREFIX void visit_prolog( libcsel_ir::Module& value, void* cxt ) POSTFIX;  \
+    PREFIX void visit_epilog( libcsel_ir::Module& value, void* cxt ) POSTFIX;  \
                                                                                \
-    PREFIX void visit_prolog( libcsel_ir::Function& value ) POSTFIX;           \
-    PREFIX void visit_interlog( libcsel_ir::Function& value ) POSTFIX;         \
-    PREFIX void visit_epilog( libcsel_ir::Function& value ) POSTFIX;           \
-                                                                               \
-    PREFIX void visit_prolog( libcsel_ir::Intrinsic& value ) POSTFIX;          \
-    PREFIX void visit_interlog( libcsel_ir::Intrinsic& value ) POSTFIX;        \
-    PREFIX void visit_epilog( libcsel_ir::Intrinsic& value ) POSTFIX;          \
-                                                                               \
-    PREFIX void visit_prolog( libcsel_ir::Reference& value ) POSTFIX;          \
-    PREFIX void visit_epilog( libcsel_ir::Reference& value ) POSTFIX;          \
-                                                                               \
-    PREFIX void visit_prolog( libcsel_ir::Structure& value ) POSTFIX;          \
-    PREFIX void visit_epilog( libcsel_ir::Structure& value ) POSTFIX;          \
-                                                                               \
-    PREFIX void visit_prolog( libcsel_ir::Variable& value ) POSTFIX;           \
-    PREFIX void visit_epilog( libcsel_ir::Variable& value ) POSTFIX;           \
-                                                                               \
-    PREFIX void visit_prolog( libcsel_ir::Memory& value ) POSTFIX;             \
-    PREFIX void visit_epilog( libcsel_ir::Memory& value ) POSTFIX;             \
-                                                                               \
-    PREFIX void visit_prolog( libcsel_ir::ParallelScope& value ) POSTFIX;      \
-    PREFIX void visit_epilog( libcsel_ir::ParallelScope& value ) POSTFIX;      \
-                                                                               \
-    PREFIX void visit_prolog( libcsel_ir::SequentialScope& value ) POSTFIX;    \
-    PREFIX void visit_epilog( libcsel_ir::SequentialScope& value ) POSTFIX;    \
-                                                                               \
-    PREFIX void visit_prolog( libcsel_ir::TrivialStatement& value ) POSTFIX;   \
-    PREFIX void visit_epilog( libcsel_ir::TrivialStatement& value ) POSTFIX;   \
-                                                                               \
-    PREFIX void visit_prolog( libcsel_ir::BranchStatement& value ) POSTFIX;    \
-    PREFIX void visit_interlog( libcsel_ir::BranchStatement& value ) POSTFIX;  \
-    PREFIX void visit_epilog( libcsel_ir::BranchStatement& value ) POSTFIX;    \
-                                                                               \
-    PREFIX void visit_prolog( libcsel_ir::LoopStatement& value ) POSTFIX;      \
-    PREFIX void visit_interlog( libcsel_ir::LoopStatement& value ) POSTFIX;    \
-    PREFIX void visit_epilog( libcsel_ir::LoopStatement& value ) POSTFIX;      \
-                                                                               \
-    PREFIX void visit_prolog( libcsel_ir::CallInstruction& value ) POSTFIX;    \
-    PREFIX void visit_epilog( libcsel_ir::CallInstruction& value ) POSTFIX;    \
-                                                                               \
-    PREFIX void visit_prolog( libcsel_ir::IdCallInstruction& value ) POSTFIX;  \
-    PREFIX void visit_epilog( libcsel_ir::IdCallInstruction& value ) POSTFIX;  \
-                                                                               \
-    PREFIX void visit_prolog( libcsel_ir::StreamInstruction& value ) POSTFIX;  \
-    PREFIX void visit_epilog( libcsel_ir::StreamInstruction& value ) POSTFIX;  \
-                                                                               \
-    PREFIX void visit_prolog( libcsel_ir::NopInstruction& value ) POSTFIX;     \
-    PREFIX void visit_epilog( libcsel_ir::NopInstruction& value ) POSTFIX;     \
-                                                                               \
-    PREFIX void visit_prolog( libcsel_ir::AllocInstruction& value ) POSTFIX;   \
-    PREFIX void visit_epilog( libcsel_ir::AllocInstruction& value ) POSTFIX;   \
-                                                                               \
-    PREFIX void visit_prolog( libcsel_ir::IdInstruction& value ) POSTFIX;      \
-    PREFIX void visit_epilog( libcsel_ir::IdInstruction& value ) POSTFIX;      \
-                                                                               \
-    PREFIX void visit_prolog( libcsel_ir::CastInstruction& value ) POSTFIX;    \
-    PREFIX void visit_epilog( libcsel_ir::CastInstruction& value ) POSTFIX;    \
-                                                                               \
-    PREFIX void visit_prolog( libcsel_ir::ExtractInstruction& value ) POSTFIX; \
-    PREFIX void visit_epilog( libcsel_ir::ExtractInstruction& value ) POSTFIX; \
-                                                                               \
-    PREFIX void visit_prolog( libcsel_ir::LoadInstruction& value ) POSTFIX;    \
-    PREFIX void visit_epilog( libcsel_ir::LoadInstruction& value ) POSTFIX;    \
-                                                                               \
-    PREFIX void visit_prolog( libcsel_ir::StoreInstruction& value ) POSTFIX;   \
-    PREFIX void visit_epilog( libcsel_ir::StoreInstruction& value ) POSTFIX;   \
-                                                                               \
-    PREFIX void visit_prolog( libcsel_ir::NotInstruction& value ) POSTFIX;     \
-    PREFIX void visit_epilog( libcsel_ir::NotInstruction& value ) POSTFIX;     \
-                                                                               \
-    PREFIX void visit_prolog( libcsel_ir::AndInstruction& value ) POSTFIX;     \
-    PREFIX void visit_epilog( libcsel_ir::AndInstruction& value ) POSTFIX;     \
-                                                                               \
-    PREFIX void visit_prolog( libcsel_ir::OrInstruction& value ) POSTFIX;      \
-    PREFIX void visit_epilog( libcsel_ir::OrInstruction& value ) POSTFIX;      \
-                                                                               \
-    PREFIX void visit_prolog( libcsel_ir::XorInstruction& value ) POSTFIX;     \
-    PREFIX void visit_epilog( libcsel_ir::XorInstruction& value ) POSTFIX;     \
-                                                                               \
-    PREFIX void visit_prolog( libcsel_ir::AddSignedInstruction& value )        \
+    PREFIX void visit_prolog( libcsel_ir::Function& value, void* cxt )         \
         POSTFIX;                                                               \
-    PREFIX void visit_epilog( libcsel_ir::AddSignedInstruction& value )        \
+    PREFIX void visit_interlog( libcsel_ir::Function& value, void* cxt )       \
+        POSTFIX;                                                               \
+    PREFIX void visit_epilog( libcsel_ir::Function& value, void* cxt )         \
         POSTFIX;                                                               \
                                                                                \
-    PREFIX void visit_prolog( libcsel_ir::DivSignedInstruction& value )        \
+    PREFIX void visit_prolog( libcsel_ir::Intrinsic& value, void* cxt )        \
         POSTFIX;                                                               \
-    PREFIX void visit_epilog( libcsel_ir::DivSignedInstruction& value )        \
+    PREFIX void visit_interlog( libcsel_ir::Intrinsic& value, void* cxt )      \
         POSTFIX;                                                               \
-                                                                               \
-    PREFIX void visit_prolog( libcsel_ir::ModUnsignedInstruction& value )      \
-        POSTFIX;                                                               \
-    PREFIX void visit_epilog( libcsel_ir::ModUnsignedInstruction& value )      \
+    PREFIX void visit_epilog( libcsel_ir::Intrinsic& value, void* cxt )        \
         POSTFIX;                                                               \
                                                                                \
-    PREFIX void visit_prolog( libcsel_ir::EquUnsignedInstruction& value )      \
+    PREFIX void visit_prolog( libcsel_ir::Reference& value, void* cxt )        \
         POSTFIX;                                                               \
-    PREFIX void visit_epilog( libcsel_ir::EquUnsignedInstruction& value )      \
-        POSTFIX;                                                               \
-                                                                               \
-    PREFIX void visit_prolog( libcsel_ir::NeqUnsignedInstruction& value )      \
-        POSTFIX;                                                               \
-    PREFIX void visit_epilog( libcsel_ir::NeqUnsignedInstruction& value )      \
+    PREFIX void visit_epilog( libcsel_ir::Reference& value, void* cxt )        \
         POSTFIX;                                                               \
                                                                                \
-    PREFIX void visit_prolog( libcsel_ir::ZeroExtendInstruction& value )       \
+    PREFIX void visit_prolog( libcsel_ir::Structure& value, void* cxt )        \
         POSTFIX;                                                               \
-    PREFIX void visit_epilog( libcsel_ir::ZeroExtendInstruction& value )       \
-        POSTFIX;                                                               \
-                                                                               \
-    PREFIX void visit_prolog( libcsel_ir::TruncationInstruction& value )       \
-        POSTFIX;                                                               \
-    PREFIX void visit_epilog( libcsel_ir::TruncationInstruction& value )       \
+    PREFIX void visit_epilog( libcsel_ir::Structure& value, void* cxt )        \
         POSTFIX;                                                               \
                                                                                \
-    PREFIX void visit_prolog( libcsel_ir::BitConstant& value ) POSTFIX;        \
-    PREFIX void visit_epilog( libcsel_ir::BitConstant& value ) POSTFIX;        \
+    PREFIX void visit_prolog( libcsel_ir::Variable& value, void* cxt )         \
+        POSTFIX;                                                               \
+    PREFIX void visit_epilog( libcsel_ir::Variable& value, void* cxt )         \
+        POSTFIX;                                                               \
                                                                                \
-    PREFIX void visit_prolog( libcsel_ir::StructureConstant& value ) POSTFIX;  \
-    PREFIX void visit_epilog( libcsel_ir::StructureConstant& value ) POSTFIX;  \
+    PREFIX void visit_prolog( libcsel_ir::Memory& value, void* cxt ) POSTFIX;  \
+    PREFIX void visit_epilog( libcsel_ir::Memory& value, void* cxt ) POSTFIX;  \
                                                                                \
-    PREFIX void visit_prolog( libcsel_ir::StringConstant& value ) POSTFIX;     \
-    PREFIX void visit_epilog( libcsel_ir::StringConstant& value ) POSTFIX;     \
+    PREFIX void visit_prolog( libcsel_ir::ParallelScope& value, void* cxt )    \
+        POSTFIX;                                                               \
+    PREFIX void visit_epilog( libcsel_ir::ParallelScope& value, void* cxt )    \
+        POSTFIX;                                                               \
                                                                                \
-    PREFIX void visit_prolog( libcsel_ir::Interconnect& value ) POSTFIX;       \
-    PREFIX void visit_epilog( libcsel_ir::Interconnect& value ) POSTFIX
+    PREFIX void visit_prolog( libcsel_ir::SequentialScope& value, void* cxt )  \
+        POSTFIX;                                                               \
+    PREFIX void visit_epilog( libcsel_ir::SequentialScope& value, void* cxt )  \
+        POSTFIX;                                                               \
+                                                                               \
+    PREFIX void visit_prolog( libcsel_ir::TrivialStatement& value, void* cxt ) \
+        POSTFIX;                                                               \
+    PREFIX void visit_epilog( libcsel_ir::TrivialStatement& value, void* cxt ) \
+        POSTFIX;                                                               \
+                                                                               \
+    PREFIX void visit_prolog( libcsel_ir::BranchStatement& value, void* cxt )  \
+        POSTFIX;                                                               \
+    PREFIX void visit_interlog(                                                \
+        libcsel_ir::BranchStatement& value, void* cxt ) POSTFIX;               \
+    PREFIX void visit_epilog( libcsel_ir::BranchStatement& value, void* cxt )  \
+        POSTFIX;                                                               \
+                                                                               \
+    PREFIX void visit_prolog( libcsel_ir::LoopStatement& value, void* cxt )    \
+        POSTFIX;                                                               \
+    PREFIX void visit_interlog( libcsel_ir::LoopStatement& value, void* cxt )  \
+        POSTFIX;                                                               \
+    PREFIX void visit_epilog( libcsel_ir::LoopStatement& value, void* cxt )    \
+        POSTFIX;                                                               \
+                                                                               \
+    PREFIX void visit_prolog( libcsel_ir::CallInstruction& value, void* cxt )  \
+        POSTFIX;                                                               \
+    PREFIX void visit_epilog( libcsel_ir::CallInstruction& value, void* cxt )  \
+        POSTFIX;                                                               \
+                                                                               \
+    PREFIX void visit_prolog(                                                  \
+        libcsel_ir::IdCallInstruction& value, void* cxt ) POSTFIX;             \
+    PREFIX void visit_epilog(                                                  \
+        libcsel_ir::IdCallInstruction& value, void* cxt ) POSTFIX;             \
+                                                                               \
+    PREFIX void visit_prolog(                                                  \
+        libcsel_ir::StreamInstruction& value, void* cxt ) POSTFIX;             \
+    PREFIX void visit_epilog(                                                  \
+        libcsel_ir::StreamInstruction& value, void* cxt ) POSTFIX;             \
+                                                                               \
+    PREFIX void visit_prolog( libcsel_ir::NopInstruction& value, void* cxt )   \
+        POSTFIX;                                                               \
+    PREFIX void visit_epilog( libcsel_ir::NopInstruction& value, void* cxt )   \
+        POSTFIX;                                                               \
+                                                                               \
+    PREFIX void visit_prolog( libcsel_ir::AllocInstruction& value, void* cxt ) \
+        POSTFIX;                                                               \
+    PREFIX void visit_epilog( libcsel_ir::AllocInstruction& value, void* cxt ) \
+        POSTFIX;                                                               \
+                                                                               \
+    PREFIX void visit_prolog( libcsel_ir::IdInstruction& value, void* cxt )    \
+        POSTFIX;                                                               \
+    PREFIX void visit_epilog( libcsel_ir::IdInstruction& value, void* cxt )    \
+        POSTFIX;                                                               \
+                                                                               \
+    PREFIX void visit_prolog( libcsel_ir::CastInstruction& value, void* cxt )  \
+        POSTFIX;                                                               \
+    PREFIX void visit_epilog( libcsel_ir::CastInstruction& value, void* cxt )  \
+        POSTFIX;                                                               \
+                                                                               \
+    PREFIX void visit_prolog(                                                  \
+        libcsel_ir::ExtractInstruction& value, void* cxt ) POSTFIX;            \
+    PREFIX void visit_epilog(                                                  \
+        libcsel_ir::ExtractInstruction& value, void* cxt ) POSTFIX;            \
+                                                                               \
+    PREFIX void visit_prolog( libcsel_ir::LoadInstruction& value, void* cxt )  \
+        POSTFIX;                                                               \
+    PREFIX void visit_epilog( libcsel_ir::LoadInstruction& value, void* cxt )  \
+        POSTFIX;                                                               \
+                                                                               \
+    PREFIX void visit_prolog( libcsel_ir::StoreInstruction& value, void* cxt ) \
+        POSTFIX;                                                               \
+    PREFIX void visit_epilog( libcsel_ir::StoreInstruction& value, void* cxt ) \
+        POSTFIX;                                                               \
+                                                                               \
+    PREFIX void visit_prolog( libcsel_ir::NotInstruction& value, void* cxt )   \
+        POSTFIX;                                                               \
+    PREFIX void visit_epilog( libcsel_ir::NotInstruction& value, void* cxt )   \
+        POSTFIX;                                                               \
+                                                                               \
+    PREFIX void visit_prolog( libcsel_ir::AndInstruction& value, void* cxt )   \
+        POSTFIX;                                                               \
+    PREFIX void visit_epilog( libcsel_ir::AndInstruction& value, void* cxt )   \
+        POSTFIX;                                                               \
+                                                                               \
+    PREFIX void visit_prolog( libcsel_ir::OrInstruction& value, void* cxt )    \
+        POSTFIX;                                                               \
+    PREFIX void visit_epilog( libcsel_ir::OrInstruction& value, void* cxt )    \
+        POSTFIX;                                                               \
+                                                                               \
+    PREFIX void visit_prolog( libcsel_ir::XorInstruction& value, void* cxt )   \
+        POSTFIX;                                                               \
+    PREFIX void visit_epilog( libcsel_ir::XorInstruction& value, void* cxt )   \
+        POSTFIX;                                                               \
+                                                                               \
+    PREFIX void visit_prolog(                                                  \
+        libcsel_ir::AddSignedInstruction& value, void* cxt ) POSTFIX;          \
+    PREFIX void visit_epilog(                                                  \
+        libcsel_ir::AddSignedInstruction& value, void* cxt ) POSTFIX;          \
+                                                                               \
+    PREFIX void visit_prolog(                                                  \
+        libcsel_ir::DivSignedInstruction& value, void* cxt ) POSTFIX;          \
+    PREFIX void visit_epilog(                                                  \
+        libcsel_ir::DivSignedInstruction& value, void* cxt ) POSTFIX;          \
+                                                                               \
+    PREFIX void visit_prolog(                                                  \
+        libcsel_ir::ModUnsignedInstruction& value, void* cxt ) POSTFIX;        \
+    PREFIX void visit_epilog(                                                  \
+        libcsel_ir::ModUnsignedInstruction& value, void* cxt ) POSTFIX;        \
+                                                                               \
+    PREFIX void visit_prolog(                                                  \
+        libcsel_ir::EquUnsignedInstruction& value, void* cxt ) POSTFIX;        \
+    PREFIX void visit_epilog(                                                  \
+        libcsel_ir::EquUnsignedInstruction& value, void* cxt ) POSTFIX;        \
+                                                                               \
+    PREFIX void visit_prolog(                                                  \
+        libcsel_ir::NeqUnsignedInstruction& value, void* cxt ) POSTFIX;        \
+    PREFIX void visit_epilog(                                                  \
+        libcsel_ir::NeqUnsignedInstruction& value, void* cxt ) POSTFIX;        \
+                                                                               \
+    PREFIX void visit_prolog(                                                  \
+        libcsel_ir::ZeroExtendInstruction& value, void* cxt ) POSTFIX;         \
+    PREFIX void visit_epilog(                                                  \
+        libcsel_ir::ZeroExtendInstruction& value, void* cxt ) POSTFIX;         \
+                                                                               \
+    PREFIX void visit_prolog(                                                  \
+        libcsel_ir::TruncationInstruction& value, void* cxt ) POSTFIX;         \
+    PREFIX void visit_epilog(                                                  \
+        libcsel_ir::TruncationInstruction& value, void* cxt ) POSTFIX;         \
+                                                                               \
+    PREFIX void visit_prolog( libcsel_ir::BitConstant& value, void* cxt )      \
+        POSTFIX;                                                               \
+    PREFIX void visit_epilog( libcsel_ir::BitConstant& value, void* cxt )      \
+        POSTFIX;                                                               \
+                                                                               \
+    PREFIX void visit_prolog(                                                  \
+        libcsel_ir::StructureConstant& value, void* cxt ) POSTFIX;             \
+    PREFIX void visit_epilog(                                                  \
+        libcsel_ir::StructureConstant& value, void* cxt ) POSTFIX;             \
+                                                                               \
+    PREFIX void visit_prolog( libcsel_ir::StringConstant& value, void* cxt )   \
+        POSTFIX;                                                               \
+    PREFIX void visit_epilog( libcsel_ir::StringConstant& value, void* cxt )   \
+        POSTFIX;                                                               \
+                                                                               \
+    PREFIX void visit_prolog( libcsel_ir::Interconnect& value, void* cxt )     \
+        POSTFIX;                                                               \
+    PREFIX void visit_epilog( libcsel_ir::Interconnect& value, void* cxt )     \
+        POSTFIX
 
 #define LIB_CSELIR_VISITOR_INTERFACE                                           \
     LIB_CSELIR_VISITOR_INTERFACE_(, override final )

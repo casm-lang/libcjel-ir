@@ -28,9 +28,9 @@ using namespace libcsel_ir;
 #define CASE_VALUE( VID, CLASS )                                               \
     case Value::ID::VID:                                                       \
         if( stage == Stage::PROLOG )                                           \
-            visit_prolog( *( (CLASS*)value ) );                                \
+            visit_prolog( *( (CLASS*)value ), cxt );                           \
         else if( stage == Stage::EPILOG )                                      \
-            visit_epilog( *( (CLASS*)value ) );                                \
+            visit_epilog( *( (CLASS*)value ), cxt );                           \
         else                                                                   \
             assert( !"invalid visitor stage value!" );                         \
         break
@@ -38,16 +38,16 @@ using namespace libcsel_ir;
 #define CASE_VALUE_INTER( VID, CLASS )                                         \
     case Value::ID::VID:                                                       \
         if( stage == Stage::PROLOG )                                           \
-            visit_prolog( *( (CLASS*)value ) );                                \
+            visit_prolog( *( (CLASS*)value ), cxt );                           \
         else if( stage == Stage::INTERLOG )                                    \
-            visit_interlog( *( (CLASS*)value ) );                              \
+            visit_interlog( *( (CLASS*)value ), cxt );                         \
         else if( stage == Stage::EPILOG )                                      \
-            visit_epilog( *( (CLASS*)value ) );                                \
+            visit_epilog( *( (CLASS*)value ), cxt );                           \
         else                                                                   \
             assert( !"invalid visitor stage value!" );                         \
         break
 
-void Visitor::dispatch( Stage stage, Value* value )
+void Visitor::dispatch( Stage stage, Value* value, void* cxt )
 {
     assert( value );
 
@@ -110,8 +110,8 @@ void Visitor::dispatch( Stage stage, Value* value )
         default:
             printf(
                 "%s:%i: warning: unimplemented value ID '%s' to dispatch for "
-                "stage '%i'\n",
-                __FILE__, __LINE__, value->getName(), stage );
+                "stage '%i' and context '%p'\n",
+                __FILE__, __LINE__, value->getName(), stage, cxt );
             break;
     }
 }

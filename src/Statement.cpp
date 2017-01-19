@@ -148,7 +148,7 @@ bool Statement::classof( Value const* obj )
 }
 
 TrivialStatement::TrivialStatement( Value* parent )
-: Statement( ".statement", 0, parent, Value::TRIVIAL_STATEMENT )
+: Statement( ".statement", Type::getLabel(), parent, Value::TRIVIAL_STATEMENT )
 {
 }
 
@@ -172,7 +172,7 @@ bool TrivialStatement::classof( Value const* obj )
 }
 
 BranchStatement::BranchStatement( Value* parent )
-: Statement( ".branch", 0, parent, Value::BRANCH_STATEMENT )
+: Statement( ".branch", Type::getLabel(), parent, Value::BRANCH_STATEMENT )
 {
 }
 
@@ -196,7 +196,7 @@ bool BranchStatement::classof( Value const* obj )
 }
 
 LoopStatement::LoopStatement( Value* parent )
-: Statement( ".loop", 0, parent, Value::LOOP_STATEMENT )
+: Statement( ".loop", Type::getLabel(), parent, Value::LOOP_STATEMENT )
 {
 }
 

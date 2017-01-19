@@ -234,7 +234,7 @@ bool LogicalInstruction::classof( Value const* obj )
 // -----------------------------------------------------------------------------
 
 NopInstruction::NopInstruction( void )
-: Instruction( ".nop", 0, Value::NOP_INSTRUCTION )
+: Instruction( ".nop", Type::getVoid(), Value::NOP_INSTRUCTION )
 {
 }
 bool NopInstruction::classof( Value const* obj )

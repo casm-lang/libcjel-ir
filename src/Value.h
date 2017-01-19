@@ -217,7 +217,8 @@ namespace libcsel_ir
             return true;
         }
 
-        virtual void iterate( Traversal order, Visitor* visitor = 0,
+        virtual void iterate( Traversal order, Visitor* visitor = nullptr,
+            void* cxt = nullptr,
             std::function< void( Value* ) > action = []( Value* ) {} ) final;
 
         virtual void iterate(

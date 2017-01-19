@@ -129,8 +129,11 @@ void Value::dump( void ) const
     }
 }
 
-void Value::iterate(
-    Traversal order, Visitor* visitor, std::function< void( Value* ) > action )
+void Value::iterate( Traversal order,
+    Visitor* visitor,
+    void* cxt,
+    std::function< void( Value* ) >
+        action )
 {
     if( isa< Structure >( this )
         and ( (Structure*)this )->getElements().size() == 0 )
@@ -145,7 +148,7 @@ void Value::iterate(
 
     if( visitor )
     {
-        visitor->dispatch( Visitor::Stage::PROLOG, this );
+        visitor->dispatch( Visitor::Stage::PROLOG, this, cxt );
     }
 
     if( isa< Module >( this ) )
@@ -156,44 +159,44 @@ void Value::iterate(
         for( Value* p :
             ( obj->has< Structure >() ? obj->get< Structure >() : empty ) )
         {
-            p->iterate( order, visitor, action );
+            p->iterate( order, visitor, cxt, action );
         }
 
         for( Value* p :
             ( obj->has< Constant >() ? obj->get< Constant >() : empty ) )
         {
-            p->iterate( order, visitor, action );
+            p->iterate( order, visitor, cxt, action );
         }
 
         for( Value* p :
             ( obj->has< Variable >() ? obj->get< Variable >() : empty ) )
         {
-            p->iterate( order, visitor, action );
+            p->iterate( order, visitor, cxt, action );
         }
 
         for( Value* p :
             ( obj->has< Memory >() ? obj->get< Memory >() : empty ) )
         {
-            p->iterate( order, visitor, action );
+            p->iterate( order, visitor, cxt, action );
         }
 
         for( Value* p :
             ( obj->has< Interconnect >() ? obj->get< Interconnect >()
                                          : empty ) )
         {
-            p->iterate( order, visitor, action );
+            p->iterate( order, visitor, cxt, action );
         }
 
         for( Value* p :
             ( obj->has< Intrinsic >() ? obj->get< Intrinsic >() : empty ) )
         {
-            p->iterate( order, visitor, action );
+            p->iterate( order, visitor, cxt, action );
         }
 
         for( Value* p :
             ( obj->has< Function >() ? obj->get< Function >() : empty ) )
         {
-            p->iterate( order, visitor, action );
+            p->iterate( order, visitor, cxt, action );
         }
     }
     else if( isa< Structure >( this ) )
@@ -202,7 +205,7 @@ void Value::iterate(
 
         for( Value* p : obj->getElements() )
         {
-            p->iterate( order, visitor, action );
+            p->iterate( order, visitor, cxt, action );
         }
     }
     else if( isa< StructureConstant >( this ) )
@@ -211,7 +214,7 @@ void Value::iterate(
 
         for( Value* p : obj->getValue() )
         {
-            p->iterate( order, visitor, action );
+            p->iterate( order, visitor, cxt, action );
         }
     }
     else if( isa< CallableUnit >( this ) )
@@ -220,23 +223,23 @@ void Value::iterate(
 
         for( Value* p : obj->getInParameters() )
         {
-            p->iterate( order, visitor, action );
+            p->iterate( order, visitor, cxt, action );
         }
 
         for( Value* p : obj->getOutParameters() )
         {
-            p->iterate( order, visitor, action );
+            p->iterate( order, visitor, cxt, action );
         }
 
         if( visitor )
         {
-            visitor->dispatch( Visitor::Stage::INTERLOG, this );
+            visitor->dispatch( Visitor::Stage::INTERLOG, this, cxt );
         }
 
         Value* context = obj->getContext();
         assert( context );
 
-        context->iterate( order, visitor, action );
+        context->iterate( order, visitor, cxt, action );
     }
     else if( isa< Statement >( this ) )
     {
@@ -247,17 +250,17 @@ void Value::iterate(
         for( Value* instr : stmt->getInstructions() )
         {
             assert( instr );
-            instr->iterate( order, visitor, action );
+            instr->iterate( order, visitor, cxt, action );
         }
 
         if( visitor && not isa< TrivialStatement >( this ) )
         {
-            visitor->dispatch( Visitor::Stage::INTERLOG, this );
+            visitor->dispatch( Visitor::Stage::INTERLOG, this, cxt );
 
             for( Scope* sco : stmt->getScopes() )
             {
                 assert( sco );
-                sco->iterate( order, visitor, action );
+                sco->iterate( order, visitor, cxt, action );
             }
         }
     }
@@ -266,13 +269,13 @@ void Value::iterate(
         for( Block* block : ( (Scope*)this )->getBlocks() )
         {
             assert( block );
-            block->iterate( order, visitor, action );
+            block->iterate( order, visitor, cxt, action );
         }
     }
 
     if( visitor )
     {
-        visitor->dispatch( Visitor::Stage::EPILOG, this );
+        visitor->dispatch( Visitor::Stage::EPILOG, this, cxt );
     }
 
     if( order == Traversal::POSTORDER )
@@ -283,7 +286,7 @@ void Value::iterate(
 
 void Value::iterate( Traversal order, std::function< void( Value* ) > action )
 {
-    iterate( order, 0, action );
+    iterate( order, 0, 0, action );
 }
 
 //

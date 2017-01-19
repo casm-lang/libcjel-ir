@@ -45,6 +45,7 @@ namespace libcsel_ir
         {
             _BOTTOM_ = 0,
             LABEL,
+            VOID,
 
             BIT,
             VECTOR,
@@ -83,6 +84,7 @@ namespace libcsel_ir
         virtual const std::vector< Type* >& getArguments( void ) = 0;
 
         u1 isLabel( void ) const;
+        u1 isVoid( void ) const;
         u1 isBit( void ) const;
         u1 isString( void ) const;
         u1 isVector( void ) const;
@@ -91,6 +93,7 @@ namespace libcsel_ir
         u1 isInterconnect( void ) const;
 
         static Type* getLabel( void );
+        static Type* getVoid( void );
 
         static Type* getTypeID( void );
 
@@ -140,6 +143,12 @@ namespace libcsel_ir
     {
       public:
         LabelType();
+    };
+
+    class VoidType : public PrimitiveType
+    {
+      public:
+        VoidType();
     };
 
     class BitType : public PrimitiveType

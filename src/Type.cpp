@@ -44,6 +44,10 @@ u1 Type::isLabel( void ) const
 {
     return getID() == Type::LABEL;
 }
+u1 Type::isVoid( void ) const
+{
+    return getID() == Type::VOID;
+}
 u1 Type::isBit( void ) const
 {
     return getID() == Type::BIT;
@@ -72,6 +76,12 @@ u1 Type::isInterconnect( void ) const
 Type* Type::getLabel( void )
 {
     static LabelType cache = LabelType();
+    return str2obj().emplace( cache.getName(), &cache ).first->second;
+}
+
+Type* Type::getVoid( void )
+{
+    static VoidType cache = VoidType();
     return str2obj().emplace( cache.getName(), &cache ).first->second;
 }
 
@@ -196,6 +206,15 @@ const std::vector< Type* >& PrimitiveType::getArguments( void )
 
 LabelType::LabelType()
 : PrimitiveType( "label", "Label", 0, Type::LABEL )
+{
+}
+
+//
+// VoidType
+//
+
+VoidType::VoidType()
+: PrimitiveType( "void", "Void", 0, Type::VOID )
 {
 }
 

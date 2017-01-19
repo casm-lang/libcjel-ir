@@ -73,7 +73,7 @@ bool Scope::classof( Value const* obj )
 }
 
 SequentialScope::SequentialScope( Value* parent )
-: Scope( ".seq", 0, parent, false, Value::ID::SEQUENTIAL_SCOPE )
+: Scope( ".seq", Type::getLabel(), parent, false, Value::ID::SEQUENTIAL_SCOPE )
 {
 }
 
@@ -90,7 +90,7 @@ bool SequentialScope::classof( Value const* obj )
 }
 
 ParallelScope::ParallelScope( Value* parent )
-: Scope( ".par", 0, parent, false, Value::ID::PARALLEL_SCOPE )
+: Scope( ".par", Type::getLabel(), parent, false, Value::ID::PARALLEL_SCOPE )
 {
 }
 
