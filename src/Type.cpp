@@ -190,8 +190,11 @@ const char* PrimitiveType::getDescription( void )
 
 const std::vector< Type* >& PrimitiveType::getResults( void )
 {
-    static std::vector< Type* > single = { this };
-    return single;
+    if( results.size() == 0 )
+    {
+        results.push_back( this );
+    }
+    return results;
 }
 
 const std::vector< Type* >& PrimitiveType::getArguments( void )
@@ -296,17 +299,14 @@ const char* VectorType::getDescription( void )
 
 const std::vector< Type* >& VectorType::getResults( void )
 {
-    static std::vector< Type* > vector = {};
-
-    if( vector.size() == 0 )
+    if( results.size() == 0 )
     {
         for( u32 i = 0; i < length; i++ )
         {
-            vector.push_back( type );
+            results.push_back( type );
         }
     }
-
-    return vector;
+    return results;
 }
 
 const std::vector< Type* >& VectorType::getArguments( void )
@@ -398,17 +398,14 @@ const std::vector< StructureElement >& StructureType::getElements( void ) const
 
 const std::vector< Type* >& StructureType::getResults( void )
 {
-    static std::vector< Type* > structure = {};
-
-    if( structure.size() == 0 )
+    if( results.size() == 0 )
     {
         for( auto element : elements )
         {
-            structure.push_back( element.type );
+            results.push_back( element.type );
         }
     }
-
-    return structure;
+    return results;
 }
 
 const std::vector< Type* >& StructureType::getArguments( void )
@@ -424,9 +421,9 @@ const std::vector< Type* >& StructureType::getArguments( void )
 RelationType::RelationType(
     std::vector< Type* > results, std::vector< Type* > arguments )
 : Type( 0, 0, 0, Type::RELATION )
-, results( results )
 , arguments( arguments )
 {
+    this->results = std::move( results );
 }
 
 const u64 RelationType::getSize( void )

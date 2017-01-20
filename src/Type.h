@@ -59,6 +59,7 @@ namespace libcsel_ir
         const char* name;
         const char* description;
         u64 size;
+        std::vector< Type* > results;
 
       private:
         ID id;
@@ -205,7 +206,6 @@ namespace libcsel_ir
     class RelationType : public Type
     {
       private:
-        std::vector< Type* > results;
         std::vector< Type* > arguments;
 
       public:

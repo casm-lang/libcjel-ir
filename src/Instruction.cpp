@@ -347,7 +347,8 @@ bool TruncationInstruction::classof( Value const* obj )
 // -----------------------------------------------------------------------------
 
 StoreInstruction::StoreInstruction( Value* src, Value* dst )
-: BinaryInstruction( ".store", 0, src, dst, Value::STORE_INSTRUCTION )
+: BinaryInstruction(
+      ".store", Type::getVoid(), src, dst, Value::STORE_INSTRUCTION )
 {
     assert( src->getType()->getID() == Type::BIT );
     assert(
