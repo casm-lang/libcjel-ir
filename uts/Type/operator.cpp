@@ -23,6 +23,42 @@
 
 #include "gtest/gtest.h"
 
-TEST( libcsel_ir__subject, example )
+#include "libcsel-ir.h"
+
+using namespace libcsel_ir;
+
+TEST( libcsel_ir__Type_operator, equal )
 {
+    for( u16 x = 1; x <= BitType::SizeMax; x++ )
+    {
+        for( u16 y = 1; y <= BitType::SizeMax; y++ )
+        {
+            if( x == y )
+            {
+                EXPECT_TRUE( Type::getBit( x ) == Type::getBit( y ) );
+            }
+            else
+            {
+                EXPECT_FALSE( Type::getBit( x ) == Type::getBit( y ) );
+            }
+        }
+    }
+}
+
+TEST( libcsel_ir__Type_operator, not_equal )
+{
+    for( u16 x = 1; x <= BitType::SizeMax; x++ )
+    {
+        for( u16 y = 1; y <= BitType::SizeMax; y++ )
+        {
+            if( x != y )
+            {
+                EXPECT_TRUE( Type::getBit( x ) != Type::getBit( y ) );
+            }
+            else
+            {
+                EXPECT_FALSE( Type::getBit( x ) != Type::getBit( y ) );
+            }
+        }
+    }
 }

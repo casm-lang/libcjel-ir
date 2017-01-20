@@ -230,6 +230,7 @@ BitType::BitType( u16 size )
       libstdhl::Allocator::string( "Bit(" + std::to_string( size ) + ")" ),
       size, Type::BIT )
 {
+    assert( size >= 1 and size <= BitType::SizeMax );
 }
 
 //

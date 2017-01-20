@@ -83,6 +83,22 @@ namespace libcsel_ir
         virtual const std::vector< Type* >& getResults( void ) = 0;
         virtual const std::vector< Type* >& getArguments( void ) = 0;
 
+        inline u1 operator==( const Type& rhs )
+        {
+            if( this != &rhs )
+            {
+                if( strcmp( this->getName(), ( (Type&)rhs ).getName() ) )
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+        inline u1 operator!=( const Type& rhs )
+        {
+            return !operator==( rhs );
+        }
+
         u1 isLabel( void ) const;
         u1 isVoid( void ) const;
         u1 isBit( void ) const;
@@ -154,6 +170,8 @@ namespace libcsel_ir
     class BitType : public PrimitiveType
     {
       public:
+        static const u16 SizeMax = 512;
+
         BitType( u16 size );
     };
 
