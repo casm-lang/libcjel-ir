@@ -24,8 +24,7 @@
 #ifndef _LIB_CSELIR_TYPE_H_
 #define _LIB_CSELIR_TYPE_H_
 
-#include "cpp/Binding.h"
-#include "cpp/Type.h"
+#include "../stdhl/cpp/Type.h"
 
 #include "CselIR.h"
 
@@ -37,7 +36,7 @@ namespace libcsel_ir
     class Type : public CselIR
     {
       public:
-        typedef u64* Bit;
+        typedef u64 Bit;
         typedef char* String;
         typedef std::vector< Value* > Struct;
 
@@ -189,6 +188,7 @@ namespace libcsel_ir
     {
       private:
         std::vector< StructureElement > elements;
+        // Structure* value;
 
       public:
         StructureType( std::vector< StructureElement > elements );

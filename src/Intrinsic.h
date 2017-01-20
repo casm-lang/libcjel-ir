@@ -44,6 +44,11 @@ namespace libcsel_ir
             return Value::INTRINSIC;
         };
         static bool classof( Value const* obj );
+
+        virtual const char* getLabel( void ) override final
+        {
+            return getName();
+        }
     };
 }
 

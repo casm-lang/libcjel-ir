@@ -83,15 +83,14 @@ Value* Constant::getStructure( Type* result, std::vector< Value* > values )
 
 BitConstant::BitConstant( Type* result, u64 value )
 : ConstantOf< Type::Bit >(
-      libstdhl::Allocator::string( std::to_string( value ) ), result,
-      this->value, Value::BIT_CONSTANT )
+      libstdhl::Allocator::string( std::to_string( value ) ), result, value,
+      Value::BIT_CONSTANT )
 {
-    this->value[ 0 ] = value;
 }
 
 void BitConstant::dump( void ) const
 {
-    printf( "[Const] %p = bit %li\n", this, getValue()[ 0 ] );
+    printf( "[Const] %p = bit %li\n", this, getValue() );
 }
 
 bool BitConstant::classof( Value const* obj )

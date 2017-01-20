@@ -73,6 +73,17 @@ namespace libcsel_ir
             return Value::REFERENCE;
         };
         static bool classof( Value const* obj );
+
+        virtual const char* getLabelName( void ) override final
+        {
+            return "%a";
+        }
+
+        virtual u64 getLabelID( void ) override final
+        {
+            static u64 cnt = 0;
+            return cnt++;
+        }
     };
 }
 

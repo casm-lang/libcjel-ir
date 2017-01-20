@@ -47,7 +47,7 @@ namespace libcsel_ir
 
         virtual const u1 isParallel( void ) const;
 
-        void add( Value* instruction );
+        Value* add( Value* instruction );
 
         void addScope( Scope* block );
         const std::vector< Scope* >& getScopes( void ) const;

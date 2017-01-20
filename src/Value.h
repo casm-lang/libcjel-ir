@@ -25,16 +25,17 @@
 #define _LIB_CSELIR_VALUE_H_
 
 #include "CselIR.h"
-#include "Type.h"
 
-#include "cpp/Labeling.h"
+#include "../stdhl/cpp/Labeling.h"
+
+#include "Type.h"
 
 namespace libcsel_ir
 {
     class Visitor;
     enum class Traversal;
 
-    class Value : public libstdhl::Labeling //: public CselIR
+    class Value : public CselIR, public libstdhl::Labeling
     {
       public:
         enum ID
@@ -223,13 +224,6 @@ namespace libcsel_ir
 
         virtual void iterate(
             Traversal order, std::function< void( Value* ) > action ) final;
-
-        virtual u64 getLabelID( void )
-        {
-            static u64 cnt = -1;
-            cnt++;
-            return cnt;
-        }
     };
 }
 

@@ -71,7 +71,7 @@ const std::vector< Value* >& Statement::getInstructions( void ) const
     return instructions;
 }
 
-void Statement::add( Value* instruction )
+Value* Statement::add( Value* instruction )
 {
     assert( instruction );
 
@@ -97,6 +97,8 @@ void Statement::add( Value* instruction )
 
     instructions.push_back( instruction );
     printf( "[Stmt] add: %p\n", instruction );
+
+    return instruction;
 }
 
 void Statement::addScope( Scope* scope )

@@ -361,22 +361,29 @@ bool StoreInstruction::classof( Value const* obj )
 ExtractInstruction::ExtractInstruction( Value* src, Value* dst )
 : BinaryInstruction( ".extract", 0, src, dst, Value::EXTRACT_INSTRUCTION )
 {
-    assert( src );
-    assert( dst );
-
     assert( src->getType() );
     assert( dst->getType() );
 
     // TODO: IDEA: FIXME: PPA: possible check to implement if 'dst' is inside
     // 'src'
 
-    if( isa< Reference >( src ) and src->getType()->getID() == Type::VECTOR
-        and src->getType()->getID() == Type::INTERCONNECT )
+    if( isa< Reference >( src ) )
     {
-        setType( src->getType() );
+        if( src->getType()->isStructure() )
+        {
+            StructureType* ty = static_cast< StructureType* >( src->getType() );
+            BitConstant* c = cast< BitConstant >( dst );
+
+            setType( ty->getResults()[ c->getValue() ] );
+        }
+        else
+        {
+            assert( 0 );
+        }
     }
     else
     {
+        assert( 0 );
         setType( dst->getType() );
     }
 }
