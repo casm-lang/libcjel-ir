@@ -40,8 +40,6 @@ TEST( libcsel_ir__Type_getBit, size_greater_SizeMax_is_invalid )
 
 TEST( libcsel_ir__Type_getBit, from_one_to_SizeMax )
 {
-    Type* t = 0;
-
     for( u16 c = 1; c <= BitType::SizeMax; c++ )
     {
         Type::getBit( c );

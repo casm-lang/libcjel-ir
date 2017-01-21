@@ -32,8 +32,9 @@
 
 namespace libcsel_ir
 {
-    class Visitor;
     enum class Traversal;
+    class Context;
+    class Visitor;
 
     class Value : public CselIR, public libstdhl::Labeling
     {
@@ -219,11 +220,11 @@ namespace libcsel_ir
         }
 
         virtual void iterate( Traversal order, Visitor* visitor = nullptr,
-            void* cxt = nullptr,
-            std::function< void( Value* ) > action = []( Value* ) {} ) final;
+            Context* context = nullptr,
+            std::function< void( Value& ) > action = []( Value& ) {} ) final;
 
         virtual void iterate(
-            Traversal order, std::function< void( Value* ) > action ) final;
+            Traversal order, std::function< void( Value& ) > action ) final;
     };
 }
 

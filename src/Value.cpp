@@ -131,142 +131,152 @@ void Value::dump( void ) const
 
 void Value::iterate( Traversal order,
     Visitor* visitor,
-    void* cxt,
-    std::function< void( Value* ) >
+    Context* context,
+    std::function< void( Value& ) >
         action )
 {
-    if( isa< Structure >( this )
-        and ( (Structure*)this )->getElements().size() == 0 )
+    static Context default_context = Context();
+
+    Context* cxt = context ? context : &default_context;
+
+    Value& value = static_cast< Value& >( *this );
+
+    if( isa< Structure >( value )
+        and ( static_cast< Structure& >( value ) ).getElements().size() == 0 )
     {
+        // PPA: CHECK if this is still necessary
         return;
     }
 
     if( order == Traversal::PREORDER )
     {
-        action( /*order, */ this );
+        action( /*order, */ value );
     }
 
     if( visitor )
     {
-        visitor->dispatch( Visitor::Stage::PROLOG, this, cxt );
+        visitor->dispatch( Visitor::Stage::PROLOG, value, *cxt );
     }
 
-    if( isa< Module >( this ) )
+    if( isa< Module >( value ) )
     {
-        Module* obj = ( (Module*)this );
+        Module& module = static_cast< Module& >( value );
         const std::vector< Value* > empty = {};
 
         for( Value* p :
-            ( obj->has< Structure >() ? obj->get< Structure >() : empty ) )
+            ( module.has< Structure >() ? module.get< Structure >() : empty ) )
         {
             p->iterate( order, visitor, cxt, action );
         }
 
         for( Value* p :
-            ( obj->has< Constant >() ? obj->get< Constant >() : empty ) )
+            ( module.has< Constant >() ? module.get< Constant >() : empty ) )
         {
             p->iterate( order, visitor, cxt, action );
         }
 
         for( Value* p :
-            ( obj->has< Variable >() ? obj->get< Variable >() : empty ) )
+            ( module.has< Variable >() ? module.get< Variable >() : empty ) )
         {
             p->iterate( order, visitor, cxt, action );
         }
 
         for( Value* p :
-            ( obj->has< Memory >() ? obj->get< Memory >() : empty ) )
+            ( module.has< Memory >() ? module.get< Memory >() : empty ) )
         {
             p->iterate( order, visitor, cxt, action );
         }
 
         for( Value* p :
-            ( obj->has< Interconnect >() ? obj->get< Interconnect >()
-                                         : empty ) )
+            ( module.has< Interconnect >() ? module.get< Interconnect >()
+                                           : empty ) )
         {
             p->iterate( order, visitor, cxt, action );
         }
 
         for( Value* p :
-            ( obj->has< Intrinsic >() ? obj->get< Intrinsic >() : empty ) )
+            ( module.has< Intrinsic >() ? module.get< Intrinsic >() : empty ) )
         {
             p->iterate( order, visitor, cxt, action );
         }
 
         for( Value* p :
-            ( obj->has< Function >() ? obj->get< Function >() : empty ) )
+            ( module.has< Function >() ? module.get< Function >() : empty ) )
         {
             p->iterate( order, visitor, cxt, action );
         }
     }
-    else if( isa< Structure >( this ) )
+    else if( isa< Structure >( value ) )
     {
-        Structure* obj = ( (Structure*)this );
+        Structure& obj = static_cast< Structure& >( value );
 
-        for( Value* p : obj->getElements() )
+        for( Value* p : obj.getElements() )
         {
             p->iterate( order, visitor, cxt, action );
         }
     }
-    else if( isa< StructureConstant >( this ) )
+    else if( isa< StructureConstant >( value ) )
     {
-        StructureConstant* obj = ( (StructureConstant*)this );
+        StructureConstant& obj = static_cast< StructureConstant& >( value );
 
-        for( Value* p : obj->getValue() )
+        for( Value* p : obj.getValue() )
         {
             p->iterate( order, visitor, cxt, action );
         }
     }
-    else if( isa< CallableUnit >( this ) )
+    else if( isa< CallableUnit >( value ) )
     {
-        CallableUnit* obj = ( (CallableUnit*)this );
+        CallableUnit& obj = static_cast< CallableUnit& >( value );
 
-        for( Value* p : obj->getInParameters() )
+        for( Value* p : obj.getInParameters() )
         {
             p->iterate( order, visitor, cxt, action );
         }
 
-        for( Value* p : obj->getOutParameters() )
+        for( Value* p : obj.getOutParameters() )
         {
             p->iterate( order, visitor, cxt, action );
         }
 
         if( visitor )
         {
-            visitor->dispatch( Visitor::Stage::INTERLOG, this, cxt );
+            visitor->dispatch( Visitor::Stage::INTERLOG, value, *cxt );
         }
 
-        Value* context = obj->getContext();
+        Value* context = obj.getContext();
         assert( context );
 
         context->iterate( order, visitor, cxt, action );
     }
-    else if( isa< Statement >( this ) )
+    else if( isa< Statement >( value ) )
     {
-        Statement* stmt = (Statement*)this;
-        assert( stmt->getInstructions().size() > 0
+        Statement& stmt = static_cast< Statement& >( value );
+
+        assert( stmt.getInstructions().size() > 0
                 and " a statement must contain at least one instruction " );
 
-        for( Value* instr : stmt->getInstructions() )
+        for( Value* instr : stmt.getInstructions() )
         {
             assert( instr );
             instr->iterate( order, visitor, cxt, action );
         }
 
-        if( visitor && not isa< TrivialStatement >( this ) )
+        if( visitor && not isa< TrivialStatement >( value ) )
         {
-            visitor->dispatch( Visitor::Stage::INTERLOG, this, cxt );
+            visitor->dispatch( Visitor::Stage::INTERLOG, value, *cxt );
 
-            for( Scope* sco : stmt->getScopes() )
+            for( Scope* sco : stmt.getScopes() )
             {
                 assert( sco );
                 sco->iterate( order, visitor, cxt, action );
             }
         }
     }
-    else if( isa< Scope >( this ) )
+    else if( isa< Scope >( value ) )
     {
-        for( Block* block : ( (Scope*)this )->getBlocks() )
+        Scope& scope = static_cast< Scope& >( value );
+
+        for( Block* block : scope.getBlocks() )
         {
             assert( block );
             block->iterate( order, visitor, cxt, action );
@@ -275,16 +285,16 @@ void Value::iterate( Traversal order,
 
     if( visitor )
     {
-        visitor->dispatch( Visitor::Stage::EPILOG, this, cxt );
+        visitor->dispatch( Visitor::Stage::EPILOG, value, *cxt );
     }
 
     if( order == Traversal::POSTORDER )
     {
-        action( /*order, */ this );
+        action( /*order, */ value );
     }
 }
 
-void Value::iterate( Traversal order, std::function< void( Value* ) > action )
+void Value::iterate( Traversal order, std::function< void( Value& ) > action )
 {
     iterate( order, 0, 0, action );
 }
