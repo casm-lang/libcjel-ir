@@ -252,21 +252,40 @@ bool AllocInstruction::classof( Value const* obj )
 }
 
 CallInstruction::CallInstruction( Value* symbol )
-: Instruction( ".call", 0, Value::CALL_INSTRUCTION )
+: Instruction( ".call", Type::getVoid(), Value::CALL_INSTRUCTION )
 {
     assert( symbol );
 
-    assert( isa< CallableUnit >( symbol ) or isa< CastInstruction >( symbol ) );
-    if( isa< CastInstruction >( symbol ) )
+    assert( isa< CallableUnit >( symbol ) and symbol->getType()->isRelation() );
+
+    auto& res_tys = symbol->getType()->getResults();
+
+    if( res_tys.size() == 1 )
     {
-        assert( symbol->getType()->getID() == Type::RELATION );
+        setType( res_tys[ 0 ] );
     }
+    else
+    {
+        assert( not" unimplemented call instruction result type behavior! " );
+    }
+
+    // assert( isa< CallableUnit >( symbol ) or isa< CastInstruction >( symbol )
+    // );
+    // if( isa< CastInstruction >( symbol ) )
+    // {
+    //     assert( symbol->getType()->getID() == Type::RELATION );
+    // }
 
     add( symbol );
 }
 bool CallInstruction::classof( Value const* obj )
 {
     return obj->getValueID() == classid();
+}
+
+Value& CallInstruction::getCallee( void ) const
+{
+    return *getValue( 0 );
 }
 
 IdCallInstruction::IdCallInstruction( Value* kind, Value* symbol )

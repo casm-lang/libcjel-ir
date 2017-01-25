@@ -240,6 +240,8 @@ namespace libcsel_ir
             return Value::CALL_INSTRUCTION;
         };
         static bool classof( Value const* obj );
+
+        Value& getCallee( void ) const;
     };
 
     class IdCallInstruction : public Instruction

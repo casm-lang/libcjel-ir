@@ -77,6 +77,15 @@ Value* Constant::getStructure( Type* result, std::vector< Value* > values )
     return str2obj().emplace( tmp.getDescription(), ptr ).first->second;
 }
 
+Value* Constant::getStructureZero( Type& result )
+{
+    std::vector< Value* > values
+        = { libcsel_ir::Constant::getBit( result.getResults()[ 0 ], 0 ),
+            libcsel_ir::Constant::getBit( result.getResults()[ 1 ], 0 ) };
+
+    return getStructure( &result, values );
+}
+
 //
 // Constants
 //
