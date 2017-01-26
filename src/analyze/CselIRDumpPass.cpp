@@ -61,7 +61,7 @@ static const char* indention( Value& value )
             // assert(0);
         }
 
-        if( isa< CallableUnit >( p ) )
+        if( not p or isa< CallableUnit >( p ) )
         {
             break;
         }

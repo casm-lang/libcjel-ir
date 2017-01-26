@@ -24,8 +24,9 @@
 #ifndef _LIB_CSELIR_DUMP_PASS_H_
 #define _LIB_CSELIR_DUMP_PASS_H_
 
-#include "libcsel-ir.h"
 #include "libpass.h"
+
+#include "../Visitor.h"
 
 namespace libcsel_ir
 {
