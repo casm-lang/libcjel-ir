@@ -366,23 +366,23 @@ void CselIRDumpPass::visit_epilog( DivSignedInstruction& value, Context& )
 {
 }
 
-void CselIRDumpPass::visit_prolog( EquUnsignedInstruction& value, Context& )
+void CselIRDumpPass::visit_prolog( EquInstruction& value, Context& )
 {
     DUMP_PREFIX;
     DUMP_INSTR;
     DUMP_POSTFIX;
 }
-void CselIRDumpPass::visit_epilog( EquUnsignedInstruction& value, Context& )
+void CselIRDumpPass::visit_epilog( EquInstruction& value, Context& )
 {
 }
 
-void CselIRDumpPass::visit_prolog( NeqUnsignedInstruction& value, Context& )
+void CselIRDumpPass::visit_prolog( NeqInstruction& value, Context& )
 {
     DUMP_PREFIX;
     DUMP_INSTR;
     DUMP_POSTFIX;
 }
-void CselIRDumpPass::visit_epilog( NeqUnsignedInstruction& value, Context& )
+void CselIRDumpPass::visit_epilog( NeqInstruction& value, Context& )
 {
 }
 

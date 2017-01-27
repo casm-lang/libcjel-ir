@@ -130,8 +130,8 @@ namespace libcsel_ir
 
             ,
             LOGICAL_INSTRUCTION,
-            EQUU_INSTRUCTION,
-            NEQU_INSTRUCTION
+            EQU_INSTRUCTION,
+            NEQ_INSTRUCTION
 
             ,
             ZEXT_INSTRUCTION,

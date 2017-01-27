@@ -384,24 +384,24 @@ namespace libcsel_ir
         static bool classof( Value const* obj );
     };
 
-    class EquUnsignedInstruction : public LogicalInstruction
+    class EquInstruction : public LogicalInstruction
     {
       public:
-        EquUnsignedInstruction( Value* lhs, Value* rhs );
+        EquInstruction( Value* lhs, Value* rhs );
         static inline Value::ID classid( void )
         {
-            return Value::EQUU_INSTRUCTION;
+            return Value::EQU_INSTRUCTION;
         };
         static bool classof( Value const* obj );
     };
 
-    class NeqUnsignedInstruction : public LogicalInstruction
+    class NeqInstruction : public LogicalInstruction
     {
       public:
-        NeqUnsignedInstruction( Value* lhs, Value* rhs );
+        NeqInstruction( Value* lhs, Value* rhs );
         static inline Value::ID classid( void )
         {
-            return Value::NEQU_INSTRUCTION;
+            return Value::NEQ_INSTRUCTION;
         };
         static bool classof( Value const* obj );
     };

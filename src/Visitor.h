@@ -217,15 +217,15 @@ namespace libcsel_ir
     PREFIX void visit_epilog( libcsel_ir::ModUnsignedInstruction& value,       \
         libcsel_ir::Context& cxt ) POSTFIX;                                    \
                                                                                \
-    PREFIX void visit_prolog( libcsel_ir::EquUnsignedInstruction& value,       \
-        libcsel_ir::Context& cxt ) POSTFIX;                                    \
-    PREFIX void visit_epilog( libcsel_ir::EquUnsignedInstruction& value,       \
-        libcsel_ir::Context& cxt ) POSTFIX;                                    \
+    PREFIX void visit_prolog(                                                  \
+        libcsel_ir::EquInstruction& value, libcsel_ir::Context& cxt ) POSTFIX; \
+    PREFIX void visit_epilog(                                                  \
+        libcsel_ir::EquInstruction& value, libcsel_ir::Context& cxt ) POSTFIX; \
                                                                                \
-    PREFIX void visit_prolog( libcsel_ir::NeqUnsignedInstruction& value,       \
-        libcsel_ir::Context& cxt ) POSTFIX;                                    \
-    PREFIX void visit_epilog( libcsel_ir::NeqUnsignedInstruction& value,       \
-        libcsel_ir::Context& cxt ) POSTFIX;                                    \
+    PREFIX void visit_prolog(                                                  \
+        libcsel_ir::NeqInstruction& value, libcsel_ir::Context& cxt ) POSTFIX; \
+    PREFIX void visit_epilog(                                                  \
+        libcsel_ir::NeqInstruction& value, libcsel_ir::Context& cxt ) POSTFIX; \
                                                                                \
     PREFIX void visit_prolog( libcsel_ir::ZeroExtendInstruction& value,        \
         libcsel_ir::Context& cxt ) POSTFIX;                                    \

@@ -225,8 +225,8 @@ LogicalInstruction::LogicalInstruction(
 bool LogicalInstruction::classof( Value const* obj )
 {
     return obj->getValueID() == classid()
-           or EquUnsignedInstruction::classof( obj )
-           or NeqUnsignedInstruction::classof( obj );
+           or EquInstruction::classof( obj )
+           or NeqInstruction::classof( obj );
 }
 
 // -----------------------------------------------------------------------------
@@ -234,7 +234,7 @@ bool LogicalInstruction::classof( Value const* obj )
 // -----------------------------------------------------------------------------
 
 NopInstruction::NopInstruction( void )
-: Instruction( ".nop", Type::getVoid(), Value::NOP_INSTRUCTION )
+: Instruction( "nop", Type::getVoid(), Value::NOP_INSTRUCTION )
 {
 }
 bool NopInstruction::classof( Value const* obj )
@@ -243,7 +243,7 @@ bool NopInstruction::classof( Value const* obj )
 }
 
 AllocInstruction::AllocInstruction( Type* type )
-: Instruction( ".alloc", type, Value::ALLOC_INSTRUCTION )
+: Instruction( "alloc", type, Value::ALLOC_INSTRUCTION )
 {
 }
 bool AllocInstruction::classof( Value const* obj )
@@ -252,7 +252,7 @@ bool AllocInstruction::classof( Value const* obj )
 }
 
 CallInstruction::CallInstruction( Value* symbol )
-: Instruction( ".call", Type::getVoid(), Value::CALL_INSTRUCTION )
+: Instruction( "call", Type::getVoid(), Value::CALL_INSTRUCTION )
 {
     assert( symbol );
 
@@ -289,7 +289,7 @@ Value& CallInstruction::getCallee( void ) const
 }
 
 IdCallInstruction::IdCallInstruction( Value* kind, Value* symbol )
-: Instruction( ".icall", 0, Value::ID_CALL_INSTRUCTION )
+: Instruction( "icall", 0, Value::ID_CALL_INSTRUCTION )
 {
     assert( kind );
     assert( symbol );
@@ -306,7 +306,7 @@ bool IdCallInstruction::classof( Value const* obj )
 }
 
 StreamInstruction::StreamInstruction( Channel channel )
-: Instruction( ".stream", 0, Value::STREAM_INSTRUCTION )
+: Instruction( "stream", 0, Value::STREAM_INSTRUCTION )
 , channel( channel )
 {
 }
@@ -324,7 +324,7 @@ bool StreamInstruction::classof( Value const* obj )
 // -----------------------------------------------------------------------------
 
 IdInstruction::IdInstruction( Value* src )
-: UnaryInstruction( ".id", Type::getTypeID(), src, Value::ID_INSTRUCTION )
+: UnaryInstruction( "id", Type::getTypeID(), src, Value::ID_INSTRUCTION )
 {
     assert( src );
     assert( isa< Variable >( src ) or isa< Function >( src ) );
@@ -335,7 +335,7 @@ bool IdInstruction::classof( Value const* obj )
 }
 
 LoadInstruction::LoadInstruction( Value* src )
-: UnaryInstruction( ".load", 0, src, Value::LOAD_INSTRUCTION )
+: UnaryInstruction( "load", 0, src, Value::LOAD_INSTRUCTION )
 {
 }
 bool LoadInstruction::classof( Value const* obj )
@@ -344,7 +344,7 @@ bool LoadInstruction::classof( Value const* obj )
 }
 
 ZeroExtendInstruction::ZeroExtendInstruction( Value* src, Type* type )
-: UnaryInstruction( ".zext", type, src, classid() )
+: UnaryInstruction( "zext", type, src, classid() )
 {
 }
 bool ZeroExtendInstruction::classof( Value const* obj )
@@ -353,7 +353,7 @@ bool ZeroExtendInstruction::classof( Value const* obj )
 }
 
 TruncationInstruction::TruncationInstruction( Value* src, Type* type )
-: UnaryInstruction( ".trunc", type, src, classid() )
+: UnaryInstruction( "trunc", type, src, classid() )
 {
 }
 bool TruncationInstruction::classof( Value const* obj )
@@ -367,7 +367,7 @@ bool TruncationInstruction::classof( Value const* obj )
 
 StoreInstruction::StoreInstruction( Value* src, Value* dst )
 : BinaryInstruction(
-      ".store", Type::getVoid(), src, dst, Value::STORE_INSTRUCTION )
+      "store", Type::getVoid(), src, dst, Value::STORE_INSTRUCTION )
 {
     assert( src->getType()->getID() == Type::BIT );
     assert(
@@ -379,7 +379,7 @@ bool StoreInstruction::classof( Value const* obj )
 }
 
 ExtractInstruction::ExtractInstruction( Value* src, Value* dst )
-: BinaryInstruction( ".extract", 0, src, dst, Value::EXTRACT_INSTRUCTION )
+: BinaryInstruction( "extract", 0, src, dst, Value::EXTRACT_INSTRUCTION )
 {
     assert( src->getType() );
     assert( dst->getType() );
@@ -414,7 +414,7 @@ bool ExtractInstruction::classof( Value const* obj )
 
 CastInstruction::CastInstruction( Value* kind, Value* src )
 : BinaryInstruction(
-      ".cast", Type::getTypeID(), kind, src, Value::CAST_INSTRUCTION )
+      "cast", Type::getTypeID(), kind, src, Value::CAST_INSTRUCTION )
 {
     if( ( not isa< CallableUnit >( kind ) )
         and ( not isa< Structure >( kind ) ) )
@@ -434,7 +434,7 @@ bool CastInstruction::classof( Value const* obj )
 // -----------------------------------------------------------------------------
 
 NotInstruction::NotInstruction( Value* lhs )
-: UnaryInstruction( ".lnot", 0, lhs, classid() )
+: UnaryInstruction( "lnot", 0, lhs, classid() )
 {
     assert( getType() == get()->getType() );
 }
@@ -444,7 +444,7 @@ bool NotInstruction::classof( Value const* obj )
 }
 
 AndInstruction::AndInstruction( Value* lhs, Value* rhs )
-: ArithmeticInstruction( ".land", lhs, rhs, classid() )
+: ArithmeticInstruction( "land", lhs, rhs, classid() )
 {
 }
 bool AndInstruction::classof( Value const* obj )
@@ -453,7 +453,7 @@ bool AndInstruction::classof( Value const* obj )
 }
 
 OrInstruction::OrInstruction( Value* lhs, Value* rhs )
-: ArithmeticInstruction( ".lor", lhs, rhs, classid() )
+: ArithmeticInstruction( "lor", lhs, rhs, classid() )
 {
 }
 bool OrInstruction::classof( Value const* obj )
@@ -462,7 +462,7 @@ bool OrInstruction::classof( Value const* obj )
 }
 
 XorInstruction::XorInstruction( Value* lhs, Value* rhs )
-: ArithmeticInstruction( ".lxor", lhs, rhs, classid() )
+: ArithmeticInstruction( "lxor", lhs, rhs, classid() )
 {
 }
 bool XorInstruction::classof( Value const* obj )
@@ -471,7 +471,7 @@ bool XorInstruction::classof( Value const* obj )
 }
 
 AddSignedInstruction::AddSignedInstruction( Value* lhs, Value* rhs )
-: ArithmeticInstruction( ".adds", lhs, rhs, Value::ADDS_INSTRUCTION )
+: ArithmeticInstruction( "adds", lhs, rhs, Value::ADDS_INSTRUCTION )
 {
 }
 bool AddSignedInstruction::classof( Value const* obj )
@@ -480,7 +480,7 @@ bool AddSignedInstruction::classof( Value const* obj )
 }
 
 DivSignedInstruction::DivSignedInstruction( Value* lhs, Value* rhs )
-: ArithmeticInstruction( ".divs", lhs, rhs, Value::DIVS_INSTRUCTION )
+: ArithmeticInstruction( "divs", lhs, rhs, Value::DIVS_INSTRUCTION )
 {
 }
 bool DivSignedInstruction::classof( Value const* obj )
@@ -489,7 +489,7 @@ bool DivSignedInstruction::classof( Value const* obj )
 }
 
 ModUnsignedInstruction::ModUnsignedInstruction( Value* lhs, Value* rhs )
-: ArithmeticInstruction( ".modu", lhs, rhs, classid() )
+: ArithmeticInstruction( "modu", lhs, rhs, classid() )
 {
 }
 bool ModUnsignedInstruction::classof( Value const* obj )
@@ -501,26 +501,26 @@ bool ModUnsignedInstruction::classof( Value const* obj )
 // LOGICAL INSTRUCTIONS
 // -----------------------------------------------------------------------------
 
-EquUnsignedInstruction::EquUnsignedInstruction( Value* lhs, Value* rhs )
-: LogicalInstruction( ".equu", lhs, rhs, Value::EQUU_INSTRUCTION )
+EquInstruction::EquInstruction( Value* lhs, Value* rhs )
+: LogicalInstruction( "equ", lhs, rhs, Value::EQU_INSTRUCTION )
 {
 }
-bool EquUnsignedInstruction::classof( Value const* obj )
+bool EquInstruction::classof( Value const* obj )
 {
     return obj->getValueID() == classid();
 }
 
-NeqUnsignedInstruction::NeqUnsignedInstruction( Value* lhs, Value* rhs )
-: LogicalInstruction( ".nequ", lhs, rhs, Value::NEQU_INSTRUCTION )
+NeqInstruction::NeqInstruction( Value* lhs, Value* rhs )
+: LogicalInstruction( "neq", lhs, rhs, Value::NEQ_INSTRUCTION )
 {
 }
-bool NeqUnsignedInstruction::classof( Value const* obj )
+bool NeqInstruction::classof( Value const* obj )
 {
     return obj->getValueID() == classid();
 }
 
 // SubInstruction::SubInstruction( Value* lhs, Value* rhs )
-// : OperatorInstruction( ".sub", 0, lhs, rhs, Value::SUB_INSTRUCTION )
+// : OperatorInstruction( "sub", 0, lhs, rhs, Value::SUB_INSTRUCTION )
 // {
 // }
 // bool SubInstruction::classof( Value const* obj )
@@ -529,7 +529,7 @@ bool NeqUnsignedInstruction::classof( Value const* obj )
 // }
 
 // MulInstruction::MulInstruction( Value* lhs, Value* rhs )
-// : OperatorInstruction( ".mul", 0, lhs, rhs, Value::MUL_INSTRUCTION )
+// : OperatorInstruction( "mul", 0, lhs, rhs, Value::MUL_INSTRUCTION )
 // {
 // }
 // bool MulInstruction::classof( Value const* obj )
@@ -538,7 +538,7 @@ bool NeqUnsignedInstruction::classof( Value const* obj )
 // }
 
 // DivInstruction::DivInstruction( Value* lhs, Value* rhs )
-// : OperatorInstruction( ".div", 0, lhs, rhs, Value::DIV_INSTRUCTION )
+// : OperatorInstruction( "div", 0, lhs, rhs, Value::DIV_INSTRUCTION )
 // {
 // }
 // bool DivInstruction::classof( Value const* obj )
@@ -547,7 +547,7 @@ bool NeqUnsignedInstruction::classof( Value const* obj )
 // }
 
 // RivInstruction::RivInstruction( Value* lhs, Value* rhs )
-// : OperatorInstruction( ".riv", 0, lhs, rhs, Value::RIV_INSTRUCTION )
+// : OperatorInstruction( "riv", 0, lhs, rhs, Value::RIV_INSTRUCTION )
 // {
 // }
 // bool RivInstruction::classof( Value const* obj )
@@ -556,7 +556,7 @@ bool NeqUnsignedInstruction::classof( Value const* obj )
 // }
 
 // ModInstruction::ModInstruction( Value* lhs, Value* rhs )
-// : OperatorInstruction( ".mod", 0, lhs, rhs, Value::MOD_INSTRUCTION )
+// : OperatorInstruction( "mod", 0, lhs, rhs, Value::MOD_INSTRUCTION )
 // {
 // }
 // bool ModInstruction::classof( Value const* obj )
@@ -565,7 +565,7 @@ bool NeqUnsignedInstruction::classof( Value const* obj )
 // }
 
 // LthInstruction::LthInstruction( Value* lhs, Value* rhs )
-// : OperatorInstruction( ".lth", &BooleanType, lhs, rhs, Value::LTH_INSTRUCTION
+// : OperatorInstruction( "lth", &BooleanType, lhs, rhs, Value::LTH_INSTRUCTION
 // )
 // {
 // }
@@ -575,7 +575,7 @@ bool NeqUnsignedInstruction::classof( Value const* obj )
 // }
 
 // LeqInstruction::LeqInstruction( Value* lhs, Value* rhs )
-// : OperatorInstruction( ".leq", &BooleanType, lhs, rhs, Value::LEQ_INSTRUCTION
+// : OperatorInstruction( "leq", &BooleanType, lhs, rhs, Value::LEQ_INSTRUCTION
 // )
 // {
 // }
@@ -585,7 +585,7 @@ bool NeqUnsignedInstruction::classof( Value const* obj )
 // }
 
 // GthInstruction::GthInstruction( Value* lhs, Value* rhs )
-// : OperatorInstruction( ".gth", &BooleanType, lhs, rhs, Value::GTH_INSTRUCTION
+// : OperatorInstruction( "gth", &BooleanType, lhs, rhs, Value::GTH_INSTRUCTION
 // )
 // {
 // }
@@ -595,7 +595,7 @@ bool NeqUnsignedInstruction::classof( Value const* obj )
 // }
 
 // GeqInstruction::GeqInstruction( Value* lhs, Value* rhs )
-// : OperatorInstruction( ".geq", &BooleanType, lhs, rhs, Value::GEQ_INSTRUCTION
+// : OperatorInstruction( "geq", &BooleanType, lhs, rhs, Value::GEQ_INSTRUCTION
 // )
 // {
 // }
@@ -605,7 +605,7 @@ bool NeqUnsignedInstruction::classof( Value const* obj )
 // }
 
 // MovInstruction::MovInstruction( Value* lhs )
-// : UnaryInstruction( ".mov", 0, lhs, Value::MOV_INSTRUCTION )
+// : UnaryInstruction( "mov", 0, lhs, Value::MOV_INSTRUCTION )
 // {
 // 	assert( get()->getType() );
 // 	setType( get()->getType() );
@@ -617,7 +617,7 @@ bool NeqUnsignedInstruction::classof( Value const* obj )
 
 // BranchInstruction::BranchInstruction( Value* condition, Value* case_true,
 // Value* case_false )
-// : UnaryInstruction( ".branch", 0, condition, Value::BRANCH_INSTRUCTION )
+// : UnaryInstruction( "branch", 0, condition, Value::BRANCH_INSTRUCTION )
 // , case_true ( case_true  )
 // , case_false( case_false )
 // {
