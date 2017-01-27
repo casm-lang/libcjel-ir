@@ -24,6 +24,8 @@
 #ifndef _LIB_CSELIR_INSTRUCTION_H_
 #define _LIB_CSELIR_INSTRUCTION_H_
 
+#include "CselIR.h"
+
 #include "Function.h"
 #include "Interconnect.h"
 #include "Intrinsic.h"
@@ -40,12 +42,13 @@ namespace libcsel_ir
     class Instruction : public User
     {
       private:
-        Statement* statement;
         std::vector< Value* > values;
+        Statement* statement;
 
       public:
-        Instruction(
-            const char* name, Type* type, Value::ID id = Value::INSTRUCTION );
+        Instruction( const char* name, Type* type,
+            const std::vector< Value* >& values,
+            Value::ID id = Value::INSTRUCTION );
 
         ~Instruction( void );
 
@@ -76,11 +79,14 @@ namespace libcsel_ir
         }
     };
 
-    class UnaryInstruction : public Instruction
+    class UnaryInstruction : public CselIR
     {
+      private:
+        Instruction& self;
+
       public:
-        UnaryInstruction( const char* name, Type* type, Value* value,
-            Value::ID id = Value::UNARY_INSTRUCTION );
+        UnaryInstruction( Instruction* self );
+
         Value* get( void ) const;
 
         static inline Value::ID classid( void )
@@ -90,11 +96,13 @@ namespace libcsel_ir
         static bool classof( Value const* obj );
     };
 
-    class BinaryInstruction : public Instruction
+    class BinaryInstruction : public CselIR
     {
+      private:
+        Instruction& self;
+
       public:
-        BinaryInstruction( const char* name, Type* type, Value* lhs, Value* rhs,
-            Value::ID id = Value::BINARY_INSTRUCTION );
+        BinaryInstruction( Instruction* self );
 
         Value* getLHS( void ) const;
         Value* getRHS( void ) const;
@@ -106,10 +114,25 @@ namespace libcsel_ir
         static bool classof( Value const* obj );
     };
 
-    class ArithmeticInstruction : public BinaryInstruction
+    class OperatorInstruction : public Instruction
     {
       public:
-        ArithmeticInstruction( const char* name, Value* lhs, Value* rhs,
+        OperatorInstruction( const char* name, Type* type,
+            const std::vector< Value* >& values,
+            Value::ID id = Value::OPERATOR_INSTRUCTION );
+
+        static inline Value::ID classid( void )
+        {
+            return Value::OPERATOR_INSTRUCTION;
+        };
+        static bool classof( Value const* obj );
+    };
+
+    class ArithmeticInstruction : public OperatorInstruction
+    {
+      public:
+        ArithmeticInstruction( const char* name,
+            const std::vector< Value* >& values,
             Value::ID id = Value::ARITHMETIC_INSTRUCTION );
 
         static inline Value::ID classid( void )
@@ -119,10 +142,25 @@ namespace libcsel_ir
         static bool classof( Value const* obj );
     };
 
-    class LogicalInstruction : public BinaryInstruction
+    class CompareInstruction : public OperatorInstruction
     {
       public:
-        LogicalInstruction( const char* name, Value* lhs, Value* rhs,
+        CompareInstruction( const char* name,
+            const std::vector< Value* >& values,
+            Value::ID id = Value::COMPARE_INSTRUCTION );
+
+        static inline Value::ID classid( void )
+        {
+            return Value::COMPARE_INSTRUCTION;
+        };
+        static bool classof( Value const* obj );
+    };
+
+    class LogicalInstruction : public OperatorInstruction
+    {
+      public:
+        LogicalInstruction( const char* name,
+            const std::vector< Value* >& values,
             Value::ID id = Value::LOGICAL_INSTRUCTION );
 
         static inline Value::ID classid( void )
@@ -154,7 +192,7 @@ namespace libcsel_ir
         static bool classof( Value const* obj );
     };
 
-    class IdInstruction : public UnaryInstruction
+    class IdInstruction : public Instruction, public UnaryInstruction
     {
       public:
         IdInstruction( Value* src );
@@ -165,7 +203,7 @@ namespace libcsel_ir
         static bool classof( Value const* obj );
     };
 
-    class LoadInstruction : public UnaryInstruction
+    class LoadInstruction : public Instruction, public UnaryInstruction
     {
       public:
         LoadInstruction( Value* src );
@@ -176,7 +214,7 @@ namespace libcsel_ir
         static bool classof( Value const* obj );
     };
 
-    class ZeroExtendInstruction : public UnaryInstruction
+    class ZeroExtendInstruction : public Instruction, public UnaryInstruction
     {
       public:
         ZeroExtendInstruction( Value* src, Type* type );
@@ -187,7 +225,7 @@ namespace libcsel_ir
         static bool classof( Value const* obj );
     };
 
-    class TruncationInstruction : public UnaryInstruction
+    class TruncationInstruction : public Instruction, public UnaryInstruction
     {
       public:
         TruncationInstruction( Value* src, Type* type );
@@ -198,7 +236,7 @@ namespace libcsel_ir
         static bool classof( Value const* obj );
     };
 
-    class StoreInstruction : public BinaryInstruction
+    class StoreInstruction : public Instruction, public BinaryInstruction
     {
       public:
         StoreInstruction( Value* src, Value* dst );
@@ -209,7 +247,7 @@ namespace libcsel_ir
         static bool classof( Value const* obj );
     };
 
-    class ExtractInstruction : public BinaryInstruction
+    class ExtractInstruction : public Instruction, public BinaryInstruction
     {
       public:
         ExtractInstruction( Value* ref, Value* element );
@@ -220,7 +258,7 @@ namespace libcsel_ir
         static bool classof( Value const* obj );
     };
 
-    class CastInstruction : public BinaryInstruction
+    class CastInstruction : public Instruction, public BinaryInstruction
     {
       public:
         CastInstruction( Value* kind, Value* src );
@@ -279,18 +317,8 @@ namespace libcsel_ir
         static bool classof( Value const* obj );
     };
 
-    class NotInstruction : public UnaryInstruction
-    {
-      public:
-        NotInstruction( Value* lhs );
-        static inline Value::ID classid( void )
-        {
-            return Value::NOT_INSTRUCTION;
-        };
-        static bool classof( Value const* obj );
-    };
-
-    class AndInstruction : public ArithmeticInstruction
+    class AndInstruction : public ArithmeticInstruction,
+                           public BinaryInstruction
     {
       public:
         AndInstruction( Value* lhs, Value* rhs );
@@ -301,7 +329,7 @@ namespace libcsel_ir
         static bool classof( Value const* obj );
     };
 
-    class OrInstruction : public ArithmeticInstruction
+    class OrInstruction : public ArithmeticInstruction, public BinaryInstruction
     {
       public:
         OrInstruction( Value* lhs, Value* rhs );
@@ -312,7 +340,8 @@ namespace libcsel_ir
         static bool classof( Value const* obj );
     };
 
-    class XorInstruction : public ArithmeticInstruction
+    class XorInstruction : public ArithmeticInstruction,
+                           public BinaryInstruction
     {
       public:
         XorInstruction( Value* lhs, Value* rhs );
@@ -323,7 +352,8 @@ namespace libcsel_ir
         static bool classof( Value const* obj );
     };
 
-    class AddSignedInstruction : public ArithmeticInstruction
+    class AddSignedInstruction : public ArithmeticInstruction,
+                                 public BinaryInstruction
     {
       public:
         AddSignedInstruction( Value* lhs, Value* rhs );
@@ -334,7 +364,8 @@ namespace libcsel_ir
         static bool classof( Value const* obj );
     };
 
-    class DivSignedInstruction : public ArithmeticInstruction
+    class DivSignedInstruction : public ArithmeticInstruction,
+                                 public BinaryInstruction
     {
       public:
         DivSignedInstruction( Value* lhs, Value* rhs );
@@ -373,7 +404,8 @@ namespace libcsel_ir
     // 	static bool classof( Value const* obj );
     // };
 
-    class ModUnsignedInstruction : public ArithmeticInstruction
+    class ModUnsignedInstruction : public ArithmeticInstruction,
+                                   public BinaryInstruction
     {
       public:
         ModUnsignedInstruction( Value* lhs, Value* rhs );
@@ -384,7 +416,7 @@ namespace libcsel_ir
         static bool classof( Value const* obj );
     };
 
-    class EquInstruction : public LogicalInstruction
+    class EquInstruction : public CompareInstruction, public BinaryInstruction
     {
       public:
         EquInstruction( Value* lhs, Value* rhs );
@@ -395,7 +427,7 @@ namespace libcsel_ir
         static bool classof( Value const* obj );
     };
 
-    class NeqInstruction : public LogicalInstruction
+    class NeqInstruction : public CompareInstruction, public BinaryInstruction
     {
       public:
         NeqInstruction( Value* lhs, Value* rhs );
@@ -440,6 +472,17 @@ namespace libcsel_ir
     // 	MovInstruction( Value* lhs );
     // 	static bool classof( Value const* obj );
     // };
+
+    class NotInstruction : public LogicalInstruction, public UnaryInstruction
+    {
+      public:
+        NotInstruction( Value* lhs );
+        static inline Value::ID classid( void )
+        {
+            return Value::NOT_INSTRUCTION;
+        };
+        static bool classof( Value const* obj );
+    };
 }
 
 #endif /* _LIB_CSELIR_INSTRUCTION_H_ */

@@ -114,6 +114,9 @@ namespace libcsel_ir
             STREAM_INSTRUCTION
 
             ,
+            OPERATOR_INSTRUCTION
+            
+            ,
             ARITHMETIC_INSTRUCTION
 
             ,
@@ -130,6 +133,7 @@ namespace libcsel_ir
 
             ,
             LOGICAL_INSTRUCTION,
+            COMPARE_INSTRUCTION,
             EQU_INSTRUCTION,
             NEQ_INSTRUCTION
 
