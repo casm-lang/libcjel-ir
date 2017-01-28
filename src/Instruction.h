@@ -79,7 +79,7 @@ namespace libcsel_ir
         }
     };
 
-    class UnaryInstruction : public CselIR
+    class UnaryInstruction
     {
       private:
         Instruction& self;
@@ -96,7 +96,7 @@ namespace libcsel_ir
         static bool classof( Value const* obj );
     };
 
-    class BinaryInstruction : public CselIR
+    class BinaryInstruction
     {
       private:
         Instruction& self;
