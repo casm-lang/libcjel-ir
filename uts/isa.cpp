@@ -21,45 +21,19 @@
 //  along with libcsel-ir. If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef _LIB_CSELIR_INTRINSIC_H_
-#define _LIB_CSELIR_INTRINSIC_H_
+#include "gtest/gtest.h"
 
-#include "CallableUnit.h"
-#include "Constant.h"
-#include "Value.h"
+#include "libcsel-ir.h"
 
-namespace libcsel_ir
+using namespace libcsel_ir;
+
+TEST( libcsel_ir__isa, AllocInstruction )
 {
-    class Intrinsic : public CallableUnit
-    {
-      public:
-        Intrinsic( const char* name, Type* result );
+    AllocInstruction x( Type::getBit( 1 ) );
 
-        ~Intrinsic( void );
-
-        void dump( void ) const;
-
-        static inline Value::ID classid( void )
-        {
-            return Value::INTRINSIC;
-        };
-        static bool classof( Value const* obj );
-
-        virtual const char* label( void ) override final
-        {
-            return getName();
-        }
-    };
+    ASSERT_TRUE( isa< AllocInstruction >( x ) );
 }
 
-#endif /* _LIB_CSELIR_INTRINSIC_H_ */
-
-//
-//  Local variables:
-//  mode: c++
-//  indent-tabs-mode: nil
-//  c-basic-offset: 4
-//  tab-width: 4
-//  End:
-//  vim:noexpandtab:sw=4:ts=4:
-//
+TEST( libcsel_ir__isa, asdf )
+{
+}

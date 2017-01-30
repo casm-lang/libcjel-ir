@@ -32,7 +32,7 @@ static libpass::PassRegistration< CselIRDumpPass > PASS( "CSELIR Dumping Pass",
 
 bool CselIRDumpPass::run( libpass::PassResult& pr )
 {
-    Module* value = (Module*)pr.getResult< CselIRDumpPass >();
+    Module* value = (Module*)pr.result< CselIRDumpPass >();
     assert( value );
 
     value->iterate( Traversal::PREORDER, this );
@@ -74,14 +74,14 @@ static const char* indention( Value& value )
 }
 
 #define DUMP_PREFIX                                                            \
-    printf( "%-14s: %p, %s, %s%s ", __FUNCTION__, &value, value.getLabel(),    \
+    printf( "%-14s: %p, %s, %s%s ", __FUNCTION__, &value, value.label(),       \
         indention( value ), value.getName() )
 #define DUMP_POSTFIX printf( "\n" );
 
 #define DUMP_INSTR                                                             \
     for( auto v : value.getValues() )                                          \
     {                                                                          \
-        printf( ", %s (%s)", v->getLabel(), v->getType()->getName() );         \
+        printf( ", %s (%s)", v->label(), v->getType()->getName() );            \
     }
 
 void CselIRDumpPass::visit_prolog( Module& value, Context& )

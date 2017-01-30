@@ -127,6 +127,7 @@ bool Instruction::classof( Value const* obj )
 {
     return obj->getValueID() == classid() or UnaryInstruction::classof( obj )
            or BinaryInstruction::classof( obj )
+           or OperatorInstruction::classof( obj )
            or NopInstruction::classof( obj ) or AllocInstruction::classof( obj )
            or CallInstruction::classof( obj )
            or IdCallInstruction::classof( obj )
@@ -169,12 +170,14 @@ Value* BinaryInstruction::getRHS( void ) const
 
 bool BinaryInstruction::classof( Value const* obj )
 {
-    return obj->getValueID() == classid()
-           or ArithmeticInstruction::classof( obj )
-           or LogicalInstruction::classof( obj )
-           or StoreInstruction::classof( obj )
+    return obj->getValueID() == classid() or StoreInstruction::classof( obj )
            or ExtractInstruction::classof( obj )
-           or CastInstruction::classof( obj );
+           or CastInstruction::classof( obj ) or AndInstruction::classof( obj )
+           or OrInstruction::classof( obj ) or XorInstruction::classof( obj )
+           or AddSignedInstruction::classof( obj )
+           or DivSignedInstruction::classof( obj )
+           or ModUnsignedInstruction::classof( obj )
+           or EquInstruction::classof( obj ) or NeqInstruction::classof( obj );
 }
 
 OperatorInstruction::OperatorInstruction( const char* name, Type* type,
@@ -193,7 +196,8 @@ bool OperatorInstruction::classof( Value const* obj )
 {
     return obj->getValueID() == classid()
            or ArithmeticInstruction::classof( obj )
-           or LogicalInstruction::classof( obj );
+           or LogicalInstruction::classof( obj )
+           or CompareInstruction::classof( obj );
 }
 
 ArithmeticInstruction::ArithmeticInstruction(
@@ -372,8 +376,7 @@ bool TruncationInstruction::classof( Value const* obj )
 // -----------------------------------------------------------------------------
 
 StoreInstruction::StoreInstruction( Value* src, Value* dst )
-: Instruction(
-      "store", Type::getVoid(), { src, dst }, classid() )
+: Instruction( "store", Type::getVoid(), { src, dst }, classid() )
 , BinaryInstruction( this )
 {
     assert( src->getType()->getID() == Type::BIT );
@@ -421,8 +424,7 @@ bool ExtractInstruction::classof( Value const* obj )
 }
 
 CastInstruction::CastInstruction( Value* kind, Value* src )
-: Instruction(
-      "cast", Type::getTypeID(), { kind, src }, classid() )
+: Instruction( "cast", Type::getTypeID(), { kind, src }, classid() )
 , BinaryInstruction( this )
 {
     if( ( not isa< CallableUnit >( kind ) )

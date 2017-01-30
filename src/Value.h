@@ -115,7 +115,7 @@ namespace libcsel_ir
 
             ,
             OPERATOR_INSTRUCTION
-            
+
             ,
             ARITHMETIC_INSTRUCTION
 
