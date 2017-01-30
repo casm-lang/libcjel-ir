@@ -44,8 +44,6 @@ namespace libcsel_ir
 
         const u32 getLength( void ) const;
 
-        void dump( void ) const;
-
         static inline Value::ID classid( void )
         {
             return Value::MEMORY;

@@ -345,6 +345,7 @@ LoadInstruction::LoadInstruction( Value* src )
 : Instruction( "load", 0, { src }, classid() )
 , UnaryInstruction( this )
 {
+    setType( src->getType() );
 }
 bool LoadInstruction::classof( Value const* obj )
 {

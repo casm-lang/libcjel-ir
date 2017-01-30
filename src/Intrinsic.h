@@ -37,8 +37,6 @@ namespace libcsel_ir
 
         ~Intrinsic( void );
 
-        void dump( void ) const;
-
         static inline Value::ID classid( void )
         {
             return Value::INTRINSIC;

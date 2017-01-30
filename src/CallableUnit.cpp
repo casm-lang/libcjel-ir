@@ -196,21 +196,6 @@ const Reference* CallableUnit::getReference( const char* name ) const
     return 0;
 }
 
-void CallableUnit::dump( void ) const
-{
-    printf( "[CallableUnit ] " );
-    debug();
-
-    if( context )
-    {
-        context->dump();
-    }
-    else
-    {
-        printf( "('context' not set)\n" );
-    }
-}
-
 bool CallableUnit::classof( Value const* obj )
 {
     return obj->getValueID() == classid() or Intrinsic::classof( obj )

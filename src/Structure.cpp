@@ -98,12 +98,6 @@ Structure* Structure::getParent( void ) const
     return parent;
 }
 
-void Structure::dump( void ) const
-{
-    printf( "[Structure ] " );
-    debug();
-}
-
 bool Structure::classof( Value const* obj )
 {
     return obj->getValueID() == classid();

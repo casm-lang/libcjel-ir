@@ -50,8 +50,6 @@ namespace libcsel_ir
         Value* getExpression( void ) const;
         const char* getIdent( void ) const;
 
-        void dump( void ) const;
-
         static inline ID classid( void )
         {
             return Value::VARIABLE;

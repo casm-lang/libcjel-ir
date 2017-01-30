@@ -62,12 +62,6 @@ const char* Variable::getIdent( void ) const
     return ident;
 }
 
-void Variable::dump( void ) const
-{
-    printf( "[Variable ] " );
-    debug();
-}
-
 bool Variable::classof( Value const* obj )
 {
     return obj->getValueID() == classid();

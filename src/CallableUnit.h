@@ -84,8 +84,6 @@ namespace libcsel_ir
 
         const Reference* getReference( const char* name ) const;
 
-        void dump( void ) const;
-
         static inline Value::ID classid( void )
         {
             return Value::CALLABLE_UNIT;

@@ -36,21 +36,6 @@ Function::~Function( void )
     // ( *Value::getSymbols() )[ ".function" ].erase( this );
 }
 
-void Function::dump( void ) const
-{
-    printf( "[Function ] " );
-    debug();
-
-    if( getContext() )
-    {
-        getContext()->dump();
-    }
-    else
-    {
-        printf( "('context' not set)\n" );
-    }
-}
-
 bool Function::classof( Value const* obj )
 {
     return obj->getValueID() == classid();

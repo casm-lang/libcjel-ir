@@ -151,8 +151,6 @@ namespace libcsel_ir
       public:
         BitConstant( Type* result, u64 value );
 
-        void dump( void ) const;
-
         static inline Value::ID classid( void )
         {
             return Value::BIT_CONSTANT;
@@ -165,8 +163,6 @@ namespace libcsel_ir
       public:
         StringConstant( Type::String value );
         StringConstant( const char* value );
-
-        void dump( void ) const;
 
         static inline Value::ID classid( void )
         {
@@ -181,8 +177,6 @@ namespace libcsel_ir
         StructureConstant( Type* type, std::vector< Value* > value );
 
         // const std::vector< Value* >& getElements( void ) const;
-
-        void dump( void ) const;
 
         static inline Value::ID classid( void )
         {
@@ -209,8 +203,6 @@ namespace libcsel_ir
             Type* type, const char* value, Value* scope = 0 );
 
         static void forgetSymbol( const char* value );
-
-        void dump( void ) const;
 
         static inline Value::ID classid( void )
         {
@@ -264,8 +256,6 @@ namespace libcsel_ir
     //   public:
     //     static BitConstant* create( u64 value, u16 bitsize );
 
-    //     void dump( void ) const;
-
     //     static inline Value::ID classid( void )
     //     {
     //         return Value::BIT_CONSTANT;
@@ -289,8 +279,6 @@ namespace libcsel_ir
 
     //     const std::vector< Value* >& getElements( void ) const;
 
-    //     void dump( void ) const;
-
     //     static inline Value::ID classid( void )
     //     {
     //         return Value::STRUCTURE_CONSTANT;
@@ -313,8 +301,6 @@ namespace libcsel_ir
 
     //     static void forgetSymbol( const char* value );
 
-    //     void dump( void ) const;
-
     //     static inline Value::ID classid( void )
     //     {
     //         return Value::IDENTIFIER;
@@ -328,8 +314,6 @@ namespace libcsel_ir
     //   public:
     //     StringConstant( Type* type, Type::String value );
     //     static StringConstant* create( Type::String value );
-
-    //     void dump( void ) const;
 
     //     static inline Value::ID classid( void )
     //     {

@@ -185,11 +185,27 @@ namespace libcsel_ir
       public:
         ID getValueID() const;
 
-        void debug( void ) const;
         void dump( void ) const;
 
         void setNext( Value* value );
         Value* getNext( void ) const;
+
+        inline u1 operator==( const Value& rhs )
+        {
+            if( this != &rhs )
+            {
+                if( *this->getType() != *rhs.getType()
+                    or strcmp( this->getName(), ( (Value&)rhs ).getName() ) )
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+        inline u1 operator!=( const Value& rhs )
+        {
+            return !operator==( rhs );
+        }
 
         template < class C >
         C* getRef( void )

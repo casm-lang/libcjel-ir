@@ -111,12 +111,6 @@ const u1 Reference::isStructure( void ) const
     return structure != 0;
 }
 
-void Reference::dump( void ) const
-{
-    printf( "[Reference ] " );
-    debug();
-}
-
 bool Reference::classof( Value const* obj )
 {
     return obj->getValueID() == classid();

@@ -50,12 +50,6 @@ const u32 Memory::getLength( void ) const
     return length;
 }
 
-void Memory::dump( void ) const
-{
-    printf( "[Memory ] " );
-    debug();
-}
-
 bool Memory::classof( Value const* obj )
 {
     return obj->getValueID() == classid();

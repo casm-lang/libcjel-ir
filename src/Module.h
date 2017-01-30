@@ -63,8 +63,6 @@ namespace libcsel_ir
             return result->second;
         }
 
-        void dump( void ) const;
-
         static inline Value::ID classid( void )
         {
             return Value::MODULE;

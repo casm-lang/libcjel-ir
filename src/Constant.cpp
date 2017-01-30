@@ -97,11 +97,6 @@ BitConstant::BitConstant( Type* result, u64 value )
 {
 }
 
-void BitConstant::dump( void ) const
-{
-    printf( "[Const] %p = bit %li\n", this, getValue() );
-}
-
 bool BitConstant::classof( Value const* obj )
 {
     return obj->getValueID() == classid();
@@ -116,11 +111,6 @@ StringConstant::StringConstant( Type::String value )
 StringConstant::StringConstant( const char* value )
 : StringConstant( ( Type::String )( value ) )
 {
-}
-
-void StringConstant::dump( void ) const
-{
-    printf( "[Const] %p = string %s\n", this, getValue() );
 }
 
 bool StringConstant::classof( Value const* obj )
@@ -143,11 +133,6 @@ StructureConstant::StructureConstant( Type* type, Type::Struct value )
                     value[ i ]->getType()->getName() )
                 == 0 );
     }
-}
-
-void StructureConstant::dump( void ) const
-{
-    printf( "[Const] %p = structure\n", this );
 }
 
 bool StructureConstant::classof( Value const* obj )
@@ -192,12 +177,6 @@ Identifier* Identifier::create( Type* type, const char* value, Value* scope )
 void Identifier::forgetSymbol( const char* value )
 {
     ident2obj().erase( std::string( value ) );
-}
-
-void Identifier::dump( void ) const
-{
-    printf( "[Ident] " );
-    debug();
 }
 
 bool Identifier::classof( Value const* obj )

@@ -36,21 +36,6 @@ Intrinsic::~Intrinsic( void )
     ( *Value::getSymbols() )[ ".intrinsic" ].erase( this );
 }
 
-void Intrinsic::dump( void ) const
-{
-    printf( "[Intrinsic ] " );
-    debug();
-
-    if( getContext() )
-    {
-        getContext()->dump();
-    }
-    else
-    {
-        printf( "('context' not set)\n" );
-    }
-}
-
 bool Intrinsic::classof( Value const* obj )
 {
     return obj->getValueID() == classid();

@@ -54,8 +54,6 @@ namespace libcsel_ir
         void setParent( Structure* value );
         Structure* getParent( void ) const;
 
-        void dump( void ) const;
-
         static inline Value::ID classid( void )
         {
             return Value::STRUCTURE;

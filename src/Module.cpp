@@ -94,12 +94,6 @@ void Module::add( Value* value )
 // 	return content;
 // }
 
-void Module::dump( void ) const
-{
-    printf( "[Module ] " );
-    debug();
-}
-
 bool Module::classof( Value const* obj )
 {
     return obj->getValueID() == classid();

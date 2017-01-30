@@ -37,8 +37,6 @@ namespace libcsel_ir
 
         ~Function( void );
 
-        void dump( void ) const;
-
         static inline Value::ID classid( void )
         {
             return Value::FUNCTION;

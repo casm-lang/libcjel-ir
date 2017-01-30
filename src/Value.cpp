@@ -22,11 +22,14 @@
 //
 
 #include "Value.h"
-#include "Visitor.h"
 
 #include "Instruction.h"
 #include "Scope.h"
 #include "Statement.h"
+#include "Visitor.h"
+
+#include "../stdhl/cpp/Default.h"
+#include "../stdhl/cpp/Log.h"
 
 using namespace libcsel_ir;
 
@@ -88,45 +91,10 @@ Value* Value::getNext( void ) const
     return next;
 }
 
-void Value::debug( void ) const
-{
-    printf( "DEBUG: %p '%s' : ", this, getName() );
-    if( getType() )
-    {
-        printf( "%s", getType()->getName() );
-    }
-    printf( "\n" );
-}
-
 void Value::dump( void ) const
 {
-    switch( this->getValueID() )
-    {
-        case Value::SEQUENTIAL_SCOPE:
-            ( (SequentialScope*)this )->dump();
-            break;
-        case Value::PARALLEL_SCOPE:
-            ( (ParallelScope*)this )->dump();
-            break;
-
-        case Value::TRIVIAL_STATEMENT:
-            ( (TrivialStatement*)this )->dump();
-            break;
-
-        // case Value::IDENTIFIER:
-        // 	((Identifier*)this)->dump(); break;
-        // case Value::INTEGER_CONSTANT:
-        // 	((IntegerConstant*)this)->dump(); break;
-        default:
-            if( isa< Instruction >( this ) )
-            {
-                ( (Instruction*)this )->dump();
-            }
-            else
-            {
-                debug();
-            }
-    }
+    libstdhl::Log::info(
+        "%p: '%s' %s", this, this->getName(), this->getType()->getName() );
 }
 
 void Value::iterate( Traversal order,

@@ -48,8 +48,6 @@ namespace libcsel_ir
 
         const u64 getBitsizeMax( void ) const;
 
-        void dump( void ) const;
-
         static inline Value::ID classid( void )
         {
             return Value::INTERCONNECT;

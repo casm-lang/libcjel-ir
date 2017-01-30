@@ -55,12 +55,6 @@ const u64 Interconnect::getBitsizeMax( void ) const
     return bs_max;
 }
 
-void Interconnect::dump( void ) const
-{
-    printf( "[Interconnect ] " );
-    debug();
-}
-
 bool Interconnect::classof( Value const* obj )
 {
     return obj->getValueID() == classid();
