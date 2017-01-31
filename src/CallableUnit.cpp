@@ -28,53 +28,50 @@
 
 using namespace libcsel_ir;
 
-u64 CallableUnit::allocation_cnt = 0;
+u64 CallableUnit::m_allocation_cnt = 0;
 
 CallableUnit::CallableUnit( const char* name, Type* type, Value::ID id )
 : User( name, type, id )
-, allocation_id( 0 )
-, context( 0 )
-, identifier( 0 )
+, m_allocation_id( 0 )
+, m_context( 0 )
+, m_identifier( 0 )
 {
-    identifier = Identifier::create( type, name, this );
-    assert( identifier );
+    m_identifier = Identifier::create( type, name, this );
+    assert( m_identifier );
 
-    // ( *Value::getSymbols() )[ ".callableunit" ].insert( this );
-
-    allocation_id = cast< BitConstant >(
-        Constant::getBit( Type::getTypeID(), allocation_cnt ) );
-    allocation_cnt++;
-    assert( allocation_id );
+    m_allocation_id = cast< BitConstant >(
+        Constant::Bit( Type::TypeID(), m_allocation_cnt ) );
+    m_allocation_cnt++;
+    assert( m_allocation_id );
 }
 
 CallableUnit::~CallableUnit( void )
 {
-    ( *Value::getSymbols() )[ ".callableunit" ].erase( this );
 }
 
-BitConstant* CallableUnit::getAllocationID( void )
+BitConstant* CallableUnit::allocId( void )
 {
-    assert( allocation_id );
-    return allocation_id;
+    assert( m_allocation_id );
+    return m_allocation_id;
 }
 
-Block* CallableUnit::getContext( void ) const
+Block* CallableUnit::context( void ) const
 {
-    return context;
+    return m_context;
 }
 
 void CallableUnit::setContext( Block* scope )
 {
     assert( scope );
 
-    context = scope;
+    m_context = scope;
 
     scope->setParent( this );
 }
 
-const Identifier* CallableUnit::getIdentifier( void ) const
+const Identifier* CallableUnit::identifier( void ) const
 {
-    return identifier;
+    return m_identifier;
 }
 
 Reference* CallableUnit::add(
@@ -84,7 +81,7 @@ Reference* CallableUnit::add(
         = new Reference( ref_name, ref_type, this, (Reference::Kind)ref_kind );
     assert( ref );
 
-    name2ref[ ref_name ] = ref;
+    m_name2ref[ ref_name ] = ref;
 
     return ref;
 }
@@ -114,13 +111,13 @@ void CallableUnit::addParameter( Value* value, u1 input )
 
     if( input )
     {
-        parameter2index[ value ] = parameter_in.size();
-        parameter_in.push_back( value );
+        m_parameter2index[ value ] = m_parameter_in.size();
+        m_parameter_in.push_back( value );
     }
     else
     {
-        parameter2index[ value ] = parameter_in.size();
-        parameter_out.push_back( value );
+        m_parameter2index[ value ] = m_parameter_out.size();
+        m_parameter_out.push_back( value );
     }
 }
 
@@ -132,23 +129,23 @@ void CallableUnit::addLinkage( Value* value )
     Reference* ref = (Reference*)value;
     ref->setCallableUnit( this );
 
-    linkage.push_back( value );
+    m_linkage.push_back( value );
 }
 
-const std::vector< Value* >& CallableUnit::getInParameters( void ) const
+const std::vector< Value* >& CallableUnit::inParameters( void ) const
 {
-    return parameter_in;
+    return m_parameter_in;
 }
 
-const std::vector< Value* >& CallableUnit::getOutParameters( void ) const
+const std::vector< Value* >& CallableUnit::outParameters( void ) const
 {
-    return parameter_out;
+    return m_parameter_out;
 }
 
-const i16 CallableUnit::getIndexOfParameter( Value* value ) const
+const i16 CallableUnit::indexOfParameter( Value* value ) const
 {
-    auto result = parameter2index.find( value );
-    if( result != parameter2index.end() )
+    auto result = m_parameter2index.find( value );
+    if( result != m_parameter2index.end() )
     {
         return result->second;
     }
@@ -161,33 +158,33 @@ const u1 CallableUnit::isLastParameter( Value* value ) const
     assert( isa< Reference >( value ) );
     Reference* ref = (Reference*)value;
 
-    i16 index = getIndexOfParameter( ref );
+    i16 index = indexOfParameter( ref );
     assert( index >= 0 );
 
-    i16 total = parameter_in.size() + parameter_out.size();
+    i16 total = parameterLength();
 
     if( not ref->isInput() )
     {
-        index += parameter_in.size();
+        index += m_parameter_in.size();
     }
 
     return index >= ( total - 1 );
 }
 
-const i16 CallableUnit::getParameterLength( void ) const
+const i16 CallableUnit::parameterLength( void ) const
 {
-    return parameter_in.size() + parameter_out.size();
+    return m_parameter_in.size() + m_parameter_out.size();
 }
 
-const std::vector< Value* >& CallableUnit::getLinkage( void ) const
+const std::vector< Value* >& CallableUnit::linkage( void ) const
 {
-    return linkage;
+    return m_linkage;
 }
 
-const Reference* CallableUnit::getReference( const char* name ) const
+const Reference* CallableUnit::reference( const char* name ) const
 {
-    auto result = name2ref.find( name );
-    if( result != name2ref.end() )
+    auto result = m_name2ref.find( name );
+    if( result != m_name2ref.end() )
     {
         assert( isa< Reference >( result->second ) );
         return (const Reference*)result->second;
@@ -198,7 +195,7 @@ const Reference* CallableUnit::getReference( const char* name ) const
 
 bool CallableUnit::classof( Value const* obj )
 {
-    return obj->getValueID() == classid() or Intrinsic::classof( obj )
+    return obj->id() == classid() or Intrinsic::classof( obj )
            or Function::classof( obj );
 }
 

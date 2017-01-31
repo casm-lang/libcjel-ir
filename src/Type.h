@@ -36,9 +36,9 @@ namespace libcsel_ir
     class Type : public CselIR
     {
       public:
-        typedef u64 Bit;
-        typedef char* String;
-        typedef std::vector< Value* > Struct;
+        typedef u64 BitTy;
+        typedef char* StringTy;
+        typedef std::vector< Value* > StructTy;
 
         enum ID : u8
         {
@@ -56,38 +56,37 @@ namespace libcsel_ir
         };
 
       protected:
-        const char* name;
-        const char* description;
-        u64 size;
-        std::vector< Type* > results;
-
-      private:
-        ID id;
-
-      protected:
-        static std::unordered_map< std::string, Type* >& str2obj( void )
+        static std::unordered_map< std::string, Type* >& m_str2obj( void )
         {
             static std::unordered_map< std::string, Type* > cache;
             return cache;
         }
 
+        const char* m_name;
+        const char* m_description;
+        u64 m_bitsize;
+        std::vector< Type* > m_results;
+
+      private:
+        ID m_id;
+
       public:
-        Type( const char* name, const char* description, u64 size, ID id );
+        Type( const char* name, const char* description, u64 bitsize, ID id );
         ~Type() = default;
 
-        const ID getID( void ) const;
+        const ID id( void ) const;
 
-        virtual const u64 getSize( void ) = 0;
-        virtual const char* getName( void ) = 0;
-        virtual const char* getDescription( void ) = 0;
-        virtual const std::vector< Type* >& getResults( void ) = 0;
-        virtual const std::vector< Type* >& getArguments( void ) = 0;
+        virtual const u64 bitsize( void ) = 0;
+        virtual const char* name( void ) = 0;
+        virtual const char* description( void ) = 0;
+        virtual const std::vector< Type* >& results( void ) = 0;
+        virtual const std::vector< Type* >& arguments( void ) = 0;
 
         inline u1 operator==( const Type& rhs )
         {
             if( this != &rhs )
             {
-                if( strcmp( this->getName(), ( (Type&)rhs ).getName() ) )
+                if( strcmp( this->name(), ( (Type&)rhs ).name() ) )
                 {
                     return false;
                 }
@@ -108,51 +107,51 @@ namespace libcsel_ir
         u1 isRelation( void ) const;
         u1 isInterconnect( void ) const;
 
-        static Type* getLabel( void );
-        static Type* getVoid( void );
+        static Type* Label( void );
+        static Type* Void( void );
 
-        static Type* getTypeID( void );
+        static Type* TypeID( void );
 
-        static Type* getBit( u16 size );
-        static Type* getString( void );
-        static Type* getVector( Type* type, u16 length );
-        static Type* getStructure( std::vector< StructureElement > arguments );
-        static Type* getRelation(
+        static Type* Bit( u16 bitsize );
+        static Type* String( void );
+        static Type* Vector( Type* type, u16 length );
+        static Type* Structure( std::vector< StructureElement > arguments );
+        static Type* Relation(
             std::vector< Type* > result, std::vector< Type* > arguments );
-        static Type* getInterconnect( void );
+        static Type* Interconnect( void );
     };
 
     class PrimitiveType : public Type
     {
       public:
-        PrimitiveType(
-            const char* name, const char* description, u64 size, Type::ID id );
+        PrimitiveType( const char* name, const char* description, u64 bitsize,
+            Type::ID id );
 
-        const u64 getSize( void ) override final;
-        const char* getName( void ) override final;
-        const char* getDescription( void ) override final;
-        const std::vector< Type* >& getResults( void ) override final;
-        const std::vector< Type* >& getArguments( void ) override final;
+        const u64 bitsize( void ) override final;
+        const char* name( void ) override final;
+        const char* description( void ) override final;
+        const std::vector< Type* >& results( void ) override final;
+        const std::vector< Type* >& arguments( void ) override final;
     };
 
     class AggregateType : public Type
     {
       public:
-        AggregateType(
-            const char* name, const char* description, u64 size, Type::ID id );
+        AggregateType( const char* name, const char* description, u64 bitsize,
+            Type::ID id );
     };
 
     class SyntheticType : public Type
     {
       public:
-        SyntheticType(
-            const char* name, const char* description, u64 size, Type::ID id );
+        SyntheticType( const char* name, const char* description, u64 bitsize,
+            Type::ID id );
 
-        const u64 getSize( void ) override final;
-        const char* getName( void ) override final;
-        const char* getDescription( void ) override final;
-        const std::vector< Type* >& getResults( void ) override final;
-        const std::vector< Type* >& getArguments( void ) override final;
+        const u64 bitsize( void ) override final;
+        const char* name( void ) override final;
+        const char* description( void ) override final;
+        const std::vector< Type* >& results( void ) override final;
+        const std::vector< Type* >& arguments( void ) override final;
     };
 
     class LabelType : public PrimitiveType
@@ -172,7 +171,7 @@ namespace libcsel_ir
       public:
         static const u16 SizeMax = 512;
 
-        BitType( u16 size );
+        BitType( u16 bitsize );
     };
 
     class StringType : public PrimitiveType
@@ -184,17 +183,17 @@ namespace libcsel_ir
     class VectorType : public AggregateType
     {
       private:
-        Type* type;
-        u16 length;
+        Type* m_type;
+        u16 m_length;
 
       public:
         VectorType( Type* type, u16 length );
 
-        const u64 getSize( void ) override final;
-        const char* getName( void ) override final;
-        const char* getDescription( void ) override final;
-        const std::vector< Type* >& getResults( void ) override final;
-        const std::vector< Type* >& getArguments( void ) override final;
+        const u64 bitsize( void ) override final;
+        const char* name( void ) override final;
+        const char* description( void ) override final;
+        const std::vector< Type* >& results( void ) override final;
+        const std::vector< Type* >& arguments( void ) override final;
     };
 
     struct StructureElement
@@ -206,35 +205,35 @@ namespace libcsel_ir
     class StructureType : public AggregateType
     {
       private:
-        std::vector< StructureElement > elements;
-        // Structure* value;
+        std::vector< StructureElement > m_elements;
+        // Structure* value; // PPA: link to EL instance ?!?!
 
       public:
         StructureType( std::vector< StructureElement > elements );
 
-        const u64 getSize( void ) override final;
-        const char* getName( void ) override final;
-        const char* getDescription( void ) override final;
-        const std::vector< Type* >& getResults( void ) override final;
-        const std::vector< Type* >& getArguments( void ) override final;
+        const u64 bitsize( void ) override final;
+        const char* name( void ) override final;
+        const char* description( void ) override final;
+        const std::vector< Type* >& results( void ) override final;
+        const std::vector< Type* >& arguments( void ) override final;
 
-        const std::vector< StructureElement >& getElements( void ) const;
+        const std::vector< StructureElement >& elements( void ) const;
     };
 
     class RelationType : public Type
     {
       private:
-        std::vector< Type* > arguments;
+        std::vector< Type* > m_arguments;
 
       public:
         RelationType(
             std::vector< Type* > results, std::vector< Type* > arguments );
 
-        const u64 getSize( void ) override final;
-        const char* getName( void ) override final;
-        const char* getDescription( void ) override final;
-        const std::vector< Type* >& getResults( void ) override final;
-        const std::vector< Type* >& getArguments( void ) override final;
+        const u64 bitsize( void ) override final;
+        const char* name( void ) override final;
+        const char* description( void ) override final;
+        const std::vector< Type* >& results( void ) override final;
+        const std::vector< Type* >& arguments( void ) override final;
     };
 
     class InterconnectType : public SyntheticType

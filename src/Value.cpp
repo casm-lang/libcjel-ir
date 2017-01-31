@@ -34,67 +34,61 @@
 using namespace libcsel_ir;
 
 Value::Value( const char* name, Type* type, Value::ID id )
-: name( name )
-, type( type )
-, id( id )
-, type_lock( false )
-, next( 0 )
+: m_name( name )
+, m_type( type )
+, m_id( id )
+, m_type_lock( false )
+, m_next( 0 )
 {
-    SymbolTable& symbols = *getSymbols();
-    symbols[ name ].insert( this );
-    // printf( "[Value] created '%s' @ %p", name, this );
-    // if( type )
-    // {
-    // 	printf( " of type '%s' (=0x%lx)", type->getName(), type->getID() );
-    // }
-    // printf( "\n" );
+    m_id2objs()[ m_id ].insert( this );
 }
 
 Value::~Value()
 {
-    SymbolTable& symbols = *getSymbols();
-    symbols[ name ].erase( this );
-    // printf( "[Value] deleted '%s' @ %p of type %p\n", name, this, type );
+    m_id2objs()[ m_id ].erase( this );
 }
 
-const char* Value::getName( void ) const
+const char* Value::name( void ) const
 {
-    return name;
+    return m_name;
 }
 
-Type* Value::getType( void ) const
+Type& Value::type( void ) const
 {
-    return type;
+    return *m_type;
 }
 
-void Value::setType( Type* type )
+void Value::setType( Type& type )
 {
-    assert( !type_lock );
-    type_lock = true;
+    assert( !m_type_lock );
+    m_type_lock = true;
 
-    this->type = type;
+    this->m_type = &type;
 }
 
-Value::ID Value::getValueID() const
+Value::ID Value::id() const
 {
-    return id;
+    return m_id;
 }
 
-// TODO: FIXME: PPA: maybe a better solution than this!!!
 void Value::setNext( Value* value )
 {
-    next = value;
+    m_next = value;
 }
 
-Value* Value::getNext( void ) const
+Value& Value::next( void ) const
 {
-    return next;
+    return *m_next;
 }
 
 void Value::dump( void ) const
 {
-    libstdhl::Log::info(
-        "%p: '%s' %s", this, this->getName(), this->getType()->getName() );
+    libstdhl::Log::info( "%p: '%s' [%u] %s [%u]",
+        this,
+        this->name(),
+        this->id(),
+        this->type().name(),
+        this->type().id() );
 }
 
 void Value::iterate( Traversal order,
@@ -110,7 +104,7 @@ void Value::iterate( Traversal order,
     Value& value = static_cast< Value& >( *this );
 
     if( isa< Structure >( value )
-        and ( static_cast< Structure& >( value ) ).getElements().size() == 0 )
+        and ( static_cast< Structure& >( value ) ).elements().size() == 0 )
     {
         // PPA: CHECK if this is still necessary
         return;
@@ -178,7 +172,7 @@ void Value::iterate( Traversal order,
     {
         Structure& obj = static_cast< Structure& >( value );
 
-        for( Value* p : obj.getElements() )
+        for( Value* p : obj.elements() )
         {
             p->iterate( order, visitor, cxt, action );
         }
@@ -187,7 +181,7 @@ void Value::iterate( Traversal order,
     {
         StructureConstant& obj = static_cast< StructureConstant& >( value );
 
-        for( Value* p : obj.getValue() )
+        for( Value* p : obj.value() )
         {
             p->iterate( order, visitor, cxt, action );
         }
@@ -196,12 +190,12 @@ void Value::iterate( Traversal order,
     {
         CallableUnit& obj = static_cast< CallableUnit& >( value );
 
-        for( Value* p : obj.getInParameters() )
+        for( Value* p : obj.inParameters() )
         {
             p->iterate( order, visitor, cxt, action );
         }
 
-        for( Value* p : obj.getOutParameters() )
+        for( Value* p : obj.outParameters() )
         {
             p->iterate( order, visitor, cxt, action );
         }
@@ -211,7 +205,7 @@ void Value::iterate( Traversal order,
             visitor->dispatch( Visitor::Stage::INTERLOG, value, *cxt );
         }
 
-        Value* context = obj.getContext();
+        Value* context = obj.context();
         assert( context );
 
         context->iterate( order, visitor, cxt, action );
@@ -220,10 +214,10 @@ void Value::iterate( Traversal order,
     {
         Statement& stmt = static_cast< Statement& >( value );
 
-        assert( stmt.getInstructions().size() > 0
+        assert( stmt.instructions().size() > 0
                 and " a statement must contain at least one instruction " );
 
-        for( Value* instr : stmt.getInstructions() )
+        for( Value* instr : stmt.instructions() )
         {
             assert( instr );
             instr->iterate( order, visitor, cxt, action );
@@ -233,7 +227,7 @@ void Value::iterate( Traversal order,
         {
             visitor->dispatch( Visitor::Stage::INTERLOG, value, *cxt );
 
-            for( Scope* sco : stmt.getScopes() )
+            for( Scope* sco : stmt.scopes() )
             {
                 assert( sco );
                 sco->iterate( order, visitor, cxt, action );
@@ -244,7 +238,7 @@ void Value::iterate( Traversal order,
     {
         Scope& scope = static_cast< Scope& >( value );
 
-        for( Block* block : scope.getBlocks() )
+        for( Block* block : scope.blocks() )
         {
             assert( block );
             block->iterate( order, visitor, cxt, action );

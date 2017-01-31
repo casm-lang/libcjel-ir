@@ -36,26 +36,27 @@ namespace libcsel_ir
     class Statement : public Block
     {
       private:
-        std::vector< Value* > instructions;
-        std::vector< Scope* > scopes;
+        std::vector< Value* > m_instructions;
+        std::vector< Scope* > m_scopes;
 
       public:
         Statement( const char* name, Type* type, Value* parent,
             Value::ID id = Value::STATEMENT );
 
-        const std::vector< Value* >& getInstructions( void ) const;
+        const std::vector< Value* >& instructions( void ) const;
 
         virtual const u1 isParallel( void ) const;
 
         Value* add( Value* instruction );
 
         void addScope( Scope* block );
-        const std::vector< Scope* >& getScopes( void ) const;
+
+        const std::vector< Scope* >& scopes( void ) const;
 
         template < class C >
         bool consistsOnlyOf( void )
         {
-            for( auto instr : instructions )
+            for( auto instr : instructions() )
             {
                 if( not isa< C >( instr ) )
                 {
@@ -66,12 +67,11 @@ namespace libcsel_ir
             return true;
         };
 
-        void dump( void ) const;
-
         static inline Value::ID classid( void )
         {
             return Value::STATEMENT;
-        };
+        }
+
         static bool classof( Value const* obj );
     };
 
@@ -80,12 +80,11 @@ namespace libcsel_ir
       public:
         TrivialStatement( Value* parent = 0 );
 
-        void dump( void ) const;
-
         static inline Value::ID classid( void )
         {
             return Value::TRIVIAL_STATEMENT;
-        };
+        }
+
         static bool classof( Value const* obj );
     };
 
@@ -94,12 +93,11 @@ namespace libcsel_ir
       public:
         BranchStatement( Value* parent = 0 );
 
-        void dump( void ) const;
-
         static inline Value::ID classid( void )
         {
             return Value::BRANCH_STATEMENT;
-        };
+        }
+
         static bool classof( Value const* obj );
     };
 
@@ -108,12 +106,11 @@ namespace libcsel_ir
       public:
         LoopStatement( Value* parent = 0 );
 
-        void dump( void ) const;
-
         static inline Value::ID classid( void )
         {
             return Value::LOOP_STATEMENT;
-        };
+        }
+
         static bool classof( Value const* obj );
     };
 }

@@ -49,7 +49,7 @@ Statement::Statement(
 
 const u1 Statement::isParallel( void ) const
 {
-    const Value* parent = getParent();
+    const Value* parent = this->parent();
 
     if( isa< Scope >( parent ) )
     {
@@ -66,20 +66,14 @@ const u1 Statement::isParallel( void ) const
     return false;
 }
 
-const std::vector< Value* >& Statement::getInstructions( void ) const
+const std::vector< Value* >& Statement::instructions( void ) const
 {
-    return instructions;
+    return m_instructions;
 }
 
 Value* Statement::add( Value* instruction )
 {
     assert( instruction );
-
-    // if( isa< ConstantValue >( instruction ) )
-    // {
-    // 	printf( "%s: %p --> Constant, omitted\n", __FUNCTION__, instruction );
-    // 	return;
-    // }
 
     if( isa< Instruction >( instruction ) )
     {
@@ -90,12 +84,12 @@ Value* Statement::add( Value* instruction )
         assert( 0 );
     }
 
-    if( instructions.size() > 0 )
+    if( m_instructions.size() > 0 )
     {
-        instructions.back()->setNext( instruction );
+        m_instructions.back()->setNext( instruction );
     }
 
-    instructions.push_back( instruction );
+    m_instructions.push_back( instruction );
     printf( "[Stmt] add: %p\n", instruction );
 
     return instruction;
@@ -112,113 +106,63 @@ void Statement::addScope( Scope* scope )
     }
     else if( isa< LoopStatement >( this ) )
     {
-        assert( scopes.size() < 1 );
+        assert( m_scopes.size() < 1 );
     }
 
-    scopes.push_back( scope );
+    m_scopes.push_back( scope );
 
-    if( scope->getParent() == 0 )
+    if( scope->parent() == 0 )
     {
         scope->setParent( this );
     }
 
-    assert( scope->getParent() == this && " inconsistent scope nesting! " );
+    assert( scope->parent() == this && " inconsistent scope nesting! " );
 }
 
-const std::vector< Scope* >& Statement::getScopes( void ) const
+const std::vector< Scope* >& Statement::scopes( void ) const
 {
     if( isa< TrivialStatement >( this ) )
     {
         assert( !" trivial statements do not contain inside scopes! " );
     }
 
-    return scopes;
-}
-
-void Statement::dump( void ) const
-{
-    for( auto instr : instructions )
-    {
-        ( (Value*)instr )->dump();
-    }
+    return m_scopes;
 }
 
 bool Statement::classof( Value const* obj )
 {
-    return obj->getValueID() == classid() or TrivialStatement::classof( obj )
+    return obj->id() == classid() or TrivialStatement::classof( obj )
            or BranchStatement::classof( obj ) or LoopStatement::classof( obj );
 }
 
 TrivialStatement::TrivialStatement( Value* parent )
-: Statement( ".statement", Type::getLabel(), parent, Value::TRIVIAL_STATEMENT )
+: Statement( ".statement", Type::Label(), parent, Value::TRIVIAL_STATEMENT )
 {
-}
-
-void TrivialStatement::dump( void ) const
-{
-    const Value* parent = getParent();
-
-    printf( "[Statment] %p", this );
-    if( parent )
-    {
-        printf( " @ %p", parent );
-    }
-    printf( "\n" );
-
-    ( (Statement*)this )->dump();
 }
 
 bool TrivialStatement::classof( Value const* obj )
 {
-    return obj->getValueID() == classid();
+    return obj->id() == classid();
 }
 
 BranchStatement::BranchStatement( Value* parent )
-: Statement( ".branch", Type::getLabel(), parent, Value::BRANCH_STATEMENT )
+: Statement( ".branch", Type::Label(), parent, Value::BRANCH_STATEMENT )
 {
-}
-
-void BranchStatement::dump( void ) const
-{
-    const Value* parent = getParent();
-
-    printf( "[Branch] %p", this );
-    if( parent )
-    {
-        printf( " @ %p", parent );
-    }
-    printf( "\n" );
-
-    ( (Statement*)this )->dump();
 }
 
 bool BranchStatement::classof( Value const* obj )
 {
-    return obj->getValueID() == classid();
+    return obj->id() == classid();
 }
 
 LoopStatement::LoopStatement( Value* parent )
-: Statement( ".loop", Type::getLabel(), parent, Value::LOOP_STATEMENT )
+: Statement( ".loop", Type::Label(), parent, Value::LOOP_STATEMENT )
 {
-}
-
-void LoopStatement::dump( void ) const
-{
-    const Value* parent = getParent();
-
-    printf( "[Loop] %p", this );
-    if( parent )
-    {
-        printf( " @ %p", parent );
-    }
-    printf( "\n" );
-
-    ( (Statement*)this )->dump();
 }
 
 bool LoopStatement::classof( Value const* obj )
 {
-    return obj->getValueID() == classid();
+    return obj->id() == classid();
 }
 
 //

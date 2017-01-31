@@ -37,7 +37,7 @@ namespace libcsel_ir
     class Module : public User
     {
       private:
-        std::unordered_map< u32, std::vector< Value* > > content;
+        std::unordered_map< u32, std::vector< Value* > > m_content;
 
       public:
         Module( const char* name );
@@ -46,27 +46,25 @@ namespace libcsel_ir
 
         void add( Value* value );
 
-        // const std::unordered_map< u8, std::vector< Value* > >& getContent(
-        // void ) const;
-
         template < class C >
         bool has( void ) const
         {
-            return content.count( C::classid() ) > 0;
+            return m_content.count( C::classid() ) > 0;
         }
 
         template < class C >
         const std::vector< Value* >& get( void ) const
         {
-            auto result = content.find( C::classid() );
-            assert( result != content.end() );
+            auto result = m_content.find( C::classid() );
+            assert( result != m_content.end() );
             return result->second;
         }
 
         static inline Value::ID classid( void )
         {
             return Value::MODULE;
-        };
+        }
+
         static bool classof( Value const* obj );
     };
 }

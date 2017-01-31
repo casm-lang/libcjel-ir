@@ -28,17 +28,15 @@ using namespace libcsel_ir;
 Function::Function( const char* name, Type* type )
 : CallableUnit( name, type, Value::FUNCTION )
 {
-    // ( *Value::getSymbols() )[ ".function" ].insert( this );
 }
 
 Function::~Function( void )
 {
-    // ( *Value::getSymbols() )[ ".function" ].erase( this );
 }
 
 bool Function::classof( Value const* obj )
 {
-    return obj->getValueID() == classid();
+    return obj->id() == classid();
 }
 
 //

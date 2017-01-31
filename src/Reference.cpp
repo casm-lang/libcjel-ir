@@ -28,29 +28,16 @@ using namespace libcsel_ir;
 Reference::Reference(
     const char* name, Type* type, CallableUnit* callable, Kind kind )
 : User( ".reference", type, Value::REFERENCE )
-, identifier( 0 )
-, callable( 0 )
-, kind( kind )
-, structure( 0 )
+, m_identifier( 0 )
+, m_callable( 0 )
+, m_kind( kind )
+, m_structure( 0 )
 {
     assert( name );
     assert( type );
 
-    identifier = Identifier::create( type, name, callable /* scope?!?!*/ );
-    assert( identifier );
-
-    // if( type->isBound() )
-    // {
-    //     Value* bind = type->getBound();
-    //     if( bind and libcsel_ir::isa< libcsel_ir::Structure >( bind ) )
-    //     {
-    //         structure = (Structure*)bind;
-    //     }
-    //     else if( bind and libcsel_ir::isa< libcsel_ir::Memory >( bind ) )
-    //     {
-    //         structure = ( (Memory*)bind )->getStructure();
-    //     }
-    // }
+    m_identifier = Identifier::create( type, name, callable /* scope?!?!*/ );
+    assert( m_identifier );
 
     if( callable )
     {
@@ -69,51 +56,51 @@ Reference::~Reference( void )
 {
 }
 
-const Identifier* Reference::getIdentifier( void ) const
+const Identifier* Reference::identifier( void ) const
 {
-    return identifier;
+    return m_identifier;
 }
 
-const CallableUnit* Reference::getCallableUnit( void ) const
+const CallableUnit* Reference::callableUnit( void ) const
 {
-    return callable;
+    return m_callable;
 }
 
 void Reference::setCallableUnit( CallableUnit* value )
 {
-    assert( !callable );
-    callable = value;
+    assert( !m_callable );
+    m_callable = value;
 }
 
 const u1 Reference::isInput( void ) const
 {
-    return kind == INPUT;
+    return m_kind == INPUT;
 }
 
 const u1 Reference::isOutput( void ) const
 {
-    return kind == OUTPUT;
+    return m_kind == OUTPUT;
 }
 
 const u1 Reference::isLinkage( void ) const
 {
-    return kind == LINKAGE;
+    return m_kind == LINKAGE;
 }
 
-const Structure* Reference::getStructure( void ) const
+const Structure* Reference::structure( void ) const
 {
-    assert( structure );
-    return structure;
+    assert( m_structure );
+    return m_structure;
 }
 
 const u1 Reference::isStructure( void ) const
 {
-    return structure != 0;
+    return m_structure != 0;
 }
 
 bool Reference::classof( Value const* obj )
 {
-    return obj->getValueID() == classid();
+    return obj->id() == classid();
 }
 
 //

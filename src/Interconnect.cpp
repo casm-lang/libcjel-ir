@@ -28,8 +28,8 @@
 using namespace libcsel_ir;
 
 Interconnect::Interconnect( void )
-: User( ".interconnect", Type::getInterconnect(), classid() )
-, bs_max( 0 )
+: User( ".interconnect", Type::Interconnect(), classid() )
+, m_bs_max( 0 )
 {
 }
 
@@ -40,24 +40,24 @@ Interconnect::~Interconnect( void )
 void Interconnect::add( Value* object )
 {
     assert( isa< Variable >( object ) );
-    objects.push_back( object );
+    m_objects.push_back( object );
 
-    bs_max = std::max( bs_max, object->getType()->getSize() );
+    m_bs_max = std::max( m_bs_max, object->type().bitsize() );
 }
 
-const std::vector< Value* >& Interconnect::getObjects( void ) const
+const std::vector< Value* >& Interconnect::objects( void ) const
 {
-    return objects;
+    return m_objects;
 }
 
-const u64 Interconnect::getBitsizeMax( void ) const
+const u64 Interconnect::bitsizeMax( void ) const
 {
-    return bs_max;
+    return m_bs_max;
 }
 
 bool Interconnect::classof( Value const* obj )
 {
-    return obj->getValueID() == classid();
+    return obj->id() == classid();
 }
 
 //

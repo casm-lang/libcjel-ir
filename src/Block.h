@@ -31,24 +31,24 @@ namespace libcsel_ir
     class Block : public Value
     {
       private:
-        Value* parent;
-        u1 is_parallel;
+        Value* m_parent;
+        u1 m_is_parallel;
 
       public:
         Block( const char* name, Type* type, Value* parent, u1 is_parallel,
             Value::ID id = Value::BLOCK );
 
         void setParent( Value* parent );
-        const Value* getParent( void ) const;
+
+        const Value* parent( void ) const;
 
         virtual const u1 isParallel( void ) const;
-
-        void dump( void ) const;
 
         static inline bool classid( void )
         {
             return Value::BLOCK;
         }
+
         static bool classof( Value const* obj );
     };
 }

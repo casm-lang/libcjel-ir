@@ -26,33 +26,32 @@
 using namespace libcsel_ir;
 
 Memory::Memory( Structure* structure, u32 length )
-: User( ".memory", Type::getVector( structure->getType(), length ),
-      Value::MEMORY )
-, structure( structure )
-, length( length )
+: User( ".memory", Type::Vector( &structure->type(), length ), Value::MEMORY )
+, m_structure( structure )
+, m_length( length )
 {
-    assert( length > 0 );
+    assert( m_length > 0 );
 }
 
 Memory::~Memory( void )
 {
 }
 
-const Structure& Memory::getStructure( void ) const
+const Structure& Memory::structure( void ) const
 {
-    assert( structure );
+    assert( m_structure );
 
-    return *structure;
+    return *m_structure;
 }
 
-const u32 Memory::getLength( void ) const
+const u32 Memory::length( void ) const
 {
-    return length;
+    return m_length;
 }
 
 bool Memory::classof( Value const* obj )
 {
-    return obj->getValueID() == classid();
+    return obj->id() == classid();
 }
 
 //

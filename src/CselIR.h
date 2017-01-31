@@ -93,6 +93,16 @@ namespace libcsel_ir
         assert( isa< TO >( value ) );
         return static_cast< const TO& >( value );
     }
+
+    //
+    // object creation utility
+    //
+
+    template < typename T, typename... Args >
+    typename T::Ptr make( Args&&... args )
+    {
+        return std::make_shared< T >( std::forward< Args >( args )... );
+    }
 }
 
 #endif /* _LIB_CSELIR_CSELIR_H_ */

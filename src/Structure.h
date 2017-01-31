@@ -35,36 +35,38 @@ namespace libcsel_ir
     class Structure : public User
     {
       private:
-        Identifier* identifier;
-        std::vector< Structure* > element;
-        Structure* parent;
+        Identifier* m_identifier;
+        std::vector< Structure* > m_element;
+        Structure* m_parent;
 
       public:
         Structure( const char* name, Type* type = 0, Structure* parent = 0 );
 
         ~Structure( void );
 
-        const Identifier* getIdentifier( void ) const;
+        const Identifier* identifier( void ) const;
 
         void add( Value* value );
 
-        Value* get( u16 index ) const;
-        const std::vector< Structure* >& getElements( void ) const;
+        Value* at( u16 index ) const;
+
+        const std::vector< Structure* >& elements( void ) const;
 
         void setParent( Structure* value );
-        Structure* getParent( void ) const;
+        Structure* parent( void ) const;
 
         static inline Value::ID classid( void )
         {
             return Value::STRUCTURE;
-        };
+        }
+
         static bool classof( Value const* obj );
 
         size_t hash( void ) const
         {
-            assert( identifier );
+            assert( m_identifier );
             return std::hash< std::string >()(
-                std::string( identifier->getName() ) );
+                std::string( m_identifier->name() ) );
         }
     };
 }

@@ -40,12 +40,13 @@ namespace libcsel_ir
         static inline Value::ID classid( void )
         {
             return Value::INTRINSIC;
-        };
+        }
+
         static bool classof( Value const* obj );
 
         virtual const char* label( void ) override final
         {
-            return getName();
+            return name();
         }
     };
 }

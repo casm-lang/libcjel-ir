@@ -34,26 +34,28 @@ namespace libcsel_ir
     class Variable : public User
     {
       private:
-        static u64 allocation_cnt;
-        BitConstant* allocation_id;
+        static u64 m_allocation_cnt;
+        BitConstant* m_allocation_id;
 
-        Value* expression;
-        const char* ident;
+        Value* m_expression;
+        const char* m_ident;
 
       public:
         Variable( Type* type, Value* expression, const char* ident = 0 );
 
         ~Variable( void );
 
-        BitConstant* getAllocationID( void );
+        BitConstant* allocId( void );
 
-        Value* getExpression( void ) const;
-        const char* getIdent( void ) const;
+        Value* expression( void ) const;
+
+        const char* ident( void ) const;
 
         static inline ID classid( void )
         {
             return Value::VARIABLE;
-        };
+        }
+
         static bool classof( Value const* obj );
     };
 }

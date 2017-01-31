@@ -29,36 +29,30 @@ using namespace libcsel_ir;
 Block::Block(
     const char* name, Type* type, Value* parent, u1 is_parallel, Value::ID id )
 : Value( name, type, id )
-, parent( parent )
-, is_parallel( is_parallel )
+, m_parent( parent )
+, m_is_parallel( is_parallel )
 {
 }
 
 void Block::setParent( Value* parent )
 {
-    assert( parent );
-    this->parent = parent;
+    assert( m_parent );
+    m_parent = parent;
 }
 
-const Value* Block::getParent( void ) const
+const Value* Block::parent( void ) const
 {
-    return parent;
+    return m_parent;
 }
 
 const u1 Block::isParallel( void ) const
 {
-    return is_parallel;
-}
-
-void Block::dump( void ) const
-{
-    // printf( "[Block] %p\n", this );
-    ( (Value*)this )->dump();
+    return m_is_parallel;
 }
 
 bool Block::classof( Value const* obj )
 {
-    return obj->getValueID() == classid() or Scope::classof( obj )
+    return obj->id() == classid() or Scope::classof( obj )
            or Statement::classof( obj );
 }
 

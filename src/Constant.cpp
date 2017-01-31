@@ -30,60 +30,60 @@ using namespace libcsel_ir;
 
 bool Constant::classof( Value const* obj )
 {
-    return obj->getValueID() == classid() or BitConstant::classof( obj )
+    return obj->id() == classid() or BitConstant::classof( obj )
            or StringConstant::classof( obj )
            or StructureConstant::classof( obj ) or Identifier::classof( obj );
 }
 
-Value* Constant::getBit( Type* result, u64 value )
+Value* Constant::Bit( Type* result, u64 value )
 {
     BitConstant tmp = BitConstant( result, value );
 
-    auto cache = str2obj().find( tmp.getDescription() );
-    if( cache != str2obj().end() )
+    auto cache = m_str2obj().find( tmp.description() );
+    if( cache != m_str2obj().end() )
     {
         return cache->second;
     }
 
     Value* ptr = new BitConstant( tmp );
-    return str2obj().emplace( tmp.getDescription(), ptr ).first->second;
+    return m_str2obj().emplace( tmp.description(), ptr ).first->second;
 }
 
-Value* Constant::getString( const char* value )
+Value* Constant::String( const char* value )
 {
     StringConstant tmp = StringConstant( value );
 
-    auto cache = str2obj().find( tmp.getDescription() );
-    if( cache != str2obj().end() )
+    auto cache = m_str2obj().find( tmp.description() );
+    if( cache != m_str2obj().end() )
     {
         return cache->second;
     }
 
     Value* ptr = new StringConstant( tmp );
-    return str2obj().emplace( tmp.getDescription(), ptr ).first->second;
+    return m_str2obj().emplace( tmp.description(), ptr ).first->second;
 }
 
-Value* Constant::getStructure( Type* result, std::vector< Value* > values )
+Value* Constant::Structure( Type* result, std::vector< Value* > values )
 {
     StructureConstant tmp = StructureConstant( result, values );
 
-    auto cache = str2obj().find( tmp.getDescription() );
-    if( cache != str2obj().end() )
+    auto cache = m_str2obj().find( tmp.description() );
+    if( cache != m_str2obj().end() )
     {
         return cache->second;
     }
 
     Value* ptr = new StructureConstant( tmp );
-    return str2obj().emplace( tmp.getDescription(), ptr ).first->second;
+    return m_str2obj().emplace( tmp.description(), ptr ).first->second;
 }
 
-Value* Constant::getStructureZero( Type& result )
+Value* Constant::StructureZero( Type& result )
 {
     std::vector< Value* > values
-        = { libcsel_ir::Constant::getBit( result.getResults()[ 0 ], 0 ),
-            libcsel_ir::Constant::getBit( result.getResults()[ 1 ], 0 ) };
+        = { libcsel_ir::Constant::Bit( result.results()[ 0 ], 0 ),
+            libcsel_ir::Constant::Bit( result.results()[ 1 ], 0 ) };
 
-    return getStructure( &result, values );
+    return Structure( &result, values );
 }
 
 //
@@ -91,7 +91,7 @@ Value* Constant::getStructureZero( Type& result )
 //
 
 BitConstant::BitConstant( Type* result, u64 value )
-: ConstantOf< Type::Bit >(
+: ConstantOf< Type::BitTy >(
       libstdhl::Allocator::string( std::to_string( value ) ), result, value,
       Value::BIT_CONSTANT )
 {
@@ -99,45 +99,45 @@ BitConstant::BitConstant( Type* result, u64 value )
 
 bool BitConstant::classof( Value const* obj )
 {
-    return obj->getValueID() == classid();
+    return obj->id() == classid();
 }
 
-StringConstant::StringConstant( Type::String value )
-: ConstantOf< Type::String >( libstdhl::Allocator::string( value ),
-      Type::getString(), value, Value::STRING_CONSTANT )
+StringConstant::StringConstant( Type::StringTy value )
+: ConstantOf< Type::StringTy >( libstdhl::Allocator::string( value ),
+      Type::String(), value, Value::STRING_CONSTANT )
 {
 }
 
 StringConstant::StringConstant( const char* value )
-: StringConstant( ( Type::String )( value ) )
+: StringConstant( ( Type::StringTy )( value ) )
 {
 }
 
 bool StringConstant::classof( Value const* obj )
 {
-    return obj->getValueID() == classid();
+    return obj->id() == classid();
 }
 
-StructureConstant::StructureConstant( Type* type, Type::Struct value )
-: ConstantOf< Type::Struct >(
+StructureConstant::StructureConstant( Type* type, Type::StructTy value )
+: ConstantOf< Type::StructTy >(
       ".const_struct", type, value, Value::STRUCTURE_CONSTANT )
 {
     assert( type );
     assert( type->isStructure() );
-    assert( type->getArguments().size() == 0 );
-    assert( type->getResults().size() == value.size() );
+    assert( type->arguments().size() == 0 );
+    assert( type->results().size() == value.size() );
 
     for( u32 i = 0; i < value.size(); i++ )
     {
-        assert( strcmp( type->getResults()[ i ]->getName(),
-                    value[ i ]->getType()->getName() )
-                == 0 );
+        assert(
+            strcmp( type->results()[ i ]->name(), value[ i ]->type().name() )
+            == 0 );
     }
 }
 
 bool StructureConstant::classof( Value const* obj )
 {
-    return obj->getValueID() == classid();
+    return obj->id() == classid();
 }
 
 Identifier::Identifier( Type* type, const char* value )
@@ -165,7 +165,7 @@ Identifier* Identifier::create( Type* type, const char* value, Value* scope )
     if( cache != ident2obj().end() )
     {
         Value* v = cache->second;
-        assert( strcmp( v->getType()->getName(), type->getName() ) == 0 );
+        assert( strcmp( v->type().name(), type->name() ) == 0 );
         return cache->second;
     }
 
@@ -181,7 +181,7 @@ void Identifier::forgetSymbol( const char* value )
 
 bool Identifier::classof( Value const* obj )
 {
-    return obj->getValueID() == classid();
+    return obj->id() == classid();
 }
 
 //

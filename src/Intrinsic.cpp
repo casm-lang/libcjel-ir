@@ -28,17 +28,15 @@ using namespace libcsel_ir;
 Intrinsic::Intrinsic( const char* name, Type* result )
 : CallableUnit( name, result, Value::INTRINSIC )
 {
-    ( *Value::getSymbols() )[ ".intrinsic" ].insert( this );
 }
 
 Intrinsic::~Intrinsic( void )
 {
-    ( *Value::getSymbols() )[ ".intrinsic" ].erase( this );
 }
 
 bool Intrinsic::classof( Value const* obj )
 {
-    return obj->getValueID() == classid();
+    return obj->id() == classid();
 }
 
 //

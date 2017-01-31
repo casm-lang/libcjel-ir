@@ -49,7 +49,7 @@ using namespace libcsel_ir;
 
 void Visitor::dispatch( Stage stage, Value& value, Context& cxt )
 {
-    switch( value.getValueID() )
+    switch( value.id() )
     {
         CASE_VALUE( MODULE, Module );
 
@@ -109,7 +109,7 @@ void Visitor::dispatch( Stage stage, Value& value, Context& cxt )
             printf(
                 "%s:%i: warning: unimplemented value ID '%s' to dispatch for "
                 "stage '%i' and context '%p'\n",
-                __FILE__, __LINE__, value.getName(), stage, &cxt );
+                __FILE__, __LINE__, value.name(), stage, &cxt );
             break;
     }
 }

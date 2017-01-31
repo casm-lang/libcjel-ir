@@ -33,7 +33,7 @@ namespace libcsel_ir
     class Constant : public User
     {
       private:
-        static std::unordered_map< std::string, Value* >& str2obj( void )
+        static std::unordered_map< std::string, Value* >& m_str2obj( void )
         {
             static std::unordered_map< std::string, Value* > cache;
             return cache;
@@ -46,7 +46,8 @@ namespace libcsel_ir
         static inline Value::ID classid( void )
         {
             return Value::CONSTANT;
-        };
+        }
+
         static bool classof( Value const* obj );
 
         virtual const char* labelName( void ) override final
@@ -62,42 +63,41 @@ namespace libcsel_ir
 
         static inline Value* TRUE( void )
         {
-            return getBit( Type::getBit( 1 ), 1 );
+            return Bit( Type::Bit( 1 ), 1 );
         }
 
         static inline Value* FALSE( void )
         {
-            return getBit( Type::getBit( 1 ), 0 );
+            return Bit( Type::Bit( 1 ), 0 );
         }
 
         static inline Value* NIL( void )
         {
-            return getBit( Type::getTypeID(), 0 );
+            return Bit( Type::TypeID(), 0 );
         }
 
-        static Value* getBit( Type* result, u64 value );
+        static Value* Bit( Type* result, u64 value );
 
-        static Value* getString( const char* value );
+        static Value* String( const char* value );
 
-        static Value* getStructure(
-            Type* result, std::vector< Value* > values );
+        static Value* Structure( Type* result, std::vector< Value* > values );
 
-        static Value* getStructureZero( Type& result );
+        static Value* StructureZero( Type& result );
     };
 
     template < typename V >
     class ConstantOf : public Constant
     {
       private:
-        V value;
-        const char* description;
+        V m_value;
+        const char* m_description;
 
       protected:
         ConstantOf( const char* name, Type* type, V value,
             Value::ID id = Value::CONSTANT )
         : Constant( name, type, id )
-        , value( value )
-        , description( 0 )
+        , m_value( value )
+        , m_description( 0 )
         {
         }
 
@@ -106,24 +106,24 @@ namespace libcsel_ir
         {
         }
 
-        const V getValue( void ) const
+        const V value( void ) const
         {
-            return value;
+            return m_value;
         }
 
-        const char* getDescription( void )
+        const char* description( void )
         {
-            if( not description )
+            if( not m_description )
             {
                 std::string tmp = "";
-                tmp += getType()->getName();
+                tmp += type().name();
                 tmp += " ";
-                tmp += getName();
+                tmp += name();
 
-                description = libstdhl::Allocator::string( tmp );
+                m_description = libstdhl::Allocator::string( tmp );
             }
 
-            return description;
+            return m_description;
         }
 
         static inline Value::ID classid( void )
@@ -137,31 +137,29 @@ namespace libcsel_ir
         }
 
       protected:
-        void setValue( V val )
+        void setValue( V value )
         {
-            value = val;
+            m_value = value;
         }
     };
 
-    class BitConstant : public ConstantOf< Type::Bit >
+    class BitConstant : public ConstantOf< Type::BitTy >
     {
-      private:
-        u64 value[ 1 ];
-
       public:
         BitConstant( Type* result, u64 value );
 
         static inline Value::ID classid( void )
         {
             return Value::BIT_CONSTANT;
-        };
+        }
+
         static bool classof( Value const* obj );
     };
 
-    class StringConstant : public ConstantOf< Type::String >
+    class StringConstant : public ConstantOf< Type::StringTy >
     {
       public:
-        StringConstant( Type::String value );
+        StringConstant( Type::StringTy value );
         StringConstant( const char* value );
 
         static inline Value::ID classid( void )
@@ -171,12 +169,11 @@ namespace libcsel_ir
         static bool classof( Value const* obj );
     };
 
-    class StructureConstant : public ConstantOf< Type::Struct >
+    class StructureConstant : public ConstantOf< Type::StructTy >
     {
       public:
-        StructureConstant( Type* type, std::vector< Value* > value );
-
-        // const std::vector< Value* >& getElements( void ) const;
+        StructureConstant( Type* type,
+            std::vector< Value* > value ); // PPA: optimize here with const <>&
 
         static inline Value::ID classid( void )
         {

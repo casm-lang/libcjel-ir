@@ -49,11 +49,11 @@ static const char* indention( Value& value )
     {
         if( isa< Block >( p ) )
         {
-            p = (Value*)( (Block*)p )->getParent();
+            p = (Value*)( (Block*)p )->parent();
         }
         else if( isa< Instruction >( p ) )
         {
-            p = (Value*)( (Instruction*)p )->getStatement();
+            p = (Value*)( (Instruction*)p )->statement();
         }
         else
         {
@@ -75,13 +75,13 @@ static const char* indention( Value& value )
 
 #define DUMP_PREFIX                                                            \
     printf( "%-14s: %p, %s, %s%s ", __FUNCTION__, &value, value.label(),       \
-        indention( value ), value.getName() )
+        indention( value ), value.name() )
 #define DUMP_POSTFIX printf( "\n" );
 
 #define DUMP_INSTR                                                             \
-    for( auto v : value.getValues() )                                          \
+    for( auto v : value.values() )                                             \
     {                                                                          \
-        printf( ", %s (%s)", v->label(), v->getType()->getName() );            \
+        printf( ", %s (%s)", v->label(), v->type().name() );                   \
     }
 
 void CselIRDumpPass::visit_prolog( Module& value, Context& )
@@ -120,8 +120,8 @@ void CselIRDumpPass::visit_epilog( Intrinsic& value, Context& )
 void CselIRDumpPass::visit_prolog( Reference& value, Context& )
 {
     DUMP_PREFIX;
-    printf( "%s, %s", value.getIdentifier()->getName(),
-        value.isInput() ? "in" : "out" );
+    printf(
+        "%s, %s", value.identifier()->name(), value.isInput() ? "in" : "out" );
     DUMP_POSTFIX;
 }
 void CselIRDumpPass::visit_epilog( Reference& value, Context& )

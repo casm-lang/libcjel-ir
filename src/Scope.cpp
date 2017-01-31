@@ -45,66 +45,39 @@ void Scope::add( Value* element )
     // 	((Scope*)element)->setParent( this );
     // }
 
-    block.push_back( (Block*)element );
+    m_blocks.push_back( (Block*)element );
 }
 
-const std::vector< Block* >& Scope::getBlocks( void ) const
+const std::vector< Block* >& Scope::blocks( void ) const
 {
-    return block;
-}
-
-void Scope::dump( void ) const
-{
-    printf(
-        "[%sScope] %p, %p\n", isParallel() ? "Par" : "Seq", this, getParent() );
-
-    for( Block* blk : getBlocks() )
-    {
-        assert( blk );
-        blk->dump();
-        // assert(0);
-    }
+    return m_blocks;
 }
 
 bool Scope::classof( Value const* obj )
 {
-    return obj->getValueID() == classid() or SequentialScope::classof( obj )
+    return obj->id() == classid() or SequentialScope::classof( obj )
            or ParallelScope::classof( obj );
 }
 
 SequentialScope::SequentialScope( Value* parent )
-: Scope( ".seq", Type::getLabel(), parent, false, Value::ID::SEQUENTIAL_SCOPE )
+: Scope( "seq", Type::Label(), parent, false, Value::ID::SEQUENTIAL_SCOPE )
 {
-}
-
-void SequentialScope::dump( void ) const
-{
-    ( (Scope*)this )->dump();
 }
 
 bool SequentialScope::classof( Value const* obj )
 {
-    return obj->getValueID() == classid()
-        // or ???::classof( obj )
-        ;
+    return obj->id() == classid();
 }
 
 ParallelScope::ParallelScope( Value* parent )
-: Scope( ".par", Type::getLabel(), parent, false, Value::ID::PARALLEL_SCOPE )
+: Scope( "par", Type::Label(), parent, false, Value::ID::PARALLEL_SCOPE )
 {
-}
-
-void ParallelScope::dump( void ) const
-{
-    ( (Scope*)this )->dump();
 }
 
 bool ParallelScope::classof( Value const* obj )
 {
 
-    return obj->getValueID() == classid()
-        // or ???::classof( obj )
-        ;
+    return obj->id() == classid();
 }
 
 //

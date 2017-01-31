@@ -43,10 +43,10 @@ namespace libcsel_ir
         };
 
       private:
-        Identifier* identifier;
-        CallableUnit* callable;
-        Kind kind;
-        Structure* structure;
+        Identifier* m_identifier;
+        CallableUnit* m_callable;
+        Kind m_kind;
+        Structure* m_structure;
 
       public:
         Reference( const char* name, Type* type, CallableUnit* callable = 0,
@@ -54,22 +54,24 @@ namespace libcsel_ir
 
         ~Reference( void );
 
-        const Identifier* getIdentifier( void ) const;
+        const Identifier* identifier( void ) const;
 
-        const CallableUnit* getCallableUnit( void ) const;
+        const CallableUnit* callableUnit( void ) const;
+
         void setCallableUnit( CallableUnit* value );
 
         const u1 isInput( void ) const;
         const u1 isOutput( void ) const;
         const u1 isLinkage( void ) const;
 
-        const Structure* getStructure( void ) const;
+        const Structure* structure( void ) const;
         const u1 isStructure( void ) const;
 
         static inline Value::ID classid( void )
         {
             return Value::REFERENCE;
-        };
+        }
+
         static bool classof( Value const* obj );
 
         virtual const char* labelName( void ) override final

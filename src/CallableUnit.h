@@ -36,18 +36,18 @@ namespace libcsel_ir
     class CallableUnit : public User
     {
       private:
-        static u64 allocation_cnt;
-        BitConstant* allocation_id;
+        static u64 m_allocation_cnt;
+        BitConstant* m_allocation_id;
 
-        Block* context;
-        Identifier* identifier;
+        Block* m_context;
+        Identifier* m_identifier;
 
-        std::vector< Value* > parameter_in;
-        std::vector< Value* > parameter_out;
-        std::vector< Value* > linkage;
+        std::vector< Value* > m_parameter_in;
+        std::vector< Value* > m_parameter_out;
+        std::vector< Value* > m_linkage;
 
-        std::unordered_map< Value*, u16 > parameter2index;
-        std::unordered_map< const char*, Value* > name2ref;
+        std::unordered_map< Value*, u16 > m_parameter2index;
+        std::unordered_map< const char*, Value* > m_name2ref;
 
       public:
         CallableUnit(
@@ -55,12 +55,13 @@ namespace libcsel_ir
 
         ~CallableUnit( void );
 
-        BitConstant* getAllocationID( void );
+        BitConstant* allocId( void );
 
-        Block* getContext( void ) const;
+        Block* context( void ) const;
+
         void setContext( Block* scope );
 
-        const Identifier* getIdentifier( void ) const;
+        const Identifier* identifier( void ) const;
 
       private:
         Reference* add( const char* ref_name, Type* ref_type, u8 ref_kind );
@@ -73,21 +74,22 @@ namespace libcsel_ir
         void addParameter( Value* value, u1 input = true );
         void addLinkage( Value* value );
 
-        const std::vector< Value* >& getInParameters( void ) const;
-        const std::vector< Value* >& getOutParameters( void ) const;
+        const std::vector< Value* >& inParameters( void ) const;
+        const std::vector< Value* >& outParameters( void ) const;
 
-        const i16 getIndexOfParameter( Value* value ) const;
+        const i16 indexOfParameter( Value* value ) const;
         const u1 isLastParameter( Value* value ) const;
-        const i16 getParameterLength( void ) const;
+        const i16 parameterLength( void ) const;
 
-        const std::vector< Value* >& getLinkage( void ) const;
+        const std::vector< Value* >& linkage( void ) const;
 
-        const Reference* getReference( const char* name ) const;
+        const Reference* reference( const char* name ) const;
 
         static inline Value::ID classid( void )
         {
             return Value::CALLABLE_UNIT;
-        };
+        }
+
         static bool classof( Value const* obj );
     };
 }

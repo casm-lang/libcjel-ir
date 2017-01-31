@@ -29,12 +29,12 @@ using namespace libcsel_ir;
 
 TEST( libcsel_ir__Type_getBit, size_less_one_is_invalid )
 {
-    EXPECT_EXIT( Type::getBit( 0 ), ::testing::KilledBySignal( SIGABRT ), "" );
+    EXPECT_EXIT( Type::Bit( 0 ), ::testing::KilledBySignal( SIGABRT ), "" );
 }
 
 TEST( libcsel_ir__Type_getBit, size_greater_SizeMax_is_invalid )
 {
-    EXPECT_EXIT( Type::getBit( BitType::SizeMax + 1 ),
+    EXPECT_EXIT( Type::Bit( BitType::SizeMax + 1 ),
         ::testing::KilledBySignal( SIGABRT ), "" );
 }
 
@@ -42,6 +42,6 @@ TEST( libcsel_ir__Type_getBit, from_one_to_SizeMax )
 {
     for( u16 c = 1; c <= BitType::SizeMax; c++ )
     {
-        Type::getBit( c );
+        Type::Bit( c );
     }
 }

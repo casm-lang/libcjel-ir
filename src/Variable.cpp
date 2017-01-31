@@ -25,46 +25,46 @@
 
 using namespace libcsel_ir;
 
-u64 Variable::allocation_cnt = 0;
+u64 Variable::m_allocation_cnt = 0;
 
 Variable::Variable( Type* type, Value* expression, const char* ident )
 : User( ".variable", type, Value::VARIABLE )
-, allocation_id( 0 )
-, expression( expression )
-, ident( ident )
+, m_allocation_id( 0 )
+, m_expression( expression )
+, m_ident( ident )
 {
     assert( type );
     assert( expression && isa< Constant >( expression ) );
 
-    allocation_id = cast< BitConstant >(
-        Constant::getBit( Type::getTypeID(), allocation_cnt ) );
-    allocation_cnt++;
-    assert( allocation_id );
+    m_allocation_id = cast< BitConstant >(
+        Constant::Bit( Type::TypeID(), m_allocation_cnt ) );
+    m_allocation_cnt++;
+    assert( m_allocation_id );
 }
 
 Variable::~Variable( void )
 {
 }
 
-BitConstant* Variable::getAllocationID( void )
+BitConstant* Variable::allocId( void )
 {
-    assert( allocation_id );
-    return allocation_id;
+    assert( m_allocation_id );
+    return m_allocation_id;
 }
 
-Value* Variable::getExpression( void ) const
+Value* Variable::expression( void ) const
 {
-    return expression;
+    return m_expression;
 }
 
-const char* Variable::getIdent( void ) const
+const char* Variable::ident( void ) const
 {
-    return ident;
+    return m_ident;
 }
 
 bool Variable::classof( Value const* obj )
 {
-    return obj->getValueID() == classid();
+    return obj->id() == classid();
 }
 
 //

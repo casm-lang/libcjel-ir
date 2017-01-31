@@ -142,60 +142,51 @@ namespace libcsel_ir
             TRUNC_INSTRUCTION
         };
 
-        typedef std::unordered_map< const char*, std::unordered_set< Value* >,
-            libstdhl::Hash, libstdhl::Equal >
-            SymbolTable;
-
-        static SymbolTable* getSymbols( void )
-        {
-            static SymbolTable symbols;
-            return &symbols;
-        }
-
-      private:
-        const char* name;
-        Type* type;
-        ID id;
-        u1 type_lock;
-
-        std::unordered_map< u32, Value* > references;
-
-        Value* next;
-
       protected:
-        static std::unordered_map< u8, std::unordered_set< Value* > >& id2objs(
-            void )
+        static std::unordered_map< u8, std::unordered_set< Value* > >&
+        m_id2objs( void )
         {
             static std::unordered_map< u8, std::unordered_set< Value* > > cache;
             return cache;
         }
+
+      private:
+        const char* m_name;
+        Type* m_type;
+        ID m_id;
+        u1 m_type_lock;
+
+        std::unordered_map< u32, Value* > m_references;
+
+        Value* m_next;
 
       public:
         Value( const char* name, Type* type, ID id );
 
         ~Value();
 
-        const char* getName( void ) const;
+        const char* name( void ) const;
 
-        Type* getType( void ) const;
+        Type& type( void ) const;
 
       protected:
-        void setType( Type* type );
+        void setType( Type& type );
 
       public:
-        ID getValueID() const;
+        ID id() const;
 
         void dump( void ) const;
 
         void setNext( Value* value );
-        Value* getNext( void ) const;
+
+        Value& next( void ) const;
 
         inline u1 operator==( const Value& rhs )
         {
             if( this != &rhs )
             {
-                if( *this->getType() != *rhs.getType()
-                    or strcmp( this->getName(), ( (Value&)rhs ).getName() ) )
+                if( this->type() != rhs.type()
+                    or strcmp( this->name(), ( (Value&)rhs ).name() ) )
                 {
                     return false;
                 }
@@ -208,10 +199,10 @@ namespace libcsel_ir
         }
 
         template < class C >
-        C* getRef( void )
+        C* ref( void )
         {
-            auto result = references.find( C::classid() );
-            if( result != references.end() )
+            auto result = m_references.find( C::classid() );
+            if( result != m_references.end() )
             {
                 assert( isa< C >( result->second ) );
                 return (C*)result->second;
@@ -225,14 +216,14 @@ namespace libcsel_ir
         {
             // printf( "[[[ %p ]]]: classID/referenceCNT = %u %u\n"
             //, reference, C::classid(), references.count( C::classid() ) );
-            assert( references.count( C::classid() ) == 0 );
-            references[ C::classid() ] = reference;
+            assert( m_references.count( C::classid() ) == 0 );
+            m_references[ C::classid() ] = reference;
         }
 
         static inline ID classid( void )
         {
             return Value::VALUE;
-        };
+        }
 
         static inline bool classof( Value const* )
         {

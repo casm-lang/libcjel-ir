@@ -31,7 +31,7 @@ namespace libcsel_ir
 {
     class Scope : public Block
     {
-        std::vector< Block* > block;
+        std::vector< Block* > m_blocks;
 
       public:
         Scope( const char* name, Type* type, Value* parent, u1 is_parallel,
@@ -39,14 +39,13 @@ namespace libcsel_ir
 
         void add( Value* element );
 
-        const std::vector< Block* >& getBlocks( void ) const;
-
-        void dump( void ) const;
+        const std::vector< Block* >& blocks( void ) const;
 
         static inline Value::ID classid( void )
         {
             return Value::SCOPE;
-        };
+        }
+
         static bool classof( Value const* obj );
     };
 
@@ -55,12 +54,11 @@ namespace libcsel_ir
       public:
         SequentialScope( Value* parent = 0 );
 
-        void dump( void ) const;
-
         static inline Value::ID classid( void )
         {
             return Value::SEQUENTIAL_SCOPE;
-        };
+        }
+
         static bool classof( Value const* obj );
     };
 
@@ -69,12 +67,11 @@ namespace libcsel_ir
       public:
         ParallelScope( Value* parent = 0 );
 
-        void dump( void ) const;
-
         static inline Value::ID classid( void )
         {
             return Value::PARALLEL_SCOPE;
-        };
+        }
+
         static bool classof( Value const* obj );
     };
 }

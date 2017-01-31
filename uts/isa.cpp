@@ -29,7 +29,7 @@ using namespace libcsel_ir;
 
 TEST( libcsel_ir__isa, AllocInstruction )
 {
-    AllocInstruction x( Type::getBit( 1 ) );
+    AllocInstruction x( Type::Bit( 1 ) );
 
     ASSERT_TRUE( isa< AllocInstruction >( x ) );
 }

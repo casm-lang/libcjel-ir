@@ -27,8 +27,8 @@ using namespace libcsel_ir;
 
 Structure::Structure( const char* name, Type* type, Structure* parent )
 : User( name, type, Value::STRUCTURE )
-, identifier( 0 )
-, parent( parent )
+, m_identifier( 0 )
+, m_parent( parent )
 {
     assert( name );
 
@@ -40,25 +40,22 @@ Structure::Structure( const char* name, Type* type, Structure* parent )
     //     setType( ty );
     // }
 
-    identifier = Identifier::create( getType(), name, parent );
-    assert( identifier );
+    m_identifier = Identifier::create( type, name, parent );
+    assert( m_identifier );
 
-    if( parent )
+    if( m_parent )
     {
-        parent->add( this );
+        m_parent->add( this );
     }
-
-    ( *Value::getSymbols() )[ ".structure" ].insert( this );
 }
 
 Structure::~Structure( void )
 {
-    ( *Value::getSymbols() )[ ".structure" ].erase( this );
 }
 
-const Identifier* Structure::getIdentifier( void ) const
+const Identifier* Structure::identifier( void ) const
 {
-    return identifier;
+    return m_identifier;
 }
 
 void Structure::add( Value* value )
@@ -68,39 +65,39 @@ void Structure::add( Value* value )
     Structure* s = (Structure*)value;
     // s->setParent( this );
 
-    element.push_back( s );
+    m_element.push_back( s );
 
     // getType()->addSubType( value->getType() );
 
-    assert( s->getParent() == this );
+    assert( s->parent() == this );
 }
 
-Value* Structure::get( u16 index ) const
+Value* Structure::at( u16 index ) const
 {
-    assert( index < element.size() );
+    assert( index < m_element.size() );
 
-    return element[ index ];
+    return m_element[ index ];
 }
 
-const std::vector< Structure* >& Structure::getElements( void ) const
+const std::vector< Structure* >& Structure::elements( void ) const
 {
-    return element;
+    return m_element;
 }
 
 void Structure::setParent( Structure* value )
 {
-    assert( !parent );
-    parent = value;
+    assert( !m_parent );
+    m_parent = value;
 }
 
-Structure* Structure::getParent( void ) const
+Structure* Structure::parent( void ) const
 {
-    return parent;
+    return m_parent;
 }
 
 bool Structure::classof( Value const* obj )
 {
-    return obj->getValueID() == classid();
+    return obj->id() == classid();
 }
 
 //
