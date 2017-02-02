@@ -26,6 +26,8 @@
 
 #include "User.h"
 
+#include "../stdhl/cpp/Allocator.h"
+
 namespace libcsel_ir
 {
     class Structure;
@@ -173,7 +175,8 @@ namespace libcsel_ir
     {
       public:
         StructureConstant( Type* type,
-            std::vector< Value* > value ); // PPA: optimize here with const <>&
+            std::vector< Value* >
+                value ); // PPA: optimize here with const <>&
 
         static inline Value::ID classid( void )
         {
