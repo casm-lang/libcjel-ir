@@ -151,6 +151,7 @@ namespace libcsel_ir
         }
 
       private:
+        const char* m_hash;
         const char* m_name;
         Type* m_type;
         ID m_id;
@@ -166,6 +167,8 @@ namespace libcsel_ir
         ~Value();
 
         const char* name( void ) const;
+        
+        void setName( std::string& name );
 
         Type& type( void ) const;
 
@@ -179,6 +182,8 @@ namespace libcsel_ir
 
         void dump( void ) const;
 
+        const char* make_hash( void );
+        
         void setNext( Value* value );
 
         Value& next( void ) const;

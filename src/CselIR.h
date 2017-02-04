@@ -31,6 +31,14 @@ namespace libcsel_ir
 {
     class CselIR
     {
+      public:
+        using Ptr = std::shared_ptr< CselIR >;
+
+        std::unordered_map< std::string, Ptr >& make_cache( void )
+        {
+            static std::unordered_map< std::string, Ptr > cache;
+            return cache;
+        }
     };
 
     class Value;

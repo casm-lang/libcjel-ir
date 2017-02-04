@@ -33,12 +33,29 @@ Type::Type(
 , m_description( description )
 , m_bitsize( bitsize )
 , m_id( id )
+, m_hash( 0 )
 {
 }
 
 const Type::ID Type::id( void ) const
 {
     return m_id;
+}
+
+const char* Type::make_hash( void )
+{
+    if( not m_hash )
+    {
+        std::string tmp;
+        tmp += "t:";
+        tmp += std::to_string( id() );
+        tmp += ":";
+        tmp += name();
+
+        m_hash = libstdhl::Allocator::string( tmp );
+    }
+
+    return m_hash;
 }
 
 u1 Type::isLabel( void ) const

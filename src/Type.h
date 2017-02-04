@@ -69,12 +69,15 @@ namespace libcsel_ir
 
       private:
         ID m_id;
+        const char* m_hash;
 
       public:
         Type( const char* name, const char* description, u64 bitsize, ID id );
         ~Type() = default;
 
         const ID id( void ) const;
+
+        const char* make_hash( void );
 
         virtual const u64 bitsize( void ) = 0;
         virtual const char* name( void ) = 0;
@@ -157,18 +160,24 @@ namespace libcsel_ir
     class LabelType : public PrimitiveType
     {
       public:
+        using Ptr = std::shared_ptr< LabelType >;
+        
         LabelType();
     };
 
     class VoidType : public PrimitiveType
     {
       public:
+        using Ptr = std::shared_ptr< VoidType >;
+
         VoidType();
     };
 
     class BitType : public PrimitiveType
     {
       public:
+        using Ptr = std::shared_ptr< BitType >;
+
         static const u16 SizeMax = 512;
 
         BitType( u16 bitsize );
@@ -177,12 +186,16 @@ namespace libcsel_ir
     class StringType : public PrimitiveType
     {
       public:
+        using Ptr = std::shared_ptr< StringType >;
+
         StringType();
     };
 
     class VectorType : public AggregateType
     {
       private:
+        using Ptr = std::shared_ptr< VectorType >;
+        
         Type* m_type;
         u16 m_length;
 
@@ -205,6 +218,8 @@ namespace libcsel_ir
     class StructureType : public AggregateType
     {
       private:
+        using Ptr = std::shared_ptr< StructureType >;
+        
         std::vector< StructureElement > m_elements;
         // Structure* value; // PPA: link to EL instance ?!?!
 
@@ -223,6 +238,8 @@ namespace libcsel_ir
     class RelationType : public Type
     {
       private:
+        using Ptr = std::shared_ptr< RelationType >;
+        
         std::vector< Type* > m_arguments;
 
       public:

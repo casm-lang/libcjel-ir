@@ -148,6 +148,8 @@ namespace libcsel_ir
     class BitConstant : public ConstantOf< Type::BitTy >
     {
       public:
+        using Ptr = std::shared_ptr< BitConstant >;
+        
         BitConstant( Type* result, u64 value );
 
         static inline Value::ID classid( void )
@@ -161,6 +163,8 @@ namespace libcsel_ir
     class StringConstant : public ConstantOf< Type::StringTy >
     {
       public:
+        using Ptr = std::shared_ptr< StringConstant >;
+        
         StringConstant( Type::StringTy value );
         StringConstant( const char* value );
 
@@ -174,6 +178,8 @@ namespace libcsel_ir
     class StructureConstant : public ConstantOf< Type::StructTy >
     {
       public:
+        using Ptr = std::shared_ptr< StructureConstant >;
+        
         StructureConstant( Type* type,
             std::vector< Value* >
                 value ); // PPA: optimize here with const <>&
@@ -188,6 +194,8 @@ namespace libcsel_ir
     class Identifier : public ConstantOf< const char* >
     {
       private:
+        using Ptr = std::shared_ptr< Identifier >;
+        
         static std::unordered_map< std::string, Identifier* >& ident2obj( void )
         {
             static std::unordered_map< std::string, Identifier* > cache;

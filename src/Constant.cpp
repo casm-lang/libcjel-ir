@@ -119,20 +119,29 @@ bool StringConstant::classof( Value const* obj )
 }
 
 StructureConstant::StructureConstant( Type* type, Type::StructTy value )
-: ConstantOf< Type::StructTy >(
-      ".const_struct", type, value, Value::STRUCTURE_CONSTANT )
+: ConstantOf< Type::StructTy >( 0, type, value, Value::STRUCTURE_CONSTANT )
 {
     assert( type );
     assert( type->isStructure() );
     assert( type->arguments().size() == 0 );
     assert( type->results().size() == value.size() );
 
+    std::string tmp = "{";
+
     for( u32 i = 0; i < value.size(); i++ )
     {
-        assert(
-            strcmp( type->results()[ i ]->name(), value[ i ]->type().name() )
-            == 0 );
+        assert( *type->results()[ i ] == value[ i ]->type() );
+
+        if( i > 0 )
+        {
+            tmp += ", ";
+        }
+
+        tmp += value[ i ]->name();
     }
+    tmp += "}";
+
+    setName( tmp );
 }
 
 bool StructureConstant::classof( Value const* obj )

@@ -362,8 +362,9 @@ StoreInstruction::StoreInstruction( Value* src, Value* dst )
 : Instruction( "store", Type::Void(), { src, dst }, classid() )
 , BinaryInstruction( this )
 {
-    assert( src->type().id() == Type::BIT );
-    assert( strcmp( src->type().name(), dst->type().name() ) == 0 );
+    assert( src->type() == dst->type() );
+    
+    assert( src->type().isBit() ); // PPA: only bit type for now!
 }
 bool StoreInstruction::classof( Value const* obj )
 {
