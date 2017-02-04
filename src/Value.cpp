@@ -81,6 +81,45 @@ Value& Value::next( void ) const
     return *m_next;
 }
 
+const char* Value::c_str( void )
+{
+    std::string tmp = "";
+    tmp += label();
+    tmp += " = ";
+
+    if( isa< Constant >( this ) )
+    {
+        tmp += type().name();
+        tmp += " ";
+    }
+    tmp += name();
+
+    if( auto instr = cast< Instruction >( this ) )
+    {
+        u1 first = true;
+        for( auto operand : instr->values() )
+        {
+            if( first )
+            {
+                first = false;
+                tmp += " ";
+            }
+            else
+            {
+                tmp += ", ";
+            }
+            tmp += operand->type().name();
+            tmp += " ";
+            tmp += operand->label();
+        }
+    }
+
+    tmp += "    ;; ";
+    tmp += type().name();
+
+    return libstdhl::Allocator::string( tmp );
+}
+
 void Value::dump( void ) const
 {
     libstdhl::Log::info( "%p: '%s' [%u] %s [%u]",

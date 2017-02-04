@@ -175,6 +175,8 @@ namespace libcsel_ir
       public:
         ID id() const;
 
+        const char* c_str( void );
+
         void dump( void ) const;
 
         void setNext( Value* value );
