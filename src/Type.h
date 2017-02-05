@@ -161,7 +161,7 @@ namespace libcsel_ir
     {
       public:
         using Ptr = std::shared_ptr< LabelType >;
-        
+
         LabelType();
     };
 
@@ -195,7 +195,7 @@ namespace libcsel_ir
     {
       private:
         using Ptr = std::shared_ptr< VectorType >;
-        
+
         Type* m_type;
         u16 m_length;
 
@@ -219,7 +219,7 @@ namespace libcsel_ir
     {
       private:
         using Ptr = std::shared_ptr< StructureType >;
-        
+
         std::vector< StructureElement > m_elements;
         // Structure* value; // PPA: link to EL instance ?!?!
 
@@ -239,7 +239,7 @@ namespace libcsel_ir
     {
       private:
         using Ptr = std::shared_ptr< RelationType >;
-        
+
         std::vector< Type* > m_arguments;
 
       public:

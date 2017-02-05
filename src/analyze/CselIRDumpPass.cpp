@@ -120,8 +120,10 @@ void CselIRDumpPass::visit_epilog( Intrinsic& value, Context& )
 void CselIRDumpPass::visit_prolog( Reference& value, Context& )
 {
     DUMP_PREFIX;
-    printf(
-        "%s, %s", value.identifier()->name(), value.isInput() ? "in" : "out" );
+    printf( "%s %s", value.type().name(), value.isInput() ? "in" : "out" );
+    // printf(
+    //     "%s, %s", value.identifier()->name(), value.isInput() ? "in" : "out"
+    //     );
     DUMP_POSTFIX;
 }
 void CselIRDumpPass::visit_epilog( Reference& value, Context& )
@@ -343,6 +345,16 @@ void CselIRDumpPass::visit_prolog( XorInstruction& value, Context& )
     DUMP_POSTFIX;
 }
 void CselIRDumpPass::visit_epilog( XorInstruction& value, Context& )
+{
+}
+
+void CselIRDumpPass::visit_prolog( AddUnsignedInstruction& value, Context& )
+{
+    DUMP_PREFIX;
+    DUMP_INSTR;
+    DUMP_POSTFIX;
+}
+void CselIRDumpPass::visit_epilog( AddUnsignedInstruction& value, Context& )
 {
 }
 

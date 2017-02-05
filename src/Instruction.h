@@ -298,7 +298,8 @@ namespace libcsel_ir
     class CallInstruction : public Instruction
     {
       public:
-        CallInstruction( Value* symbol );
+        CallInstruction(
+            Value* symbol, const std::vector< Value* >& operands = {} );
 
         Value& callee( void ) const;
 
@@ -386,6 +387,20 @@ namespace libcsel_ir
         static inline Value::ID classid( void )
         {
             return Value::XOR_INSTRUCTION;
+        }
+
+        static bool classof( Value const* obj );
+    };
+
+    class AddUnsignedInstruction : public ArithmeticInstruction,
+                                   public BinaryInstruction
+    {
+      public:
+        AddUnsignedInstruction( Value* lhs, Value* rhs );
+
+        static inline Value::ID classid( void )
+        {
+            return Value::ADDU_INSTRUCTION;
         }
 
         static bool classof( Value const* obj );

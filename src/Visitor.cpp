@@ -93,6 +93,7 @@ void Visitor::dispatch( Stage stage, Value& value, Context& cxt )
         CASE_VALUE( OR_INSTRUCTION, OrInstruction );
         CASE_VALUE( XOR_INSTRUCTION, XorInstruction );
 
+        CASE_VALUE( ADDU_INSTRUCTION, AddUnsignedInstruction );
         CASE_VALUE( ADDS_INSTRUCTION, AddSignedInstruction );
         CASE_VALUE( DIVS_INSTRUCTION, DivSignedInstruction );
         CASE_VALUE( MODU_INSTRUCTION, ModUnsignedInstruction );

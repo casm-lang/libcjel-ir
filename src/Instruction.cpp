@@ -160,6 +160,7 @@ bool BinaryInstruction::classof( Value const* obj )
            or ExtractInstruction::classof( obj )
            or CastInstruction::classof( obj ) or AndInstruction::classof( obj )
            or OrInstruction::classof( obj ) or XorInstruction::classof( obj )
+           or AddUnsignedInstruction::classof( obj )
            or AddSignedInstruction::classof( obj )
            or DivSignedInstruction::classof( obj )
            or ModUnsignedInstruction::classof( obj )
@@ -196,6 +197,7 @@ bool ArithmeticInstruction::classof( Value const* obj )
 {
     return obj->id() == classid() or AndInstruction::classof( obj )
            or OrInstruction::classof( obj ) or XorInstruction::classof( obj )
+           or AddUnsignedInstruction::classof( obj )
            or AddSignedInstruction::classof( obj )
            or DivSignedInstruction::classof( obj )
            or ModUnsignedInstruction::classof( obj );
@@ -246,7 +248,8 @@ bool AllocInstruction::classof( Value const* obj )
     return obj->id() == classid();
 }
 
-CallInstruction::CallInstruction( Value* symbol )
+CallInstruction::CallInstruction(
+    Value* symbol, const std::vector< Value* >& operands )
 : Instruction( "call", Type::Void(), { symbol }, classid() )
 {
     assert( symbol );
@@ -262,6 +265,11 @@ CallInstruction::CallInstruction( Value* symbol )
     else
     {
         assert( not" unimplemented call instruction result type behavior! " );
+    }
+
+    for( auto operand : operands )
+    {
+        add( operand );
     }
 
     // assert( isa< CallableUnit >( symbol ) or isa< CastInstruction >( symbol )
@@ -365,7 +373,7 @@ StoreInstruction::StoreInstruction( Value* src, Value* dst )
 , BinaryInstruction( this )
 {
     assert( src->type() == dst->type() );
-    
+
     assert( src->type().isBit() ); // PPA: only bit type for now!
 }
 bool StoreInstruction::classof( Value const* obj )
@@ -452,6 +460,16 @@ XorInstruction::XorInstruction( Value* lhs, Value* rhs )
 {
 }
 bool XorInstruction::classof( Value const* obj )
+{
+    return obj->id() == classid();
+}
+
+AddUnsignedInstruction::AddUnsignedInstruction( Value* lhs, Value* rhs )
+: ArithmeticInstruction( "addu", { lhs, rhs }, classid() )
+, BinaryInstruction( this )
+{
+}
+bool AddUnsignedInstruction::classof( Value const* obj )
 {
     return obj->id() == classid();
 }

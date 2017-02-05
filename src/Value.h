@@ -167,7 +167,7 @@ namespace libcsel_ir
         ~Value();
 
         const char* name( void ) const;
-        
+
         void setName( std::string& name );
 
         Type& type( void ) const;
@@ -183,7 +183,7 @@ namespace libcsel_ir
         void dump( void ) const;
 
         const char* make_hash( void );
-        
+
         void setNext( Value* value );
 
         Value& next( void ) const;

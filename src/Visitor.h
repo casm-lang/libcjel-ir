@@ -202,6 +202,11 @@ namespace libcsel_ir
     PREFIX void visit_epilog(                                                  \
         libcsel_ir::XorInstruction& value, libcsel_ir::Context& cxt ) POSTFIX; \
                                                                                \
+    PREFIX void visit_prolog( libcsel_ir::AddUnsignedInstruction& value,       \
+        libcsel_ir::Context& cxt ) POSTFIX;                                    \
+    PREFIX void visit_epilog( libcsel_ir::AddUnsignedInstruction& value,       \
+        libcsel_ir::Context& cxt ) POSTFIX;                                    \
+                                                                               \
     PREFIX void visit_prolog( libcsel_ir::AddSignedInstruction& value,         \
         libcsel_ir::Context& cxt ) POSTFIX;                                    \
     PREFIX void visit_epilog( libcsel_ir::AddSignedInstruction& value,         \

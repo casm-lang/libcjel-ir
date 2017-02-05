@@ -36,8 +36,8 @@ Reference::Reference(
     assert( name );
     assert( type );
 
-    m_identifier = Identifier::create( type, name, callable /* scope?!?!*/ );
-    assert( m_identifier );
+    // m_identifier = Identifier::create( type, name, callable /* scope?!?!*/ );
+    // assert( m_identifier );
 
     if( callable )
     {
@@ -58,6 +58,7 @@ Reference::~Reference( void )
 
 const Identifier* Reference::identifier( void ) const
 {
+    assert( m_identifier );
     return m_identifier;
 }
 
