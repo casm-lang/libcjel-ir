@@ -170,10 +170,12 @@ OperatorInstruction::OperatorInstruction( const char* name, Type* type,
     const std::vector< Value* >& values, Value::ID id )
 : Instruction( name, type, values, id )
 {
-    Type& lhs_ty = value( 0 )->type();
-    Type& rhs_ty = value( 1 )->type();
-
-    assert( lhs_ty == rhs_ty );
+    if( isa< BinaryInstruction >( this ) )
+    {
+        Type& lhs_ty = value( 0 )->type();
+        Type& rhs_ty = value( 1 )->type();
+        assert( lhs_ty == rhs_ty );
+    }
 }
 
 bool OperatorInstruction::classof( Value const* obj )
