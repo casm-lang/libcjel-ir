@@ -36,8 +36,8 @@ CallableUnit::CallableUnit( const char* name, Type* type, Value::ID id )
 , m_context( 0 )
 , m_identifier( 0 )
 {
-    m_identifier = Identifier::create( type, name, this );
-    assert( m_identifier );
+    // m_identifier = Identifier::create( type, name, this );
+    // assert( m_identifier );
 
     m_allocation_id = cast< BitConstant >(
         Constant::Bit( Type::TypeID(), m_allocation_cnt ) );
@@ -71,6 +71,7 @@ void CallableUnit::setContext( Block* scope )
 
 const Identifier* CallableUnit::identifier( void ) const
 {
+    assert( m_identifier );
     return m_identifier;
 }
 
