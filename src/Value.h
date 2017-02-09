@@ -121,6 +121,7 @@ namespace libcsel_ir
 
             ,
             NOT_INSTRUCTION,
+            LNOT_INSTRUCTION,
             AND_INSTRUCTION,
             OR_INSTRUCTION,
             XOR_INSTRUCTION

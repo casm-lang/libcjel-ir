@@ -195,8 +195,9 @@ ArithmeticInstruction::ArithmeticInstruction(
 
 bool ArithmeticInstruction::classof( Value const* obj )
 {
-    return obj->id() == classid() or AndInstruction::classof( obj )
-           or OrInstruction::classof( obj ) or XorInstruction::classof( obj )
+    return obj->id() == classid() or NotInstruction::classof( obj )
+           or AndInstruction::classof( obj ) or OrInstruction::classof( obj )
+           or XorInstruction::classof( obj )
            or AddUnsignedInstruction::classof( obj )
            or AddSignedInstruction::classof( obj )
            or DivSignedInstruction::classof( obj )
@@ -211,7 +212,7 @@ LogicalInstruction::LogicalInstruction(
 
 bool LogicalInstruction::classof( Value const* obj )
 {
-    return obj->id() == classid() or NotInstruction::classof( obj );
+    return obj->id() == classid() or LnotInstruction::classof( obj );
 }
 
 CompareInstruction::CompareInstruction(
@@ -434,6 +435,16 @@ bool CastInstruction::classof( Value const* obj )
 // ARITHMETIC INSTRUCTIONS
 // -----------------------------------------------------------------------------
 
+NotInstruction::NotInstruction( Value* lhs )
+: ArithmeticInstruction( "not", { lhs }, classid() )
+, UnaryInstruction( this )
+{
+}
+bool NotInstruction::classof( Value const* obj )
+{
+    return obj->id() == classid();
+}
+
 AndInstruction::AndInstruction( Value* lhs, Value* rhs )
 : ArithmeticInstruction( "and", { lhs, rhs }, classid() )
 , BinaryInstruction( this )
@@ -508,13 +519,12 @@ bool ModUnsignedInstruction::classof( Value const* obj )
 // LOGICAL INSTRUCTIONS
 // -----------------------------------------------------------------------------
 
-NotInstruction::NotInstruction( Value* lhs )
+LnotInstruction::LnotInstruction( Value* lhs )
 : LogicalInstruction( "lnot", { lhs }, classid() )
 , UnaryInstruction( this )
 {
-    assert( type() == get()->type() );
 }
-bool NotInstruction::classof( Value const* obj )
+bool LnotInstruction::classof( Value const* obj )
 {
     return obj->id() == classid();
 }

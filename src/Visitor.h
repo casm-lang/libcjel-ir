@@ -187,6 +187,11 @@ namespace libcsel_ir
     PREFIX void visit_epilog(                                                  \
         libcsel_ir::NotInstruction& value, libcsel_ir::Context& cxt ) POSTFIX; \
                                                                                \
+    PREFIX void visit_prolog( libcsel_ir::LnotInstruction& value,              \
+        libcsel_ir::Context& cxt ) POSTFIX;                                    \
+    PREFIX void visit_epilog( libcsel_ir::LnotInstruction& value,              \
+        libcsel_ir::Context& cxt ) POSTFIX;                                    \
+                                                                               \
     PREFIX void visit_prolog(                                                  \
         libcsel_ir::AndInstruction& value, libcsel_ir::Context& cxt ) POSTFIX; \
     PREFIX void visit_epilog(                                                  \

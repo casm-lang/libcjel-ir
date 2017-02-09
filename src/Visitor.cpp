@@ -23,6 +23,9 @@
 
 #include "Visitor.h"
 
+#include "../stdhl/cpp/Default.h"
+#include "../stdhl/cpp/Log.h"
+
 using namespace libcsel_ir;
 
 #define CASE_VALUE( VID, CLASS )                                               \
@@ -89,6 +92,8 @@ void Visitor::dispatch( Stage stage, Value& value, Context& cxt )
         CASE_VALUE( STORE_INSTRUCTION, StoreInstruction );
 
         CASE_VALUE( NOT_INSTRUCTION, NotInstruction );
+        CASE_VALUE( LNOT_INSTRUCTION, LnotInstruction );
+
         CASE_VALUE( AND_INSTRUCTION, AndInstruction );
         CASE_VALUE( OR_INSTRUCTION, OrInstruction );
         CASE_VALUE( XOR_INSTRUCTION, XorInstruction );
@@ -107,10 +112,11 @@ void Visitor::dispatch( Stage stage, Value& value, Context& cxt )
         CASE_VALUE( INTERCONNECT, Interconnect );
 
         default:
-            printf(
+            libstdhl::Log::error(
                 "%s:%i: warning: unimplemented value ID '%s' to dispatch for "
-                "stage '%i' and context '%p'\n",
+                "stage '%i' and context '%p'",
                 __FILE__, __LINE__, value.name(), stage, &cxt );
+            assert( 0 );
             break;
     }
 }

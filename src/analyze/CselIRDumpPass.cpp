@@ -318,6 +318,16 @@ void CselIRDumpPass::visit_epilog( NotInstruction& value, Context& )
 {
 }
 
+void CselIRDumpPass::visit_prolog( LnotInstruction& value, Context& )
+{
+    DUMP_PREFIX;
+    DUMP_INSTR;
+    DUMP_POSTFIX;
+}
+void CselIRDumpPass::visit_epilog( LnotInstruction& value, Context& )
+{
+}
+
 void CselIRDumpPass::visit_prolog( AndInstruction& value, Context& )
 {
     DUMP_PREFIX;

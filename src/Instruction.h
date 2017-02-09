@@ -351,6 +351,19 @@ namespace libcsel_ir
         static bool classof( Value const* obj );
     };
 
+    class NotInstruction : public ArithmeticInstruction, public UnaryInstruction
+    {
+      public:
+        NotInstruction( Value* lhs );
+
+        static inline Value::ID classid( void )
+        {
+            return Value::NOT_INSTRUCTION;
+        }
+
+        static bool classof( Value const* obj );
+    };
+
     class AndInstruction : public ArithmeticInstruction,
                            public BinaryInstruction
     {
@@ -482,14 +495,14 @@ namespace libcsel_ir
     //
     //
 
-    class NotInstruction : public LogicalInstruction, public UnaryInstruction
+    class LnotInstruction : public LogicalInstruction, public UnaryInstruction
     {
       public:
-        NotInstruction( Value* lhs );
+        LnotInstruction( Value* lhs );
 
         static inline Value::ID classid( void )
         {
-            return Value::NOT_INSTRUCTION;
+            return Value::LNOT_INSTRUCTION;
         }
 
         static bool classof( Value const* obj );
