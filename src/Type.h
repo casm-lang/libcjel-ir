@@ -38,7 +38,7 @@ namespace libcsel_ir
       public:
         typedef u64 BitTy;
         typedef char* StringTy;
-        typedef std::vector< Value* > StructTy;
+        typedef std::vector< const Value* > StructTy;
 
         enum ID : u8
         {

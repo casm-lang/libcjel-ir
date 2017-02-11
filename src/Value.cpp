@@ -247,9 +247,9 @@ void Value::iterate( Traversal order,
     {
         StructureConstant& obj = static_cast< StructureConstant& >( value );
 
-        for( Value* p : obj.value() )
+        for( auto p : obj.value() )
         {
-            p->iterate( order, visitor, cxt, action );
+            ( (Value*)p )->iterate( order, visitor, cxt, action );
         }
     }
     else if( isa< CallableUnit >( value ) )

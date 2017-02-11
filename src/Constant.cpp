@@ -30,8 +30,8 @@ using namespace libcsel_ir;
 
 bool Constant::classof( Value const* obj )
 {
-    return obj->id() == classid() or BitConstant::classof( obj )
-           or StringConstant::classof( obj )
+    return obj->id() == classid() or VoidConstant::classof( obj )
+           or BitConstant::classof( obj ) or StringConstant::classof( obj )
            or StructureConstant::classof( obj ) or Identifier::classof( obj );
 }
 
@@ -63,37 +63,29 @@ Value* Constant::String( const char* value )
     return m_str2obj().emplace( tmp.description(), ptr ).first->second;
 }
 
-Value* Constant::Structure( Type* result, std::vector< Value* > values )
-{
-    StructureConstant tmp = StructureConstant( result, values );
-
-    auto cache = m_str2obj().find( tmp.description() );
-    if( cache != m_str2obj().end() )
-    {
-        return cache->second;
-    }
-
-    Value* ptr = new StructureConstant( tmp );
-    return m_str2obj().emplace( tmp.description(), ptr ).first->second;
-}
-
-Value* Constant::StructureZero( Type& result )
-{
-    std::vector< Value* > values
-        = { libcsel_ir::Constant::Bit( result.results()[ 0 ], 0 ),
-            libcsel_ir::Constant::Bit( result.results()[ 1 ], 0 ) };
-
-    return Structure( &result, values );
-}
-
 //
 // Constants
 //
 
+VoidConstant::VoidConstant( void )
+: ConstantOf< void* >( "void", Type::Void(), 0, classid() )
+{
+}
+
+bool VoidConstant::classof( Value const* obj )
+{
+    return obj->id() == classid();
+}
+
 BitConstant::BitConstant( Type* result, u64 value )
 : ConstantOf< Type::BitTy >(
       libstdhl::Allocator::string( std::to_string( value ) ), result, value,
-      Value::BIT_CONSTANT )
+      classid() )
+{
+}
+
+BitConstant::BitConstant( u16 bitsize, u64 value )
+: BitConstant( Type::Bit( bitsize ), value )
 {
 }
 
@@ -103,8 +95,8 @@ bool BitConstant::classof( Value const* obj )
 }
 
 StringConstant::StringConstant( Type::StringTy value )
-: ConstantOf< Type::StringTy >( libstdhl::Allocator::string( value ),
-      Type::String(), value, Value::STRING_CONSTANT )
+: ConstantOf< Type::StringTy >(
+      libstdhl::Allocator::string( value ), Type::String(), value, classid() )
 {
 }
 
@@ -118,30 +110,35 @@ bool StringConstant::classof( Value const* obj )
     return obj->id() == classid();
 }
 
-StructureConstant::StructureConstant( Type* type, Type::StructTy value )
-: ConstantOf< Type::StructTy >( 0, type, value, Value::STRUCTURE_CONSTANT )
+StructureConstant::StructureConstant(
+    Type& type, const std::vector< Value >& value )
+: ConstantOf< Type::StructTy >( 0, &type, {}, classid() )
+, m_data( value )
 {
-    assert( type );
-    assert( type->isStructure() );
-    assert( type->arguments().size() == 0 );
-    assert( type->results().size() == value.size() );
+    assert( type.isStructure() );
+    assert( type.arguments().size() == 0 );
+    assert( type.results().size() == m_data.size() );
 
     std::string tmp = "{";
 
-    for( u32 i = 0; i < value.size(); i++ )
+    for( u32 i = 0; i < m_data.size(); i++ )
     {
-        assert( *type->results()[ i ] == value[ i ]->type() );
+        m_value.push_back( &m_data[ i ] );
+
+        assert( *type.results()[ i ] == m_data[ i ].type() );
 
         if( i > 0 )
         {
             tmp += ", ";
         }
 
-        tmp += value[ i ]->name();
+        tmp += m_data[ i ].name();
     }
     tmp += "}";
 
     setName( tmp );
+
+    assert( m_value.size() == m_data.size() );
 }
 
 bool StructureConstant::classof( Value const* obj )
@@ -150,7 +147,7 @@ bool StructureConstant::classof( Value const* obj )
 }
 
 Identifier::Identifier( Type* type, const char* value )
-: ConstantOf< const char* >( value, type, value, Value::IDENTIFIER )
+: ConstantOf< const char* >( value, type, value, classid() )
 {
     // auto result = ident2obj().find( value );
     // if( result != ident2obj().end() )

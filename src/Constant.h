@@ -81,17 +81,15 @@ namespace libcsel_ir
         static Value* Bit( Type* result, u64 value );
 
         static Value* String( const char* value );
-
-        static Value* Structure( Type* result, std::vector< Value* > values );
-
-        static Value* StructureZero( Type& result );
     };
 
     template < typename V >
     class ConstantOf : public Constant
     {
-      private:
+      protected:
         V m_value;
+
+      private:
         const char* m_description;
 
       protected:
@@ -145,12 +143,29 @@ namespace libcsel_ir
         }
     };
 
+    class VoidConstant : public ConstantOf< void* >
+    {
+      public:
+        using Ptr = std::shared_ptr< VoidConstant >;
+
+        VoidConstant( void );
+
+        static inline Value::ID classid( void )
+        {
+            return Value::VOID_CONSTANT;
+        }
+
+        static bool classof( Value const* obj );
+    };
+
     class BitConstant : public ConstantOf< Type::BitTy >
     {
       public:
         using Ptr = std::shared_ptr< BitConstant >;
 
         BitConstant( Type* result, u64 value );
+
+        BitConstant( u16 bitsize, u64 value );
 
         static inline Value::ID classid( void )
         {
@@ -180,15 +195,16 @@ namespace libcsel_ir
       public:
         using Ptr = std::shared_ptr< StructureConstant >;
 
-        StructureConstant( Type* type,
-            std::vector< Value* >
-                value ); // PPA: optimize here with const <>&
+        StructureConstant( Type& type, const std::vector< Value >& value );
 
         static inline Value::ID classid( void )
         {
             return Value::STRUCTURE_CONSTANT;
         };
         static bool classof( Value const* obj );
+
+      private:
+        const std::vector< Value >& m_data;
     };
 
     class Identifier : public ConstantOf< const char* >

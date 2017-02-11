@@ -63,6 +63,7 @@ namespace libcsel_ir
 
             ,
             CONSTANT,
+            VOID_CONSTANT,
             BIT_CONSTANT,
             STRUCTURE_CONSTANT,
             STRING_CONSTANT
