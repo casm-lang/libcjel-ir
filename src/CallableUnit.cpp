@@ -32,26 +32,19 @@ u64 CallableUnit::m_allocation_cnt = 0;
 
 CallableUnit::CallableUnit( const char* name, Type* type, Value::ID id )
 : User( name, type, id )
-, m_allocation_id( 0 )
 , m_context( 0 )
 , m_identifier( 0 )
+, m_allocation_id( BitConstant( Type::TypeID(), m_allocation_cnt ) )
 {
-    // m_identifier = Identifier::create( type, name, this );
-    // assert( m_identifier );
-
-    m_allocation_id = cast< BitConstant >(
-        Constant::Bit( Type::TypeID(), m_allocation_cnt ) );
     m_allocation_cnt++;
-    assert( m_allocation_id );
 }
 
 CallableUnit::~CallableUnit( void )
 {
 }
 
-BitConstant* CallableUnit::allocId( void )
+BitConstant& CallableUnit::allocId( void )
 {
-    assert( m_allocation_id );
     return m_allocation_id;
 }
 

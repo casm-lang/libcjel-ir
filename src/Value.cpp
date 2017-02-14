@@ -249,7 +249,7 @@ void Value::iterate( Traversal order,
 
         for( auto p : obj.value() )
         {
-            ( (Value*)p )->iterate( order, visitor, cxt, action );
+            p->iterate( order, visitor, cxt, action );
         }
     }
     else if( isa< CallableUnit >( value ) )

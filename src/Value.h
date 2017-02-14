@@ -39,6 +39,8 @@ namespace libcsel_ir
     class Value : public CselIR, public libstdhl::Labeling
     {
       public:
+        using Ptr = std::shared_ptr< Value >;
+
         enum ID
         {
             VALUE,

@@ -251,7 +251,7 @@ void CselIRDumpPass::visit_epilog( CastInstruction& value, Context& )
 void CselIRDumpPass::visit_prolog( CallInstruction& value, Context& )
 {
     DUMP_PREFIX;
-    DUMP_INSTR;
+    // DUMP_INSTR;
     DUMP_POSTFIX;
 }
 void CselIRDumpPass::visit_epilog( CallInstruction& value, Context& )

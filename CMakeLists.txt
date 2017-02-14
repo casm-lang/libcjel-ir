@@ -41,6 +41,7 @@ endforeach()
 
 file( GLOB_RECURSE CXX_SRC_FILES "src/*.cpp" )
 file( GLOB_RECURSE CXX_UTS_FILES "uts/*.cpp" )
+file( GLOB_RECURSE CXX_BM_FILES "var/*.cpp" )
 
 
 set( TARGET csel-ir )
@@ -89,15 +90,19 @@ target_link_libraries( ${TARGET}-check
 
 
 add_library( ${TARGET}-benchmark OBJECT
-  ${LIBS}/hayai/src/hayai_posix_main.cpp
+  ${CXX_BM_FILES}
 )
   
 add_executable( ${TARGET}-run
+  ${LIBS}/hayai/src/hayai_posix_main.cpp
   $<TARGET_OBJECTS:${TARGET}-benchmark>
 )
 
 target_link_libraries( ${TARGET}-run
+  ${TARGET}
   pthread
+  stdhl
+  pass
 )
 
 

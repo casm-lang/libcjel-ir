@@ -29,26 +29,22 @@ u64 Variable::m_allocation_cnt = 0;
 
 Variable::Variable( Type* type, Value* expression, const char* ident )
 : User( ".variable", type, Value::VARIABLE )
-, m_allocation_id( 0 )
 , m_expression( expression )
 , m_ident( ident )
+, m_allocation_id( BitConstant( Type::TypeID(), m_allocation_cnt ) )
 {
     assert( type );
     assert( expression && isa< Constant >( expression ) );
 
-    m_allocation_id = cast< BitConstant >(
-        Constant::Bit( Type::TypeID(), m_allocation_cnt ) );
     m_allocation_cnt++;
-    assert( m_allocation_id );
 }
 
 Variable::~Variable( void )
 {
 }
 
-BitConstant* Variable::allocId( void )
+BitConstant& Variable::allocId( void )
 {
-    assert( m_allocation_id );
     return m_allocation_id;
 }
 

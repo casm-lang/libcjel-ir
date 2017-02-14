@@ -35,32 +35,19 @@ bool Constant::classof( Value const* obj )
            or StructureConstant::classof( obj ) or Identifier::classof( obj );
 }
 
-Value* Constant::Bit( Type* result, u64 value )
+Value Constant::TRUE( void )
 {
-    BitConstant tmp = BitConstant( result, value );
-
-    auto cache = m_str2obj().find( tmp.description() );
-    if( cache != m_str2obj().end() )
-    {
-        return cache->second;
-    }
-
-    Value* ptr = new BitConstant( tmp );
-    return m_str2obj().emplace( tmp.description(), ptr ).first->second;
+    return BitConstant( 1, true );
 }
 
-Value* Constant::String( const char* value )
+Value Constant::FALSE( void )
 {
-    StringConstant tmp = StringConstant( value );
+    return BitConstant( 1, false );
+}
 
-    auto cache = m_str2obj().find( tmp.description() );
-    if( cache != m_str2obj().end() )
-    {
-        return cache->second;
-    }
-
-    Value* ptr = new StringConstant( tmp );
-    return m_str2obj().emplace( tmp.description(), ptr ).first->second;
+Value Constant::NIL( void )
+{
+    return BitConstant( Type::TypeID(), 0 );
 }
 
 //
@@ -111,34 +98,30 @@ bool StringConstant::classof( Value const* obj )
 }
 
 StructureConstant::StructureConstant(
-    Type& type, const std::vector< Value >& value )
-: ConstantOf< Type::StructTy >( 0, &type, {}, classid() )
-, m_data( value )
+    Type& type, const std::vector< Constant* >& value )
+: ConstantOf< std::vector< Constant* > >( 0, &type, value, classid() )
 {
     assert( type.isStructure() );
     assert( type.arguments().size() == 0 );
-    assert( type.results().size() == m_data.size() );
+    assert( type.results().size() == value.size() );
 
     std::string tmp = "{";
 
-    for( u32 i = 0; i < m_data.size(); i++ )
+    for( u32 i = 0; i < value.size(); i++ )
     {
-        m_value.push_back( &m_data[ i ] );
-
-        assert( *type.results()[ i ] == m_data[ i ].type() );
+        assert( value[ i ] );
+        assert( *type.results()[ i ] == value[ i ]->type() );
 
         if( i > 0 )
         {
             tmp += ", ";
         }
 
-        tmp += m_data[ i ].name();
+        tmp += value[ i ]->name();
     }
     tmp += "}";
 
     setName( tmp );
-
-    assert( m_value.size() == m_data.size() );
 }
 
 bool StructureConstant::classof( Value const* obj )

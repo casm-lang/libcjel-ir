@@ -34,13 +34,10 @@ namespace libcsel_ir
 
     class Constant : public User
     {
-      private:
-        static std::unordered_map< std::string, Value* >& m_str2obj( void )
-        {
-            static std::unordered_map< std::string, Value* > cache;
-            return cache;
-        };
+      public:
+        using Ptr = std::shared_ptr< Constant >;
 
+      private:
       public:
         Constant( const char* name, Type* type, Value::ID id = Value::CONSTANT )
         : User( name, type, id ){};
@@ -63,24 +60,9 @@ namespace libcsel_ir
             return cnt++;
         }
 
-        static inline Value* TRUE( void )
-        {
-            return Bit( Type::Bit( 1 ), 1 );
-        }
-
-        static inline Value* FALSE( void )
-        {
-            return Bit( Type::Bit( 1 ), 0 );
-        }
-
-        static inline Value* NIL( void )
-        {
-            return Bit( Type::TypeID(), 0 );
-        }
-
-        static Value* Bit( Type* result, u64 value );
-
-        static Value* String( const char* value );
+        static inline Value TRUE( void );
+        static inline Value FALSE( void );
+        static inline Value NIL( void );
     };
 
     template < typename V >
@@ -106,7 +88,7 @@ namespace libcsel_ir
         {
         }
 
-        const V value( void ) const
+        const V& value( void ) const
         {
             return m_value;
         }
@@ -190,21 +172,18 @@ namespace libcsel_ir
         static bool classof( Value const* obj );
     };
 
-    class StructureConstant : public ConstantOf< Type::StructTy >
+    class StructureConstant : public ConstantOf< std::vector< Constant* > >
     {
       public:
         using Ptr = std::shared_ptr< StructureConstant >;
 
-        StructureConstant( Type& type, const std::vector< Value >& value );
+        StructureConstant( Type& type, const std::vector< Constant* >& value );
 
         static inline Value::ID classid( void )
         {
             return Value::STRUCTURE_CONSTANT;
         };
         static bool classof( Value const* obj );
-
-      private:
-        const std::vector< Value >& m_data;
     };
 
     class Identifier : public ConstantOf< const char* >

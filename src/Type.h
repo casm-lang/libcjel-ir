@@ -30,6 +30,7 @@
 
 namespace libcsel_ir
 {
+    class Value;
     class Structure;
     struct StructureElement;
 
@@ -38,7 +39,7 @@ namespace libcsel_ir
       public:
         typedef u64 BitTy;
         typedef char* StringTy;
-        typedef std::vector< const Value* > StructTy;
+        typedef std::vector< Value* > StructTy;
 
         enum ID : u8
         {

@@ -21,35 +21,32 @@
 //  along with libcsel-ir. If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include "gtest/gtest.h"
+#include "hayai.hpp"
 
 #include "libcsel-ir.h"
 
 using namespace libcsel_ir;
 
-TEST( libcsel_ir__Type_getBit, size_less_one_is_invalid )
-{
-    EXPECT_EXIT( Type::Bit( 0 ), ::testing::KilledBySignal( SIGABRT ), "" );
-}
-
-TEST( libcsel_ir__Type_getBit, size_greater_SizeMax_is_invalid )
-{
-    EXPECT_EXIT( Type::Bit( BitType::SizeMax + 1 ),
-        ::testing::KilledBySignal( SIGABRT ), "" );
-}
-
-TEST( libcsel_ir__Type_getBit, from_one_to_SizeMax )
+BENCHMARK( libcsel_ir__Type, make_BitType, 5, 5 )
 {
     for( u16 c = 1; c <= BitType::SizeMax; c++ )
     {
-        Type::Bit( c );
+        libstdhl::make< BitType >( c );
     }
 }
 
-TEST( libcsel_ir__Type, make_bit )
+BENCHMARK( libcsel_ir__Type, get_BitType, 5, 5 )
 {
     for( u16 c = 1; c <= BitType::SizeMax; c++ )
     {
         libstdhl::get< BitType >( c );
+    }
+}
+
+BENCHMARK( libcsel_ir__Type, old_BitType, 5, 5 )
+{
+    for( u16 c = 1; c <= BitType::SizeMax; c++ )
+    {
+        Type::Bit( c );
     }
 }

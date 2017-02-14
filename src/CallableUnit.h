@@ -37,10 +37,11 @@ namespace libcsel_ir
     {
       private:
         static u64 m_allocation_cnt;
-        BitConstant* m_allocation_id;
 
         Block* m_context;
         Identifier* m_identifier;
+
+        BitConstant m_allocation_id;
 
         std::vector< Value* > m_parameter_in;
         std::vector< Value* > m_parameter_out;
@@ -55,7 +56,7 @@ namespace libcsel_ir
 
         ~CallableUnit( void );
 
-        BitConstant* allocId( void );
+        BitConstant& allocId( void );
 
         Block* context( void ) const;
 

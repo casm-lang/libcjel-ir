@@ -35,17 +35,18 @@ namespace libcsel_ir
     {
       private:
         static u64 m_allocation_cnt;
-        BitConstant* m_allocation_id;
 
         Value* m_expression;
         const char* m_ident;
+
+        BitConstant m_allocation_id;
 
       public:
         Variable( Type* type, Value* expression, const char* ident = 0 );
 
         ~Variable( void );
 
-        BitConstant* allocId( void );
+        BitConstant& allocId( void );
 
         Value* expression( void ) const;
 
