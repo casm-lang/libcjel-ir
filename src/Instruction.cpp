@@ -272,13 +272,31 @@ CallInstruction::CallInstruction(
     {
         add( operand );
     }
+}
 
-    // assert( isa< CallableUnit >( symbol ) or isa< CastInstruction >( symbol )
-    // );
-    // if( isa< CastInstruction >( symbol ) )
-    // {
-    //     assert( symbol->type().id() == Type::RELATION );
-    // }
+CallInstruction::CallInstruction(
+    Value* symbol, const std::vector< Value::Ptr >& operands )
+: Instruction( "call", Type::Void(), { symbol }, classid() )
+{
+    assert( symbol );
+
+    assert( isa< CallableUnit >( symbol ) and symbol->type().isRelation() );
+
+    auto& res_tys = symbol->type().results();
+
+    if( res_tys.size() == 1 )
+    {
+        setType( *res_tys[ 0 ] );
+    }
+    else
+    {
+        assert( not" unimplemented call instruction result type behavior! " );
+    }
+
+    for( auto operand : operands )
+    {
+        add( operand.get() );
+    }
 }
 
 Value& CallInstruction::callee( void ) const

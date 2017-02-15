@@ -172,12 +172,13 @@ namespace libcsel_ir
         static bool classof( Value const* obj );
     };
 
-    class StructureConstant : public ConstantOf< std::vector< Constant* > >
+    class StructureConstant : public ConstantOf< std::vector< Constant::Ptr > >
     {
       public:
         using Ptr = std::shared_ptr< StructureConstant >;
 
-        StructureConstant( Type& type, const std::vector< Constant* >& value );
+        StructureConstant(
+            Type& type, const std::vector< Constant::Ptr >& value );
 
         static inline Value::ID classid( void )
         {

@@ -301,6 +301,9 @@ namespace libcsel_ir
         CallInstruction(
             Value* symbol, const std::vector< Value* >& operands = {} );
 
+        CallInstruction(
+            Value* symbol, const std::vector< Value::Ptr >& operands );
+
         Value& callee( void ) const;
 
         static inline Value::ID classid( void )

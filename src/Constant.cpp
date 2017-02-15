@@ -98,8 +98,8 @@ bool StringConstant::classof( Value const* obj )
 }
 
 StructureConstant::StructureConstant(
-    Type& type, const std::vector< Constant* >& value )
-: ConstantOf< std::vector< Constant* > >( 0, &type, value, classid() )
+    Type& type, const std::vector< Constant::Ptr >& value )
+: ConstantOf< std::vector< Constant::Ptr > >( 0, &type, value, classid() )
 {
     assert( type.isStructure() );
     assert( type.arguments().size() == 0 );
