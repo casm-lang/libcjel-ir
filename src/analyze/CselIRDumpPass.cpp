@@ -23,6 +23,8 @@
 
 #include "CselIRDumpPass.h"
 
+#include "../stdhl/cpp/Log.h"
+
 using namespace libcsel_ir;
 
 char CselIRDumpPass::id = 0;
@@ -32,10 +34,18 @@ static libpass::PassRegistration< CselIRDumpPass > PASS( "CSELIR Dumping Pass",
 
 bool CselIRDumpPass::run( libpass::PassResult& pr )
 {
-    Module* value = (Module*)pr.result< CselIRDumpPass >();
-    assert( value );
+    auto data = pr.result< CselIRDumpPass >();
+    assert( data );
 
-    value->iterate( Traversal::PREORDER, this );
+    try
+    {
+        data->module()->iterate( Traversal::PREORDER, this );
+    }
+    catch( ... )
+    {
+        libstdhl::Log::error( "during IR to EL transformation" );
+        return false;
+    }
 
     return true;
 }

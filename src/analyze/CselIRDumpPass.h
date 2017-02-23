@@ -26,6 +26,7 @@
 
 #include "libpass.h"
 
+#include "../Module.h"
 #include "../Visitor.h"
 
 namespace libcsel_ir
@@ -38,6 +39,25 @@ namespace libcsel_ir
         bool run( libpass::PassResult& pr ) override;
 
         LIB_CSELIR_VISITOR_INTERFACE;
+
+        class Data : public libpass::PassData
+        {
+          public:
+            using Ptr = std::shared_ptr< Data >;
+
+            Data( const Module::Ptr& module )
+            : m_module( module )
+            {
+            }
+
+            Module::Ptr module( void ) const
+            {
+                return m_module;
+            }
+
+          private:
+            Module::Ptr m_module;
+        };
     };
 }
 
