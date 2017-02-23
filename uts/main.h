@@ -21,35 +21,22 @@
 //  along with libcsel-ir. If not, see <http://www.gnu.org/licenses/>.
 //
 
+#ifndef _LIB_CSELIR_UTS_MAIN_H_
+#define _LIB_CSELIR_UTS_MAIN_H_
+
 #include "gtest/gtest.h"
 
 #include "libcsel-ir.h"
+#include "libstdhl.h"
 
-using namespace libcsel_ir;
+#endif // _LIB_CSELIR_UTS_MAIN_H_
 
-TEST( libcsel_ir__Type_getBit, size_less_one_is_invalid )
-{
-    EXPECT_EXIT( Type::Bit( 0 ), ::testing::KilledBySignal( SIGABRT ), "" );
-}
-
-TEST( libcsel_ir__Type_getBit, size_greater_SizeMax_is_invalid )
-{
-    EXPECT_EXIT( Type::Bit( BitType::SizeMax + 1 ),
-        ::testing::KilledBySignal( SIGABRT ), "" );
-}
-
-TEST( libcsel_ir__Type_getBit, from_one_to_SizeMax )
-{
-    for( u16 c = 1; c <= BitType::SizeMax; c++ )
-    {
-        Type::Bit( c );
-    }
-}
-
-TEST( libcsel_ir__Type, make_bit )
-{
-    for( u16 c = 1; c <= BitType::SizeMax; c++ )
-    {
-        libstdhl::get< BitType >( c );
-    }
-}
+//
+//  Local variables:
+//  mode: c++
+//  indent-tabs-mode: nil
+//  c-basic-offset: 4
+//  tab-width: 4
+//  End:
+//  vim:noexpandtab:sw=4:ts=4:
+//

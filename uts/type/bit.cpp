@@ -25,6 +25,29 @@
 
 using namespace libcsel_ir;
 
-TEST( libcsel_ir, example )
+TEST( libcsel_ir__type_bit, size_less_one_is_invalid )
 {
+    EXPECT_EXIT( Type::Bit( 0 ), ::testing::KilledBySignal( SIGABRT ), "" );
+}
+
+TEST( libcsel_ir__type_bit, size_greater_SizeMax_is_invalid )
+{
+    EXPECT_EXIT( Type::Bit( BitType::SizeMax + 1 ),
+        ::testing::KilledBySignal( SIGABRT ), "" );
+}
+
+TEST( libcsel_ir__type_bit, from_one_to_SizeMax )
+{
+    for( u16 c = 1; c <= BitType::SizeMax; c++ )
+    {
+        Type::Bit( c );
+    }
+}
+
+TEST( libcsel_ir__Type, make_bit )
+{
+    for( u16 c = 1; c <= BitType::SizeMax; c++ )
+    {
+        libstdhl::get< BitType >( c );
+    }
 }

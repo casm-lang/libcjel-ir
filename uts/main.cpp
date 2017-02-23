@@ -23,8 +23,22 @@
 
 #include "uts/main.h"
 
-using namespace libcsel_ir;
+void libcsel_ir_main_dummy( void )
+{
+    libstdhl::Log::DefaultSource = libstdhl::Log::Source(
+        []( void* arg ) -> const char* { return "libcsel_ir"; } );
+}
 
-TEST( libcsel_ir, example )
+TEST( libcsel_ir_main, empty )
 {
 }
+
+//
+//  Local variables:
+//  mode: c++
+//  indent-tabs-mode: nil
+//  c-basic-offset: 4
+//  tab-width: 4
+//  End:
+//  vim:noexpandtab:sw=4:ts=4:
+//

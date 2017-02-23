@@ -21,11 +21,7 @@
 //  along with libcsel-ir. If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include "gtest/gtest.h"
-
-#include "libcsel-ir.h"
-
-#include "libstdhl.h"
+#include "uts/main.h"
 
 using namespace libcsel_ir;
 
@@ -51,7 +47,7 @@ static void test_constant_bit( Type::BitTy i, i16 s )
     EXPECT_TRUE( *a == *b );
 }
 
-TEST( libcsel_ir__Constant_Bit, create_range )
+TEST( libcsel_ir__constant_bit, create_range )
 {
     for( u16 s = 1; s < BitType::SizeMax; s++ )
     {
@@ -62,7 +58,7 @@ TEST( libcsel_ir__Constant_Bit, create_range )
     }
 }
 
-TEST( libcsel_ir__Constant_Bit, create_random )
+TEST( libcsel_ir__constant_bit, create_random )
 {
     for( u16 s = 1; s < BitType::SizeMax; s++ )
     {
