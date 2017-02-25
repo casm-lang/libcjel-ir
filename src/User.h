@@ -31,7 +31,8 @@ namespace libcsel_ir
     class User : public Value
     {
       public:
-        User( const char* name, Type* type, Value::ID id = Value::USER )
+        User( const std::string& name, const Type::Ptr& type,
+            Value::ID id = classid() )
         : Value( name, type, id )
         {
         }
@@ -45,7 +46,7 @@ namespace libcsel_ir
     };
 }
 
-#endif /* _LIB_CSELIR_USER_H_ */
+#endif // _LIB_CSELIR_USER_H_
 
 //
 //  Local variables:

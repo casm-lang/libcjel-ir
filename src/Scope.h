@@ -25,21 +25,20 @@
 #define _LIB_CSELIR_SCOPE_H_
 
 #include "Block.h"
-#include "Value.h"
 
 namespace libcsel_ir
 {
     class Scope : public Block
     {
-        std::vector< Block* > m_blocks;
-
       public:
-        Scope( const char* name, Type* type, Value* parent, u1 is_parallel,
-            Value::ID id = Value::ID::SCOPE );
+        using Ptr = std::shared_ptr< Scope >;
 
-        void add( Value* element );
+        Scope( const std::string& name, const Type::Ptr& type, u1 parallel,
+            Value::ID id = classid() );
 
-        const std::vector< Block* >& blocks( void ) const;
+        void add( const Block::Ptr& block );
+
+        Blocks blocks( void ) const;
 
         static inline Value::ID classid( void )
         {
@@ -47,12 +46,19 @@ namespace libcsel_ir
         }
 
         static bool classof( Value const* obj );
+
+      private:
+        Blocks m_blocks;
     };
+
+    using Scopes = libstdhl::List< Scope >;
 
     class SequentialScope : public Scope
     {
       public:
-        SequentialScope( Value* parent = 0 );
+        using Ptr = std::shared_ptr< SequentialScope >;
+
+        SequentialScope( void );
 
         static inline Value::ID classid( void )
         {
@@ -65,7 +71,9 @@ namespace libcsel_ir
     class ParallelScope : public Scope
     {
       public:
-        ParallelScope( Value* parent = 0 );
+        using Ptr = std::shared_ptr< ParallelScope >;
+
+        ParallelScope( void );
 
         static inline Value::ID classid( void )
         {
@@ -76,7 +84,7 @@ namespace libcsel_ir
     };
 }
 
-#endif /* _LIB_CSELIR_SCOPE_H_ */
+#endif // _LIB_CSELIR_SCOPE_H_
 
 //
 //  Local variables:

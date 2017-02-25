@@ -30,30 +30,35 @@ namespace libcsel_ir
 {
     class Block : public Value
     {
-      private:
-        Value* m_parent;
-        u1 m_is_parallel;
-
       public:
-        Block( const char* name, Type* type, Value* parent, u1 is_parallel,
-            Value::ID id = Value::BLOCK );
+        using Ptr = std::shared_ptr< Block >;
 
-        void setParent( Value* parent );
+        Block( const std::string& name, const Type::Ptr& type, u1 parallel,
+            Value::ID id = classid() );
 
-        const Value* parent( void ) const;
+        void setParent( const Block::Ptr& parent );
 
-        virtual const u1 isParallel( void ) const;
+        Block::Ptr parent( void ) const;
 
-        static inline bool classid( void )
+        u1 isParallel( void ) const;
+
+        static inline Value::ID classid( void )
         {
             return Value::BLOCK;
         }
 
         static bool classof( Value const* obj );
+
+      private:
+        u1 m_parallel;
+
+        std::weak_ptr< Block > m_parent;
     };
+
+    using Blocks = libstdhl::List< Block >;
 }
 
-#endif /* _LIB_CSELIR_BLOCK_H_ */
+#endif // _LIB_CSELIR_BLOCK_H_
 
 //
 //  Local variables:

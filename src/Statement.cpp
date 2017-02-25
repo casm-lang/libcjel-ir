@@ -25,107 +25,62 @@
 
 using namespace libcsel_ir;
 
+//
+// Statement
+//
+
 Statement::Statement(
-    const char* name, Type* type, Value* parent, Value::ID id )
-: Block( name, type, parent, false, id )
+    const std::string& name, const Type::Ptr& type, Value::ID id )
+: Block( name, type, false, id )
 {
-    assert( parent );
-
-    if( isa< Scope >( parent ) )
-    {
-        ( (Scope*)parent )->add( this );
-    }
-    else if( isa< Intrinsic >( parent ) )
-    {
-        ( (Intrinsic*)parent )->setContext( this );
-    }
-    else
-    {
-        assert( !"invalid parent pointer!" );
-    }
-
-    printf( "[Statement] '%s' %p\n", name, parent );
 }
 
-const u1 Statement::isParallel( void ) const
-{
-    const Value* parent = this->parent();
-
-    if( isa< Scope >( parent ) )
-    {
-        return ( (Scope*)parent )->isParallel();
-    }
-    else if( isa< Intrinsic >( parent ) )
-    {
-        return true;
-    }
-    else
-    {
-        assert( !"invalid parent pointer!" );
-    }
-    return false;
-}
-
-const std::vector< Value* >& Statement::instructions( void ) const
+Instructions Statement::instructions( void ) const
 {
     return m_instructions;
 }
 
-Value* Statement::add( Value* instruction )
+Instruction::Ptr Statement::add( const Instruction::Ptr& instruction )
 {
-    assert( instruction );
-
-    if( isa< Instruction >( instruction ) )
+    if( not instruction )
     {
-        static_cast< Instruction* >( instruction )->setStatement( this );
-    }
-    else
-    {
-        assert( 0 );
+        throw std::domain_error(
+            "cannot add a null pointer instruction to a statement block" );
     }
 
-    if( m_instructions.size() > 0 )
-    {
-        m_instructions.back()->setNext( instruction );
-    }
-
-    m_instructions.push_back( instruction );
-    printf( "[Stmt] add: %p\n", instruction );
+    m_instructions.add( instruction );
 
     return instruction;
 }
 
-void Statement::addScope( Scope* scope )
+void Statement::add( const Scope::Ptr& scope )
 {
-    assert( scope );
+    if( not scope )
+    {
+        throw std::domain_error(
+            "cannot add a null pointer instruction to a statement block" );
+    }
 
     if( isa< TrivialStatement >( this ) )
     {
-        assert(
-            !" trivial statements are not allowed to have inside scopes! " );
+        throw std::domain_error(
+            "trivial statements are not allowed to have inside scopes" );
     }
     else if( isa< LoopStatement >( this ) )
     {
-        assert( m_scopes.size() < 1 );
+        if( m_scopes.size() >= 1 )
+        {
+            throw std::domain_error(
+                "loop statements are not allowed to have multiple inside "
+                "scopes" );
+        }
     }
 
-    m_scopes.push_back( scope );
-
-    if( scope->parent() == 0 )
-    {
-        scope->setParent( this );
-    }
-
-    assert( scope->parent() == this && " inconsistent scope nesting! " );
+    m_scopes.add( scope );
 }
 
-const std::vector< Scope* >& Statement::scopes( void ) const
+Scopes Statement::scopes( void ) const
 {
-    if( isa< TrivialStatement >( this ) )
-    {
-        assert( !" trivial statements do not contain inside scopes! " );
-    }
-
     return m_scopes;
 }
 
@@ -135,8 +90,12 @@ bool Statement::classof( Value const* obj )
            or BranchStatement::classof( obj ) or LoopStatement::classof( obj );
 }
 
+//
+// Trivial Statement
+//
+
 TrivialStatement::TrivialStatement( Value* parent )
-: Statement( ".statement", Type::Label(), parent, Value::TRIVIAL_STATEMENT )
+: Statement( "stmt", libstdhl::get< LabelType >(), classid() )
 {
 }
 
@@ -145,8 +104,12 @@ bool TrivialStatement::classof( Value const* obj )
     return obj->id() == classid();
 }
 
+//
+// Branch Statement
+//
+
 BranchStatement::BranchStatement( Value* parent )
-: Statement( ".branch", Type::Label(), parent, Value::BRANCH_STATEMENT )
+: Statement( "branch", libstdhl::get< LabelType >(), classid() )
 {
 }
 
@@ -155,8 +118,12 @@ bool BranchStatement::classof( Value const* obj )
     return obj->id() == classid();
 }
 
+//
+// Loop Statement
+//
+
 LoopStatement::LoopStatement( Value* parent )
-: Statement( ".loop", Type::Label(), parent, Value::LOOP_STATEMENT )
+: Statement( "loop", libstdhl::get< LabelType >(), classid() )
 {
 }
 

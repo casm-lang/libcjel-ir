@@ -22,33 +22,30 @@
 //
 
 #include "Scope.h"
-#include "Statement.h"
 
 using namespace libcsel_ir;
 
+//
+// Scope
+//
+
 Scope::Scope(
-    const char* name, Type* type, Value* parent, u1 is_parallel, Value::ID id )
-: Block( name, type, parent, is_parallel, id )
+    const std::string& name, const Type::Ptr& type, u1 parallel, Value::ID id )
+: Block( name, type, parallel, id )
 {
-    if( parent and isa< CallableUnit >( parent ) )
+}
+
+void Scope::add( const Block::Ptr& block )
+{
+    if( not block )
     {
-        ( (CallableUnit*)parent )->setContext( this );
+        throw std::domain_error( "cannot add a null pointer block to a scope" );
     }
+
+    m_blocks.add( block );
 }
 
-void Scope::add( Value* element )
-{
-    assert( isa< Block >( element ) );
-
-    // if( isa< Scope >( element ) )
-    // {
-    // 	((Scope*)element)->setParent( this );
-    // }
-
-    m_blocks.push_back( (Block*)element );
-}
-
-const std::vector< Block* >& Scope::blocks( void ) const
+Blocks Scope::blocks( void ) const
 {
     return m_blocks;
 }
@@ -59,8 +56,12 @@ bool Scope::classof( Value const* obj )
            or ParallelScope::classof( obj );
 }
 
-SequentialScope::SequentialScope( Value* parent )
-: Scope( "seq", Type::Label(), parent, false, Value::ID::SEQUENTIAL_SCOPE )
+//
+// Sequential Scope
+//
+
+SequentialScope::SequentialScope( void )
+: Scope( "seq", libstdhl::get< LabelType >(), false, classid() )
 {
 }
 
@@ -69,8 +70,12 @@ bool SequentialScope::classof( Value const* obj )
     return obj->id() == classid();
 }
 
-ParallelScope::ParallelScope( Value* parent )
-: Scope( "par", Type::Label(), parent, false, Value::ID::PARALLEL_SCOPE )
+//
+// Parallel Scope
+//
+
+ParallelScope::ParallelScope( void )
+: Scope( "par", libstdhl::get< LabelType >(), false, classid() )
 {
 }
 

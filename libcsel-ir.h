@@ -48,11 +48,7 @@ namespace libcsel_ir
 {
 }
 
-#define TODO                                                                   \
-    fprintf( stdout, "%s:%i: '%s' implementation TODO\n", __FILE__, __LINE__,  \
-        __FUNCTION__ )
-
-#endif /* _LIB_CSELIR_H_ */
+#endif // _LIB_CSELIR_H_
 
 //
 //  Local variables:

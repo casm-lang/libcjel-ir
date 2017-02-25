@@ -24,22 +24,19 @@
 #ifndef _LIB_CSELIR_TYPE_H_
 #define _LIB_CSELIR_TYPE_H_
 
-#include "../stdhl/cpp/Type.h"
-
 #include "CselIR.h"
+
+#include "../stdhl/cpp/List.h"
+#include "../stdhl/cpp/Log.h"
 
 namespace libcsel_ir
 {
-    class Value;
     class Structure;
-    struct StructureElement;
 
     class Type : public CselIR
     {
       public:
-        typedef u64 BitTy;
-        typedef char* StringTy;
-        typedef std::vector< Value* > StructTy;
+        using Ptr = std::shared_ptr< Type >;
 
         enum ID : u8
         {
@@ -56,48 +53,49 @@ namespace libcsel_ir
             _TOP_
         };
 
-      protected:
-        static std::unordered_map< std::string, Type* >& m_str2obj( void )
-        {
-            static std::unordered_map< std::string, Type* > cache;
-            return cache;
-        }
+        Type( const std::string& name, const std::string& description,
+            u64 bitsize, ID id );
 
-        const char* m_name;
-        const char* m_description;
-        u64 m_bitsize;
-        std::vector< Type* > m_results;
-
-      private:
-        ID m_id;
-        const char* m_hash;
-
-      public:
-        Type( const char* name, const char* description, u64 bitsize, ID id );
         ~Type() = default;
 
-        const ID id( void ) const;
+        const char* name( void ) const;
 
-        const char* make_hash( void );
+        std::string str_name( void ) const;
 
-        virtual const u64 bitsize( void ) = 0;
-        virtual const char* name( void ) = 0;
-        virtual const char* description( void ) = 0;
-        virtual const std::vector< Type* >& results( void ) = 0;
-        virtual const std::vector< Type* >& arguments( void ) = 0;
+        const char* description( void ) const;
 
-        inline u1 operator==( const Type& rhs )
+        std::string str_description( void ) const;
+
+        ID id( void ) const;
+
+        u64 bitsize( void ) const;
+
+        u64 wordsize( const u64 wordbits = 64 ) const;
+
+        std::vector< Type* > results( void ) const;
+
+        std::vector< Type::Ptr > ptr_results( void ) const;
+
+        std::vector< Type* > arguments( void ) const;
+
+        std::vector< Type::Ptr > ptr_arguments( void ) const;
+
+        std::string make_hash( void ) const;
+
+        inline u1 operator==( const Type& rhs ) const
         {
             if( this != &rhs )
             {
-                if( strcmp( this->name(), ( (Type&)rhs ).name() ) )
+                if( this->id() != rhs.id()
+                    or strcmp( this->name(), rhs.name() ) )
                 {
                     return false;
                 }
             }
             return true;
         }
-        inline u1 operator!=( const Type& rhs )
+
+        inline u1 operator!=( const Type& rhs ) const
         {
             return !operator==( rhs );
         }
@@ -111,51 +109,53 @@ namespace libcsel_ir
         u1 isRelation( void ) const;
         u1 isInterconnect( void ) const;
 
-        static Type* Label( void );
-        static Type* Void( void );
+      protected:
+        std::string m_name;
+        std::string m_description;
+        u64 m_bitsize;
 
-        static Type* TypeID( void );
+        libstdhl::List< Type > m_results;
 
-        static Type* Bit( u16 bitsize );
-        static Type* String( void );
-        static Type* Vector( Type* type, u16 length );
-        static Type* Structure( std::vector< StructureElement > arguments );
-        static Type* Relation(
-            std::vector< Type* > result, std::vector< Type* > arguments );
-        static Type* Interconnect( void );
+      private:
+        ID m_id;
+
+        // std::weak_ptr< Type > m_self;
+
+      public:
+        std::unordered_map< std::string, Type::Ptr >& make_cache( void )
+        {
+            static std::unordered_map< std::string, Type::Ptr > cache;
+            return cache;
+        }
     };
+
+    using Types = libstdhl::List< Type >;
 
     class PrimitiveType : public Type
     {
       public:
-        PrimitiveType( const char* name, const char* description, u64 bitsize,
-            Type::ID id );
+        using Ptr = std::shared_ptr< PrimitiveType >;
 
-        const u64 bitsize( void ) override final;
-        const char* name( void ) override final;
-        const char* description( void ) override final;
-        const std::vector< Type* >& results( void ) override final;
-        const std::vector< Type* >& arguments( void ) override final;
+        PrimitiveType( const std::string& name, const std::string& description,
+            u64 bitsize, Type::ID id );
     };
 
     class AggregateType : public Type
     {
       public:
-        AggregateType( const char* name, const char* description, u64 bitsize,
-            Type::ID id );
+        using Ptr = std::shared_ptr< AggregateType >;
+
+        AggregateType( const std::string& name, const std::string& description,
+            u64 bitsize, Type::ID id );
     };
 
     class SyntheticType : public Type
     {
       public:
-        SyntheticType( const char* name, const char* description, u64 bitsize,
-            Type::ID id );
+        using Ptr = std::shared_ptr< SyntheticType >;
 
-        const u64 bitsize( void ) override final;
-        const char* name( void ) override final;
-        const char* description( void ) override final;
-        const std::vector< Type* >& results( void ) override final;
-        const std::vector< Type* >& arguments( void ) override final;
+        SyntheticType( const std::string& name, const std::string& description,
+            u64 bitsize, Type::ID id );
     };
 
     class LabelType : public PrimitiveType
@@ -163,7 +163,7 @@ namespace libcsel_ir
       public:
         using Ptr = std::shared_ptr< LabelType >;
 
-        LabelType();
+        LabelType( void );
     };
 
     class VoidType : public PrimitiveType
@@ -171,7 +171,7 @@ namespace libcsel_ir
       public:
         using Ptr = std::shared_ptr< VoidType >;
 
-        VoidType();
+        VoidType( void );
     };
 
     class BitType : public PrimitiveType
@@ -189,79 +189,56 @@ namespace libcsel_ir
       public:
         using Ptr = std::shared_ptr< StringType >;
 
-        StringType();
+        StringType( void );
     };
 
     class VectorType : public AggregateType
     {
-      private:
+      public:
         using Ptr = std::shared_ptr< VectorType >;
 
-        Type* m_type;
+        VectorType( const Type::Ptr& type, u16 length );
+
+      private:
+        Type::Ptr m_type;
         u16 m_length;
-
-      public:
-        VectorType( Type* type, u16 length );
-
-        const u64 bitsize( void ) override final;
-        const char* name( void ) override final;
-        const char* description( void ) override final;
-        const std::vector< Type* >& results( void ) override final;
-        const std::vector< Type* >& arguments( void ) override final;
-    };
-
-    struct StructureElement
-    {
-        Type* type;
-        const char* name;
     };
 
     class StructureType : public AggregateType
     {
-      private:
+      public:
         using Ptr = std::shared_ptr< StructureType >;
 
-        std::vector< StructureElement > m_elements;
-        // Structure* value; // PPA: link to EL instance ?!?!
+        StructureType( const std::shared_ptr< Structure >& kind );
 
-      public:
-        StructureType( std::vector< StructureElement > elements );
+        Structure& kind( void ) const;
 
-        const u64 bitsize( void ) override final;
-        const char* name( void ) override final;
-        const char* description( void ) override final;
-        const std::vector< Type* >& results( void ) override final;
-        const std::vector< Type* >& arguments( void ) override final;
+        std::shared_ptr< Structure > ptr_kind( void ) const;
 
-        const std::vector< StructureElement >& elements( void ) const;
+      private:
+        std::shared_ptr< Structure > m_kind;
     };
 
     class RelationType : public Type
     {
-      private:
+      public:
         using Ptr = std::shared_ptr< RelationType >;
 
-        std::vector< Type* > m_arguments;
+        RelationType( const std::vector< Type::Ptr >& results,
+            const std::vector< Type::Ptr >& arguments );
 
-      public:
-        RelationType(
-            std::vector< Type* > results, std::vector< Type* > arguments );
-
-        const u64 bitsize( void ) override final;
-        const char* name( void ) override final;
-        const char* description( void ) override final;
-        const std::vector< Type* >& results( void ) override final;
-        const std::vector< Type* >& arguments( void ) override final;
+      private:
+        Types m_arguments;
     };
 
     class InterconnectType : public SyntheticType
     {
       public:
-        InterconnectType();
+        InterconnectType( void );
     };
 }
 
-#endif /* _LIB_CSELIR_TYPE_H_ */
+#endif // _LIB_CSELIR_TYPE_H_
 
 //
 //  Local variables:

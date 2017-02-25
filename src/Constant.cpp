@@ -22,11 +22,21 @@
 //
 
 #include "Constant.h"
+
 #include "Structure.h"
 
-#include "../stdhl/cpp/Log.h"
+#include "../stdhl/cpp/Integer.h"
 
 using namespace libcsel_ir;
+
+Constant::Constant( const std::string& name, const Type::Ptr& type,
+    const libstdhl::Type& data, const std::vector< Constant >& constants,
+    Value::ID id )
+: Value( name, type, id )
+, m_data( data )
+, m_constants( constants )
+{
+}
 
 bool Constant::classof( Value const* obj )
 {
@@ -35,27 +45,17 @@ bool Constant::classof( Value const* obj )
            or StructureConstant::classof( obj ) or Identifier::classof( obj );
 }
 
-Value Constant::TRUE( void )
-{
-    return BitConstant( 1, true );
-}
-
-Value Constant::FALSE( void )
-{
-    return BitConstant( 1, false );
-}
-
-Value Constant::NIL( void )
-{
-    return BitConstant( Type::TypeID(), 0 );
-}
-
 //
 // Constants
 //
 
+//
+// Void Constant
+//
+
 VoidConstant::VoidConstant( void )
-: ConstantOf< void* >( "void", Type::Void(), 0, classid() )
+: Constant(
+      "void", libstdhl::get< VoidType >(), libstdhl::Type( {} ), {}, classid() )
 {
 }
 
@@ -64,16 +64,53 @@ bool VoidConstant::classof( Value const* obj )
     return obj->id() == classid();
 }
 
-BitConstant::BitConstant( Type* result, u64 value )
-: ConstantOf< Type::BitTy >(
-      libstdhl::Allocator::string( std::to_string( value ) ), result, value,
+//
+// Bit Constant
+//
+
+BitConstant::BitConstant( const BitType::Ptr& type, u64 value )
+: Constant( std::to_string( value ), type,
+      libstdhl::Type( std::vector< u64 >( type->wordsize(), 0 ) ), {},
       classid() )
 {
+    assert( m_data.words().size() == type->wordsize() );
+
+    if( type->bitsize() < 64 )
+    {
+        m_data.set(
+            0, value & ( ( (u64)1 << ( (u64)type->bitsize() ) ) - (u64)1 ) );
+    }
+    else if( type->bitsize() == 64 )
+    {
+        m_data.set( 0, value );
+    }
+    else if( type->bitsize() <= BitType::SizeMax )
+    {
+        m_data.set( 0, value );
+    }
+    else
+    {
+        throw std::domain_error( "invalid bit size '"
+                                 + std::to_string( type->bitsize() )
+                                 + "' to create 'BitConstant'" );
+    }
 }
 
 BitConstant::BitConstant( u16 bitsize, u64 value )
-: BitConstant( Type::Bit( bitsize ), value )
+: BitConstant( libstdhl::get< BitType >( bitsize ), value )
 {
+}
+
+const std::vector< u64 >& BitConstant::value( void ) const
+{
+    return m_data.words();
+}
+
+std::string BitConstant::to_bin( void ) const
+{
+    auto binary = m_data.to_string();
+
+    return binary.substr( binary.size() - type().bitsize() );
 }
 
 bool BitConstant::classof( Value const* obj )
@@ -81,15 +118,19 @@ bool BitConstant::classof( Value const* obj )
     return obj->id() == classid();
 }
 
-StringConstant::StringConstant( Type::StringTy value )
-: ConstantOf< Type::StringTy >(
-      libstdhl::Allocator::string( value ), Type::String(), value, classid() )
+//
+// String Constant
+//
+
+StringConstant::StringConstant( const std::string& value )
+: Constant( value, libstdhl::get< StringType >(), libstdhl::Type( {} ), {},
+      classid() )
 {
 }
 
-StringConstant::StringConstant( const char* value )
-: StringConstant( ( Type::StringTy )( value ) )
+std::string StringConstant::value( void ) const
 {
+    return str_name();
 }
 
 bool StringConstant::classof( Value const* obj )
@@ -97,31 +138,42 @@ bool StringConstant::classof( Value const* obj )
     return obj->id() == classid();
 }
 
+//
+// Structure Constant
+//
+
 StructureConstant::StructureConstant(
-    Type& type, const std::vector< Constant::Ptr >& value )
-: ConstantOf< std::vector< Constant::Ptr > >( 0, &type, value, classid() )
+    const StructureType::Ptr& type, const std::vector< Constant >& values )
+: Constant( "", type, libstdhl::Type( {} ), values, classid() )
 {
-    assert( type.isStructure() );
-    assert( type.arguments().size() == 0 );
-    assert( type.results().size() == value.size() );
+    assert( type->results().size() == values.size() );
 
-    std::string tmp = "{";
+    m_name = "{";
 
-    for( u32 i = 0; i < value.size(); i++ )
+    for( u32 i = 0; i < values.size(); i++ )
     {
-        assert( value[ i ] );
-        assert( *type.results()[ i ] == value[ i ]->type() );
+        assert( *type->results()[ i ] == values[ i ].type() );
 
         if( i > 0 )
         {
-            tmp += ", ";
+            m_name += ", ";
         }
 
-        tmp += value[ i ]->name();
+        m_name += values[ i ].str_name();
     }
-    tmp += "}";
 
-    setName( tmp );
+    m_name += "}";
+}
+
+StructureConstant::StructureConstant(
+    const Structure::Ptr& kind, const std::vector< Constant >& values )
+: StructureConstant( libstdhl::get< StructureType >( kind ), values )
+{
+}
+
+std::vector< Constant > StructureConstant::value( void ) const
+{
+    return m_constants;
 }
 
 bool StructureConstant::classof( Value const* obj )
@@ -129,43 +181,13 @@ bool StructureConstant::classof( Value const* obj )
     return obj->id() == classid();
 }
 
-Identifier::Identifier( Type* type, const char* value )
-: ConstantOf< const char* >( value, type, value, classid() )
+//
+// Identifier (Constant)
+//
+
+Identifier::Identifier( const Type::Ptr& type, const std::string& value )
+: Constant( value, type, libstdhl::Type( {} ), {}, classid() )
 {
-    // auto result = ident2obj().find( value );
-    // if( result != ident2obj().end() )
-    // {
-    //     assert( !" identifier already used! " );
-    // }
-}
-
-Identifier::~Identifier( void )
-{
-}
-
-Identifier* Identifier::create( Type* type, const char* value, Value* scope )
-{
-    assert( type );
-    assert( value );
-
-    Identifier tmp = Identifier( type, value );
-
-    auto cache = ident2obj().find( value );
-    if( cache != ident2obj().end() )
-    {
-        Value* v = cache->second;
-        assert( strcmp( v->type().name(), type->name() ) == 0 );
-        return cache->second;
-    }
-
-    Identifier* ptr = new Identifier( tmp );
-    ident2obj()[ std::string( value ) ] = ptr;
-    return ptr;
-}
-
-void Identifier::forgetSymbol( const char* value )
-{
-    ident2obj().erase( std::string( value ) );
 }
 
 bool Identifier::classof( Value const* obj )

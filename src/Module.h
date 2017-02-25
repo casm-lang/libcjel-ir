@@ -24,27 +24,16 @@
 #ifndef _LIB_CSELIR_MODULE_H_
 #define _LIB_CSELIR_MODULE_H_
 
-#include "Constant.h"
-#include "Function.h"
-#include "Intrinsic.h"
-#include "Memory.h"
-#include "Structure.h"
 #include "User.h"
-#include "Value.h"
 
 namespace libcsel_ir
 {
     class Module : public User
     {
-      private:
-        std::unordered_map< u32, std::vector< Value* > > m_content;
-
       public:
-        Module( const char* name );
+        Module( const std::string& name );
 
-        ~Module( void );
-
-        void add( Value* value );
+        void add( const Value::Ptr& value );
 
         template < class C >
         bool has( void ) const
@@ -53,7 +42,7 @@ namespace libcsel_ir
         }
 
         template < class C >
-        const std::vector< Value* >& get( void ) const
+        Values get( void ) const
         {
             auto result = m_content.find( C::classid() );
             assert( result != m_content.end() );
@@ -66,10 +55,13 @@ namespace libcsel_ir
         }
 
         static bool classof( Value const* obj );
+
+      private:
+        std::unordered_map< u32, Values > m_content;
     };
 }
 
-#endif /* _LIB_CSELIR_MODULE_H_ */
+#endif // _LIB_CSELIR_MODULE_H_
 
 //
 //  Local variables:

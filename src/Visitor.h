@@ -24,26 +24,59 @@
 #ifndef _LIB_CSELIR_VISITOR_H_
 #define _LIB_CSELIR_VISITOR_H_
 
-//#include "CselIR.h"
-
-#include "Constant.h"
-#include "Function.h"
-#include "Instruction.h"
-#include "Interconnect.h"
-#include "Intrinsic.h"
-#include "Memory.h"
-#include "Module.h"
-#include "Reference.h"
-#include "Scope.h"
-#include "Variable.h"
-
 #include "CselIR.h"
 
 namespace libcsel_ir
 {
-    enum class Traversal
+    class Module;
+
+    class Variable;
+    class Memory;
+    class Interconnect;
+
+    class Function;
+    class Intrinsic;
+    class Reference;
+    class Structure;
+
+    class ParallelScope;
+    class SequentialScope;
+
+    class TrivialStatement;
+    class BranchStatement;
+    class LoopStatement;
+
+    class CallInstruction;
+    class IdCallInstruction;
+    class NopInstruction;
+    class StreamInstruction;
+    class AllocInstruction;
+    class IdInstruction;
+    class CastInstruction;
+    class LoadInstruction;
+    class StoreInstruction;
+    class ExtractInstruction;
+    class NotInstruction;
+    class LnotInstruction;
+    class AndInstruction;
+    class OrInstruction;
+    class XorInstruction;
+    class EquInstruction;
+    class NeqInstruction;
+    class AddSignedInstruction;
+    class AddUnsignedInstruction;
+    class DivSignedInstruction;
+    class ModUnsignedInstruction;
+    class ZeroExtendInstruction;
+    class TruncationInstruction;
+
+    class BitConstant;
+    class StringConstant;
+    class StructureConstant;
+
+    enum Traversal : u8
     {
-        PREORDER,
+        PREORDER = 0,
         POSTORDER
     };
 
@@ -273,7 +306,7 @@ namespace libcsel_ir
     };
 }
 
-#endif /* _LIB_CSELIR_VISITOR_H_ */
+#endif // _LIB_CSELIR_VISITOR_H_
 
 //
 //  Local variables:

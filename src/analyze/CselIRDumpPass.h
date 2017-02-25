@@ -38,6 +38,8 @@ namespace libcsel_ir
 
         bool run( libpass::PassResult& pr ) override;
 
+        std::string indention( Value& value );
+
         LIB_CSELIR_VISITOR_INTERFACE;
 
         class Data : public libpass::PassData
@@ -61,7 +63,7 @@ namespace libcsel_ir
     };
 }
 
-#endif /* _LIB_CSELIR_DUMP_PASS_H_ */
+#endif // _LIB_CSELIR_DUMP_PASS_H_
 
 //
 //  Local variables:

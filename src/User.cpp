@@ -39,8 +39,8 @@ bool User::classof( Value const* obj )
     return obj->id() == classid() or Module::classof( obj )
            or Memory::classof( obj ) or CallableUnit::classof( obj )
            or Reference::classof( obj ) or Structure::classof( obj )
-           or Constant::classof( obj ) or Instruction::classof( obj )
-           or Variable::classof( obj ) or Interconnect::classof( obj );
+           or Instruction::classof( obj ) or Variable::classof( obj )
+           or Interconnect::classof( obj );
 }
 
 //

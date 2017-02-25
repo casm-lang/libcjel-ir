@@ -27,27 +27,34 @@ using namespace libcsel_ir;
 
 TEST( libcsel_ir__type_bit, size_less_one_is_invalid )
 {
-    EXPECT_EXIT( Type::Bit( 0 ), ::testing::KilledBySignal( SIGABRT ), "" );
+    EXPECT_THROW( { BitType( 0 ); }, std::domain_error );
 }
 
 TEST( libcsel_ir__type_bit, size_greater_SizeMax_is_invalid )
 {
-    EXPECT_EXIT( Type::Bit( BitType::SizeMax + 1 ),
-        ::testing::KilledBySignal( SIGABRT ), "" );
+    EXPECT_THROW( { BitType( BitType::SizeMax + 1 ); }, std::domain_error );
 }
 
 TEST( libcsel_ir__type_bit, from_one_to_SizeMax )
 {
     for( u16 c = 1; c <= BitType::SizeMax; c++ )
     {
-        Type::Bit( c );
-    }
-}
+        auto stack = BitType( c );
 
-TEST( libcsel_ir__Type, make_bit )
-{
-    for( u16 c = 1; c <= BitType::SizeMax; c++ )
-    {
-        libstdhl::get< BitType >( c );
+        auto heap_a = libstdhl::make< BitType >( c );
+        auto heap_b = libstdhl::make< BitType >( c );
+
+        ASSERT_TRUE( heap_a != nullptr );
+        ASSERT_TRUE( heap_b != nullptr );
+        EXPECT_TRUE( heap_a != heap_b );
+        EXPECT_TRUE( *heap_a == *heap_b );
+
+        auto cache_a = libstdhl::get< BitType >( c );
+        auto cache_b = libstdhl::get< BitType >( c );
+
+        ASSERT_TRUE( cache_a != nullptr );
+        ASSERT_TRUE( cache_b != nullptr );
+        EXPECT_TRUE( cache_a == cache_b );
+        EXPECT_TRUE( *cache_a == *cache_b );
     }
 }

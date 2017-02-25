@@ -22,169 +22,144 @@
 //
 
 #include "CallableUnit.h"
+
+#include "Constant.h"
 #include "Function.h"
 #include "Intrinsic.h"
-#include "Reference.h"
+#include "Scope.h"
 
 using namespace libcsel_ir;
 
 u64 CallableUnit::m_allocation_cnt = 0;
 
-CallableUnit::CallableUnit( const char* name, Type* type, Value::ID id )
+CallableUnit::CallableUnit(
+    const std::string& name, const RelationType::Ptr& type, Value::ID id )
 : User( name, type, id )
-, m_context( 0 )
-, m_identifier( 0 )
-, m_allocation_id( BitConstant( Type::TypeID(), m_allocation_cnt ) )
+, m_allocation_id( libstdhl::make< BitConstant >( 64, m_allocation_cnt ) )
 {
     m_allocation_cnt++;
 }
 
-CallableUnit::~CallableUnit( void )
-{
-}
-
-BitConstant& CallableUnit::allocId( void )
-{
-    return m_allocation_id;
-}
-
-Block* CallableUnit::context( void ) const
-{
-    return m_context;
-}
-
-void CallableUnit::setContext( Block* scope )
+void CallableUnit::setContext( const Scope::Ptr& scope )
 {
     assert( scope );
 
     m_context = scope;
-
-    scope->setParent( this );
 }
 
-const Identifier* CallableUnit::identifier( void ) const
+Scope::Ptr CallableUnit::context( void ) const
 {
-    assert( m_identifier );
-    return m_identifier;
+    return m_context;
 }
 
-Reference* CallableUnit::add(
-    const char* ref_name, Type* ref_type, u8 ref_kind )
+BitConstant::Ptr CallableUnit::allocId( void ) const
 {
-    Reference* ref
-        = new Reference( ref_name, ref_type, this, (Reference::Kind)ref_kind );
-    assert( ref );
+    return m_allocation_id;
+}
 
-    m_name2ref[ ref_name ] = ref;
+void CallableUnit::add( const Reference::Ptr& reference )
+{
+    auto name = reference->str_name();
 
+    auto result = m_name2ref.find( name );
+    if( result != m_name2ref.end() )
+    {
+        throw std::domain_error(
+            "this 'CallableUnit' already has a reference named '" + name
+            + "' of type '"
+            + reference->type().str_name()
+            + "'" );
+    }
+
+    m_name2ref[ name ] = reference;
+
+    auto kind = reference->kind();
+
+    m_name2index[ name ] = m_references[ kind ].size();
+    m_references[ kind ].push_back( reference );
+}
+
+Reference::Ptr CallableUnit::in(
+    const std::string& name, const Type::Ptr& type )
+{
+    auto ref = libstdhl::make< Reference >( name, type, Reference::INPUT );
+    add( ref );
     return ref;
 }
 
-Reference* CallableUnit::in( const char* ref_name, Type* ref_type )
+Reference::Ptr CallableUnit::out(
+    const std::string& name, const Type::Ptr& type )
 {
-    return add( ref_name, ref_type, Reference::INPUT );
+    auto ref = libstdhl::make< Reference >( name, type, Reference::OUTPUT );
+    add( ref );
+    return ref;
 }
 
-Reference* CallableUnit::out( const char* ref_name, Type* ref_type )
+Reference::Ptr CallableUnit::link(
+    const std::string& name, const Type::Ptr& type )
 {
-    return add( ref_name, ref_type, Reference::OUTPUT );
+    auto ref = libstdhl::make< Reference >( name, type, Reference::LINKAGE );
+    add( ref );
+    return ref;
 }
 
-Reference* CallableUnit::link( const char* ref_name, Type* ref_type )
+const std::vector< Reference::Ptr >& CallableUnit::inputs( void ) const
 {
-    return add( ref_name, ref_type, Reference::LINKAGE );
+    return m_references[ Reference::INPUT ];
 }
 
-void CallableUnit::addParameter( Value* value, u1 input )
+const std::vector< Reference::Ptr >& CallableUnit::outputs( void ) const
 {
-    assert( value );
-    assert( isa< Reference >( value ) );
+    return m_references[ Reference::OUTPUT ];
+}
 
-    Reference* ref = (Reference*)value;
-    ref->setCallableUnit( this );
+const std::vector< Reference::Ptr >& CallableUnit::linkage( void ) const
+{
+    return m_references[ Reference::LINKAGE ];
+}
 
-    if( input )
+u16 CallableUnit::indexOf( const Reference::Ptr& reference ) const
+{
+    auto result = m_name2index.find( reference->name() );
+    if( result == m_name2index.end() )
     {
-        m_parameter2index[ value ] = m_parameter_in.size();
-        m_parameter_in.push_back( value );
-    }
-    else
-    {
-        m_parameter2index[ value ] = m_parameter_out.size();
-        m_parameter_out.push_back( value );
-    }
-}
-
-void CallableUnit::addLinkage( Value* value )
-{
-    assert( value );
-    assert( isa< Reference >( value ) );
-
-    Reference* ref = (Reference*)value;
-    ref->setCallableUnit( this );
-
-    m_linkage.push_back( value );
-}
-
-const std::vector< Value* >& CallableUnit::inParameters( void ) const
-{
-    return m_parameter_in;
-}
-
-const std::vector< Value* >& CallableUnit::outParameters( void ) const
-{
-    return m_parameter_out;
-}
-
-const i16 CallableUnit::indexOfParameter( Value* value ) const
-{
-    auto result = m_parameter2index.find( value );
-    if( result != m_parameter2index.end() )
-    {
-        return result->second;
+        throw std::domain_error( "reference '" + reference->str_description()
+                                 + "' does not belong to this callable '"
+                                 + this->str_description()
+                                 + "'" );
     }
 
-    return -1;
+    return result->second;
 }
 
-const u1 CallableUnit::isLastParameter( Value* value ) const
+u1 CallableUnit::isLast( const Reference::Ptr& reference ) const
 {
-    assert( isa< Reference >( value ) );
-    Reference* ref = (Reference*)value;
+    i32 index = indexOf( reference );
+    i32 total = length();
 
-    i16 index = indexOfParameter( ref );
-    assert( index >= 0 );
-
-    i16 total = parameterLength();
-
-    if( not ref->isInput() )
+    if( not reference->isInput() )
     {
-        index += m_parameter_in.size();
+        index += m_references[ Reference::INPUT ].size();
     }
 
     return index >= ( total - 1 );
 }
 
-const i16 CallableUnit::parameterLength( void ) const
+u16 CallableUnit::length( void ) const
 {
-    return m_parameter_in.size() + m_parameter_out.size();
+    return m_references[ Reference::INPUT ].size()
+           + m_references[ Reference::OUTPUT ].size();
 }
 
-const std::vector< Value* >& CallableUnit::linkage( void ) const
-{
-    return m_linkage;
-}
-
-const Reference* CallableUnit::reference( const char* name ) const
+Reference::Ptr CallableUnit::reference( const std::string& name ) const
 {
     auto result = m_name2ref.find( name );
     if( result != m_name2ref.end() )
     {
-        assert( isa< Reference >( result->second ) );
-        return (const Reference*)result->second;
+        return result->second.lock();
     }
 
-    return 0;
+    return nullptr;
 }
 
 bool CallableUnit::classof( Value const* obj )

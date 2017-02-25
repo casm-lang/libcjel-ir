@@ -33,11 +33,11 @@ TEST( libcsel_ir__Type_operator, equal )
         {
             if( x == y )
             {
-                EXPECT_TRUE( Type::Bit( x ) == Type::Bit( y ) );
+                EXPECT_TRUE( BitType( x ) == BitType( y ) );
             }
             else
             {
-                EXPECT_FALSE( Type::Bit( x ) == Type::Bit( y ) );
+                EXPECT_FALSE( BitType( x ) == BitType( y ) );
             }
         }
     }
@@ -51,11 +51,11 @@ TEST( libcsel_ir__Type_operator, not_equal )
         {
             if( x != y )
             {
-                EXPECT_TRUE( Type::Bit( x ) != Type::Bit( y ) );
+                EXPECT_TRUE( BitType( x ) != BitType( y ) );
             }
             else
             {
-                EXPECT_FALSE( Type::Bit( x ) != Type::Bit( y ) );
+                EXPECT_FALSE( BitType( x ) != BitType( y ) );
             }
         }
     }

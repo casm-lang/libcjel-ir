@@ -24,33 +24,27 @@
 #ifndef _LIB_CSELIR_VARIABLE_H_
 #define _LIB_CSELIR_VARIABLE_H_
 
+#include "User.h"
+
 #include "Constant.h"
 #include "Instruction.h"
-#include "User.h"
 #include "Value.h"
 
 namespace libcsel_ir
 {
     class Variable : public User
     {
-      private:
-        static u64 m_allocation_cnt;
-
-        Value* m_expression;
-        const char* m_ident;
-
-        BitConstant m_allocation_id;
-
       public:
-        Variable( Type* type, Value* expression, const char* ident = 0 );
+        using Ptr = std::shared_ptr< Variable >;
+
+        Variable( const Type::Ptr& type, const Value::Ptr& expression,
+            const std::string& ident = 0 );
 
         ~Variable( void );
 
-        BitConstant& allocId( void );
+        BitConstant::Ptr allocId( void );
 
-        Value* expression( void ) const;
-
-        const char* ident( void ) const;
+        Value::Ptr expression( void ) const;
 
         static inline ID classid( void )
         {
@@ -58,10 +52,16 @@ namespace libcsel_ir
         }
 
         static bool classof( Value const* obj );
+
+      private:
+        static u64 m_allocation_cnt;
+
+        Value::Ptr m_expression;
+        BitConstant::Ptr m_allocation_id;
     };
 }
 
-#endif /* _LIB_CSELIR_VARIABLE_H_ */
+#endif // _LIB_CSELIR_VARIABLE_H_
 
 //
 //  Local variables:

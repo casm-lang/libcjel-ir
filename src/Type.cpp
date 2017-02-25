@@ -23,39 +23,81 @@
 
 #include "Type.h"
 
-#include "../stdhl/cpp/Allocator.h"
+#include "Structure.h"
 
 using namespace libcsel_ir;
 
-Type::Type(
-    const char* name, const char* description, u64 bitsize, Type::ID id )
+Type::Type( const std::string& name, const std::string& description,
+    u64 bitsize, Type::ID id )
 : m_name( name )
 , m_description( description )
 , m_bitsize( bitsize )
 , m_id( id )
-, m_hash( 0 )
 {
 }
 
-const Type::ID Type::id( void ) const
+const char* Type::name( void ) const
+{
+    return m_name.c_str();
+}
+
+std::string Type::str_name( void ) const
+{
+    return m_name;
+}
+
+const char* Type::description( void ) const
+{
+    return m_description.c_str();
+}
+
+std::string Type::str_description( void ) const
+{
+    return m_description;
+}
+
+Type::ID Type::id( void ) const
 {
     return m_id;
 }
 
-const char* Type::make_hash( void )
+u64 Type::bitsize( void ) const
 {
-    if( not m_hash )
-    {
-        std::string tmp;
-        tmp += "t:";
-        tmp += std::to_string( id() );
-        tmp += ":";
-        tmp += name();
+    return m_bitsize;
+}
 
-        m_hash = libstdhl::Allocator::string( tmp );
-    }
+u64 Type::wordsize( const u64 wordbits ) const
+{
+    return ( ( bitsize() - 1 ) / wordbits ) + 1;
+}
 
-    return m_hash;
+std::vector< Type* > Type::results( void ) const
+{
+    assert( !" TODO! " );
+    return {};
+}
+
+std::vector< Type::Ptr > Type::ptr_results( void ) const
+{
+    assert( !" TODO! " );
+    return {};
+}
+
+std::vector< Type* > Type::arguments( void ) const
+{
+    assert( !" TODO! " );
+    return {};
+}
+
+std::vector< Type::Ptr > Type::ptr_arguments( void ) const
+{
+    assert( !" TODO! " );
+    return {};
+}
+
+std::string Type::make_hash( void ) const
+{
+    return "t:" + std::to_string( id() ) + ":" + str_description();
 }
 
 u1 Type::isLabel( void ) const
@@ -91,141 +133,21 @@ u1 Type::isInterconnect( void ) const
     return id() == Type::INTERCONNECT;
 }
 
-Type* Type::Label( void )
-{
-    static LabelType cache = LabelType();
-    return m_str2obj().emplace( cache.name(), &cache ).first->second;
-}
-
-Type* Type::Void( void )
-{
-    static VoidType cache = VoidType();
-    return m_str2obj().emplace( cache.name(), &cache ).first->second;
-}
-
-Type* Type::TypeID( void )
-{
-    return Bit( 64 );
-}
-
-Type* Type::Bit( u16 bitsize )
-{
-    BitType tmp( bitsize );
-
-    auto cache = m_str2obj().find( tmp.name() );
-    if( cache != m_str2obj().end() )
-    {
-        return cache->second;
-    }
-
-    Type* ptr = new BitType( tmp );
-    m_str2obj()[ tmp.name() ] = ptr;
-    return ptr;
-}
-
-Type* Type::String( void )
-{
-    static StringType cache = StringType();
-    return m_str2obj().emplace( cache.name(), &cache ).first->second;
-}
-
-Type* Type::Vector( Type* type, u16 length )
-{
-    VectorType tmp = VectorType( type, length );
-
-    auto cache = m_str2obj().find( tmp.name() );
-    if( cache != m_str2obj().end() )
-    {
-        return cache->second;
-    }
-
-    Type* ptr = new VectorType( tmp );
-    m_str2obj()[ tmp.name() ] = ptr;
-    return ptr;
-}
-
-Type* Type::Structure( std::vector< StructureElement > elements )
-{
-    StructureType tmp( elements );
-
-    auto cache = m_str2obj().find( tmp.name() );
-    if( cache != m_str2obj().end() )
-    {
-        return cache->second;
-    }
-
-    Type* ptr = new StructureType( tmp );
-    m_str2obj()[ tmp.name() ] = ptr;
-    return ptr;
-}
-
-Type* Type::Relation(
-    std::vector< Type* > result, std::vector< Type* > arguments )
-{
-    RelationType tmp( result, arguments );
-
-    auto cache = m_str2obj().find( tmp.name() );
-    if( cache != m_str2obj().end() )
-    {
-        return cache->second;
-    }
-
-    Type* ptr = new RelationType( tmp );
-    m_str2obj()[ tmp.name() ] = ptr;
-    return ptr;
-}
-
-Type* Type::Interconnect( void )
-{
-    static InterconnectType cache = InterconnectType();
-    return m_str2obj().emplace( cache.name(), &cache ).first->second;
-}
-
 //
 // PrimitiveType
 //
 
-PrimitiveType::PrimitiveType(
-    const char* name, const char* description, u64 bitsize, Type::ID id )
+PrimitiveType::PrimitiveType( const std::string& name,
+    const std::string& description, u64 bitsize, Type::ID id )
 : Type( name, description, bitsize, id )
 {
-}
-
-const u64 PrimitiveType::bitsize( void )
-{
-    return m_bitsize;
-}
-
-const char* PrimitiveType::name( void )
-{
-    return m_name;
-}
-
-const char* PrimitiveType::description( void )
-{
-    return m_description;
-}
-
-const std::vector< Type* >& PrimitiveType::results( void )
-{
-    if( m_results.size() == 0 )
-    {
-        m_results.push_back( this );
-    }
-    return m_results;
-}
-
-const std::vector< Type* >& PrimitiveType::arguments( void )
-{
-    static std::vector< Type* > empty = {};
-    return empty;
 }
 
 //
 // LabelType
 //
 
-LabelType::LabelType()
+LabelType::LabelType( void )
 : PrimitiveType( "label", "Label", 0, Type::LABEL )
 {
 }
@@ -234,7 +156,7 @@ LabelType::LabelType()
 // VoidType
 //
 
-VoidType::VoidType()
+VoidType::VoidType( void )
 : PrimitiveType( "void", "Void", 0, Type::VOID )
 {
 }
@@ -244,28 +166,41 @@ VoidType::VoidType()
 //
 
 BitType::BitType( u16 bitsize )
-: PrimitiveType( libstdhl::Allocator::string( "u" + std::to_string( bitsize ) ),
-      libstdhl::Allocator::string( "Bit(" + std::to_string( bitsize ) + ")" ),
-      bitsize, Type::BIT )
+: PrimitiveType( "u" + std::to_string( bitsize ),
+      "Bit(" + std::to_string( bitsize ) + ")", bitsize, Type::BIT )
 {
-    assert( m_bitsize >= 1 and m_bitsize <= BitType::SizeMax );
+    if( bitsize < 1 )
+    {
+        throw std::domain_error(
+            "bit size of 'BitType' shall be greater or equal than '1'" );
+    }
+    else if( bitsize > BitType::SizeMax )
+    {
+        throw std::domain_error(
+            "bit size of 'BitType' shall be smaller or equal than '"
+            + std::to_string( BitType::SizeMax )
+            + "'" );
+    }
 }
 
 //
 // StringType
 //
 
-StringType::StringType()
-: PrimitiveType( "s", "String", 0 /*PPA todo*/, Type::STRING )
+StringType::StringType( void )
+: PrimitiveType( "s", "String", 0, Type::STRING )
 {
+    // TODO: PPA: FIXME: IDEA: strings are either always without a size and it
+    // is determined later in the compilation step or every string size
+    // (bitsize) will be fixed by construction
 }
 
 //
 // AggregateType
 //
 
-AggregateType::AggregateType(
-    const char* name, const char* description, u64 bitsize, Type::ID id )
+AggregateType::AggregateType( const std::string& name,
+    const std::string& description, u64 bitsize, Type::ID id )
 : Type( name, description, bitsize, id )
 {
 }
@@ -274,305 +209,157 @@ AggregateType::AggregateType(
 // VectorType
 //
 
-VectorType::VectorType( Type* type, u16 length )
+VectorType::VectorType( const Type::Ptr& type, u16 length )
 : AggregateType( "v", "Vector", type->bitsize() * length, Type::VECTOR )
 , m_type( type )
 , m_length( length )
 {
-}
-
-const u64 VectorType::bitsize( void )
-{
-    return m_bitsize;
-}
-
-const char* VectorType::name( void )
-{
-    if( not m_name )
+    if( length < 1 )
     {
-        std::string tmp = "< ";
-        tmp += m_type->name();
-        tmp += " x ";
-        tmp += std::to_string( m_length );
-        tmp += ">";
-        m_name = libstdhl::Allocator::string( tmp );
+        throw std::domain_error(
+            "length of 'VectorType' shall be greater or equal than '1'" );
     }
 
-    return m_name;
-}
+    m_name = "< " + m_type->str_name() + " x " + std::to_string( m_length )
+             + " > ";
 
-const char* VectorType::description( void )
-{
-    if( not m_description )
+    m_description = "< " + m_type->str_description() + " x "
+                    + std::to_string( m_length ) + " > ";
+
+    for( u32 i = 0; i < m_length; i++ )
     {
-        std::string tmp = "< ";
-        tmp += m_type->description();
-        tmp += " x ";
-        tmp += std::to_string( m_length );
-        tmp += ">";
-        m_description = libstdhl::Allocator::string( tmp );
+        m_results.add( m_type );
     }
-
-    return m_description;
-}
-
-const std::vector< Type* >& VectorType::results( void )
-{
-    if( m_results.size() == 0 )
-    {
-        for( u32 i = 0; i < m_length; i++ )
-        {
-            m_results.push_back( m_type );
-        }
-    }
-    return m_results;
-}
-
-const std::vector< Type* >& VectorType::arguments( void )
-{
-    static std::vector< Type* > empty = {};
-    return empty;
 }
 
 //
 // StructureType
 //
 
-StructureType::StructureType( std::vector< StructureElement > elements )
+StructureType::StructureType( const Structure::Ptr& kind )
 : AggregateType( 0, 0, 0, Type::STRUCTURE )
-, m_elements( elements )
+, m_kind( kind )
 {
-}
-
-const u64 StructureType::bitsize( void )
-{
-    if( not m_bitsize )
+    if( not kind )
     {
-        u64 tmp = 0;
-
-        for( auto element : m_elements )
-        {
-            tmp += element.type->bitsize();
-        }
-
-        assert( tmp != 0 );
-        m_bitsize = tmp;
+        throw std::domain_error(
+            "structure kind of 'StructureType' cannot be a null pointer" );
     }
 
-    return m_bitsize;
-}
+    const auto elements = kind->elements();
 
-const char* StructureType::name( void )
-{
-    if( not m_name )
+    m_name = "[";
+    m_description = "[";
+
+    m_bitsize = 0;
+
+    u1 first = true;
+    for( const auto& element : elements )
     {
-        u1 first = true;
-        std::string tmp = "[";
-        for( auto element : m_elements )
+        m_bitsize += element.type->bitsize();
+
+        if( not first )
         {
-            if( not first )
-            {
-                tmp += ", ";
-            }
-            tmp += element.type->name();
-            tmp += " : ";
-            tmp += element.name;
-            first = false;
+            m_name += ", ";
+            m_description += ", ";
         }
-        tmp += "]";
-        m_name = libstdhl::Allocator::string( tmp );
+
+        m_name += element.type->str_name() + " : " + element.name;
+        m_description += element.type->str_description() + " : " + element.name;
+
+        first = false;
     }
 
-    return m_name;
-}
+    m_name += "]";
+    m_description += "]";
 
-const char* StructureType::description( void )
-{
-    if( not m_description )
+    if( m_bitsize == 0 )
     {
-        u1 first = true;
-        std::string tmp = "[";
-        for( auto element : m_elements )
-        {
-            if( not first )
-            {
-                tmp += ", ";
-            }
-            tmp += element.type->description();
-            tmp += " : ";
-            tmp += element.name;
-            first = false;
-        }
-        tmp += "]";
-        m_description = libstdhl::Allocator::string( tmp );
+        throw std::domain_error( "bit-size of 'StructureType' cannot be '0'" );
     }
-
-    return m_description;
-}
-
-const std::vector< StructureElement >& StructureType::elements( void ) const
-{
-    return m_elements;
-}
-
-const std::vector< Type* >& StructureType::results( void )
-{
-    if( m_results.size() == 0 )
-    {
-        for( auto element : m_elements )
-        {
-            m_results.push_back( element.type );
-        }
-    }
-    return m_results;
-}
-
-const std::vector< Type* >& StructureType::arguments( void )
-{
-    static std::vector< Type* > empty = {};
-    return empty;
 }
 
 //
 // RelationType
 //
 
-RelationType::RelationType(
-    std::vector< Type* > results, std::vector< Type* > arguments )
+RelationType::RelationType( const std::vector< Type::Ptr >& results,
+    const std::vector< Type::Ptr >& arguments )
 : Type( 0, 0, 0, Type::RELATION )
 , m_arguments( arguments )
 {
     m_results = std::move( results );
-}
 
-const u64 RelationType::bitsize( void )
-{
-    return m_bitsize;
-}
-
-const char* RelationType::name( void )
-{
-    if( not m_name )
+    if( results.size() == 0 )
     {
-        u1 first = true;
-        std::string tmp = "(";
-        for( auto argument : m_arguments )
-        {
-            if( not first )
-            {
-                tmp += ", ";
-            }
-            tmp += argument->name();
-            first = false;
-        }
-        tmp += " -> ";
-
-        first = true;
-        for( auto result : m_results )
-        {
-            if( not first )
-            {
-                tmp += ", ";
-            }
-            tmp += result->name();
-            first = false;
-        }
-        tmp += ")";
-
-        m_name = libstdhl::Allocator::string( tmp );
+        throw std::domain_error(
+            "results size of 'RelationType' cannot be '0'" );
     }
 
-    return m_name;
-}
+    m_name = "(";
+    m_description = "(";
 
-const char* RelationType::description( void )
-{
-    if( not m_description )
+    u1 first = true;
+    for( auto argument : m_arguments )
     {
-        u1 first = true;
-        std::string tmp = "(";
-        for( auto argument : m_arguments )
+        if( not first )
         {
-            if( not first )
-            {
-                tmp += " x ";
-            }
-            tmp += argument->description();
-            first = false;
+            m_name += ", ";
+            m_description += " x ";
         }
 
-        tmp += " -> ";
+        m_name += argument->str_name();
+        m_description += argument->str_description();
 
-        first = true;
-        for( auto result : m_results )
-        {
-            if( not first )
-            {
-                tmp += ", ";
-            }
-            tmp += result->description();
-            first = false;
-        }
-        tmp += ")";
-
-        m_description = libstdhl::Allocator::string( tmp );
+        first = false;
     }
 
-    return m_description;
-}
+    m_name += " -> ";
+    m_description += " -> ";
 
-const std::vector< Type* >& RelationType::results( void )
-{
-    return m_results;
-}
+    m_bitsize = 0;
 
-const std::vector< Type* >& RelationType::arguments( void )
-{
-    return m_arguments;
+    first = true;
+    for( auto result : m_results )
+    {
+        m_bitsize += result->bitsize();
+
+        if( not first )
+        {
+            m_name += ", ";
+            m_description += " x ";
+        }
+
+        m_name += result->str_name();
+        m_description += result->str_description();
+
+        first = false;
+    }
+
+    m_name += ")";
+    m_description += ")";
+
+    if( m_bitsize == 0 )
+    {
+        throw std::domain_error( "bit-size of 'StructureType' cannot be '0'" );
+    }
 }
 
 //
 // SyntheticType
 //
 
-SyntheticType::SyntheticType(
-    const char* name, const char* description, u64 bitsize, Type::ID id )
+SyntheticType::SyntheticType( const std::string& name,
+    const std::string& description, u64 bitsize, Type::ID id )
 : Type( name, description, bitsize, id )
 {
-}
-
-const u64 SyntheticType::bitsize( void )
-{
-    return m_bitsize;
-}
-
-const char* SyntheticType::name( void )
-{
-    return m_name;
-}
-
-const char* SyntheticType::description( void )
-{
-    return m_description;
-}
-
-const std::vector< Type* >& SyntheticType::results( void )
-{
-    static std::vector< Type* > empty = {};
-    return empty;
-}
-
-const std::vector< Type* >& SyntheticType::arguments( void )
-{
-    static std::vector< Type* > empty = {};
-    return empty;
 }
 
 //
 // InterconnectType
 //
 
-InterconnectType::InterconnectType()
+InterconnectType::InterconnectType( void )
 : SyntheticType( "x", "Interconnect", 0, Type::INTERCONNECT )
 {
 }

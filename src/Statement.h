@@ -35,37 +35,33 @@ namespace libcsel_ir
 {
     class Statement : public Block
     {
-      private:
-        std::vector< Value* > m_instructions;
-        std::vector< Scope* > m_scopes;
-
       public:
-        Statement( const char* name, Type* type, Value* parent,
-            Value::ID id = Value::STATEMENT );
+        using Ptr = std::shared_ptr< Statement >;
 
-        const std::vector< Value* >& instructions( void ) const;
+        Statement( const std::string& name, const Type::Ptr& type,
+            Value::ID id = classid() );
 
-        virtual const u1 isParallel( void ) const;
+        Instructions instructions( void ) const;
 
-        Value* add( Value* instruction );
+        Instruction::Ptr add( const Instruction::Ptr& instruction );
 
-        void addScope( Scope* block );
+        void add( const Scope::Ptr& scope );
 
-        const std::vector< Scope* >& scopes( void ) const;
+        Scopes scopes( void ) const;
 
-        template < class C >
-        bool consistsOnlyOf( void )
+        template < typename C >
+        u1 consistsOnlyOf( void ) const
         {
-            for( auto instr : instructions() )
+            for( auto instruction : instructions() )
             {
-                if( not isa< C >( instr ) )
+                if( not isa< C >( instruction ) )
                 {
                     return false;
                 }
             }
 
             return true;
-        };
+        }
 
         static inline Value::ID classid( void )
         {
@@ -73,11 +69,17 @@ namespace libcsel_ir
         }
 
         static bool classof( Value const* obj );
+
+      private:
+        Instructions m_instructions;
+        Scopes m_scopes;
     };
 
     class TrivialStatement : public Statement
     {
       public:
+        using Ptr = std::shared_ptr< TrivialStatement >;
+
         TrivialStatement( Value* parent = 0 );
 
         static inline Value::ID classid( void )
@@ -91,6 +93,8 @@ namespace libcsel_ir
     class BranchStatement : public Statement
     {
       public:
+        using Ptr = std::shared_ptr< BranchStatement >;
+
         BranchStatement( Value* parent = 0 );
 
         static inline Value::ID classid( void )
@@ -104,6 +108,8 @@ namespace libcsel_ir
     class LoopStatement : public Statement
     {
       public:
+        using Ptr = std::shared_ptr< LoopStatement >;
+
         LoopStatement( Value* parent = 0 );
 
         static inline Value::ID classid( void )
@@ -115,7 +121,7 @@ namespace libcsel_ir
     };
 }
 
-#endif /* _LIB_CSELIR_STATEMENT_H_ */
+#endif // _LIB_CSELIR_STATEMENT_H_
 
 //
 //  Local variables:

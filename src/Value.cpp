@@ -23,90 +23,85 @@
 
 #include "Value.h"
 
+#include "Constant.h"
+#include "Function.h"
 #include "Instruction.h"
+#include "Interconnect.h"
+#include "Intrinsic.h"
+#include "Memory.h"
+#include "Module.h"
+#include "Reference.h"
 #include "Scope.h"
 #include "Statement.h"
+#include "Structure.h"
+#include "Variable.h"
 #include "Visitor.h"
-
-#include "../stdhl/cpp/Default.h"
-#include "../stdhl/cpp/Log.h"
 
 using namespace libcsel_ir;
 
-Value::Value( const char* name, Type* type, Value::ID id )
-: m_hash( 0 )
-, m_name( name )
+Value::Value( const std::string& name, const Type::Ptr& type, Value::ID id )
+: m_name( name )
 , m_type( type )
 , m_id( id )
-, m_type_lock( false )
-, m_next( 0 )
 {
     m_id2objs()[ m_id ].insert( this );
 }
 
-Value::~Value()
+Value::~Value( void )
 {
     m_id2objs()[ m_id ].erase( this );
 }
 
 const char* Value::name( void ) const
 {
+    return m_name.c_str();
+}
+
+std::string Value::str_name( void ) const
+{
     return m_name;
 }
 
-void Value::setName( std::string& name )
+const Type& Value::type( void ) const
 {
-    if( not m_name )
-    {
-        m_name = libstdhl::Allocator::string( name );
-    }
+    return *m_type.get();
 }
 
-Type& Value::type( void ) const
+Type::Ptr Value::ptr_type( void ) const
 {
-    return *m_type;
+    return m_type;
 }
 
-void Value::setType( Type& type )
-{
-    assert( !m_type_lock );
-    m_type_lock = true;
-
-    this->m_type = &type;
-}
-
-Value::ID Value::id() const
+Value::ID Value::id( void ) const
 {
     return m_id;
 }
 
-void Value::setNext( Value* value )
+const char* Value::description( void ) const
 {
-    m_next = value;
+    return str_description().c_str();
 }
 
-Value& Value::next( void ) const
+std::string Value::str_description( void ) const
 {
-    return *m_next;
+    return type().str_name() + " " + str_name();
 }
 
-const char* Value::c_str( void )
+std::string Value::dump( void ) const
 {
-    std::string tmp = "";
-    tmp += label();
-    tmp += " = ";
+    std::string tmp = "[" + type().str_name() + "] " + str_label() + " = ";
 
     if( isa< Constant >( this ) )
     {
-        tmp += type().name();
-        tmp += " ";
+        tmp += type().str_name() + " ";
     }
-    tmp += name();
+
+    tmp += str_name();
 
     if( auto instr = cast< Instruction >( this ) )
     {
         u1 first = true;
-        for( auto operand : instr->values() )
+        for( auto operand : instr->operands() )
         {
             if( first )
             {
@@ -117,44 +112,27 @@ const char* Value::c_str( void )
             {
                 tmp += ", ";
             }
-            tmp += operand->type().name();
-            tmp += " ";
-            tmp += operand->label();
+
+            tmp += operand->type().str_name() + " " + operand->str_label();
         }
     }
 
-    tmp += "    ;; ";
-    tmp += type().name();
-
-    return libstdhl::Allocator::string( tmp );
+    return tmp;
 }
 
-void Value::dump( void ) const
+std::string Value::make_hash( void ) const
 {
-    libstdhl::Log::info( "%p: '%s' [%u] %s [%u]",
-        this,
-        this->name(),
-        this->id(),
-        this->type().name(),
-        this->type().id() );
+    return "v:" + std::to_string( id() ) + ":" + str_description();
 }
 
-const char* Value::make_hash( void )
+const char* Value::label( void ) const
 {
-    if( not m_hash )
-    {
-        std::string tmp;
-        tmp += "v:";
-        tmp += std::to_string( id() );
-        tmp += ":";
-        tmp += type().name();
-        tmp += ":";
-        tmp += name();
+    return str_label().c_str();
+}
 
-        m_hash = libstdhl::Allocator::string( tmp );
-    }
-
-    return m_hash;
+std::string Value::str_label( void ) const
+{
+    return str_name();
 }
 
 void Value::iterate( Traversal order,
@@ -169,13 +147,6 @@ void Value::iterate( Traversal order,
 
     Value& value = static_cast< Value& >( *this );
 
-    if( isa< Structure >( value )
-        and ( static_cast< Structure& >( value ) ).elements().size() == 0 )
-    {
-        // PPA: CHECK if this is still necessary
-        return;
-    }
-
     if( order == Traversal::PREORDER )
     {
         action( /*order, */ value );
@@ -189,56 +160,38 @@ void Value::iterate( Traversal order,
     if( isa< Module >( value ) )
     {
         Module& module = static_cast< Module& >( value );
-        const std::vector< Value* > empty = {};
 
-        for( Value* p :
-            ( module.has< Structure >() ? module.get< Structure >() : empty ) )
+        for( auto p : module.get< Structure >() )
         {
             p->iterate( order, visitor, cxt, action );
         }
 
-        for( Value* p :
-            ( module.has< Constant >() ? module.get< Constant >() : empty ) )
+        for( auto p : module.get< Constant >() )
         {
             p->iterate( order, visitor, cxt, action );
         }
 
-        for( Value* p :
-            ( module.has< Variable >() ? module.get< Variable >() : empty ) )
+        for( auto p : module.get< Variable >() )
         {
             p->iterate( order, visitor, cxt, action );
         }
 
-        for( Value* p :
-            ( module.has< Memory >() ? module.get< Memory >() : empty ) )
+        for( auto p : module.get< Memory >() )
         {
             p->iterate( order, visitor, cxt, action );
         }
 
-        for( Value* p :
-            ( module.has< Interconnect >() ? module.get< Interconnect >()
-                                           : empty ) )
+        for( auto p : module.get< Interconnect >() )
         {
             p->iterate( order, visitor, cxt, action );
         }
 
-        for( Value* p :
-            ( module.has< Intrinsic >() ? module.get< Intrinsic >() : empty ) )
+        for( auto p : module.get< Intrinsic >() )
         {
             p->iterate( order, visitor, cxt, action );
         }
 
-        for( Value* p :
-            ( module.has< Function >() ? module.get< Function >() : empty ) )
-        {
-            p->iterate( order, visitor, cxt, action );
-        }
-    }
-    else if( isa< Structure >( value ) )
-    {
-        Structure& obj = static_cast< Structure& >( value );
-
-        for( Value* p : obj.elements() )
+        for( auto p : module.get< Function >() )
         {
             p->iterate( order, visitor, cxt, action );
         }
@@ -249,19 +202,19 @@ void Value::iterate( Traversal order,
 
         for( auto p : obj.value() )
         {
-            p->iterate( order, visitor, cxt, action );
+            p.iterate( order, visitor, cxt, action );
         }
     }
     else if( isa< CallableUnit >( value ) )
     {
         CallableUnit& obj = static_cast< CallableUnit& >( value );
 
-        for( Value* p : obj.inParameters() )
+        for( auto p : obj.inputs() )
         {
             p->iterate( order, visitor, cxt, action );
         }
 
-        for( Value* p : obj.outParameters() )
+        for( auto p : obj.outputs() )
         {
             p->iterate( order, visitor, cxt, action );
         }
@@ -271,7 +224,7 @@ void Value::iterate( Traversal order,
             visitor->dispatch( Visitor::Stage::INTERLOG, value, *cxt );
         }
 
-        Value* context = obj.context();
+        auto context = obj.context();
         assert( context );
 
         context->iterate( order, visitor, cxt, action );
@@ -283,7 +236,7 @@ void Value::iterate( Traversal order,
         assert( stmt.instructions().size() > 0
                 and " a statement must contain at least one instruction " );
 
-        for( Value* instr : stmt.instructions() )
+        for( auto instr : stmt.instructions() )
         {
             assert( instr );
             instr->iterate( order, visitor, cxt, action );
@@ -293,7 +246,7 @@ void Value::iterate( Traversal order,
         {
             visitor->dispatch( Visitor::Stage::INTERLOG, value, *cxt );
 
-            for( Scope* sco : stmt.scopes() )
+            for( auto sco : stmt.scopes() )
             {
                 assert( sco );
                 sco->iterate( order, visitor, cxt, action );
@@ -304,7 +257,7 @@ void Value::iterate( Traversal order,
     {
         Scope& scope = static_cast< Scope& >( value );
 
-        for( Block* block : scope.blocks() )
+        for( auto block : scope.blocks() )
         {
             assert( block );
             block->iterate( order, visitor, cxt, action );

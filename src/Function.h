@@ -25,17 +25,13 @@
 #define _LIB_CSELIR_FUNCTION_H_
 
 #include "CallableUnit.h"
-#include "Constant.h"
-#include "Value.h"
 
 namespace libcsel_ir
 {
     class Function : public CallableUnit
     {
       public:
-        Function( const char* name, Type* type );
-
-        ~Function( void );
+        Function( const std::string& name, const RelationType::Ptr& type );
 
         static inline Value::ID classid( void )
         {
@@ -46,7 +42,7 @@ namespace libcsel_ir
     };
 }
 
-#endif /* _LIB_CSELIR_FUNCTION_H_ */
+#endif // _LIB_CSELIR_FUNCTION_H_
 
 //
 //  Local variables:

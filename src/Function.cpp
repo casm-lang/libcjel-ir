@@ -25,12 +25,8 @@
 
 using namespace libcsel_ir;
 
-Function::Function( const char* name, Type* type )
-: CallableUnit( name, type, Value::FUNCTION )
-{
-}
-
-Function::~Function( void )
+Function::Function( const std::string& name, const RelationType::Ptr& type )
+: CallableUnit( name, type, classid() )
 {
 }
 

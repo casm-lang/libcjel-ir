@@ -25,74 +25,33 @@
 
 using namespace libcsel_ir;
 
-Structure::Structure( const char* name, Type* type, Structure* parent )
+Structure::Structure( const std::string& name, const StructureType::Ptr& type,
+    const std::vector< StructureElement >& elements )
 : User( name, type, Value::STRUCTURE )
-, m_identifier( 0 )
-, m_parent( parent )
+, m_elements( elements )
 {
-    assert( name );
-
-    assert( !" PPA: continue here!!! " );
-    // if( !type )
-    // {
-    //     Type* ty = new Type( Type::STRUCTURE );
-    //     assert( ty );
-    //     setType( ty );
-    // }
-
-    m_identifier = Identifier::create( type, name, parent );
-    assert( m_identifier );
-
-    if( m_parent )
+    if( elements.size() == 0 )
     {
-        m_parent->add( this );
+        throw std::domain_error(
+            "element size of structure '" + name + "' cannot be '0'" );
     }
 }
 
-Structure::~Structure( void )
+StructureElement Structure::element( std::size_t index ) const
 {
+    if( index >= m_elements.size() )
+    {
+        throw std::domain_error( "structure does not have a element at index '"
+                                 + std::to_string( index )
+                                 + "'" );
+    }
+
+    return m_elements[ index ];
 }
 
-const Identifier* Structure::identifier( void ) const
+std::vector< StructureElement > Structure::elements( void ) const
 {
-    return m_identifier;
-}
-
-void Structure::add( Value* value )
-{
-    assert( value );
-    assert( isa< Structure >( value ) );
-    Structure* s = (Structure*)value;
-    // s->setParent( this );
-
-    m_element.push_back( s );
-
-    // getType()->addSubType( value->getType() );
-
-    assert( s->parent() == this );
-}
-
-Value* Structure::at( u16 index ) const
-{
-    assert( index < m_element.size() );
-
-    return m_element[ index ];
-}
-
-const std::vector< Structure* >& Structure::elements( void ) const
-{
-    return m_element;
-}
-
-void Structure::setParent( Structure* value )
-{
-    assert( !m_parent );
-    m_parent = value;
-}
-
-Structure* Structure::parent( void ) const
-{
-    return m_parent;
+    return m_elements;
 }
 
 bool Structure::classof( Value const* obj )

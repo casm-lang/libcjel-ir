@@ -23,80 +23,52 @@
 
 #include "Reference.h"
 
+#include "CallableUnit.h"
+
 using namespace libcsel_ir;
 
 Reference::Reference(
-    const char* name, Type* type, CallableUnit* callable, Kind kind )
-: User( ".reference", type, Value::REFERENCE )
-, m_identifier( 0 )
-, m_callable( 0 )
+    const std::string& name, const Type::Ptr& type, Kind kind )
+: User( name, type, Value::REFERENCE )
 , m_kind( kind )
-, m_structure( 0 )
+, m_callable()
 {
-    assert( name );
-    assert( type );
+}
 
-    // m_identifier = Identifier::create( type, name, callable /* scope?!?!*/ );
-    // assert( m_identifier );
-
-    if( callable )
+void Reference::setCallable( const CallableUnit::Ptr& callable )
+{
+    if( not callable )
     {
-        if( kind != LINKAGE )
-        {
-            callable->addParameter( this, kind == INPUT );
-        }
-        else
-        {
-            callable->addLinkage( this );
-        }
+        throw std::domain_error(
+            "cannot set callable of reference to null pointer" );
     }
+
+    m_callable = callable;
 }
 
-Reference::~Reference( void )
+CallableUnit::Ptr Reference::callable( void ) const
 {
+    return m_callable.lock();
 }
 
-const Identifier* Reference::identifier( void ) const
+Reference::Kind Reference::kind( void ) const
 {
-    assert( m_identifier );
-    return m_identifier;
+    return m_kind;
 }
 
-const CallableUnit* Reference::callableUnit( void ) const
-{
-    return m_callable;
-}
-
-void Reference::setCallableUnit( CallableUnit* value )
-{
-    assert( !m_callable );
-    m_callable = value;
-}
-
-const u1 Reference::isInput( void ) const
+u1 Reference::isInput( void ) const
 {
     return m_kind == INPUT;
 }
 
-const u1 Reference::isOutput( void ) const
+u1 Reference::isOutput( void ) const
 {
     return m_kind == OUTPUT;
 }
 
-const u1 Reference::isLinkage( void ) const
+u1 Reference::isLinkage( void ) const
 {
     return m_kind == LINKAGE;
-}
-
-const Structure* Reference::structure( void ) const
-{
-    assert( m_structure );
-    return m_structure;
-}
-
-const u1 Reference::isStructure( void ) const
-{
-    return m_structure != 0;
 }
 
 bool Reference::classof( Value const* obj )

@@ -25,17 +25,13 @@
 #define _LIB_CSELIR_INTRINSIC_H_
 
 #include "CallableUnit.h"
-#include "Constant.h"
-#include "Value.h"
 
 namespace libcsel_ir
 {
     class Intrinsic : public CallableUnit
     {
       public:
-        Intrinsic( const char* name, Type* result );
-
-        ~Intrinsic( void );
+        Intrinsic( const std::string& name, const RelationType::Ptr& type );
 
         static inline Value::ID classid( void )
         {
@@ -43,15 +39,10 @@ namespace libcsel_ir
         }
 
         static bool classof( Value const* obj );
-
-        virtual const char* label( void ) override final
-        {
-            return name();
-        }
     };
 }
 
-#endif /* _LIB_CSELIR_INTRINSIC_H_ */
+#endif // _LIB_CSELIR_INTRINSIC_H_
 
 //
 //  Local variables:

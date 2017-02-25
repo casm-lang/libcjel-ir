@@ -25,15 +25,15 @@
 
 using namespace libcsel_ir;
 
-static void test_constant_bit( Type::BitTy i, i16 s )
+static void test_constant_bit( u64 i, i16 s )
 {
-    auto t = Type::Bit( s );
+    auto t = libstdhl::make< BitType >( s );
 
     auto v = libstdhl::make< BitConstant >( t, i );
 
-    EXPECT_STREQ( v->name(), std::to_string( i ).c_str() );
-    EXPECT_STREQ( v->name(), std::to_string( v->value() ).c_str() );
     EXPECT_EQ( v->type().bitsize(), s );
+    EXPECT_STREQ( v->name(), std::to_string( i ).c_str() );
+    EXPECT_STREQ( v->name(), std::to_string( v->value()[ 0 ] ).c_str() );
 
     auto w = libstdhl::make< BitConstant >( t, i );
 
@@ -47,11 +47,16 @@ static void test_constant_bit( Type::BitTy i, i16 s )
     EXPECT_TRUE( *a == *b );
 }
 
+TEST( libcsel_ir__constant_bit, example )
+{
+    test_constant_bit( 1234, BitType::SizeMax );
+}
+
 TEST( libcsel_ir__constant_bit, create_range )
 {
-    for( u16 s = 1; s < BitType::SizeMax; s++ )
+    for( u16 s = 1; s <= BitType::SizeMax; s++ )
     {
-        for( Type::BitTy i = -128; i < 128; i++ )
+        for( u64 i = 0; i < 256; i++ )
         {
             test_constant_bit( i, s );
         }
@@ -60,11 +65,11 @@ TEST( libcsel_ir__constant_bit, create_range )
 
 TEST( libcsel_ir__constant_bit, create_random )
 {
-    for( u16 s = 1; s < BitType::SizeMax; s++ )
+    for( u16 s = 1; s <= BitType::SizeMax; s++ )
     {
         for( u32 c = 0; c < 16; c++ )
         {
-            Type::BitTy i = libstdhl::Random::uniform< Type::BitTy >();
+            auto i = libstdhl::Random::uniform< u64 >();
 
             test_constant_bit( i, s );
         }

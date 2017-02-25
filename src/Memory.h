@@ -24,25 +24,16 @@
 #ifndef _LIB_CSELIR_MEMORY_H_
 #define _LIB_CSELIR_MEMORY_H_
 
-#include "Structure.h"
 #include "User.h"
-#include "Value.h"
 
 namespace libcsel_ir
 {
     class Memory : public User
     {
-        Structure* m_structure;
-        const u32 m_length;
-
       public:
-        Memory( Structure* value, u32 length );
+        Memory( const std::string& name, const Type::Ptr& type, u32 length );
 
-        ~Memory( void );
-
-        const Structure& structure( void ) const;
-
-        const u32 length( void ) const;
+        u32 length( void ) const;
 
         static inline Value::ID classid( void )
         {
@@ -50,10 +41,13 @@ namespace libcsel_ir
         }
 
         static bool classof( Value const* obj );
+
+      private:
+        u32 m_length;
     };
 }
 
-#endif /* _LIB_CSELIR_MEMORY_H_ */
+#endif // _LIB_CSELIR_MEMORY_H_
 
 //
 //  Local variables:

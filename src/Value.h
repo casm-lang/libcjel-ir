@@ -26,17 +26,17 @@
 
 #include "CselIR.h"
 
-#include "../stdhl/cpp/Labeling.h"
-
 #include "Type.h"
 
 namespace libcsel_ir
 {
-    enum class Traversal;
-    class Context;
     class Visitor;
+    class Context;
+    enum Traversal : u8;
 
-    class Value : public CselIR, public libstdhl::Labeling
+    class Module;
+
+    class Value : public CselIR
     {
       public:
         using Ptr = std::shared_ptr< Value >;
@@ -146,89 +146,55 @@ namespace libcsel_ir
             TRUNC_INSTRUCTION
         };
 
-      protected:
-        static std::unordered_map< u8, std::unordered_set< Value* > >&
-        m_id2objs( void )
-        {
-            static std::unordered_map< u8, std::unordered_set< Value* > > cache;
-            return cache;
-        }
+        Value( const std::string& name, const Type::Ptr& type, ID id );
 
-      private:
-        const char* m_hash;
-        const char* m_name;
-        Type* m_type;
-        ID m_id;
-        u1 m_type_lock;
-
-        std::unordered_map< u32, Value* > m_references;
-
-        Value* m_next;
-
-      public:
-        Value( const char* name, Type* type, ID id );
-
-        ~Value();
+        ~Value( void );
 
         const char* name( void ) const;
 
-        void setName( std::string& name );
+        std::string str_name( void ) const;
 
-        Type& type( void ) const;
+        const Type& type( void ) const;
 
-      protected:
-        void setType( Type& type );
+        Type::Ptr ptr_type( void ) const;
 
-      public:
         ID id() const;
 
-        const char* c_str( void );
+        const char* description( void ) const;
 
-        void dump( void ) const;
+        std::string str_description( void ) const;
 
-        const char* make_hash( void );
+        std::string dump( void ) const;
 
-        void setNext( Value* value );
+        std::string make_hash( void ) const;
 
-        Value& next( void ) const;
+        const char* label( void ) const;
 
-        inline u1 operator==( const Value& rhs )
+        std::string str_label( void ) const;
+
+        void setModule( std::shared_ptr< Module > );
+
+        const Module& module( void ) const;
+
+        std::shared_ptr< Module > ptr_module( void ) const;
+
+        inline u1 operator==( const Value& rhs ) const
         {
             if( this != &rhs )
             {
-                if( this->type() != rhs.type()
-                    or strcmp( this->name(), ( (Value&)rhs ).name() ) )
+                if( this->id() != rhs.id()
+                    or strcmp( this->name(), ( (Value&)rhs ).name() )
+                    or this->type() != rhs.type() )
                 {
                     return false;
                 }
             }
             return true;
         }
-        inline u1 operator!=( const Value& rhs )
+
+        inline u1 operator!=( const Value& rhs ) const
         {
             return !operator==( rhs );
-        }
-
-        template < class C >
-        C* ref( void )
-        {
-            auto result = m_references.find( C::classid() );
-            if( result != m_references.end() )
-            {
-                assert( isa< C >( result->second ) );
-                return (C*)result->second;
-            }
-
-            return 0;
-        }
-
-        template < class C >
-        void setRef( Value* reference )
-        {
-            // printf( "[[[ %p ]]]: classID/referenceCNT = %u %u\n"
-            //, reference, C::classid(), references.count( C::classid() ) );
-            assert( m_references.count( C::classid() ) == 0 );
-            m_references[ C::classid() ] = reference;
         }
 
         static inline ID classid( void )
@@ -247,10 +213,59 @@ namespace libcsel_ir
 
         virtual void iterate(
             Traversal order, std::function< void( Value& ) > action ) final;
+
+      private:
+        static std::unordered_map< u8, std::unordered_set< Value* > >&
+        m_id2objs( void )
+        {
+            static std::unordered_map< u8, std::unordered_set< Value* > > cache;
+            return cache;
+        }
+
+      protected:
+        std::string m_name;
+
+      private:
+        Type::Ptr m_type;
+
+        ID m_id;
+
+        std::weak_ptr< Module > m_module;
+
+        // Value* m_next; // TODO: PPA: use a std::weak_ptr here?
     };
+
+    using Values = libstdhl::List< Value >;
 }
 
-#endif /* _LIB_CSELIR_VALUE_H_ */
+// namespace std
+// {
+//     template <>
+//     struct hash< libcsel_ir::Value* >
+//     {
+//       public:
+//         size_t operator()( const libcsel_ir::Value* obj ) const
+//         {
+//             assert( obj and " invalid pointer! " );
+//             return std::hash< std::string >( obj->make_hash() );
+//         }
+//     };
+
+//     template <>
+//     struct equal_to< libcsel_ir::Value* >
+//     {
+//       public:
+//         bool operator()(
+//             const libcsel_ir::Value* lhs, const libcsel_ir::Value* rhs )
+//             const
+//         {
+//             assert( lhs and rhs and " invalid pointers " );
+//             return *rhs == *lhs;
+//         }
+//     };
+// }
+
+#endif // _LIB_CSELIR_VALUE_H_
 
 //
 //  Local variables:

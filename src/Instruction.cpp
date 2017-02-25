@@ -23,90 +23,89 @@
 
 #include "Instruction.h"
 
+#include "Constant.h"
+#include "Function.h"
 #include "Reference.h"
-#include "Type.h"
-
-#include "../stdhl/cpp/Default.h"
-#include "../stdhl/cpp/Log.h"
+#include "Statement.h"
+#include "Structure.h"
+#include "Variable.h"
 
 using namespace libcsel_ir;
 
-Instruction::Instruction( const char* name, Type* type,
-    const std::vector< Value* >& values, Value::ID id )
+Instruction::Instruction( const std::string& name, const Type::Ptr& type,
+    const std::vector< Value::Ptr >& operands, Value::ID id )
 : User( name, type, id )
-, m_values( values )
-, m_statement( 0 )
+, m_operands( operands )
 {
 }
 
-Instruction::~Instruction( void )
+void Instruction::setStatement( const Statement::Ptr& statement )
 {
-}
+    m_statement = statement;
 
-void Instruction::setStatement( Statement* stmt )
-{
-    m_statement = stmt;
-
-    for( Value* value : m_values )
+    for( auto operand : operands() )
     {
-        if( not isa< Instruction >( value ) )
+        if( not isa< Instruction >( operand ) )
         {
             continue;
         }
 
-        Instruction* instr = (Instruction*)value;
+        auto instr = std::static_pointer_cast< Instruction >( operand );
 
         if( instr->statement() == 0 )
         {
-            stmt->add( value );
+            statement->add( instr );
         }
 
-        if( instr->statement() != stmt )
+        if( *instr->statement() != *statement )
         {
-            libstdhl::Log::warning(
-                "warning: %s:%i: Instruction %p does belong to a different "
+            libstdhl::Log::error(
+                "warning: %s:%i: Instruction '%s' does belong to a different "
                 "Statement block\n",
-                __FILE__, __LINE__, value );
-            // assert(0);
+                __FILE__, __LINE__, operand->description() );
         }
     }
 }
 
-Statement* Instruction::statement( void ) const
+Statement::Ptr Instruction::statement( void ) const
 {
-    return m_statement;
+    return m_statement.lock();
 }
 
-void Instruction::add( Value* value )
+void Instruction::add( const Value::Ptr& value )
 {
     assert( value );
 
     if( isa< UnaryInstruction >( this ) )
     {
-        assert( m_values.size() < 1 );
+        assert( m_operands.size() < 1 );
     }
     else if( isa< BinaryInstruction >( this ) )
     {
-        assert( m_values.size() < 2 );
+        assert( m_operands.size() < 2 );
     }
 
-    m_values.push_back( value );
+    m_operands.add( value );
 }
 
-Value* Instruction::value( u8 index ) const
+Value::Ptr Instruction::operand( u8 position ) const
 {
-    // TODO: IDEA: assert( type() ); // to force the type check!
-    assert( index < m_values.size() );
-    return m_values[ index ];
+    if( position >= m_operands.size() )
+    {
+        throw std::domain_error( "operand position '"
+                                 + std::to_string( position )
+                                 + "' does not exist!" );
+    }
+
+    return m_operands[ position ];
 }
 
-const std::vector< Value* >& Instruction::values( void ) const
+Values Instruction::operands( void ) const
 {
-    // TODO: IDEA: assert( type() ); // to force the type check!
-    return m_values;
+    return m_operands;
 }
 
-bool Instruction::classof( Value const* obj )
+u1 Instruction::classof( Value const* obj )
 {
     return obj->id() == classid() or UnaryInstruction::classof( obj )
            or BinaryInstruction::classof( obj )
@@ -122,13 +121,13 @@ UnaryInstruction::UnaryInstruction( Instruction* self )
 {
 }
 
-Value* UnaryInstruction::get( void ) const
+Value::Ptr UnaryInstruction::get( void ) const
 {
-    assert( m_self.values().size() == 1 );
-    return m_self.value( 0 );
+    assert( m_self.operands().size() == 1 );
+    return m_self.operand( 0 );
 }
 
-bool UnaryInstruction::classof( Value const* obj )
+u1 UnaryInstruction::classof( Value const* obj )
 {
     return obj->id() == classid() or IdInstruction::classof( obj )
            or LoadInstruction::classof( obj )
@@ -142,19 +141,19 @@ BinaryInstruction::BinaryInstruction( Instruction* self )
 {
 }
 
-Value* BinaryInstruction::lhs( void ) const
+Value::Ptr BinaryInstruction::lhs( void ) const
 {
-    assert( m_self.values().size() == 2 );
-    return m_self.value( 0 );
+    assert( m_self.operands().size() == 2 );
+    return m_self.operand( 0 );
 }
 
-Value* BinaryInstruction::rhs( void ) const
+Value::Ptr BinaryInstruction::rhs( void ) const
 {
-    assert( m_self.values().size() == 2 );
-    return m_self.value( 1 );
+    assert( m_self.operands().size() == 2 );
+    return m_self.operand( 1 );
 }
 
-bool BinaryInstruction::classof( Value const* obj )
+u1 BinaryInstruction::classof( Value const* obj )
 {
     return obj->id() == classid() or StoreInstruction::classof( obj )
            or ExtractInstruction::classof( obj )
@@ -167,33 +166,31 @@ bool BinaryInstruction::classof( Value const* obj )
            or EquInstruction::classof( obj ) or NeqInstruction::classof( obj );
 }
 
-OperatorInstruction::OperatorInstruction( const char* name, Type* type,
-    const std::vector< Value* >& values, Value::ID id )
+OperatorInstruction::OperatorInstruction( const std::string& name,
+    const Type::Ptr& type, const std::vector< Value::Ptr >& values,
+    Value::ID id )
 : Instruction( name, type, values, id )
 {
-    if( isa< BinaryInstruction >( this ) )
+    if( auto bin_instr = cast< BinaryInstruction >( this ) )
     {
-        Type& lhs_ty = value( 0 )->type();
-        Type& rhs_ty = value( 1 )->type();
-        assert( lhs_ty == rhs_ty );
+        assert( bin_instr->lhs()->type() == bin_instr->rhs()->type() );
     }
 }
 
-bool OperatorInstruction::classof( Value const* obj )
+u1 OperatorInstruction::classof( Value const* obj )
 {
     return obj->id() == classid() or ArithmeticInstruction::classof( obj )
            or LogicalInstruction::classof( obj )
            or CompareInstruction::classof( obj );
 }
 
-ArithmeticInstruction::ArithmeticInstruction(
-    const char* name, const std::vector< Value* >& values, Value::ID id )
-: OperatorInstruction( name, 0, values, id )
+ArithmeticInstruction::ArithmeticInstruction( const std::string& name,
+    const std::vector< Value::Ptr >& values, Value::ID id )
+: OperatorInstruction( name, operand( 0 )->ptr_type(), values, id )
 {
-    setType( value( 0 )->type() );
 }
 
-bool ArithmeticInstruction::classof( Value const* obj )
+u1 ArithmeticInstruction::classof( Value const* obj )
 {
     return obj->id() == classid() or NotInstruction::classof( obj )
            or AndInstruction::classof( obj ) or OrInstruction::classof( obj )
@@ -204,24 +201,24 @@ bool ArithmeticInstruction::classof( Value const* obj )
            or ModUnsignedInstruction::classof( obj );
 }
 
-LogicalInstruction::LogicalInstruction(
-    const char* name, const std::vector< Value* >& values, Value::ID id )
-: OperatorInstruction( name, Type::Bit( 1 ), values, id )
+LogicalInstruction::LogicalInstruction( const std::string& name,
+    const std::vector< Value::Ptr >& values, Value::ID id )
+: OperatorInstruction( name, libstdhl::get< BitType >( 1 ), values, id )
 {
 }
 
-bool LogicalInstruction::classof( Value const* obj )
+u1 LogicalInstruction::classof( Value const* obj )
 {
     return obj->id() == classid() or LnotInstruction::classof( obj );
 }
 
-CompareInstruction::CompareInstruction(
-    const char* name, const std::vector< Value* >& values, Value::ID id )
-: OperatorInstruction( name, Type::Bit( 1 ), values, id )
+CompareInstruction::CompareInstruction( const std::string& name,
+    const std::vector< Value::Ptr >& values, Value::ID id )
+: OperatorInstruction( name, libstdhl::get< BitType >( 1 ), values, id )
 {
 }
 
-bool CompareInstruction::classof( Value const* obj )
+u1 CompareInstruction::classof( Value const* obj )
 {
     return obj->id() == classid() or EquInstruction::classof( obj )
            or NeqInstruction::classof( obj );
@@ -232,40 +229,35 @@ bool CompareInstruction::classof( Value const* obj )
 // -----------------------------------------------------------------------------
 
 NopInstruction::NopInstruction( void )
-: Instruction( "nop", Type::Void(), {}, classid() )
+: Instruction( "nop", libstdhl::get< VoidType >(), {}, classid() )
 {
 }
-bool NopInstruction::classof( Value const* obj )
+
+u1 NopInstruction::classof( Value const* obj )
 {
     return obj->id() == classid();
 }
 
-AllocInstruction::AllocInstruction( Type* type )
+AllocInstruction::AllocInstruction( const Type::Ptr& type )
 : Instruction( "alloc", type, {}, classid() )
 {
 }
-bool AllocInstruction::classof( Value const* obj )
+
+u1 AllocInstruction::classof( Value const* obj )
 {
     return obj->id() == classid();
 }
 
 CallInstruction::CallInstruction(
-    Value* symbol, const std::vector< Value* >& operands )
-: Instruction( "call", Type::Void(), { symbol }, classid() )
+    const Value::Ptr& symbol, const std::vector< Value::Ptr >& operands )
+: Instruction(
+      "call", symbol->type().ptr_results()[ 0 ], { symbol }, classid() )
 {
-    assert( symbol );
-
     assert( isa< CallableUnit >( symbol ) and symbol->type().isRelation() );
 
-    auto& res_tys = symbol->type().results();
-
-    if( res_tys.size() == 1 )
+    if( symbol->type().results().size() != 1 )
     {
-        setType( *res_tys[ 0 ] );
-    }
-    else
-    {
-        assert( not" unimplemented call instruction result type behavior! " );
+        assert( !" unimplemented call instruction result type behavior! " );
     }
 
     for( auto operand : operands )
@@ -274,50 +266,27 @@ CallInstruction::CallInstruction(
     }
 }
 
-CallInstruction::CallInstruction(
-    Value* symbol, const std::vector< Value::Ptr >& operands )
-: Instruction( "call", Type::Void(), { symbol }, classid() )
+Value::Ptr CallInstruction::callee( void ) const
 {
-    assert( symbol );
-
-    assert( isa< CallableUnit >( symbol ) and symbol->type().isRelation() );
-
-    auto& res_tys = symbol->type().results();
-
-    if( res_tys.size() == 1 )
-    {
-        setType( *res_tys[ 0 ] );
-    }
-    else
-    {
-        assert( not" unimplemented call instruction result type behavior! " );
-    }
-
-    for( auto operand : operands )
-    {
-        add( operand.get() );
-    }
+    return operand( 0 );
 }
 
-Value& CallInstruction::callee( void ) const
-{
-    return *value( 0 );
-}
-
-bool CallInstruction::classof( Value const* obj )
+u1 CallInstruction::classof( Value const* obj )
 {
     return obj->id() == classid();
 }
 
-IdCallInstruction::IdCallInstruction( Value* kind, Value* symbol )
+IdCallInstruction::IdCallInstruction(
+    const Value::Ptr& kind, const Value::Ptr& symbol )
 : Instruction( "icall", 0, { kind, symbol }, classid() )
 {
     assert( kind );
     assert( symbol );
 
-    assert( strcmp( symbol->type().name(), Type::TypeID()->name() ) == 0 );
+    assert( symbol->type() == *libstdhl::get< BitType >( 64 ) );
 }
-bool IdCallInstruction::classof( Value const* obj )
+
+u1 IdCallInstruction::classof( Value const* obj )
 {
     return obj->id() == classid();
 }
@@ -327,11 +296,13 @@ StreamInstruction::StreamInstruction( Channel channel )
 , m_channel( channel )
 {
 }
-const StreamInstruction::Channel StreamInstruction::channel( void ) const
+
+StreamInstruction::Channel StreamInstruction::channel( void ) const
 {
     return m_channel;
 }
-bool StreamInstruction::classof( Value const* obj )
+
+u1 StreamInstruction::classof( Value const* obj )
 {
     return obj->id() == classid();
 }
@@ -340,45 +311,50 @@ bool StreamInstruction::classof( Value const* obj )
 // UNARY INSTRUCTIONS
 // -----------------------------------------------------------------------------
 
-IdInstruction::IdInstruction( Value* src )
-: Instruction( "id", Type::TypeID(), { src }, classid() )
+IdInstruction::IdInstruction( const Value::Ptr& src )
+: Instruction( "id", libstdhl::get< BitType >( 64 ), { src }, classid() )
 , UnaryInstruction( this )
 {
     assert( src );
     assert( isa< Variable >( src ) or isa< Function >( src ) );
 }
-bool IdInstruction::classof( Value const* obj )
+
+u1 IdInstruction::classof( Value const* obj )
 {
     return obj->id() == classid();
 }
 
-LoadInstruction::LoadInstruction( Value* src )
-: Instruction( "load", 0, { src }, classid() )
+LoadInstruction::LoadInstruction( const Value::Ptr& src )
+: Instruction( "load", src ? src->ptr_type() : nullptr, { src }, classid() )
 , UnaryInstruction( this )
 {
-    setType( src->type() );
 }
-bool LoadInstruction::classof( Value const* obj )
+
+u1 LoadInstruction::classof( Value const* obj )
 {
     return obj->id() == classid();
 }
 
-ZeroExtendInstruction::ZeroExtendInstruction( Value* src, Type* type )
+ZeroExtendInstruction::ZeroExtendInstruction(
+    const Value::Ptr& src, const Type::Ptr& type )
 : Instruction( "zext", type, { src }, classid() )
 , UnaryInstruction( this )
 {
 }
-bool ZeroExtendInstruction::classof( Value const* obj )
+
+u1 ZeroExtendInstruction::classof( Value const* obj )
 {
     return obj->id() == classid();
 }
 
-TruncationInstruction::TruncationInstruction( Value* src, Type* type )
+TruncationInstruction::TruncationInstruction(
+    const Value::Ptr& src, const Type::Ptr& type )
 : Instruction( "trunc", type, { src }, classid() )
 , UnaryInstruction( this )
 {
 }
-bool TruncationInstruction::classof( Value const* obj )
+
+u1 TruncationInstruction::classof( Value const* obj )
 {
     return obj->id() == classid();
 }
@@ -387,53 +363,47 @@ bool TruncationInstruction::classof( Value const* obj )
 // BINARY INSTRUCTIONS
 // -----------------------------------------------------------------------------
 
-StoreInstruction::StoreInstruction( Value* src, Value* dst )
-: Instruction( "store", Type::Void(), { src, dst }, classid() )
+StoreInstruction::StoreInstruction(
+    const Value::Ptr& src, const Value::Ptr& dst )
+: Instruction( "store", libstdhl::get< VoidType >(), { src, dst }, classid() )
 , BinaryInstruction( this )
 {
     assert( src->type() == dst->type() );
-
     assert( src->type().isBit() ); // PPA: only bit type for now!
 }
-bool StoreInstruction::classof( Value const* obj )
+
+u1 StoreInstruction::classof( Value const* obj )
 {
     return obj->id() == classid();
 }
 
-ExtractInstruction::ExtractInstruction( Value* src, Value* dst )
-: Instruction( "extract", 0, { src, dst }, classid() )
+ExtractInstruction::ExtractInstruction(
+    const Value::Ptr& src, const Value::Ptr& dst )
+: Instruction( "extract",
+      ( src and dst
+              ? ( isa< Reference >( src ) and src->type().isStructure()
+                            and isa< BitConstant >( dst )
+                        ? src->type().ptr_results()
+                              [ std::static_pointer_cast< BitConstant >( dst )
+                                      ->value()[ 0 ] ]
+                        : nullptr )
+              : nullptr ),
+      { src, dst }, classid() )
 , BinaryInstruction( this )
 {
     // TODO: IDEA: FIXME: PPA: possible check to implement if 'dst' is inside
     // 'src'
-
-    if( isa< Reference >( src ) )
-    {
-        if( src->type().isStructure() )
-        {
-            StructureType& ty = static_cast< StructureType& >( src->type() );
-            BitConstant* c = cast< BitConstant >( dst );
-
-            setType( *ty.results()[ c->value() ] );
-        }
-        else
-        {
-            assert( 0 );
-        }
-    }
-    else
-    {
-        assert( 0 );
-        setType( dst->type() );
-    }
 }
-bool ExtractInstruction::classof( Value const* obj )
+
+u1 ExtractInstruction::classof( Value const* obj )
 {
     return obj->id() == classid();
 }
 
-CastInstruction::CastInstruction( Value* kind, Value* src )
-: Instruction( "cast", Type::TypeID(), { kind, src }, classid() )
+CastInstruction::CastInstruction(
+    const Value::Ptr& kind, const Value::Ptr& src )
+: Instruction(
+      "cast", ( kind ? kind->ptr_type() : nullptr ), { kind, src }, classid() )
 , BinaryInstruction( this )
 {
     if( ( not isa< CallableUnit >( kind ) )
@@ -441,10 +411,9 @@ CastInstruction::CastInstruction( Value* kind, Value* src )
     {
         assert( !" unimplemented/unsupported CastInstr type! " );
     }
-
-    setType( kind->type() );
 }
-bool CastInstruction::classof( Value const* obj )
+
+u1 CastInstruction::classof( Value const* obj )
 {
     return obj->id() == classid();
 }
@@ -453,82 +422,94 @@ bool CastInstruction::classof( Value const* obj )
 // ARITHMETIC INSTRUCTIONS
 // -----------------------------------------------------------------------------
 
-NotInstruction::NotInstruction( Value* lhs )
+NotInstruction::NotInstruction( const Value::Ptr& lhs )
 : ArithmeticInstruction( "not", { lhs }, classid() )
 , UnaryInstruction( this )
 {
 }
-bool NotInstruction::classof( Value const* obj )
+
+u1 NotInstruction::classof( Value const* obj )
 {
     return obj->id() == classid();
 }
 
-AndInstruction::AndInstruction( Value* lhs, Value* rhs )
+AndInstruction::AndInstruction( const Value::Ptr& lhs, const Value::Ptr& rhs )
 : ArithmeticInstruction( "and", { lhs, rhs }, classid() )
 , BinaryInstruction( this )
 {
 }
-bool AndInstruction::classof( Value const* obj )
+
+u1 AndInstruction::classof( Value const* obj )
 {
     return obj->id() == classid();
 }
 
-OrInstruction::OrInstruction( Value* lhs, Value* rhs )
+OrInstruction::OrInstruction( const Value::Ptr& lhs, const Value::Ptr& rhs )
 : ArithmeticInstruction( "or", { lhs, rhs }, classid() )
 , BinaryInstruction( this )
 {
 }
-bool OrInstruction::classof( Value const* obj )
+
+u1 OrInstruction::classof( Value const* obj )
 {
     return obj->id() == classid();
 }
 
-XorInstruction::XorInstruction( Value* lhs, Value* rhs )
+XorInstruction::XorInstruction( const Value::Ptr& lhs, const Value::Ptr& rhs )
 : ArithmeticInstruction( "xor", { lhs, rhs }, classid() )
 , BinaryInstruction( this )
 {
 }
-bool XorInstruction::classof( Value const* obj )
+
+u1 XorInstruction::classof( Value const* obj )
 {
     return obj->id() == classid();
 }
 
-AddUnsignedInstruction::AddUnsignedInstruction( Value* lhs, Value* rhs )
+AddUnsignedInstruction::AddUnsignedInstruction(
+    const Value::Ptr& lhs, const Value::Ptr& rhs )
 : ArithmeticInstruction( "addu", { lhs, rhs }, classid() )
 , BinaryInstruction( this )
 {
 }
-bool AddUnsignedInstruction::classof( Value const* obj )
+
+u1 AddUnsignedInstruction::classof( Value const* obj )
 {
     return obj->id() == classid();
 }
 
-AddSignedInstruction::AddSignedInstruction( Value* lhs, Value* rhs )
+AddSignedInstruction::AddSignedInstruction(
+    const Value::Ptr& lhs, const Value::Ptr& rhs )
 : ArithmeticInstruction( "adds", { lhs, rhs }, classid() )
 , BinaryInstruction( this )
 {
 }
-bool AddSignedInstruction::classof( Value const* obj )
+
+u1 AddSignedInstruction::classof( Value const* obj )
 {
     return obj->id() == classid();
 }
 
-DivSignedInstruction::DivSignedInstruction( Value* lhs, Value* rhs )
+DivSignedInstruction::DivSignedInstruction(
+    const Value::Ptr& lhs, const Value::Ptr& rhs )
 : ArithmeticInstruction( "divs", { lhs, rhs }, classid() )
 , BinaryInstruction( this )
 {
 }
-bool DivSignedInstruction::classof( Value const* obj )
+
+u1 DivSignedInstruction::classof( Value const* obj )
 {
     return obj->id() == classid();
 }
 
-ModUnsignedInstruction::ModUnsignedInstruction( Value* lhs, Value* rhs )
+ModUnsignedInstruction::ModUnsignedInstruction(
+    const Value::Ptr& lhs, const Value::Ptr& rhs )
 : ArithmeticInstruction( "modu", { lhs, rhs }, classid() )
 , BinaryInstruction( this )
 {
 }
-bool ModUnsignedInstruction::classof( Value const* obj )
+
+u1 ModUnsignedInstruction::classof( Value const* obj )
 {
     return obj->id() == classid();
 }
@@ -537,12 +518,13 @@ bool ModUnsignedInstruction::classof( Value const* obj )
 // LOGICAL INSTRUCTIONS
 // -----------------------------------------------------------------------------
 
-LnotInstruction::LnotInstruction( Value* lhs )
+LnotInstruction::LnotInstruction( const Value::Ptr& lhs )
 : LogicalInstruction( "lnot", { lhs }, classid() )
 , UnaryInstruction( this )
 {
 }
-bool LnotInstruction::classof( Value const* obj )
+
+u1 LnotInstruction::classof( Value const* obj )
 {
     return obj->id() == classid();
 }
@@ -551,22 +533,24 @@ bool LnotInstruction::classof( Value const* obj )
 // COMPARE INSTRUCTIONS
 // -----------------------------------------------------------------------------
 
-EquInstruction::EquInstruction( Value* lhs, Value* rhs )
+EquInstruction::EquInstruction( const Value::Ptr& lhs, const Value::Ptr& rhs )
 : CompareInstruction( "equ", { lhs, rhs }, classid() )
 , BinaryInstruction( this )
 {
 }
-bool EquInstruction::classof( Value const* obj )
+
+u1 EquInstruction::classof( Value const* obj )
 {
     return obj->id() == classid();
 }
 
-NeqInstruction::NeqInstruction( Value* lhs, Value* rhs )
+NeqInstruction::NeqInstruction( const Value::Ptr& lhs, const Value::Ptr& rhs )
 : CompareInstruction( "neq", { lhs, rhs }, classid() )
 , BinaryInstruction( this )
 {
 }
-bool NeqInstruction::classof( Value const* obj )
+
+u1 NeqInstruction::classof( Value const* obj )
 {
     return obj->id() == classid();
 }

@@ -23,64 +23,54 @@
 
 #include "Module.h"
 
+#include "Constant.h"
+#include "Function.h"
 #include "Interconnect.h"
+#include "Memory.h"
+#include "Structure.h"
 #include "Variable.h"
 
 using namespace libcsel_ir;
 
-Module::Module( const char* name )
-: User( name, 0, Value::MODULE )
+Module::Module( const std::string& name )
+: User( name, libstdhl::get< VoidType >(), Value::MODULE )
 {
 }
 
-Module::~Module( void )
+void Module::add( const Value::Ptr& value )
 {
-}
-
-void Module::add( Value* value )
-{
-    assert( value );
-
-    Module* m = value->ref< Module >();
-    if( m )
-    {
-        assert( m != this and " 'value' can only be part of one module" );
-    }
-
     if( isa< Structure >( value ) )
     {
-        m_content[ Structure::classid() ].push_back( value );
+        m_content[ Structure::classid() ].add( value );
     }
     else if( isa< Constant >( value ) )
     {
-        m_content[ Constant::classid() ].push_back( value );
+        m_content[ Constant::classid() ].add( value );
     }
     else if( isa< Variable >( value ) )
     {
-        m_content[ Variable::classid() ].push_back( value );
+        m_content[ Variable::classid() ].add( value );
     }
     else if( isa< Memory >( value ) )
     {
-        m_content[ Memory::classid() ].push_back( value );
+        m_content[ Memory::classid() ].add( value );
     }
     else if( isa< Intrinsic >( value ) )
     {
-        m_content[ Intrinsic::classid() ].push_back( value );
+        m_content[ Intrinsic::classid() ].add( value );
     }
     else if( isa< Function >( value ) )
     {
-        m_content[ Function::classid() ].push_back( value );
+        m_content[ Function::classid() ].add( value );
     }
     else if( isa< Interconnect >( value ) )
     {
-        m_content[ Interconnect::classid() ].push_back( value );
+        m_content[ Interconnect::classid() ].add( value );
     }
     else
     {
         assert( !"unsupported Module content found!" );
     }
-
-    value->setRef< Module >( this );
 }
 
 bool Module::classof( Value const* obj )

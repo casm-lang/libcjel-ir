@@ -24,16 +24,7 @@
 #ifndef _LIB_CSELIR_INSTRUCTION_H_
 #define _LIB_CSELIR_INSTRUCTION_H_
 
-#include "CselIR.h"
-
-#include "Function.h"
-#include "Interconnect.h"
-#include "Intrinsic.h"
-#include "Statement.h"
-#include "Structure.h"
 #include "User.h"
-#include "Value.h"
-#include "Variable.h"
 
 namespace libcsel_ir
 {
@@ -41,26 +32,24 @@ namespace libcsel_ir
 
     class Instruction : public User
     {
-      private:
-        std::vector< Value* > m_values;
-        Statement* m_statement;
-
       public:
-        Instruction( const char* name, Type* type,
-            const std::vector< Value* >& values,
-            Value::ID id = Value::INSTRUCTION );
+        using Ptr = std::shared_ptr< Instruction >;
 
-        ~Instruction( void );
+        Instruction( const std::string& name, const Type::Ptr& type,
+            const std::vector< Value::Ptr >& operands,
+            Value::ID id = classid() );
 
-        void setStatement( Statement* stmt );
+        void add( const Value::Ptr& operand );
 
-        Statement* statement( void ) const;
+        Value::Ptr operand( u8 position ) const;
 
-        void add( Value* value );
+        Values operands( void ) const;
 
-        Value* value( u8 index ) const;
+        // void replace(...) // TODO: PPA:
 
-        const std::vector< Value* >& values( void ) const;
+        void setStatement( const std::shared_ptr< Statement >& statement );
+
+        std::shared_ptr< Statement > statement( void ) const;
 
         static inline Value::ID classid( void )
         {
@@ -69,27 +58,20 @@ namespace libcsel_ir
 
         static bool classof( Value const* obj );
 
-        virtual const char* labelName( void ) override final
-        {
-            return "%r";
-        }
+      private:
+        Values m_operands;
 
-        virtual u64 labelId( void ) override final
-        {
-            static u64 cnt = 0;
-            return cnt++;
-        }
+        std::weak_ptr< Statement > m_statement;
     };
+
+    using Instructions = libstdhl::List< Instruction >;
 
     class UnaryInstruction
     {
-      private:
-        Instruction& m_self;
-
       public:
         UnaryInstruction( Instruction* self );
 
-        Value* get( void ) const;
+        Value::Ptr get( void ) const;
 
         static inline Value::ID classid( void )
         {
@@ -97,18 +79,18 @@ namespace libcsel_ir
         }
 
         static bool classof( Value const* obj );
+
+      private:
+        Instruction& m_self;
     };
 
     class BinaryInstruction
     {
-      private:
-        Instruction& m_self;
-
       public:
         BinaryInstruction( Instruction* self );
 
-        Value* lhs( void ) const;
-        Value* rhs( void ) const;
+        Value::Ptr lhs( void ) const;
+        Value::Ptr rhs( void ) const;
 
         static inline Value::ID classid( void )
         {
@@ -116,14 +98,18 @@ namespace libcsel_ir
         }
 
         static bool classof( Value const* obj );
+
+      private:
+        Instruction& m_self;
     };
 
     class OperatorInstruction : public Instruction
     {
       public:
-        OperatorInstruction( const char* name, Type* type,
-            const std::vector< Value* >& values,
-            Value::ID id = Value::OPERATOR_INSTRUCTION );
+        using Ptr = std::shared_ptr< OperatorInstruction >;
+
+        OperatorInstruction( const std::string& name, const Type::Ptr& type,
+            const std::vector< Value::Ptr >& values, Value::ID id = classid() );
 
         static inline Value::ID classid( void )
         {
@@ -136,9 +122,11 @@ namespace libcsel_ir
     class ArithmeticInstruction : public OperatorInstruction
     {
       public:
-        ArithmeticInstruction( const char* name,
-            const std::vector< Value* >& values,
-            Value::ID id = Value::ARITHMETIC_INSTRUCTION );
+        using Ptr = std::shared_ptr< ArithmeticInstruction >;
+
+        ArithmeticInstruction( const std::string& name,
+            const std::vector< Value::Ptr >& values,
+            Value::ID id = classid() );
 
         static inline Value::ID classid( void )
         {
@@ -151,9 +139,11 @@ namespace libcsel_ir
     class CompareInstruction : public OperatorInstruction
     {
       public:
-        CompareInstruction( const char* name,
-            const std::vector< Value* >& values,
-            Value::ID id = Value::COMPARE_INSTRUCTION );
+        using Ptr = std::shared_ptr< CompareInstruction >;
+
+        CompareInstruction( const std::string& name,
+            const std::vector< Value::Ptr >& values,
+            Value::ID id = classid() );
 
         static inline Value::ID classid( void )
         {
@@ -166,9 +156,11 @@ namespace libcsel_ir
     class LogicalInstruction : public OperatorInstruction
     {
       public:
-        LogicalInstruction( const char* name,
-            const std::vector< Value* >& values,
-            Value::ID id = Value::LOGICAL_INSTRUCTION );
+        using Ptr = std::shared_ptr< LogicalInstruction >;
+
+        LogicalInstruction( const std::string& name,
+            const std::vector< Value::Ptr >& values,
+            Value::ID id = classid() );
 
         static inline Value::ID classid( void )
         {
@@ -181,6 +173,8 @@ namespace libcsel_ir
     class NopInstruction : public Instruction
     {
       public:
+        using Ptr = std::shared_ptr< NopInstruction >;
+
         NopInstruction( void );
 
         static inline Value::ID classid( void )
@@ -194,7 +188,9 @@ namespace libcsel_ir
     class AllocInstruction : public Instruction
     {
       public:
-        AllocInstruction( Type* type );
+        using Ptr = std::shared_ptr< AllocInstruction >;
+
+        AllocInstruction( const Type::Ptr& type );
 
         static inline Value::ID classid( void )
         {
@@ -207,7 +203,9 @@ namespace libcsel_ir
     class IdInstruction : public Instruction, public UnaryInstruction
     {
       public:
-        IdInstruction( Value* src );
+        using Ptr = std::shared_ptr< IdInstruction >;
+
+        IdInstruction( const Value::Ptr& src );
 
         static inline Value::ID classid( void )
         {
@@ -220,7 +218,9 @@ namespace libcsel_ir
     class LoadInstruction : public Instruction, public UnaryInstruction
     {
       public:
-        LoadInstruction( Value* src );
+        using Ptr = std::shared_ptr< LoadInstruction >;
+
+        LoadInstruction( const Value::Ptr& src );
 
         static inline Value::ID classid( void )
         {
@@ -233,7 +233,9 @@ namespace libcsel_ir
     class ZeroExtendInstruction : public Instruction, public UnaryInstruction
     {
       public:
-        ZeroExtendInstruction( Value* src, Type* type );
+        using Ptr = std::shared_ptr< ZeroExtendInstruction >;
+
+        ZeroExtendInstruction( const Value::Ptr& src, const Type::Ptr& type );
 
         static inline Value::ID classid( void )
         {
@@ -246,7 +248,9 @@ namespace libcsel_ir
     class TruncationInstruction : public Instruction, public UnaryInstruction
     {
       public:
-        TruncationInstruction( Value* src, Type* type );
+        using Ptr = std::shared_ptr< TruncationInstruction >;
+
+        TruncationInstruction( const Value::Ptr& src, const Type::Ptr& type );
 
         static inline Value::ID classid( void )
         {
@@ -259,7 +263,9 @@ namespace libcsel_ir
     class StoreInstruction : public Instruction, public BinaryInstruction
     {
       public:
-        StoreInstruction( Value* src, Value* dst );
+        using Ptr = std::shared_ptr< StoreInstruction >;
+
+        StoreInstruction( const Value::Ptr& src, const Value::Ptr& dst );
 
         static inline Value::ID classid( void )
         {
@@ -272,7 +278,9 @@ namespace libcsel_ir
     class ExtractInstruction : public Instruction, public BinaryInstruction
     {
       public:
-        ExtractInstruction( Value* ref, Value* element );
+        using Ptr = std::shared_ptr< ExtractInstruction >;
+
+        ExtractInstruction( const Value::Ptr& src, const Value::Ptr& element );
 
         static inline Value::ID classid( void )
         {
@@ -285,7 +293,9 @@ namespace libcsel_ir
     class CastInstruction : public Instruction, public BinaryInstruction
     {
       public:
-        CastInstruction( Value* kind, Value* src );
+        using Ptr = std::shared_ptr< CastInstruction >;
+
+        CastInstruction( const Value::Ptr& kind, const Value::Ptr& src );
 
         static inline Value::ID classid( void )
         {
@@ -298,13 +308,12 @@ namespace libcsel_ir
     class CallInstruction : public Instruction
     {
       public:
-        CallInstruction(
-            Value* symbol, const std::vector< Value* >& operands = {} );
+        using Ptr = std::shared_ptr< CallInstruction >;
 
-        CallInstruction(
-            Value* symbol, const std::vector< Value::Ptr >& operands );
+        CallInstruction( const Value::Ptr& symbol,
+            const std::vector< Value::Ptr >& operands = {} );
 
-        Value& callee( void ) const;
+        Value::Ptr callee( void ) const;
 
         static inline Value::ID classid( void )
         {
@@ -317,7 +326,9 @@ namespace libcsel_ir
     class IdCallInstruction : public Instruction
     {
       public:
-        IdCallInstruction( Value* kind, Value* symbol );
+        using Ptr = std::shared_ptr< IdCallInstruction >;
+
+        IdCallInstruction( const Value::Ptr& kind, const Value::Ptr& symbol );
 
         static inline Value::ID classid( void )
         {
@@ -330,6 +341,8 @@ namespace libcsel_ir
     class StreamInstruction : public Instruction
     {
       public:
+        using Ptr = std::shared_ptr< StreamInstruction >;
+
         enum Channel
         {
             INPUT,
@@ -338,13 +351,9 @@ namespace libcsel_ir
             WARNING
         };
 
-      private:
-        Channel m_channel;
-
-      public:
         StreamInstruction( Channel channel );
 
-        const Channel channel( void ) const;
+        Channel channel( void ) const;
 
         static inline Value::ID classid( void )
         {
@@ -352,12 +361,17 @@ namespace libcsel_ir
         }
 
         static bool classof( Value const* obj );
+
+      private:
+        Channel m_channel;
     };
 
     class NotInstruction : public ArithmeticInstruction, public UnaryInstruction
     {
       public:
-        NotInstruction( Value* lhs );
+        using Ptr = std::shared_ptr< NotInstruction >;
+
+        NotInstruction( const Value::Ptr& lhs );
 
         static inline Value::ID classid( void )
         {
@@ -371,7 +385,9 @@ namespace libcsel_ir
                            public BinaryInstruction
     {
       public:
-        AndInstruction( Value* lhs, Value* rhs );
+        using Ptr = std::shared_ptr< AndInstruction >;
+
+        AndInstruction( const Value::Ptr& lhs, const Value::Ptr& rhs );
 
         static inline Value::ID classid( void )
         {
@@ -384,7 +400,9 @@ namespace libcsel_ir
     class OrInstruction : public ArithmeticInstruction, public BinaryInstruction
     {
       public:
-        OrInstruction( Value* lhs, Value* rhs );
+        using Ptr = std::shared_ptr< OrInstruction >;
+
+        OrInstruction( const Value::Ptr& lhs, const Value::Ptr& rhs );
 
         static inline Value::ID classid( void )
         {
@@ -398,7 +416,9 @@ namespace libcsel_ir
                            public BinaryInstruction
     {
       public:
-        XorInstruction( Value* lhs, Value* rhs );
+        using Ptr = std::shared_ptr< XorInstruction >;
+
+        XorInstruction( const Value::Ptr& lhs, const Value::Ptr& rhs );
 
         static inline Value::ID classid( void )
         {
@@ -412,7 +432,9 @@ namespace libcsel_ir
                                    public BinaryInstruction
     {
       public:
-        AddUnsignedInstruction( Value* lhs, Value* rhs );
+        using Ptr = std::shared_ptr< AddUnsignedInstruction >;
+
+        AddUnsignedInstruction( const Value::Ptr& lhs, const Value::Ptr& rhs );
 
         static inline Value::ID classid( void )
         {
@@ -426,7 +448,9 @@ namespace libcsel_ir
                                  public BinaryInstruction
     {
       public:
-        AddSignedInstruction( Value* lhs, Value* rhs );
+        using Ptr = std::shared_ptr< AddSignedInstruction >;
+
+        AddSignedInstruction( const Value::Ptr& lhs, const Value::Ptr& rhs );
 
         static inline Value::ID classid( void )
         {
@@ -440,7 +464,9 @@ namespace libcsel_ir
                                  public BinaryInstruction
     {
       public:
-        DivSignedInstruction( Value* lhs, Value* rhs );
+        using Ptr = std::shared_ptr< DivSignedInstruction >;
+
+        DivSignedInstruction( const Value::Ptr& lhs, const Value::Ptr& rhs );
 
         static inline Value::ID classid( void )
         {
@@ -454,7 +480,9 @@ namespace libcsel_ir
                                    public BinaryInstruction
     {
       public:
-        ModUnsignedInstruction( Value* lhs, Value* rhs );
+        using Ptr = std::shared_ptr< ModUnsignedInstruction >;
+
+        ModUnsignedInstruction( const Value::Ptr& lhs, const Value::Ptr& rhs );
 
         static inline Value::ID classid( void )
         {
@@ -471,7 +499,9 @@ namespace libcsel_ir
     class EquInstruction : public CompareInstruction, public BinaryInstruction
     {
       public:
-        EquInstruction( Value* lhs, Value* rhs );
+        using Ptr = std::shared_ptr< EquInstruction >;
+
+        EquInstruction( const Value::Ptr& lhs, const Value::Ptr& rhs );
 
         static inline Value::ID classid( void )
         {
@@ -484,7 +514,9 @@ namespace libcsel_ir
     class NeqInstruction : public CompareInstruction, public BinaryInstruction
     {
       public:
-        NeqInstruction( Value* lhs, Value* rhs );
+        using Ptr = std::shared_ptr< NeqInstruction >;
+
+        NeqInstruction( const Value::Ptr& lhs, const Value::Ptr& rhs );
 
         static inline Value::ID classid( void )
         {
@@ -501,7 +533,9 @@ namespace libcsel_ir
     class LnotInstruction : public LogicalInstruction, public UnaryInstruction
     {
       public:
-        LnotInstruction( Value* lhs );
+        using Ptr = std::shared_ptr< LnotInstruction >;
+
+        LnotInstruction( const Value::Ptr& lhs );
 
         static inline Value::ID classid( void )
         {
@@ -512,7 +546,7 @@ namespace libcsel_ir
     };
 }
 
-#endif /* _LIB_CSELIR_INSTRUCTION_H_ */
+#endif // _LIB_CSELIR_INSTRUCTION_H_
 
 //
 //  Local variables:

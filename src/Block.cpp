@@ -27,27 +27,30 @@
 using namespace libcsel_ir;
 
 Block::Block(
-    const char* name, Type* type, Value* parent, u1 is_parallel, Value::ID id )
+    const std::string& name, const Type::Ptr& type, u1 parallel, Value::ID id )
 : Value( name, type, id )
-, m_parent( parent )
-, m_is_parallel( is_parallel )
+, m_parallel( parallel )
 {
 }
 
-void Block::setParent( Value* parent )
+void Block::setParent( const Block::Ptr& parent )
 {
-    assert( m_parent );
+    if( not parent )
+    {
+        throw std::domain_error( "cannot set parent to a null pointer" );
+    }
+
     m_parent = parent;
 }
 
-const Value* Block::parent( void ) const
+Block::Ptr Block::parent( void ) const
 {
-    return m_parent;
+    return m_parent.lock();
 }
 
-const u1 Block::isParallel( void ) const
+u1 Block::isParallel( void ) const
 {
-    return m_is_parallel;
+    return m_parallel;
 }
 
 bool Block::classof( Value const* obj )

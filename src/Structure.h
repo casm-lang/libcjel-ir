@@ -24,36 +24,35 @@
 #ifndef _LIB_CSELIR_STRUCTURE_H_
 #define _LIB_CSELIR_STRUCTURE_H_
 
+#include "User.h"
+
 #include "Constant.h"
 #include "Intrinsic.h"
 #include "Module.h"
-#include "User.h"
 #include "Value.h"
 
 namespace libcsel_ir
 {
+    class Structure;
+    using Structures = libstdhl::List< Structure >;
+
+    struct StructureElement
+    {
+        Type::Ptr type;
+        std::string name;
+    };
+
     class Structure : public User
     {
-      private:
-        Identifier* m_identifier;
-        std::vector< Structure* > m_element;
-        Structure* m_parent;
-
       public:
-        Structure( const char* name, Type* type = 0, Structure* parent = 0 );
+        using Ptr = std::shared_ptr< Structure >;
 
-        ~Structure( void );
+        Structure( const std::string& name, const StructureType::Ptr& type,
+            const std::vector< StructureElement >& elements );
 
-        const Identifier* identifier( void ) const;
+        StructureElement element( std::size_t index ) const;
 
-        void add( Value* value );
-
-        Value* at( u16 index ) const;
-
-        const std::vector< Structure* >& elements( void ) const;
-
-        void setParent( Structure* value );
-        Structure* parent( void ) const;
+        std::vector< StructureElement > elements( void ) const;
 
         static inline Value::ID classid( void )
         {
@@ -62,43 +61,12 @@ namespace libcsel_ir
 
         static bool classof( Value const* obj );
 
-        size_t hash( void ) const
-        {
-            assert( m_identifier );
-            return std::hash< std::string >()(
-                std::string( m_identifier->name() ) );
-        }
+      private:
+        std::vector< StructureElement > m_elements;
     };
 }
 
-// TODO: FIXME: PPA: IMPROVEMENT: find a generic solution for the
-// hashing/equivalence functionality
-namespace std
-{
-    template <>
-    struct hash< libcsel_ir::Structure* >
-    {
-      public:
-        size_t operator()( const libcsel_ir::Structure* obj ) const
-        {
-            assert( obj and " invalid pointer! " );
-            return obj->hash();
-        }
-    };
-
-    template <>
-    struct equal_to< libcsel_ir::Structure* >
-    {
-      public:
-        bool operator()( const libcsel_ir::Structure* lhs,
-            const libcsel_ir::Structure* rhs ) const
-        {
-            return lhs->hash() == rhs->hash();
-        }
-    };
-}
-
-#endif /* _LIB_CSELIR_STRUCTURE_H_ */
+#endif // _LIB_CSELIR_STRUCTURE_H_
 
 //
 //  Local variables:

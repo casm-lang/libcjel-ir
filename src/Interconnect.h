@@ -24,29 +24,20 @@
 #ifndef _LIB_CSELIR_INTERCONNECT_H_
 #define _LIB_CSELIR_INTERCONNECT_H_
 
-#include "Structure.h"
 #include "User.h"
-#include "Value.h"
-#include "Variable.h"
 
 namespace libcsel_ir
 {
     class Interconnect : public User
     {
-      private:
-        u64 m_bs_max;
-        std::vector< Value* > m_objects;
-
       public:
-        Interconnect( void );
+        Interconnect( const std::string& name );
 
-        ~Interconnect( void );
+        void add( const Value::Ptr& object );
 
-        void add( Value* object );
+        Values objects( void ) const;
 
-        const std::vector< Value* >& objects( void ) const;
-
-        const u64 bitsizeMax( void ) const;
+        u64 bitsizeMax( void ) const;
 
         static inline Value::ID classid( void )
         {
@@ -54,10 +45,15 @@ namespace libcsel_ir
         }
 
         static bool classof( Value const* obj );
+
+      private:
+        Values m_objects;
+
+        u64 m_bs_max;
     };
 }
 
-#endif /* _LIB_CSELIR_INTERCONNECT_H_ */
+#endif // _LIB_CSELIR_INTERCONNECT_H_
 
 //
 //  Local variables:

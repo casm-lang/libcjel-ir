@@ -24,48 +24,38 @@
 #ifndef _LIB_CSELIR_REFERENCE_H_
 #define _LIB_CSELIR_REFERENCE_H_
 
-#include "Constant.h"
-#include "Intrinsic.h"
-#include "Structure.h"
 #include "User.h"
-#include "Value.h"
 
 namespace libcsel_ir
 {
+    class CallableUnit;
+
     class Reference : public User
     {
       public:
+        using Ptr = std::shared_ptr< Reference >;
+
         enum Kind
         {
             INPUT = 0,
             OUTPUT,
-            LINKAGE
+            LINKAGE,
+
+            _SIZE_
         };
 
-      private:
-        Identifier* m_identifier;
-        CallableUnit* m_callable;
-        Kind m_kind;
-        Structure* m_structure;
+        Reference(
+            const std::string& name, const Type::Ptr& type, Kind kind = INPUT );
 
-      public:
-        Reference( const char* name, Type* type, CallableUnit* callable = 0,
-            Kind kind = INPUT );
+        void setCallable( const std::shared_ptr< CallableUnit >& callable );
 
-        ~Reference( void );
+        std::shared_ptr< CallableUnit > callable( void ) const;
 
-        const Identifier* identifier( void ) const;
+        Kind kind( void ) const;
 
-        const CallableUnit* callableUnit( void ) const;
-
-        void setCallableUnit( CallableUnit* value );
-
-        const u1 isInput( void ) const;
-        const u1 isOutput( void ) const;
-        const u1 isLinkage( void ) const;
-
-        const Structure* structure( void ) const;
-        const u1 isStructure( void ) const;
+        u1 isInput( void ) const;
+        u1 isOutput( void ) const;
+        u1 isLinkage( void ) const;
 
         static inline Value::ID classid( void )
         {
@@ -74,20 +64,14 @@ namespace libcsel_ir
 
         static bool classof( Value const* obj );
 
-        virtual const char* labelName( void ) override final
-        {
-            return "%a";
-        }
+      private:
+        Kind m_kind;
 
-        virtual u64 labelId( void ) override final
-        {
-            static u64 cnt = 0;
-            return cnt++;
-        }
+        std::weak_ptr< CallableUnit > m_callable;
     };
 }
 
-#endif /* _LIB_CSELIR_REFERENCE_H_ */
+#endif // _LIB_CSELIR_REFERENCE_H_
 
 //
 //  Local variables:

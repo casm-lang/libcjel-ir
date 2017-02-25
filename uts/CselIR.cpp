@@ -27,11 +27,7 @@ using namespace libcsel_ir;
 
 TEST( libcsel_ir__isa, AllocInstruction )
 {
-    AllocInstruction x( Type::Bit( 1 ) );
+    AllocInstruction x( libstdhl::get< BitType >( 1 ) );
 
     ASSERT_TRUE( isa< AllocInstruction >( x ) );
-}
-
-TEST( libcsel_ir__isa, asdf )
-{
 }

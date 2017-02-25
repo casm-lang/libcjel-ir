@@ -31,14 +31,6 @@ namespace libcsel_ir
 {
     class CselIR
     {
-      public:
-        using Ptr = std::shared_ptr< CselIR >;
-
-        std::unordered_map< std::string, Ptr >& make_cache( void )
-        {
-            static std::unordered_map< std::string, Ptr > cache;
-            return cache;
-        }
     };
 
     class Value;
@@ -50,8 +42,14 @@ namespace libcsel_ir
     template < typename T >
     static inline u1 isa( Value* value )
     {
-        assert( value );
-        return T::classof( value );
+        if( value )
+        {
+            return T::classof( value );
+        }
+        else
+        {
+            return false;
+        }
     }
 
     template < typename T >
@@ -72,6 +70,12 @@ namespace libcsel_ir
         return isa< T >( &value );
     }
 
+    template < typename T >
+    static inline u1 isa( const std::shared_ptr< Value >& value )
+    {
+        return isa< T >( value.get() );
+    }
+
     //
     // casting utility
     //
@@ -81,7 +85,7 @@ namespace libcsel_ir
     {
         if( isa< T >( value ) )
         {
-            return static_cast< T* >( value );
+            return reinterpret_cast< T* >( value );
         }
         else
         {
@@ -94,7 +98,7 @@ namespace libcsel_ir
     {
         if( isa< T >( value ) )
         {
-            return static_cast< const T* >( value );
+            return reinterpret_cast< const T* >( value );
         }
         else
         {
@@ -115,7 +119,7 @@ namespace libcsel_ir
     }
 }
 
-#endif /* _LIB_CSELIR_CSELIR_H_ */
+#endif // _LIB_CSELIR_CSELIR_H_
 
 //
 //  Local variables:

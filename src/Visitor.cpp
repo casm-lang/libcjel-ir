@@ -23,8 +23,7 @@
 
 #include "Visitor.h"
 
-#include "../stdhl/cpp/Default.h"
-#include "../stdhl/cpp/Log.h"
+#include "Value.h"
 
 using namespace libcsel_ir;
 

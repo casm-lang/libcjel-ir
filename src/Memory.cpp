@@ -25,26 +25,17 @@
 
 using namespace libcsel_ir;
 
-Memory::Memory( Structure* structure, u32 length )
-: User( ".memory", Type::Vector( &structure->type(), length ), Value::MEMORY )
-, m_structure( structure )
+Memory::Memory( const std::string& name, const Type::Ptr& type, u32 length )
+: User( name, libstdhl::get< VectorType >( type, length ), classid() )
 , m_length( length )
 {
-    assert( m_length > 0 );
+    if( m_length == 0 )
+    {
+        throw std::domain_error( "length of 'Memory' cannot be '0'" );
+    }
 }
 
-Memory::~Memory( void )
-{
-}
-
-const Structure& Memory::structure( void ) const
-{
-    assert( m_structure );
-
-    return *m_structure;
-}
-
-const u32 Memory::length( void ) const
+u32 Memory::length( void ) const
 {
     return m_length;
 }

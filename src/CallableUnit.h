@@ -24,67 +24,48 @@
 #ifndef _LIB_CSELIR_CALLABLE_UNIT_H_
 #define _LIB_CSELIR_CALLABLE_UNIT_H_
 
-#include "Block.h"
-#include "Constant.h"
 #include "User.h"
-#include "Value.h"
+
+#include "Reference.h"
 
 namespace libcsel_ir
 {
-    class Reference;
+    class BitConstant;
+    class Scope;
 
     class CallableUnit : public User
     {
-      private:
-        static u64 m_allocation_cnt;
-
-        Block* m_context;
-        Identifier* m_identifier;
-
-        BitConstant m_allocation_id;
-
-        std::vector< Value* > m_parameter_in;
-        std::vector< Value* > m_parameter_out;
-        std::vector< Value* > m_linkage;
-
-        std::unordered_map< Value*, u16 > m_parameter2index;
-        std::unordered_map< const char*, Value* > m_name2ref;
-
       public:
-        CallableUnit(
-            const char* name, Type* type, Value::ID id = CALLABLE_UNIT );
+        using Ptr = std::shared_ptr< CallableUnit >;
 
-        ~CallableUnit( void );
+        CallableUnit( const std::string& name, const RelationType::Ptr& type,
+            Value::ID id = classid() );
 
-        BitConstant& allocId( void );
+        void setContext( const std::shared_ptr< Scope >& scope );
 
-        Block* context( void ) const;
+        std::shared_ptr< Scope > context( void ) const;
 
-        void setContext( Block* scope );
+        std::shared_ptr< BitConstant > allocId( void ) const;
 
-        const Identifier* identifier( void ) const;
+        void add( const Reference::Ptr& reference );
 
-      private:
-        Reference* add( const char* ref_name, Type* ref_type, u8 ref_kind );
+        Reference::Ptr in( const std::string& name, const Type::Ptr& type );
 
-      public:
-        Reference* in( const char* ref_name, Type* ref_type );
-        Reference* out( const char* ref_name, Type* ref_type );
-        Reference* link( const char* ref_name, Type* ref_type );
+        Reference::Ptr out( const std::string& name, const Type::Ptr& type );
 
-        void addParameter( Value* value, u1 input = true );
-        void addLinkage( Value* value );
+        Reference::Ptr link( const std::string& name, const Type::Ptr& type );
 
-        const std::vector< Value* >& inParameters( void ) const;
-        const std::vector< Value* >& outParameters( void ) const;
+        const std::vector< Reference::Ptr >& inputs( void ) const;
+        const std::vector< Reference::Ptr >& outputs( void ) const;
+        const std::vector< Reference::Ptr >& linkage( void ) const;
 
-        const i16 indexOfParameter( Value* value ) const;
-        const u1 isLastParameter( Value* value ) const;
-        const i16 parameterLength( void ) const;
+        u16 indexOf( const Reference::Ptr& reference ) const;
 
-        const std::vector< Value* >& linkage( void ) const;
+        u1 isLast( const Reference::Ptr& reference ) const;
 
-        const Reference* reference( const char* name ) const;
+        u16 length( void ) const;
+
+        Reference::Ptr reference( const std::string& name ) const;
 
         static inline Value::ID classid( void )
         {
@@ -92,10 +73,24 @@ namespace libcsel_ir
         }
 
         static bool classof( Value const* obj );
+
+      private:
+        static u64 m_allocation_cnt;
+
+        std::shared_ptr< Scope > m_context;
+
+        std::shared_ptr< BitConstant > m_allocation_id;
+
+        std::vector< Reference::Ptr > m_references[ Reference::Kind::_SIZE_ ];
+
+        std::unordered_map< std::string, u16 > m_name2index;
+
+        std::unordered_map< std::string, std::weak_ptr< Reference > >
+            m_name2ref;
     };
 }
 
-#endif /* _LIB_CSELIR_CALLABLE_UNIT_H_ */
+#endif // _LIB_CSELIR_CALLABLE_UNIT_H_
 
 //
 //  Local variables:

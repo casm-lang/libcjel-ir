@@ -23,14 +23,14 @@
 
 #include "CselIRDumpPass.h"
 
-#include "../stdhl/cpp/Log.h"
+#include "libcsel-ir.h"
 
 using namespace libcsel_ir;
 
 char CselIRDumpPass::id = 0;
 
-static libpass::PassRegistration< CselIRDumpPass > PASS( "CSELIR Dumping Pass",
-    "generates ASCII representation of the CSEL IR", "el-dump", 0 );
+static libpass::PassRegistration< CselIRDumpPass > PASS( "CSEL IR Dumping Pass",
+    "generates ASCII representation of the CSEL IR", "el-dump-debug", 0 );
 
 bool CselIRDumpPass::run( libpass::PassResult& pr )
 {
@@ -39,18 +39,21 @@ bool CselIRDumpPass::run( libpass::PassResult& pr )
 
     try
     {
+        // data->module()->iterate( Traversal::PREORDER, this );
         data->module()->iterate( Traversal::PREORDER, this );
     }
     catch( ... )
     {
-        libstdhl::Log::error( "during IR to EL transformation" );
+        libstdhl::Log::error( "unsuccessful EL dump" );
         return false;
     }
+
+    // libstdhl::Log::info( "%p: %s", tmp.c_str() );
 
     return true;
 }
 
-static const char* indention( Value& value )
+std::string CselIRDumpPass::indention( Value& value )
 {
     std::string ind = "";
     u8 cnt = 0;
@@ -59,11 +62,11 @@ static const char* indention( Value& value )
     {
         if( isa< Block >( p ) )
         {
-            p = (Value*)( (Block*)p )->parent();
+            p = static_cast< Block* >( p )->parent().get();
         }
         else if( isa< Instruction >( p ) )
         {
-            p = (Value*)( (Instruction*)p )->statement();
+            p = static_cast< Instruction* >( p )->statement().get();
         }
         else
         {
@@ -80,18 +83,18 @@ static const char* indention( Value& value )
         ind += "  ";
     }
 
-    return libstdhl::Allocator::string( ind );
+    return ind;
 }
 
 #define DUMP_PREFIX                                                            \
     printf( "%-14s: %p, %s, %s%s ", __FUNCTION__, &value, value.label(),       \
-        indention( value ), value.name() )
+        indention( value ).c_str(), value.name() )
 #define DUMP_POSTFIX printf( "\n" );
 
 #define DUMP_INSTR                                                             \
-    for( auto v : value.values() )                                             \
+    for( auto operand : value.operands() )                                     \
     {                                                                          \
-        printf( ", %s (%s)", v->label(), v->type().name() );                   \
+        printf( ", %s (%s)", operand->label(), operand->type().name() );       \
     }
 
 void CselIRDumpPass::visit_prolog( Module& value, Context& )

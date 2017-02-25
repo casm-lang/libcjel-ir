@@ -24,23 +24,22 @@
 #ifndef _LIB_CSELIR_CONSTANT_H_
 #define _LIB_CSELIR_CONSTANT_H_
 
-#include "User.h"
-
-#include "../stdhl/cpp/Allocator.h"
+#include "Value.h"
 
 namespace libcsel_ir
 {
     class Structure;
 
-    class Constant : public User
+    class Constant : public Value
     {
       public:
         using Ptr = std::shared_ptr< Constant >;
 
-      private:
-      public:
-        Constant( const char* name, Type* type, Value::ID id = Value::CONSTANT )
-        : User( name, type, id ){};
+        Constant( const std::string& name,
+            const Type::Ptr& type,
+            const libstdhl::Type& data,
+            const std::vector< Constant >& constants,
+            Value::ID id = classid() );
 
         static inline Value::ID classid( void )
         {
@@ -49,83 +48,20 @@ namespace libcsel_ir
 
         static bool classof( Value const* obj );
 
-        virtual const char* labelName( void ) override final
-        {
-            return "@c";
-        }
-
-        virtual u64 labelId( void ) override final
-        {
-            static u64 cnt = 0;
-            return cnt++;
-        }
-
-        static inline Value TRUE( void );
-        static inline Value FALSE( void );
-        static inline Value NIL( void );
-    };
-
-    template < typename V >
-    class ConstantOf : public Constant
-    {
       protected:
-        V m_value;
+        libstdhl::Type m_data;
 
-      private:
-        const char* m_description;
-
-      protected:
-        ConstantOf( const char* name, Type* type, V value,
-            Value::ID id = Value::CONSTANT )
-        : Constant( name, type, id )
-        , m_value( value )
-        , m_description( 0 )
-        {
-        }
+        std::vector< Constant > m_constants;
 
       public:
-        ~ConstantOf( void )
+        std::unordered_map< std::string, Constant::Ptr >& make_cache( void )
         {
-        }
-
-        const V& value( void ) const
-        {
-            return m_value;
-        }
-
-        const char* description( void )
-        {
-            if( not m_description )
-            {
-                std::string tmp = "";
-                tmp += type().name();
-                tmp += " ";
-                tmp += name();
-
-                m_description = libstdhl::Allocator::string( tmp );
-            }
-
-            return m_description;
-        }
-
-        static inline Value::ID classid( void )
-        {
-            return Value::CONSTANT;
-        }
-
-        static bool classof( Value const* obj )
-        {
-            return Constant::classof( obj );
-        }
-
-      protected:
-        void setValue( V value )
-        {
-            m_value = value;
+            static std::unordered_map< std::string, Constant::Ptr > cache;
+            return cache;
         }
     };
 
-    class VoidConstant : public ConstantOf< void* >
+    class VoidConstant : public Constant
     {
       public:
         using Ptr = std::shared_ptr< VoidConstant >;
@@ -140,14 +76,18 @@ namespace libcsel_ir
         static bool classof( Value const* obj );
     };
 
-    class BitConstant : public ConstantOf< Type::BitTy >
+    class BitConstant : public Constant
     {
       public:
         using Ptr = std::shared_ptr< BitConstant >;
 
-        BitConstant( Type* result, u64 value );
+        BitConstant( const BitType::Ptr& type, u64 value );
 
         BitConstant( u16 bitsize, u64 value );
+
+        const std::vector< u64 >& value( void ) const;
+
+        std::string to_bin( void ) const;
 
         static inline Value::ID classid( void )
         {
@@ -157,179 +97,61 @@ namespace libcsel_ir
         static bool classof( Value const* obj );
     };
 
-    class StringConstant : public ConstantOf< Type::StringTy >
+    class StringConstant : public Constant
     {
       public:
         using Ptr = std::shared_ptr< StringConstant >;
 
-        StringConstant( Type::StringTy value );
-        StringConstant( const char* value );
+        StringConstant( const std::string& value );
+
+        std::string value( void ) const;
 
         static inline Value::ID classid( void )
         {
             return Value::STRING_CONSTANT;
-        };
+        }
+
         static bool classof( Value const* obj );
     };
 
-    class StructureConstant : public ConstantOf< std::vector< Constant::Ptr > >
+    class StructureConstant : public Constant
     {
       public:
         using Ptr = std::shared_ptr< StructureConstant >;
 
-        StructureConstant(
-            Type& type, const std::vector< Constant::Ptr >& value );
+        StructureConstant( const StructureType::Ptr& type,
+            const std::vector< Constant >& values );
+
+        StructureConstant( const std::shared_ptr< Structure >& kind,
+            const std::vector< Constant >& values );
+
+        std::vector< Constant > value( void ) const;
 
         static inline Value::ID classid( void )
         {
             return Value::STRUCTURE_CONSTANT;
-        };
+        }
+
         static bool classof( Value const* obj );
     };
 
-    class Identifier : public ConstantOf< const char* >
+    class Identifier : public Constant
     {
-      private:
+      public:
         using Ptr = std::shared_ptr< Identifier >;
 
-        static std::unordered_map< std::string, Identifier* >& ident2obj( void )
-        {
-            static std::unordered_map< std::string, Identifier* > cache;
-            return cache;
-        }
-
-        Identifier( Type* type, const char* value );
-
-      public:
-        ~Identifier( void );
-
-        static Identifier* create(
-            Type* type, const char* value, Value* scope = 0 );
-
-        static void forgetSymbol( const char* value );
+        Identifier( const Type::Ptr& type, const std::string& value );
 
         static inline Value::ID classid( void )
         {
             return Value::IDENTIFIER;
-        };
+        }
+
         static bool classof( Value const* obj );
     };
-
-    //     template < typename V >
-    // class Constant : public libcsel_ir::User
-    // {
-    //   protected:
-    //     V value;
-    //     Constant( const char* name, Type* type, V value,
-    //         Value::ID id = Value::CONSTANT );
-
-    //   public:
-    //     ~Constant( void );
-
-    //     const V getValue( void ) const;
-
-    //     static inline Value::ID classid( void )
-    //     {
-    //         return Value::CONSTANT;
-    //     };
-    //     static bool classof( Value const* obj );
-
-    //   protected:
-    //     void setValue( V val );
-    // };
-
-    // class Constants : public Constant< u1 >
-    // {
-    //   public:
-    //     static inline Value::ID classid( void )
-    //     {
-    //         return Value::CONSTANT;
-    //     };
-    //     static bool classof( Value const* obj );
-    // };
-
-    // class StructureConstant;
-
-    // class BitConstant : public Constant< Type::Bit >,
-    //                     public libstdhl::Binding< StructureConstant >
-    // {
-    //   private:
-    //     u64 value[ 1 ];
-    //     BitConstant( Type* type, u64 value );
-
-    //   public:
-    //     static BitConstant* create( u64 value, u16 bitsize );
-
-    //     static inline Value::ID classid( void )
-    //     {
-    //         return Value::BIT_CONSTANT;
-    //     };
-    //     static bool classof( Value const* obj );
-
-    //     static BitConstant TRUE;
-    //     static BitConstant FALSE;
-    //     static BitConstant NIL;
-    // };
-
-    // class StructureConstant : public Constant< std::vector< Value* > >,
-    //                           public libstdhl::Binding< StructureConstant >
-    // {
-    //   private:
-    //     StructureConstant( Type* type, std::vector< Value* > value );
-
-    //   public:
-    //     static StructureConstant* create(
-    //         Structure* kind, const std::vector< Value* >& value = {} );
-
-    //     const std::vector< Value* >& getElements( void ) const;
-
-    //     static inline Value::ID classid( void )
-    //     {
-    //         return Value::STRUCTURE_CONSTANT;
-    //     };
-    //     static bool classof( Value const* obj );
-    // };
-
-    // class Identifier : public Constant< const char* >
-    // {
-    //   private:
-    //     Identifier( Type* type, const char* value );
-
-    //   public:
-    //     ~Identifier( void );
-
-    //     static Identifier* create(
-    //         Type* type, std::string value, Value* scope = 0 );
-    //     static Identifier* create(
-    //         Type* type, const char* value, Value* scope = 0 );
-
-    //     static void forgetSymbol( const char* value );
-
-    //     static inline Value::ID classid( void )
-    //     {
-    //         return Value::IDENTIFIER;
-    //     };
-    //     static bool classof( Value const* obj );
-    // };
-
-    // class StringConstant : public Constant< Type::String >,
-    //                        public libstdhl::Binding< StructureConstant >
-    // {
-    //   public:
-    //     StringConstant( Type* type, Type::String value );
-    //     static StringConstant* create( Type::String value );
-
-    //     static inline Value::ID classid( void )
-    //     {
-    //         return Value::STRING_CONSTANT;
-    //     };
-    //     static bool classof( Value const* obj );
-
-    //     static StringConstant LF;
-    // };
 }
 
-#endif /* _LIB_CSELIR_CONSTANT_H_ */
+#endif // _LIB_CSELIR_CONSTANT_H_
 
 //
 //  Local variables:

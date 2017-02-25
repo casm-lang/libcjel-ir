@@ -27,35 +27,25 @@ using namespace libcsel_ir;
 
 u64 Variable::m_allocation_cnt = 0;
 
-Variable::Variable( Type* type, Value* expression, const char* ident )
-: User( ".variable", type, Value::VARIABLE )
+Variable::Variable( const Type::Ptr& type, const Value::Ptr& expression,
+    const std::string& ident )
+: User( ident, type, Value::VARIABLE )
 , m_expression( expression )
-, m_ident( ident )
-, m_allocation_id( BitConstant( Type::TypeID(), m_allocation_cnt ) )
+, m_allocation_id( libstdhl::make< BitConstant >( 64, m_allocation_cnt ) )
 {
-    assert( type );
     assert( expression && isa< Constant >( expression ) );
 
     m_allocation_cnt++;
 }
 
-Variable::~Variable( void )
-{
-}
-
-BitConstant& Variable::allocId( void )
+BitConstant::Ptr Variable::allocId( void )
 {
     return m_allocation_id;
 }
 
-Value* Variable::expression( void ) const
+Value::Ptr Variable::expression( void ) const
 {
     return m_expression;
-}
-
-const char* Variable::ident( void ) const
-{
-    return m_ident;
 }
 
 bool Variable::classof( Value const* obj )
