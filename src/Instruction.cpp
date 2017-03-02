@@ -62,7 +62,7 @@ void Instruction::setStatement( const Statement::Ptr& statement )
             libstdhl::Log::error(
                 "warning: %s:%i: Instruction '%s' does belong to a different "
                 "Statement block\n",
-                __FILE__, __LINE__, operand->description() );
+                __FILE__, __LINE__, operand->description().c_str() );
         }
     }
 }

@@ -150,9 +150,7 @@ namespace libcsel_ir
 
         ~Value( void );
 
-        const char* name( void ) const;
-
-        std::string str_name( void ) const;
+        std::string name( void ) const;
 
         const Type& type( void ) const;
 
@@ -160,17 +158,13 @@ namespace libcsel_ir
 
         ID id() const;
 
-        const char* description( void ) const;
-
-        std::string str_description( void ) const;
+        std::string description( void ) const;
 
         std::string dump( void ) const;
 
         std::string make_hash( void ) const;
 
-        const char* label( void ) const;
-
-        std::string str_label( void ) const;
+        std::string label( void ) const;
 
         void setModule( std::shared_ptr< Module > );
 
@@ -183,7 +177,7 @@ namespace libcsel_ir
             if( this != &rhs )
             {
                 if( this->id() != rhs.id()
-                    or strcmp( this->name(), ( (Value&)rhs ).name() )
+                    or this->name().compare( rhs.name() )
                     or this->type() != rhs.type() )
                 {
                     return false;

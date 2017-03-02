@@ -36,22 +36,12 @@ Type::Type( const std::string& name, const std::string& description,
 {
 }
 
-const char* Type::name( void ) const
-{
-    return m_name.c_str();
-}
-
-std::string Type::str_name( void ) const
+std::string Type::name( void ) const
 {
     return m_name;
 }
 
-const char* Type::description( void ) const
-{
-    return m_description.c_str();
-}
-
-std::string Type::str_description( void ) const
+std::string Type::description( void ) const
 {
     return m_description;
 }
@@ -97,7 +87,7 @@ std::vector< Type::Ptr > Type::ptr_arguments( void ) const
 
 std::string Type::make_hash( void ) const
 {
-    return "t:" + std::to_string( id() ) + ":" + str_description();
+    return "t:" + std::to_string( id() ) + ":" + description();
 }
 
 u1 Type::isLabel( void ) const
@@ -220,10 +210,10 @@ VectorType::VectorType( const Type::Ptr& type, u16 length )
             "length of 'VectorType' shall be greater or equal than '1'" );
     }
 
-    m_name = "< " + m_type->str_name() + " x " + std::to_string( m_length )
+    m_name = "< " + m_type->name() + " x " + std::to_string( m_length )
              + " > ";
 
-    m_description = "< " + m_type->str_description() + " x "
+    m_description = "< " + m_type->description() + " x "
                     + std::to_string( m_length ) + " > ";
 
     for( u32 i = 0; i < m_length; i++ )
@@ -264,8 +254,8 @@ StructureType::StructureType( const Structure::Ptr& kind )
             m_description += ", ";
         }
 
-        m_name += element.type->str_name() + " : " + element.name;
-        m_description += element.type->str_description() + " : " + element.name;
+        m_name += element.type->name() + " : " + element.name;
+        m_description += element.type->description() + " : " + element.name;
 
         first = false;
     }
@@ -308,8 +298,8 @@ RelationType::RelationType( const std::vector< Type::Ptr >& results,
             m_description += " x ";
         }
 
-        m_name += argument->str_name();
-        m_description += argument->str_description();
+        m_name += argument->name();
+        m_description += argument->description();
 
         first = false;
     }
@@ -330,8 +320,8 @@ RelationType::RelationType( const std::vector< Type::Ptr >& results,
             m_description += " x ";
         }
 
-        m_name += result->str_name();
-        m_description += result->str_description();
+        m_name += result->name();
+        m_description += result->description();
 
         first = false;
     }

@@ -47,10 +47,12 @@ namespace libcsel_ir
       public:
         using Ptr = std::shared_ptr< Structure >;
 
-        Structure( const std::string& name, const StructureType::Ptr& type,
+        Structure( const std::string& name,
             const std::vector< StructureElement >& elements );
 
         StructureElement element( std::size_t index ) const;
+
+        StructureElement element( const std::string& name ) const;
 
         std::vector< StructureElement > elements( void ) const;
 
@@ -63,6 +65,8 @@ namespace libcsel_ir
 
       private:
         std::vector< StructureElement > m_elements;
+
+        std::unordered_map< std::string, std::size_t > m_element2index;
     };
 }
 

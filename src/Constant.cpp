@@ -55,7 +55,7 @@ bool Constant::classof( Value const* obj )
 
 VoidConstant::VoidConstant( void )
 : Constant(
-      "void", libstdhl::get< VoidType >(), libstdhl::Type( {} ), {}, classid() )
+      "void", libstdhl::get< VoidType >(), libstdhl::Type(), {}, classid() )
 {
 }
 
@@ -69,26 +69,12 @@ bool VoidConstant::classof( Value const* obj )
 //
 
 BitConstant::BitConstant( const BitType::Ptr& type, u64 value )
-: Constant( std::to_string( value ), type,
-      libstdhl::Type( std::vector< u64 >( type->wordsize(), 0 ) ), {},
-      classid() )
+: Constant(
+      "", type, libstdhl::Integer( value, type->bitsize() ), {}, classid() )
 {
     assert( m_data.words().size() == type->wordsize() );
-
-    if( type->bitsize() < 64 )
-    {
-        m_data.set(
-            0, value & ( ( (u64)1 << ( (u64)type->bitsize() ) ) - (u64)1 ) );
-    }
-    else if( type->bitsize() == 64 )
-    {
-        m_data.set( 0, value );
-    }
-    else if( type->bitsize() <= BitType::SizeMax )
-    {
-        m_data.set( 0, value );
-    }
-    else
+    
+    if( type->bitsize() > BitType::SizeMax )
     {
         throw std::domain_error( "invalid bit size '"
                                  + std::to_string( type->bitsize() )
@@ -101,16 +87,14 @@ BitConstant::BitConstant( u16 bitsize, u64 value )
 {
 }
 
+std::string BitConstant::literal( libstdhl::Type::Radix radix ) const
+{
+    return m_data.to_string( radix );
+}
+
 const std::vector< u64 >& BitConstant::value( void ) const
 {
     return m_data.words();
-}
-
-std::string BitConstant::to_bin( void ) const
-{
-    auto binary = m_data.to_string();
-
-    return binary.substr( binary.size() - type().bitsize() );
 }
 
 bool BitConstant::classof( Value const* obj )
@@ -123,14 +107,14 @@ bool BitConstant::classof( Value const* obj )
 //
 
 StringConstant::StringConstant( const std::string& value )
-: Constant( value, libstdhl::get< StringType >(), libstdhl::Type( {} ), {},
-      classid() )
+: Constant(
+      value, libstdhl::get< StringType >(), libstdhl::Type(), {}, classid() )
 {
 }
 
 std::string StringConstant::value( void ) const
 {
-    return str_name();
+    return name();
 }
 
 bool StringConstant::classof( Value const* obj )
@@ -144,7 +128,7 @@ bool StringConstant::classof( Value const* obj )
 
 StructureConstant::StructureConstant(
     const StructureType::Ptr& type, const std::vector< Constant >& values )
-: Constant( "", type, libstdhl::Type( {} ), values, classid() )
+: Constant( "", type, libstdhl::Type(), values, classid() )
 {
     assert( type->results().size() == values.size() );
 
@@ -159,7 +143,7 @@ StructureConstant::StructureConstant(
             m_name += ", ";
         }
 
-        m_name += values[ i ].str_name();
+        m_name += values[ i ].name();
     }
 
     m_name += "}";
@@ -186,7 +170,7 @@ bool StructureConstant::classof( Value const* obj )
 //
 
 Identifier::Identifier( const Type::Ptr& type, const std::string& value )
-: Constant( value, type, libstdhl::Type( {} ), {}, classid() )
+: Constant( value, type, libstdhl::Type(), {}, classid() )
 {
 }
 

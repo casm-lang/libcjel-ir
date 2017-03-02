@@ -87,14 +87,16 @@ std::string CselIRDumpPass::indention( Value& value )
 }
 
 #define DUMP_PREFIX                                                            \
-    printf( "%-14s: %p, %s, %s%s ", __FUNCTION__, &value, value.label(),       \
-        indention( value ).c_str(), value.name() )
+    printf( "%-14s: %p, %s, %s%s ", __FUNCTION__, &value,                      \
+        value.label().c_str(), indention( value ).c_str(),                     \
+        value.name().c_str() )
 #define DUMP_POSTFIX printf( "\n" );
 
 #define DUMP_INSTR                                                             \
     for( auto operand : value.operands() )                                     \
     {                                                                          \
-        printf( ", %s (%s)", operand->label(), operand->type().name() );       \
+        printf( ", %s (%s)", operand->label().c_str(),                         \
+            operand->type().name().c_str() );                                  \
     }
 
 void CselIRDumpPass::visit_prolog( Module& value, Context& )
@@ -133,7 +135,8 @@ void CselIRDumpPass::visit_epilog( Intrinsic& value, Context& )
 void CselIRDumpPass::visit_prolog( Reference& value, Context& )
 {
     DUMP_PREFIX;
-    printf( "%s %s", value.type().name(), value.isInput() ? "in" : "out" );
+    printf(
+        "%s %s", value.type().name().c_str(), value.isInput() ? "in" : "out" );
     // printf(
     //     "%s, %s", value.identifier()->name(), value.isInput() ? "in" : "out"
     //     );

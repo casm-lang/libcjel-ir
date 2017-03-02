@@ -58,13 +58,9 @@ namespace libcsel_ir
 
         ~Type() = default;
 
-        const char* name( void ) const;
+        std::string name( void ) const;
 
-        std::string str_name( void ) const;
-
-        const char* description( void ) const;
-
-        std::string str_description( void ) const;
+        std::string description( void ) const;
 
         ID id( void ) const;
 
@@ -87,7 +83,7 @@ namespace libcsel_ir
             if( this != &rhs )
             {
                 if( this->id() != rhs.id()
-                    or strcmp( this->name(), rhs.name() ) )
+                    or this->name().compare( rhs.name() ) )
                 {
                     return false;
                 }

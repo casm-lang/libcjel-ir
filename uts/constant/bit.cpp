@@ -27,13 +27,29 @@ using namespace libcsel_ir;
 
 static void test_constant_bit( u64 i, i16 s )
 {
+    u64 i_mask = i;
+
     auto t = libstdhl::make< BitType >( s );
 
     auto v = libstdhl::make< BitConstant >( t, i );
 
     EXPECT_EQ( v->type().bitsize(), s );
-    EXPECT_STREQ( v->name(), std::to_string( i ).c_str() );
-    EXPECT_STREQ( v->name(), std::to_string( v->value()[ 0 ] ).c_str() );
+
+    if( s < 64 )
+    {
+        i_mask = i & ( ~( ( (u64)UINT64_MAX ) << s ) );
+    }
+
+    EXPECT_STREQ( v->name().c_str(), std::to_string( i_mask ).c_str() );
+    EXPECT_STREQ(
+        v->name().c_str(), std::to_string( v->value()[ 0 ] ).c_str() );
+
+    EXPECT_EQ( v->value()[ 0 ], i_mask );
+
+    if( v->name().compare( std::to_string( i_mask ) ) )
+    {
+        printf( "input: '%lu' with bitsize: '%lu'\n", i, v->type().bitsize() );
+    }
 
     auto w = libstdhl::make< BitConstant >( t, i );
 
@@ -56,7 +72,10 @@ TEST( libcsel_ir__constant_bit, create_range )
 {
     for( u16 s = 1; s <= BitType::SizeMax; s++ )
     {
-        for( u64 i = 0; i < 256; i++ )
+        test_constant_bit( 0, s );
+        test_constant_bit( 1, s );
+
+        for( u64 i = 2; i < s; i *= 3 )
         {
             test_constant_bit( i, s );
         }
@@ -69,7 +88,9 @@ TEST( libcsel_ir__constant_bit, create_random )
     {
         for( u32 c = 0; c < 16; c++ )
         {
-            auto i = libstdhl::Random::uniform< u64 >();
+            auto i = libstdhl::Random::uniform< u64 >(
+                0, (u64)std::floor( std::pow( (long double)2, (long double)s ) )
+                       - 1 );
 
             test_constant_bit( i, s );
         }

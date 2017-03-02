@@ -59,7 +59,7 @@ BitConstant::Ptr CallableUnit::allocId( void ) const
 
 void CallableUnit::add( const Reference::Ptr& reference )
 {
-    auto name = reference->str_name();
+    auto name = reference->name();
 
     auto result = m_name2ref.find( name );
     if( result != m_name2ref.end() )
@@ -67,7 +67,7 @@ void CallableUnit::add( const Reference::Ptr& reference )
         throw std::domain_error(
             "this 'CallableUnit' already has a reference named '" + name
             + "' of type '"
-            + reference->type().str_name()
+            + reference->type().name()
             + "'" );
     }
 
@@ -123,9 +123,9 @@ u16 CallableUnit::indexOf( const Reference::Ptr& reference ) const
     auto result = m_name2index.find( reference->name() );
     if( result == m_name2index.end() )
     {
-        throw std::domain_error( "reference '" + reference->str_description()
+        throw std::domain_error( "reference '" + reference->description()
                                  + "' does not belong to this callable '"
-                                 + this->str_description()
+                                 + this->description()
                                  + "'" );
     }
 

@@ -114,7 +114,7 @@ void Visitor::dispatch( Stage stage, Value& value, Context& cxt )
             libstdhl::Log::error(
                 "%s:%i: warning: unimplemented value ID '%s' to dispatch for "
                 "stage '%i' and context '%p'",
-                __FILE__, __LINE__, value.name(), stage, &cxt );
+                __FILE__, __LINE__, value.name().c_str(), stage, &cxt );
             assert( 0 );
             break;
     }

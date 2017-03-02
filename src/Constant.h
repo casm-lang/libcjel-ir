@@ -85,9 +85,10 @@ namespace libcsel_ir
 
         BitConstant( u16 bitsize, u64 value );
 
-        const std::vector< u64 >& value( void ) const;
+        std::string literal(
+            libstdhl::Type::Radix radix = libstdhl::Type::DECIMAL ) const;
 
-        std::string to_bin( void ) const;
+        const std::vector< u64 >& value( void ) const;
 
         static inline Value::ID classid( void )
         {

@@ -25,15 +25,26 @@
 
 using namespace libcsel_ir;
 
-Structure::Structure( const std::string& name, const StructureType::Ptr& type,
-    const std::vector< StructureElement >& elements )
-: User( name, type, Value::STRUCTURE )
+Structure::Structure(
+    const std::string& name, const std::vector< StructureElement >& elements )
+: User( name, libstdhl::get< VoidType >(), classid() )
 , m_elements( elements )
 {
     if( elements.size() == 0 )
     {
         throw std::domain_error(
             "element size of structure '" + name + "' cannot be '0'" );
+    }
+
+    for( std::size_t c = 0; c < elements.size(); c++ )
+    {
+        const auto element = elements[ c ].name;
+
+        if( not m_element2index.emplace( element, c ).second )
+        {
+            throw std::domain_error(
+                "structure '' already has an element '" + element + "'" );
+        }
     }
 }
 
@@ -47,6 +58,19 @@ StructureElement Structure::element( std::size_t index ) const
     }
 
     return m_elements[ index ];
+}
+
+StructureElement Structure::element( const std::string& name ) const
+{
+    const auto result = m_element2index.find( name );
+    if( result == m_element2index.end() )
+    {
+        throw std::domain_error(
+            "structure '" + this->name() + "' does not have a element '" + name
+            + "'" );
+    }
+
+    return m_elements[ result->second ];
 }
 
 std::vector< StructureElement > Structure::elements( void ) const
