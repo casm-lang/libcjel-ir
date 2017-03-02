@@ -69,11 +69,10 @@ bool VoidConstant::classof( Value const* obj )
 //
 
 BitConstant::BitConstant( const BitType::Ptr& type, u64 value )
-: Constant(
-      "", type, libstdhl::Integer( value, type->bitsize() ), {}, classid() )
+: Constant( "", type, libstdhl::Type( value, type->bitsize() ), {}, classid() )
 {
     assert( m_data.words().size() == type->wordsize() );
-    
+
     if( type->bitsize() > BitType::SizeMax )
     {
         throw std::domain_error( "invalid bit size '"
