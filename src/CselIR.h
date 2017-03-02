@@ -73,7 +73,11 @@ namespace libcsel_ir
     template < typename T >
     static inline u1 isa( const std::shared_ptr< Value >& value )
     {
-        return isa< T >( value.get() );
+        if( auto ptr = value.get() )
+        {
+            return isa< T >( ptr );
+        }
+        return false;
     }
 
     //
@@ -116,6 +120,16 @@ namespace libcsel_ir
     static inline const T* cast( const Value& value )
     {
         return cast< T >( &value );
+    }
+
+    template < typename T >
+    static inline const T* cast( const std::shared_ptr< Value >& value )
+    {
+        if( auto ptr = value.get() )
+        {
+            return cast< T >( ptr );
+        }
+        return nullptr;
     }
 }
 

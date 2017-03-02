@@ -171,9 +171,9 @@ OperatorInstruction::OperatorInstruction( const std::string& name,
     Value::ID id )
 : Instruction( name, type, values, id )
 {
-    if( auto bin_instr = cast< BinaryInstruction >( this ) )
+    if( isa< BinaryInstruction >( this ) )
     {
-        assert( bin_instr->lhs()->type() == bin_instr->rhs()->type() );
+        assert( operand( 0 )->type() == operand( 1 )->type() );
     }
 }
 
@@ -186,7 +186,9 @@ u1 OperatorInstruction::classof( Value const* obj )
 
 ArithmeticInstruction::ArithmeticInstruction( const std::string& name,
     const std::vector< Value::Ptr >& values, Value::ID id )
-: OperatorInstruction( name, operand( 0 )->ptr_type(), values, id )
+: OperatorInstruction( name,
+      ( values.size() > 0 and values[ 0 ] ) ? values[ 0 ]->ptr_type() : nullptr,
+      values, id )
 {
 }
 

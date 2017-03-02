@@ -33,6 +33,9 @@ namespace libcsel_ir
 {
     class Structure;
 
+    class Type;
+    using Types = libstdhl::List< Type >;
+
     class Type : public CselIR
     {
       public:
@@ -68,9 +71,9 @@ namespace libcsel_ir
 
         u64 wordsize( const u64 wordbits = 64 ) const;
 
-        std::vector< Type* > results( void ) const;
+        const Types& results( void ) const;
 
-        std::vector< Type::Ptr > ptr_results( void ) const;
+        Types ptr_results( void ) const;
 
         std::vector< Type* > arguments( void ) const;
 
@@ -110,7 +113,7 @@ namespace libcsel_ir
         std::string m_description;
         u64 m_bitsize;
 
-        libstdhl::List< Type > m_results;
+        Types m_results;
 
       private:
         ID m_id;
@@ -124,8 +127,6 @@ namespace libcsel_ir
             return cache;
         }
     };
-
-    using Types = libstdhl::List< Type >;
 
     class PrimitiveType : public Type
     {

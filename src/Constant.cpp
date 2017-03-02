@@ -129,7 +129,7 @@ StructureConstant::StructureConstant(
     const StructureType::Ptr& type, const std::vector< Constant >& values )
 : Constant( "", type, libstdhl::Type(), values, classid() )
 {
-    assert( type->results().size() == values.size() );
+    assert( this->type().results().size() == values.size() );
 
     m_name = "{";
 

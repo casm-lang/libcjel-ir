@@ -35,12 +35,7 @@ namespace libcsel_ir
 {
     class Structure;
     using Structures = libstdhl::List< Structure >;
-
-    struct StructureElement
-    {
-        Type::Ptr type;
-        std::string name;
-    };
+    using StructureElement = std::pair< Type::Ptr, std::string >;
 
     class Structure : public User
     {

@@ -25,38 +25,11 @@
 
 using namespace libcsel_ir;
 
-TEST( libcsel_ir__type_bit, size_less_one_is_invalid )
+TEST( libcsel_ir__type_structure, example )
 {
-    EXPECT_THROW( { BitType( 0 ); }, std::domain_error );
-}
-
-TEST( libcsel_ir__type_bit, size_greater_SizeMax_is_invalid )
-{
-    EXPECT_THROW( { BitType( BitType::SizeMax + 1 ); }, std::domain_error );
-}
-
-TEST( libcsel_ir__type_bit, from_one_to_SizeMax )
-{
-    for( u16 c = 1; c <= BitType::SizeMax; c++ )
-    {
-        auto stack = BitType( c );
-
-        auto heap_a = libstdhl::make< BitType >( c );
-        auto heap_b = libstdhl::make< BitType >( c );
-
-        ASSERT_TRUE( heap_a != nullptr );
-        ASSERT_TRUE( heap_b != nullptr );
-        EXPECT_TRUE( heap_a != heap_b );
-        EXPECT_TRUE( *heap_a == *heap_b );
-
-        auto cache_a = libstdhl::get< BitType >( c );
-        auto cache_b = libstdhl::get< BitType >( c );
-
-        ASSERT_TRUE( cache_a != nullptr );
-        ASSERT_TRUE( cache_b != nullptr );
-        EXPECT_TRUE( cache_a == cache_b );
-        EXPECT_TRUE( *cache_a == *cache_b );
-    }
+    auto t0 = libstdhl::make< StructureType >( libstdhl::make< Structure >(
+        "s0", std::initializer_list< StructureElement >{
+                  { libstdhl::make< BitType >( 10 ), "field" } } ) );
 }
 
 //

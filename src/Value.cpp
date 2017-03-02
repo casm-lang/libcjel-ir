@@ -59,7 +59,7 @@ std::string Value::name( void ) const
         auto c = static_cast< const BitConstant* >( this );
         return c->literal();
     }
-    
+
     return m_name;
 }
 

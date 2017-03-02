@@ -38,12 +38,13 @@ Structure::Structure(
 
     for( std::size_t c = 0; c < elements.size(); c++ )
     {
-        const auto element = elements[ c ].name;
+        const auto element = std::get< 1 >( elements[ c ] );
 
         if( not m_element2index.emplace( element, c ).second )
         {
             throw std::domain_error(
-                "structure '' already has an element '" + element + "'" );
+                "structure '" + name + "' already has an element '" + element
+                + "'" );
         }
     }
 }

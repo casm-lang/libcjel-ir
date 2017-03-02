@@ -176,8 +176,7 @@ namespace libcsel_ir
         {
             if( this != &rhs )
             {
-                if( this->id() != rhs.id()
-                    or this->name().compare( rhs.name() )
+                if( this->id() != rhs.id() or this->name().compare( rhs.name() )
                     or this->type() != rhs.type() )
                 {
                     return false;

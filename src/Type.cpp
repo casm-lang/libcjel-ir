@@ -61,16 +61,14 @@ u64 Type::wordsize( const u64 wordbits ) const
     return ( ( bitsize() - 1 ) / wordbits ) + 1;
 }
 
-std::vector< Type* > Type::results( void ) const
+const Types& Type::results( void ) const
 {
-    assert( !" TODO! " );
-    return {};
+    return m_results;
 }
 
-std::vector< Type::Ptr > Type::ptr_results( void ) const
+Types Type::ptr_results( void ) const
 {
-    assert( !" TODO! " );
-    return {};
+    return m_results;
 }
 
 std::vector< Type* > Type::arguments( void ) const
@@ -210,8 +208,7 @@ VectorType::VectorType( const Type::Ptr& type, u16 length )
             "length of 'VectorType' shall be greater or equal than '1'" );
     }
 
-    m_name = "< " + m_type->name() + " x " + std::to_string( m_length )
-             + " > ";
+    m_name = "< " + m_type->name() + " x " + std::to_string( m_length ) + " > ";
 
     m_description = "< " + m_type->description() + " x "
                     + std::to_string( m_length ) + " > ";
@@ -227,7 +224,7 @@ VectorType::VectorType( const Type::Ptr& type, u16 length )
 //
 
 StructureType::StructureType( const Structure::Ptr& kind )
-: AggregateType( 0, 0, 0, Type::STRUCTURE )
+: AggregateType( "", "", 0, Type::STRUCTURE )
 , m_kind( kind )
 {
     if( not kind )
@@ -246,7 +243,12 @@ StructureType::StructureType( const Structure::Ptr& kind )
     u1 first = true;
     for( const auto& element : elements )
     {
-        m_bitsize += element.type->bitsize();
+        auto t = std::get< 0 >( element );
+        auto s = std::get< 1 >( element );
+
+        m_results.add( t );
+
+        m_bitsize += t->bitsize();
 
         if( not first )
         {
@@ -254,8 +256,8 @@ StructureType::StructureType( const Structure::Ptr& kind )
             m_description += ", ";
         }
 
-        m_name += element.type->name() + " : " + element.name;
-        m_description += element.type->description() + " : " + element.name;
+        m_name += t->name() + " : " + s;
+        m_description += t->description() + " : " + s;
 
         first = false;
     }
@@ -275,7 +277,7 @@ StructureType::StructureType( const Structure::Ptr& kind )
 
 RelationType::RelationType( const std::vector< Type::Ptr >& results,
     const std::vector< Type::Ptr >& arguments )
-: Type( 0, 0, 0, Type::RELATION )
+: Type( "", "", 0, Type::RELATION )
 , m_arguments( arguments )
 {
     m_results = std::move( results );
