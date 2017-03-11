@@ -75,9 +75,9 @@ namespace libcsel_ir
 
         Types ptr_results( void ) const;
 
-        std::vector< Type* > arguments( void ) const;
+        const Types& arguments( void ) const;
 
-        std::vector< Type::Ptr > ptr_arguments( void ) const;
+        Types ptr_arguments( void ) const;
 
         std::string make_hash( void ) const;
 
@@ -110,7 +110,9 @@ namespace libcsel_ir
 
       protected:
         std::string m_name;
+
         std::string m_description;
+
         u64 m_bitsize;
 
         Types m_results;
@@ -223,6 +225,8 @@ namespace libcsel_ir
 
         RelationType( const std::vector< Type::Ptr >& results,
             const std::vector< Type::Ptr >& arguments );
+
+        const Types& arguments( void ) const;
 
       private:
         Types m_arguments;

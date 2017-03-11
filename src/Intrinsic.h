@@ -31,7 +31,7 @@ namespace libcsel_ir
     class Intrinsic : public CallableUnit
     {
       public:
-        Intrinsic( const std::string& name, const RelationType::Ptr& type );
+        Intrinsic( const std::string& name, const Type::Ptr& type );
 
         static inline Value::ID classid( void )
         {

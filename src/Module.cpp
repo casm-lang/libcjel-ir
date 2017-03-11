@@ -26,6 +26,7 @@
 #include "Constant.h"
 #include "Function.h"
 #include "Interconnect.h"
+#include "Intrinsic.h"
 #include "Memory.h"
 #include "Structure.h"
 #include "Variable.h"

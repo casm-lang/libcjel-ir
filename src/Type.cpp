@@ -68,19 +68,24 @@ const Types& Type::results( void ) const
 
 Types Type::ptr_results( void ) const
 {
-    return m_results;
+    return results();
 }
 
-std::vector< Type* > Type::arguments( void ) const
+const Types& Type::arguments( void ) const
 {
-    assert( !" TODO! " );
-    return {};
+    static Types empty = {};
+
+    if( isRelation() )
+    {
+        return static_cast< const RelationType* >( this )->arguments();
+    }
+
+    return empty;
 }
 
-std::vector< Type::Ptr > Type::ptr_arguments( void ) const
+Types Type::ptr_arguments( void ) const
 {
-    assert( !" TODO! " );
-    return {};
+    return arguments();
 }
 
 std::string Type::make_hash( void ) const
@@ -335,6 +340,11 @@ RelationType::RelationType( const std::vector< Type::Ptr >& results,
     {
         throw std::domain_error( "bit-size of 'StructureType' cannot be '0'" );
     }
+}
+
+const Types& RelationType::arguments( void ) const
+{
+    return m_arguments;
 }
 
 //

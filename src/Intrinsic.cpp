@@ -25,7 +25,7 @@
 
 using namespace libcsel_ir;
 
-Intrinsic::Intrinsic( const std::string& name, const RelationType::Ptr& type )
+Intrinsic::Intrinsic( const std::string& name, const Type::Ptr& type )
 : CallableUnit( name, type, Value::INTRINSIC )
 {
 }

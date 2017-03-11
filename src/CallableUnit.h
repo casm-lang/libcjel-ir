@@ -38,7 +38,7 @@ namespace libcsel_ir
       public:
         using Ptr = std::shared_ptr< CallableUnit >;
 
-        CallableUnit( const std::string& name, const RelationType::Ptr& type,
+        CallableUnit( const std::string& name, const Type::Ptr& type,
             Value::ID id = classid() );
 
         void setContext( const std::shared_ptr< Scope >& scope );

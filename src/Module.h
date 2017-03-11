@@ -31,6 +31,8 @@ namespace libcsel_ir
     class Module : public User
     {
       public:
+        using Ptr = std::shared_ptr< Module >;
+
         Module( const std::string& name );
 
         void add( const Value::Ptr& value );

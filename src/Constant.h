@@ -81,7 +81,7 @@ namespace libcsel_ir
       public:
         using Ptr = std::shared_ptr< BitConstant >;
 
-        BitConstant( const BitType::Ptr& type, u64 value );
+        BitConstant( const Type::Ptr& type, u64 value );
 
         BitConstant( u16 bitsize, u64 value );
 
@@ -120,8 +120,8 @@ namespace libcsel_ir
       public:
         using Ptr = std::shared_ptr< StructureConstant >;
 
-        StructureConstant( const StructureType::Ptr& type,
-            const std::vector< Constant >& values );
+        StructureConstant(
+            const Type::Ptr& type, const std::vector< Constant >& values );
 
         StructureConstant( const std::shared_ptr< Structure >& kind,
             const std::vector< Constant >& values );

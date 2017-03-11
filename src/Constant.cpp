@@ -68,9 +68,15 @@ bool VoidConstant::classof( Value const* obj )
 // Bit Constant
 //
 
-BitConstant::BitConstant( const BitType::Ptr& type, u64 value )
+BitConstant::BitConstant( const Type::Ptr& type, u64 value )
 : Constant( "", type, libstdhl::Type( value, type->bitsize() ), {}, classid() )
 {
+    if( not type->isBit() )
+    {
+        throw std::domain_error(
+            "invalid type '" + type->name() + "' for a bit constant" );
+    }
+
     assert( m_data.words().size() == type->wordsize() );
 
     if( type->bitsize() > BitType::SizeMax )
@@ -126,10 +132,16 @@ bool StringConstant::classof( Value const* obj )
 //
 
 StructureConstant::StructureConstant(
-    const StructureType::Ptr& type, const std::vector< Constant >& values )
+    const Type::Ptr& type, const std::vector< Constant >& values )
 : Constant( "", type, libstdhl::Type(), values, classid() )
 {
     assert( this->type().results().size() == values.size() );
+
+    if( not type->isStructure() )
+    {
+        throw std::domain_error(
+            "invalid type '" + type->name() + "' for a structure constant" );
+    }
 
     m_name = "{";
 

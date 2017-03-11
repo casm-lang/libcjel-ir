@@ -26,11 +26,6 @@
 
 #include "User.h"
 
-#include "Constant.h"
-#include "Intrinsic.h"
-#include "Module.h"
-#include "Value.h"
-
 namespace libcsel_ir
 {
     class Structure;
@@ -62,6 +57,13 @@ namespace libcsel_ir
         std::vector< StructureElement > m_elements;
 
         std::unordered_map< std::string, std::size_t > m_element2index;
+
+      public:
+        std::unordered_map< std::string, Structure::Ptr >& make_cache( void )
+        {
+            static std::unordered_map< std::string, Structure::Ptr > cache;
+            return cache;
+        }
     };
 }
 

@@ -33,10 +33,16 @@ using namespace libcsel_ir;
 u64 CallableUnit::m_allocation_cnt = 0;
 
 CallableUnit::CallableUnit(
-    const std::string& name, const RelationType::Ptr& type, Value::ID id )
+    const std::string& name, const Type::Ptr& type, Value::ID id )
 : User( name, type, id )
 , m_allocation_id( libstdhl::make< BitConstant >( 64, m_allocation_cnt ) )
 {
+    if( not type->isRelation() )
+    {
+        throw std::domain_error( "invalid type '" + type->name()
+                                 + "' for intrinsic, requires 'RelationType'" );
+    }
+
     m_allocation_cnt++;
 }
 
