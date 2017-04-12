@@ -111,7 +111,7 @@ void Visitor::dispatch( Stage stage, Value& value, Context& cxt )
         CASE_VALUE( INTERCONNECT, Interconnect );
 
         default:
-            libstdhl::Log::error(
+            fprintf( stderr,
                 "%s:%i: warning: unimplemented value ID '%s' to dispatch for "
                 "stage '%i' and context '%p'",
                 __FILE__, __LINE__, value.name().c_str(), stage, &cxt );

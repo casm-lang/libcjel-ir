@@ -59,10 +59,9 @@ void Instruction::setStatement( const Statement::Ptr& statement )
 
         if( *instr->statement() != *statement )
         {
-            libstdhl::Log::error(
-                "warning: %s:%i: Instruction '%s' does belong to a different "
-                "Statement block\n",
-                __FILE__, __LINE__, operand->description().c_str() );
+            throw std::domain_error(
+                "Instruction '" + operand->description()
+                + "' does belong to a different Statement block" );
         }
     }
 }

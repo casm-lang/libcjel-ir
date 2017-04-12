@@ -44,7 +44,7 @@ bool CselIRDumpPass::run( libpass::PassResult& pr )
     }
     catch( ... )
     {
-        libstdhl::Log::error( "unsuccessful EL dump" );
+        fprintf( stderr, "unsuccessful EL dump\n" );
         return false;
     }
 

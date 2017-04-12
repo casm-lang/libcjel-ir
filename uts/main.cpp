@@ -25,8 +25,10 @@
 
 void libcsel_ir_main_dummy( void )
 {
-    libstdhl::Log::DefaultSource = libstdhl::Log::Source(
-        []( void* arg ) -> const char* { return "libcsel_ir"; } );
+    const auto source = libstdhl::make< libstdhl::Log::Source >(
+        "libcsel-ir", "CSEL IR Library" );
+
+    libstdhl::Log::defaultSource( source );
 }
 
 TEST( libcsel_ir_main, empty )
