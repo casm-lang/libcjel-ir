@@ -24,10 +24,9 @@
 #ifndef _LIB_CSELIR_UTS_MAIN_H_
 #define _LIB_CSELIR_UTS_MAIN_H_
 
-#include "gtest/gtest.h"
+#include "../stdhl/uts/main.h"
 
 #include "libcsel-ir.h"
-#include "libstdhl.h"
 
 #endif // _LIB_CSELIR_UTS_MAIN_H_
 

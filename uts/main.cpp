@@ -35,6 +35,10 @@ TEST( libcsel_ir_main, empty )
 {
 }
 
+BENCHMARK( libcsel_ir_main, empty, 10, 10 )
+{
+}
+
 //
 //  Local variables:
 //  mode: c++
