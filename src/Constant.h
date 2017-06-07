@@ -88,7 +88,7 @@ namespace libcsel_ir
         std::string literal(
             libstdhl::Type::Radix radix = libstdhl::Type::DECIMAL ) const;
 
-        const std::vector< u64 >& value( void ) const;
+        const libstdhl::Type& value( void ) const;
 
         static inline Value::ID classid( void )
         {

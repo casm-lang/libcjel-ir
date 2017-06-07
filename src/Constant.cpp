@@ -77,7 +77,7 @@ BitConstant::BitConstant( const Type::Ptr& type, u64 value )
             "invalid type '" + type->name() + "' for a bit constant" );
     }
 
-    assert( m_data.words().size() == type->wordsize() );
+    assert( m_data.size() == type->wordsize() );
 
     if( type->bitsize() > BitType::SizeMax )
     {
@@ -97,9 +97,9 @@ std::string BitConstant::literal( libstdhl::Type::Radix radix ) const
     return m_data.to_string( radix );
 }
 
-const std::vector< u64 >& BitConstant::value( void ) const
+const libstdhl::Type& BitConstant::value( void ) const
 {
-    return m_data.words();
+    return m_data;
 }
 
 bool BitConstant::classof( Value const* obj )

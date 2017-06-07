@@ -386,7 +386,8 @@ ExtractInstruction::ExtractInstruction(
                             and isa< BitConstant >( dst )
                         ? src->type().ptr_results()
                               [ std::static_pointer_cast< BitConstant >( dst )
-                                      ->value()[ 0 ] ]
+                                      ->value()
+                                      .word( 0 ) ]
                         : nullptr )
               : nullptr ),
       { src, dst }, classid() )
