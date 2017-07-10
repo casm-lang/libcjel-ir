@@ -3,40 +3,40 @@
 //  All rights reserved.
 //
 //  Developed by: Philipp Paulweber
-//                https://github.com/casm-lang/libcsel-ir
+//                https://github.com/casm-lang/libcjel-ir
 //
-//  This file is part of libcsel-ir.
+//  This file is part of libcjel-ir.
 //
-//  libcsel-ir is free software: you can redistribute it and/or modify
+//  libcjel-ir is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
 //
-//  libcsel-ir is distributed in the hope that it will be useful,
+//  libcjel-ir is distributed in the hope that it will be useful,
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 //  GNU General Public License for more details.
 //
 //  You should have received a copy of the GNU General Public License
-//  along with libcsel-ir. If not, see <http://www.gnu.org/licenses/>.
+//  along with libcjel-ir. If not, see <http://www.gnu.org/licenses/>.
 //
 
 #include <stdio.h>
 
-#include "libcsel-ir.h"
-using namespace libcsel_ir;
+#include "libcjel-ir.h"
+using namespace libcjel_ir;
 
-#include "analyze/CselIRDumpPass.h" // just to debug some objects
-CselIRDumpPass dumper;
+#include "analyze/CjelIRDumpPass.h" // just to debug some objects
+CjelIRDumpPass dumper;
 
-#include "transform/CselIRToLLPass.h"
-CselIRToLLPass n2ll;
+#include "transform/CjelIRToLLPass.h"
+CjelIRToLLPass n2ll;
 
-#include "transform/CselIRToC11Pass.h"
-CselIRToC11Pass n2c11;
+#include "transform/CjelIRToC11Pass.h"
+CjelIRToC11Pass n2c11;
 
-#include "transform/CselIRToVHDLPass.h"
-CselIRToVHDLPass n2v;
+#include "transform/CjelIRToVHDLPass.h"
+CjelIRToVHDLPass n2v;
 
 int main( int argc, char** argv )
 {

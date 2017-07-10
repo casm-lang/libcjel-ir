@@ -3,22 +3,22 @@
 #   All rights reserved.
 #
 #   Developed by: Philipp Paulweber
-#                 https://github.com/casm-lang/libcsel-ir
+#                 https://github.com/casm-lang/libcjel-ir
 #
-#   This file is part of libcsel-ir.
+#   This file is part of libcjel-ir.
 #
-#   libcsel-ir is free software: you can redistribute it and/or modify
+#   libcjel-ir is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
 #   the Free Software Foundation, either version 3 of the License, or
 #   (at your option) any later version.
 #
-#   libcsel-ir is distributed in the hope that it will be useful,
+#   libcjel-ir is distributed in the hope that it will be useful,
 #   but WITHOUT ANY WARRANTY; without even the implied warranty of
 #   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 #   GNU General Public License for more details.
 #
 #   You should have received a copy of the GNU General Public License
-#   along with libcsel-ir. If not, see <http://www.gnu.org/licenses/>.
+#   along with libcjel-ir. If not, see <http://www.gnu.org/licenses/>.
 #
 
 cmake_minimum_required( VERSION 3.1 )
@@ -43,7 +43,7 @@ file( GLOB_RECURSE CXX_SRC_FILES "src/*.cpp" )
 file( GLOB_RECURSE CXX_UTS_FILES "uts/*.cpp" )
 
 
-set( TARGET csel-ir )
+set( TARGET cjel-ir )
 project( ${TARGET} )
 
 

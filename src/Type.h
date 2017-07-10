@@ -3,40 +3,40 @@
 //  All rights reserved.
 //
 //  Developed by: Philipp Paulweber
-//                https://github.com/casm-lang/libcsel-ir
+//                https://github.com/casm-lang/libcjel-ir
 //
-//  This file is part of libcsel-ir.
+//  This file is part of libcjel-ir.
 //
-//  libcsel-ir is free software: you can redistribute it and/or modify
+//  libcjel-ir is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
 //
-//  libcsel-ir is distributed in the hope that it will be useful,
+//  libcjel-ir is distributed in the hope that it will be useful,
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 //  GNU General Public License for more details.
 //
 //  You should have received a copy of the GNU General Public License
-//  along with libcsel-ir. If not, see <http://www.gnu.org/licenses/>.
+//  along with libcjel-ir. If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef _LIB_CSELIR_TYPE_H_
-#define _LIB_CSELIR_TYPE_H_
+#ifndef _LIB_CJELIR_TYPE_H_
+#define _LIB_CJELIR_TYPE_H_
 
-#include "CselIR.h"
+#include "CjelIR.h"
 
 #include "../stdhl/cpp/List.h"
 #include "../stdhl/cpp/Log.h"
 
-namespace libcsel_ir
+namespace libcjel_ir
 {
     class Structure;
 
     class Type;
     using Types = libstdhl::List< Type >;
 
-    class Type : public CselIR
+    class Type : public CjelIR
     {
       public:
         using Ptr = std::shared_ptr< Type >;
@@ -239,7 +239,7 @@ namespace libcsel_ir
     };
 }
 
-#endif // _LIB_CSELIR_TYPE_H_
+#endif // _LIB_CJELIR_TYPE_H_
 
 //
 //  Local variables:

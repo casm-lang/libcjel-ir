@@ -3,32 +3,32 @@
 //  All rights reserved.
 //
 //  Developed by: Philipp Paulweber
-//                https://github.com/casm-lang/libcsel-ir
+//                https://github.com/casm-lang/libcjel-ir
 //
-//  This file is part of libcsel-ir.
+//  This file is part of libcjel-ir.
 //
-//  libcsel-ir is free software: you can redistribute it and/or modify
+//  libcjel-ir is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
 //
-//  libcsel-ir is distributed in the hope that it will be useful,
+//  libcjel-ir is distributed in the hope that it will be useful,
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 //  GNU General Public License for more details.
 //
 //  You should have received a copy of the GNU General Public License
-//  along with libcsel-ir. If not, see <http://www.gnu.org/licenses/>.
+//  along with libcjel-ir. If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef _LIB_CSELIR_VALUE_H_
-#define _LIB_CSELIR_VALUE_H_
+#ifndef _LIB_CJELIR_VALUE_H_
+#define _LIB_CJELIR_VALUE_H_
 
-#include "CselIR.h"
+#include "CjelIR.h"
 
 #include "Type.h"
 
-namespace libcsel_ir
+namespace libcjel_ir
 {
     class Visitor;
     class Context;
@@ -36,7 +36,7 @@ namespace libcsel_ir
 
     class Module;
 
-    class Value : public CselIR
+    class Value : public CjelIR
     {
       public:
         using Ptr = std::shared_ptr< Value >;
@@ -234,10 +234,10 @@ namespace libcsel_ir
 // namespace std
 // {
 //     template <>
-//     struct hash< libcsel_ir::Value* >
+//     struct hash< libcjel_ir::Value* >
 //     {
 //       public:
-//         size_t operator()( const libcsel_ir::Value* obj ) const
+//         size_t operator()( const libcjel_ir::Value* obj ) const
 //         {
 //             assert( obj and " invalid pointer! " );
 //             return std::hash< std::string >( obj->make_hash() );
@@ -245,11 +245,11 @@ namespace libcsel_ir
 //     };
 
 //     template <>
-//     struct equal_to< libcsel_ir::Value* >
+//     struct equal_to< libcjel_ir::Value* >
 //     {
 //       public:
 //         bool operator()(
-//             const libcsel_ir::Value* lhs, const libcsel_ir::Value* rhs )
+//             const libcjel_ir::Value* lhs, const libcjel_ir::Value* rhs )
 //             const
 //         {
 //             assert( lhs and rhs and " invalid pointers " );
@@ -258,7 +258,7 @@ namespace libcsel_ir
 //     };
 // }
 
-#endif // _LIB_CSELIR_VALUE_H_
+#endif // _LIB_CJELIR_VALUE_H_
 
 //
 //  Local variables:
