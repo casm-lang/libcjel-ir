@@ -41,15 +41,18 @@
 
 #include "Variable.h"
 
+#include <libstdhl/Memory>
+
+#include <cassert>
+
 using namespace libcjel_ir;
 
 u64 Variable::m_allocation_cnt = 0;
 
-Variable::Variable( const Type::Ptr& type, const Value::Ptr& expression,
-    const std::string& ident )
+Variable::Variable( const Type::Ptr& type, const Value::Ptr& expression, const std::string& ident )
 : User( ident, type, Value::VARIABLE )
 , m_expression( expression )
-, m_allocation_id( libstdhl::make< BitConstant >( 64, m_allocation_cnt ) )
+, m_allocation_id( libstdhl::Memory::make< BitConstant >( 64, m_allocation_cnt ) )
 {
     assert( expression && isa< Constant >( expression ) );
 

@@ -39,34 +39,27 @@
 //  statement from your version.
 //
 
-#ifndef _LIB_CJELIR_H_
-#define _LIB_CJELIR_H_
+#ifndef _LIBCJEL_IR_VERSION_H_
+#define _LIBCJEL_IR_VERSION_H_
 
-#include "src/Block.h"
-#include "src/CallableUnit.h"
-#include "src/CjelIR.h"
-#include "src/Function.h"
-#include "src/Instruction.h"
-#include "src/Interconnect.h"
-#include "src/Intrinsic.h"
-#include "src/Memory.h"
-#include "src/Module.h"
-#include "src/Reference.h"
-#include "src/Scope.h"
-#include "src/Statement.h"
-#include "src/Structure.h"
-#include "src/Type.h"
-#include "src/Value.h"
-#include "src/Variable.h"
-#include "src/Visitor.h"
+/**
+   @brief    TODO
 
-#include "src/analyze/CjelIRDumpPass.h"
+   TODO
+
+   variables are automatically set by CMake
+*/
 
 namespace libcjel_ir
 {
+    constexpr const char* REVTAG = "@GIT_REVTAG@";
+    constexpr const char* COMMIT = "@GIT_COMMIT@";
+    constexpr const char* BRANCH = "@GIT_BRANCH@";
+    constexpr const char* LICENSE = "@GIT_LICENSE@";
+    constexpr const char* NOTICE = "@GIT_NOTICE@";
 }
 
-#endif // _LIB_CJELIR_H_
+#endif  // _LIBCJEL_IR_VERSION_H_
 
 //
 //  Local variables:

@@ -41,18 +41,22 @@
 
 #include "Module.h"
 
-#include "Constant.h"
-#include "Function.h"
-#include "Interconnect.h"
-#include "Intrinsic.h"
-#include "Memory.h"
-#include "Structure.h"
-#include "Variable.h"
+#include <libcjel-ir/Constant>
+#include <libcjel-ir/Function>
+#include <libcjel-ir/Interconnect>
+#include <libcjel-ir/Intrinsic>
+#include <libcjel-ir/Memory>
+#include <libcjel-ir/Structure>
+#include <libcjel-ir/Variable>
+
+#include <libstdhl/Memory>
+
+#include <cassert>
 
 using namespace libcjel_ir;
 
 Module::Module( const std::string& name )
-: User( name, libstdhl::get< VoidType >(), Value::MODULE )
+: User( name, libstdhl::Memory::get< VoidType >(), Value::MODULE )
 {
 }
 

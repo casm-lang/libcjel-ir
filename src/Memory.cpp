@@ -41,10 +41,12 @@
 
 #include "Memory.h"
 
+#include <libstdhl/Memory>
+
 using namespace libcjel_ir;
 
 Memory::Memory( const std::string& name, const Type::Ptr& type, u32 length )
-: User( name, libstdhl::get< VectorType >( type, length ), classid() )
+: User( name, libstdhl::Memory::get< VectorType >( type, length ), classid() )
 , m_length( length )
 {
     if( m_length == 0 )

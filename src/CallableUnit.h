@@ -42,9 +42,9 @@
 #ifndef _LIB_CJELIR_CALLABLE_UNIT_H_
 #define _LIB_CJELIR_CALLABLE_UNIT_H_
 
-#include "User.h"
+#include <libcjel-ir/User>
 
-#include "Reference.h"
+#include <libcjel-ir/Reference>
 
 namespace libcjel_ir
 {
@@ -56,8 +56,7 @@ namespace libcjel_ir
       public:
         using Ptr = std::shared_ptr< CallableUnit >;
 
-        CallableUnit( const std::string& name, const Type::Ptr& type,
-            Value::ID id = classid() );
+        CallableUnit( const std::string& name, const Type::Ptr& type, Value::ID id = classid() );
 
         void setContext( const std::shared_ptr< Scope >& scope );
 
@@ -103,12 +102,11 @@ namespace libcjel_ir
 
         std::unordered_map< std::string, u16 > m_name2index;
 
-        std::unordered_map< std::string, std::weak_ptr< Reference > >
-            m_name2ref;
+        std::unordered_map< std::string, std::weak_ptr< Reference > > m_name2ref;
     };
 }
 
-#endif // _LIB_CJELIR_CALLABLE_UNIT_H_
+#endif  // _LIB_CJELIR_CALLABLE_UNIT_H_
 
 //
 //  Local variables:

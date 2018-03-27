@@ -41,32 +41,44 @@
 
 #include "CjelIRDumpPass.h"
 
-#include "libcjel-ir.h"
+#include <libcjel-ir/Block>
+#include <libcjel-ir/CallableUnit>
+#include <libcjel-ir/Function>
+#include <libcjel-ir/Instruction>
+#include <libcjel-ir/Interconnect>
+#include <libcjel-ir/Intrinsic>
+#include <libcjel-ir/Memory>
+#include <libcjel-ir/Statement>
+#include <libcjel-ir/Structure>
+#include <libcjel-ir/Variable>
+#include <libcjel-ir/Visitor>
+
+#include <libpass/PassRegistry>
 
 using namespace libcjel_ir;
 
 char CjelIRDumpPass::id = 0;
 
-static libpass::PassRegistration< CjelIRDumpPass > PASS( "CJEL IR Dumping Pass",
-    "generates ASCII representation of the CJEL IR", "el-dump-debug", 0 );
+static libpass::PassRegistration< CjelIRDumpPass > PASS(
+    "CJEL IR Dumping Pass", "generates ASCII representation of the CJEL IR", "el-dump-debug", 0 );
 
 bool CjelIRDumpPass::run( libpass::PassResult& pr )
 {
-    auto data = pr.result< CjelIRDumpPass >();
-    assert( data );
+    // auto data = pr.result< CjelIRDumpPass >();
+    // assert( data );
 
-    try
-    {
-        // data->module()->iterate( Traversal::PREORDER, this );
-        data->module()->iterate( Traversal::PREORDER, this );
-    }
-    catch( ... )
-    {
-        fprintf( stderr, "unsuccessful EL dump\n" );
-        return false;
-    }
+    // try
+    // {
+    //     // data->module()->iterate( Traversal::PREORDER, this );
+    //     data->module()->iterate( Traversal::PREORDER, this );
+    // }
+    // catch( ... )
+    // {
+    //     fprintf( stderr, "unsuccessful EL dump\n" );
+    //     return false;
+    // }
 
-    // libstdhl::Log::info( "%p: %s", tmp.c_str() );
+    // // libstdhl::Log::info( "%p: %s", tmp.c_str() );
 
     return true;
 }
@@ -104,17 +116,20 @@ std::string CjelIRDumpPass::indention( Value& value )
     return ind;
 }
 
-#define DUMP_PREFIX                                                            \
-    printf( "%-14s: %p, %s, %s%s ", __FUNCTION__, &value,                      \
-        value.label().c_str(), indention( value ).c_str(),                     \
+#define DUMP_PREFIX                 \
+    printf(                         \
+        "%-14s: %p, %s, %s%s ",     \
+        __FUNCTION__,               \
+        &value,                     \
+        value.label().c_str(),      \
+        indention( value ).c_str(), \
         value.name().c_str() )
 #define DUMP_POSTFIX printf( "\n" );
 
-#define DUMP_INSTR                                                             \
-    for( auto operand : value.operands() )                                     \
-    {                                                                          \
-        printf( ", %s (%s)", operand->label().c_str(),                         \
-            operand->type().name().c_str() );                                  \
+#define DUMP_INSTR                                                                       \
+    for( auto operand : value.operands() )                                               \
+    {                                                                                    \
+        printf( ", %s (%s)", operand->label().c_str(), operand->type().name().c_str() ); \
     }
 
 void CjelIRDumpPass::visit_prolog( Module& value, Context& )
@@ -153,8 +168,7 @@ void CjelIRDumpPass::visit_epilog( Intrinsic& value, Context& )
 void CjelIRDumpPass::visit_prolog( Reference& value, Context& )
 {
     DUMP_PREFIX;
-    printf(
-        "%s %s", value.type().name().c_str(), value.isInput() ? "in" : "out" );
+    printf( "%s %s", value.type().name().c_str(), value.isInput() ? "in" : "out" );
     // printf(
     //     "%s, %s", value.identifier()->name(), value.isInput() ? "in" : "out"
     //     );

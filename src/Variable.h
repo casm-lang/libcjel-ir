@@ -42,11 +42,11 @@
 #ifndef _LIB_CJELIR_VARIABLE_H_
 #define _LIB_CJELIR_VARIABLE_H_
 
-#include "User.h"
+#include <libcjel-ir/User>
 
-#include "Constant.h"
-#include "Instruction.h"
-#include "Value.h"
+#include <libcjel-ir/Constant>
+#include <libcjel-ir/Instruction>
+#include <libcjel-ir/Value>
 
 namespace libcjel_ir
 {
@@ -55,8 +55,8 @@ namespace libcjel_ir
       public:
         using Ptr = std::shared_ptr< Variable >;
 
-        Variable( const Type::Ptr& type, const Value::Ptr& expression,
-            const std::string& ident = 0 );
+        Variable(
+            const Type::Ptr& type, const Value::Ptr& expression, const std::string& ident = 0 );
 
         ~Variable( void );
 
@@ -79,7 +79,7 @@ namespace libcjel_ir
     };
 }
 
-#endif // _LIB_CJELIR_VARIABLE_H_
+#endif  // _LIB_CJELIR_VARIABLE_H_
 
 //
 //  Local variables:

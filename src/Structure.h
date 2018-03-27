@@ -42,7 +42,7 @@
 #ifndef _LIB_CJELIR_STRUCTURE_H_
 #define _LIB_CJELIR_STRUCTURE_H_
 
-#include "User.h"
+#include <libcjel-ir/User>
 
 namespace libcjel_ir
 {
@@ -55,8 +55,7 @@ namespace libcjel_ir
       public:
         using Ptr = std::shared_ptr< Structure >;
 
-        Structure( const std::string& name,
-            const std::vector< StructureElement >& elements );
+        Structure( const std::string& name, const std::vector< StructureElement >& elements );
 
         StructureElement element( std::size_t index ) const;
 
@@ -85,7 +84,7 @@ namespace libcjel_ir
     };
 }
 
-#endif // _LIB_CJELIR_STRUCTURE_H_
+#endif  // _LIB_CJELIR_STRUCTURE_H_
 
 //
 //  Local variables:

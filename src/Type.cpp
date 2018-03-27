@@ -41,12 +41,11 @@
 
 #include "Type.h"
 
-#include "Structure.h"
+#include <libcjel-ir/Structure>
 
 using namespace libcjel_ir;
 
-Type::Type( const std::string& name, const std::string& description,
-    u64 bitsize, Type::ID id )
+Type::Type( const std::string& name, const std::string& description, u64 bitsize, Type::ID id )
 : m_name( name )
 , m_description( description )
 , m_bitsize( bitsize )
@@ -106,11 +105,6 @@ Types Type::ptr_arguments( void ) const
     return arguments();
 }
 
-std::string Type::make_hash( void ) const
-{
-    return "t:" + std::to_string( id() ) + ":" + description();
-}
-
 u1 Type::isLabel( void ) const
 {
     return id() == Type::LABEL;
@@ -148,8 +142,8 @@ u1 Type::isInterconnect( void ) const
 // PrimitiveType
 //
 
-PrimitiveType::PrimitiveType( const std::string& name,
-    const std::string& description, u64 bitsize, Type::ID id )
+PrimitiveType::PrimitiveType(
+    const std::string& name, const std::string& description, u64 bitsize, Type::ID id )
 : Type( name, description, bitsize, id )
 {
 }
@@ -163,6 +157,11 @@ LabelType::LabelType( void )
 {
 }
 
+std::size_t LabelType::hash( void ) const
+{
+    return std::hash< std::string >()( "t:" + std::to_string( id() ) + ":" + description() );
+}
+
 //
 // VoidType
 //
@@ -172,26 +171,37 @@ VoidType::VoidType( void )
 {
 }
 
+std::size_t VoidType::hash( void ) const
+{
+    return std::hash< std::string >()( "t:" + std::to_string( id() ) + ":" + description() );
+}
+
 //
 // BitType
 //
 
 BitType::BitType( u16 bitsize )
-: PrimitiveType( "u" + std::to_string( bitsize ),
-      "Bit(" + std::to_string( bitsize ) + ")", bitsize, Type::BIT )
+: PrimitiveType(
+      "u" + std::to_string( bitsize ),
+      "Bit(" + std::to_string( bitsize ) + ")",
+      bitsize,
+      Type::BIT )
 {
     if( bitsize < 1 )
     {
-        throw std::domain_error(
-            "bit size of 'BitType' shall be greater or equal than '1'" );
+        throw std::domain_error( "bit size of 'BitType' shall be greater or equal than '1'" );
     }
     else if( bitsize > BitType::SizeMax )
     {
         throw std::domain_error(
-            "bit size of 'BitType' shall be smaller or equal than '"
-            + std::to_string( BitType::SizeMax )
-            + "'" );
+            "bit size of 'BitType' shall be smaller or equal than '" +
+            std::to_string( BitType::SizeMax ) + "'" );
     }
+}
+
+std::size_t BitType::hash( void ) const
+{
+    return std::hash< std::string >()( "t:" + std::to_string( id() ) + ":" + description() );
 }
 
 //
@@ -206,12 +216,17 @@ StringType::StringType( void )
     // (bitsize) will be fixed by construction
 }
 
+std::size_t StringType::hash( void ) const
+{
+    return std::hash< std::string >()( "t:" + std::to_string( id() ) + ":" + description() );
+}
+
 //
 // AggregateType
 //
 
-AggregateType::AggregateType( const std::string& name,
-    const std::string& description, u64 bitsize, Type::ID id )
+AggregateType::AggregateType(
+    const std::string& name, const std::string& description, u64 bitsize, Type::ID id )
 : Type( name, description, bitsize, id )
 {
 }
@@ -227,19 +242,22 @@ VectorType::VectorType( const Type::Ptr& type, u16 length )
 {
     if( length < 1 )
     {
-        throw std::domain_error(
-            "length of 'VectorType' shall be greater or equal than '1'" );
+        throw std::domain_error( "length of 'VectorType' shall be greater or equal than '1'" );
     }
 
     m_name = "< " + m_type->name() + " x " + std::to_string( m_length ) + " > ";
 
-    m_description = "< " + m_type->description() + " x "
-                    + std::to_string( m_length ) + " > ";
+    m_description = "< " + m_type->description() + " x " + std::to_string( m_length ) + " > ";
 
     for( u32 i = 0; i < m_length; i++ )
     {
         m_results.add( m_type );
     }
+}
+
+std::size_t VectorType::hash( void ) const
+{
+    return std::hash< std::string >()( "t:" + std::to_string( id() ) + ":" + description() );
 }
 
 //
@@ -252,8 +270,7 @@ StructureType::StructureType( const Structure::Ptr& kind )
 {
     if( not kind )
     {
-        throw std::domain_error(
-            "structure kind of 'StructureType' cannot be a null pointer" );
+        throw std::domain_error( "structure kind of 'StructureType' cannot be a null pointer" );
     }
 
     const auto elements = kind->elements();
@@ -294,12 +311,17 @@ StructureType::StructureType( const Structure::Ptr& kind )
     }
 }
 
+std::size_t StructureType::hash( void ) const
+{
+    return std::hash< std::string >()( "t:" + std::to_string( id() ) + ":" + description() );
+}
+
 //
 // RelationType
 //
 
-RelationType::RelationType( const std::vector< Type::Ptr >& results,
-    const std::vector< Type::Ptr >& arguments )
+RelationType::RelationType(
+    const std::vector< Type::Ptr >& results, const std::vector< Type::Ptr >& arguments )
 : Type( "", "", 0, Type::RELATION )
 , m_arguments( arguments )
 {
@@ -307,8 +329,7 @@ RelationType::RelationType( const std::vector< Type::Ptr >& results,
 
     if( results.size() == 0 )
     {
-        throw std::domain_error(
-            "results size of 'RelationType' cannot be '0'" );
+        throw std::domain_error( "results size of 'RelationType' cannot be '0'" );
     }
 
     m_name = "(";
@@ -365,12 +386,17 @@ const Types& RelationType::arguments( void ) const
     return m_arguments;
 }
 
+std::size_t RelationType::hash( void ) const
+{
+    return std::hash< std::string >()( "t:" + std::to_string( id() ) + ":" + description() );
+}
+
 //
 // SyntheticType
 //
 
-SyntheticType::SyntheticType( const std::string& name,
-    const std::string& description, u64 bitsize, Type::ID id )
+SyntheticType::SyntheticType(
+    const std::string& name, const std::string& description, u64 bitsize, Type::ID id )
 : Type( name, description, bitsize, id )
 {
 }
@@ -382,6 +408,11 @@ SyntheticType::SyntheticType( const std::string& name,
 InterconnectType::InterconnectType( void )
 : SyntheticType( "x", "Interconnect", 0, Type::INTERCONNECT )
 {
+}
+
+std::size_t InterconnectType::hash( void ) const
+{
+    return std::hash< std::string >()( "t:" + std::to_string( id() ) + ":" + description() );
 }
 
 //

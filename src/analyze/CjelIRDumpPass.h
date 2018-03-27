@@ -42,14 +42,18 @@
 #ifndef _LIB_CJELIR_DUMP_PASS_H_
 #define _LIB_CJELIR_DUMP_PASS_H_
 
-#include "libpass.h"
+#include <libpass/Pass>
+#include <libpass/PassData>
+#include <libpass/PassResult>
 
-#include "../Module.h"
-#include "../Visitor.h"
+#include <libcjel-ir/Module>
+#include <libcjel-ir/Visitor>
 
 namespace libcjel_ir
 {
-    class CjelIRDumpPass final : public libpass::Pass, public Visitor
+    class CjelIRDumpPass final
+    : public libpass::Pass
+    , public Visitor
     {
       public:
         static char id;
@@ -81,7 +85,7 @@ namespace libcjel_ir
     };
 }
 
-#endif // _LIB_CJELIR_DUMP_PASS_H_
+#endif  // _LIB_CJELIR_DUMP_PASS_H_
 
 //
 //  Local variables:

@@ -41,14 +41,15 @@
 
 #include "Scope.h"
 
+#include <libstdhl/Memory>
+
 using namespace libcjel_ir;
 
 //
 // Scope
 //
 
-Scope::Scope(
-    const std::string& name, const Type::Ptr& type, u1 parallel, Value::ID id )
+Scope::Scope( const std::string& name, const Type::Ptr& type, u1 parallel, Value::ID id )
 : Block( name, type, parallel, id )
 {
 }
@@ -70,8 +71,8 @@ Blocks Scope::blocks( void ) const
 
 bool Scope::classof( Value const* obj )
 {
-    return obj->id() == classid() or SequentialScope::classof( obj )
-           or ParallelScope::classof( obj );
+    return obj->id() == classid() or SequentialScope::classof( obj ) or
+           ParallelScope::classof( obj );
 }
 
 //
@@ -79,7 +80,7 @@ bool Scope::classof( Value const* obj )
 //
 
 SequentialScope::SequentialScope( void )
-: Scope( "seq", libstdhl::get< LabelType >(), false, classid() )
+: Scope( "seq", libstdhl::Memory::get< LabelType >(), false, classid() )
 {
 }
 
@@ -93,13 +94,12 @@ bool SequentialScope::classof( Value const* obj )
 //
 
 ParallelScope::ParallelScope( void )
-: Scope( "par", libstdhl::get< LabelType >(), false, classid() )
+: Scope( "par", libstdhl::Memory::get< LabelType >(), false, classid() )
 {
 }
 
 bool ParallelScope::classof( Value const* obj )
 {
-
     return obj->id() == classid();
 }
 

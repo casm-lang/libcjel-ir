@@ -41,24 +41,27 @@
 
 #include "CallableUnit.h"
 
-#include "Constant.h"
-#include "Function.h"
-#include "Intrinsic.h"
-#include "Scope.h"
+#include <libcjel-ir/Constant>
+#include <libcjel-ir/Function>
+#include <libcjel-ir/Intrinsic>
+#include <libcjel-ir/Scope>
+
+#include <libstdhl/Memory>
+
+#include <cassert>
 
 using namespace libcjel_ir;
 
 u64 CallableUnit::m_allocation_cnt = 0;
 
-CallableUnit::CallableUnit(
-    const std::string& name, const Type::Ptr& type, Value::ID id )
+CallableUnit::CallableUnit( const std::string& name, const Type::Ptr& type, Value::ID id )
 : User( name, type, id )
-, m_allocation_id( libstdhl::make< BitConstant >( 64, m_allocation_cnt ) )
+, m_allocation_id( libstdhl::Memory::make< BitConstant >( 64, m_allocation_cnt ) )
 {
     if( not type->isRelation() )
     {
-        throw std::domain_error( "invalid type '" + type->name()
-                                 + "' for intrinsic, requires 'RelationType'" );
+        throw std::domain_error(
+            "invalid type '" + type->name() + "' for intrinsic, requires 'RelationType'" );
     }
 
     m_allocation_cnt++;
@@ -89,10 +92,8 @@ void CallableUnit::add( const Reference::Ptr& reference )
     if( result != m_name2ref.end() )
     {
         throw std::domain_error(
-            "this 'CallableUnit' already has a reference named '" + name
-            + "' of type '"
-            + reference->type().name()
-            + "'" );
+            "this 'CallableUnit' already has a reference named '" + name + "' of type '" +
+            reference->type().name() + "'" );
     }
 
     m_name2ref[ name ] = reference;
@@ -103,26 +104,23 @@ void CallableUnit::add( const Reference::Ptr& reference )
     m_references[ kind ].push_back( reference );
 }
 
-Reference::Ptr CallableUnit::in(
-    const std::string& name, const Type::Ptr& type )
+Reference::Ptr CallableUnit::in( const std::string& name, const Type::Ptr& type )
 {
-    auto ref = libstdhl::make< Reference >( name, type, Reference::INPUT );
+    auto ref = libstdhl::Memory::make< Reference >( name, type, Reference::INPUT );
     add( ref );
     return ref;
 }
 
-Reference::Ptr CallableUnit::out(
-    const std::string& name, const Type::Ptr& type )
+Reference::Ptr CallableUnit::out( const std::string& name, const Type::Ptr& type )
 {
-    auto ref = libstdhl::make< Reference >( name, type, Reference::OUTPUT );
+    auto ref = libstdhl::Memory::make< Reference >( name, type, Reference::OUTPUT );
     add( ref );
     return ref;
 }
 
-Reference::Ptr CallableUnit::link(
-    const std::string& name, const Type::Ptr& type )
+Reference::Ptr CallableUnit::link( const std::string& name, const Type::Ptr& type )
 {
-    auto ref = libstdhl::make< Reference >( name, type, Reference::LINKAGE );
+    auto ref = libstdhl::Memory::make< Reference >( name, type, Reference::LINKAGE );
     add( ref );
     return ref;
 }
@@ -147,10 +145,9 @@ u16 CallableUnit::indexOf( const Reference::Ptr& reference ) const
     auto result = m_name2index.find( reference->name() );
     if( result == m_name2index.end() )
     {
-        throw std::domain_error( "reference '" + reference->description()
-                                 + "' does not belong to this callable '"
-                                 + this->description()
-                                 + "'" );
+        throw std::domain_error(
+            "reference '" + reference->description() + "' does not belong to this callable '" +
+            this->description() + "'" );
     }
 
     return result->second;
@@ -171,8 +168,7 @@ u1 CallableUnit::isLast( const Reference::Ptr& reference ) const
 
 u16 CallableUnit::length( void ) const
 {
-    return m_references[ Reference::INPUT ].size()
-           + m_references[ Reference::OUTPUT ].size();
+    return m_references[ Reference::INPUT ].size() + m_references[ Reference::OUTPUT ].size();
 }
 
 Reference::Ptr CallableUnit::reference( const std::string& name ) const
@@ -188,8 +184,7 @@ Reference::Ptr CallableUnit::reference( const std::string& name ) const
 
 bool CallableUnit::classof( Value const* obj )
 {
-    return obj->id() == classid() or Intrinsic::classof( obj )
-           or Function::classof( obj );
+    return obj->id() == classid() or Intrinsic::classof( obj ) or Function::classof( obj );
 }
 
 //

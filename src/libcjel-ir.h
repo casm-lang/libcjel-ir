@@ -39,58 +39,34 @@
 //  statement from your version.
 //
 
-#include "Reference.h"
+#ifndef _LIB_CJELIR_H_
+#define _LIB_CJELIR_H_
 
+#include <libcjel-ir/Block>
 #include <libcjel-ir/CallableUnit>
+#include <libcjel-ir/CjelIR>
+#include <libcjel-ir/Function>
+#include <libcjel-ir/Instruction>
+#include <libcjel-ir/Interconnect>
+#include <libcjel-ir/Intrinsic>
+#include <libcjel-ir/Memory>
+#include <libcjel-ir/Module>
+#include <libcjel-ir/Reference>
+#include <libcjel-ir/Scope>
+#include <libcjel-ir/Statement>
+#include <libcjel-ir/Structure>
+#include <libcjel-ir/Type>
+#include <libcjel-ir/Value>
+#include <libcjel-ir/Variable>
+#include <libcjel-ir/Version>
+#include <libcjel-ir/Visitor>
+#include <libcjel-ir/analyze/CjelIRDumpPass>
 
-using namespace libcjel_ir;
-
-Reference::Reference( const std::string& name, const Type::Ptr& type, Kind kind )
-: User( name, type, Value::REFERENCE )
-, m_kind( kind )
-, m_callable()
+namespace libcjel_ir
 {
 }
 
-void Reference::setCallable( const CallableUnit::Ptr& callable )
-{
-    if( not callable )
-    {
-        throw std::domain_error( "cannot set callable of reference to null pointer" );
-    }
-
-    m_callable = callable;
-}
-
-CallableUnit::Ptr Reference::callable( void ) const
-{
-    return m_callable.lock();
-}
-
-Reference::Kind Reference::kind( void ) const
-{
-    return m_kind;
-}
-
-u1 Reference::isInput( void ) const
-{
-    return m_kind == INPUT;
-}
-
-u1 Reference::isOutput( void ) const
-{
-    return m_kind == OUTPUT;
-}
-
-u1 Reference::isLinkage( void ) const
-{
-    return m_kind == LINKAGE;
-}
-
-bool Reference::classof( Value const* obj )
-{
-    return obj->id() == classid();
-}
+#endif  // _LIB_CJELIR_H_
 
 //
 //  Local variables:

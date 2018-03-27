@@ -42,7 +42,7 @@
 #ifndef _LIB_CJELIR_SCOPE_H_
 #define _LIB_CJELIR_SCOPE_H_
 
-#include "Block.h"
+#include <libcjel-ir/Block>
 
 namespace libcjel_ir
 {
@@ -51,8 +51,8 @@ namespace libcjel_ir
       public:
         using Ptr = std::shared_ptr< Scope >;
 
-        Scope( const std::string& name, const Type::Ptr& type, u1 parallel,
-            Value::ID id = classid() );
+        Scope(
+            const std::string& name, const Type::Ptr& type, u1 parallel, Value::ID id = classid() );
 
         void add( const Block::Ptr& block );
 
@@ -102,7 +102,7 @@ namespace libcjel_ir
     };
 }
 
-#endif // _LIB_CJELIR_SCOPE_H_
+#endif  // _LIB_CJELIR_SCOPE_H_
 
 //
 //  Local variables:

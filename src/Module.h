@@ -42,7 +42,9 @@
 #ifndef _LIB_CJELIR_MODULE_H_
 #define _LIB_CJELIR_MODULE_H_
 
-#include "User.h"
+#include <libcjel-ir/User>
+
+#include <cassert>
 
 namespace libcjel_ir
 {
@@ -81,7 +83,7 @@ namespace libcjel_ir
     };
 }
 
-#endif // _LIB_CJELIR_MODULE_H_
+#endif  // _LIB_CJELIR_MODULE_H_
 
 //
 //  Local variables:

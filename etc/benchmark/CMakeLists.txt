@@ -39,14 +39,13 @@
 #   statement from your version.
 #
 
-TARGET = libcjel-ir
+include_directories(
+  ${PROJECT_BINARY_DIR}/src
+  ${LIBHAYAI_INCLUDE_DIR}
+  ${LIBSTDHL_INCLUDE_DIR}
+  ${LIBPASS_INCLUDE_DIR}
+  )
 
-FORMAT  = src
-FORMAT += src/*
-FORMAT += etc
-FORMAT += etc/*
-FORMAT += etc/*/*
-
-UPDATE_ROOT = ../stdhl
-
-include .cmake/config.mk
+add_library( ${PROJECT}-benchmark OBJECT
+  main.cpp
+  )

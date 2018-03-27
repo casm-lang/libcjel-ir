@@ -41,14 +41,15 @@
 
 #include "Statement.h"
 
+#include <libstdhl/Memory>
+
 using namespace libcjel_ir;
 
 //
 // Statement
 //
 
-Statement::Statement(
-    const std::string& name, const Type::Ptr& type, Value::ID id )
+Statement::Statement( const std::string& name, const Type::Ptr& type, Value::ID id )
 : Block( name, type, false, id )
 {
 }
@@ -62,8 +63,7 @@ Instruction::Ptr Statement::add( const Instruction::Ptr& instruction )
 {
     if( not instruction )
     {
-        throw std::domain_error(
-            "cannot add a null pointer instruction to a statement block" );
+        throw std::domain_error( "cannot add a null pointer instruction to a statement block" );
     }
 
     m_instructions.add( instruction );
@@ -75,14 +75,12 @@ void Statement::add( const Scope::Ptr& scope )
 {
     if( not scope )
     {
-        throw std::domain_error(
-            "cannot add a null pointer instruction to a statement block" );
+        throw std::domain_error( "cannot add a null pointer instruction to a statement block" );
     }
 
     if( isa< TrivialStatement >( this ) )
     {
-        throw std::domain_error(
-            "trivial statements are not allowed to have inside scopes" );
+        throw std::domain_error( "trivial statements are not allowed to have inside scopes" );
     }
     else if( isa< LoopStatement >( this ) )
     {
@@ -104,8 +102,8 @@ Scopes Statement::scopes( void ) const
 
 bool Statement::classof( Value const* obj )
 {
-    return obj->id() == classid() or TrivialStatement::classof( obj )
-           or BranchStatement::classof( obj ) or LoopStatement::classof( obj );
+    return obj->id() == classid() or TrivialStatement::classof( obj ) or
+           BranchStatement::classof( obj ) or LoopStatement::classof( obj );
 }
 
 //
@@ -113,7 +111,7 @@ bool Statement::classof( Value const* obj )
 //
 
 TrivialStatement::TrivialStatement( Value* parent )
-: Statement( "stmt", libstdhl::get< LabelType >(), classid() )
+: Statement( "stmt", libstdhl::Memory::get< LabelType >(), classid() )
 {
 }
 
@@ -127,7 +125,7 @@ bool TrivialStatement::classof( Value const* obj )
 //
 
 BranchStatement::BranchStatement( Value* parent )
-: Statement( "branch", libstdhl::get< LabelType >(), classid() )
+: Statement( "branch", libstdhl::Memory::get< LabelType >(), classid() )
 {
 }
 
@@ -141,7 +139,7 @@ bool BranchStatement::classof( Value const* obj )
 //
 
 LoopStatement::LoopStatement( Value* parent )
-: Statement( "loop", libstdhl::get< LabelType >(), classid() )
+: Statement( "loop", libstdhl::Memory::get< LabelType >(), classid() )
 {
 }
 

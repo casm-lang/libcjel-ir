@@ -41,14 +41,23 @@
 
 #include "Constant.h"
 
-#include "Structure.h"
+#include <libcjel-ir/Structure>
+#include <libcjel-ir/Type>
 
-#include "../stdhl/cpp/Integer.h"
+#include <libstdhl/Memory>
+#include <libstdhl/type/Integer>
+
+#include <cassert>
 
 using namespace libcjel_ir;
 
-Constant::Constant( const std::string& name, const Type::Ptr& type,
-    const libstdhl::Type& data, const std::vector< Constant >& constants,
+static const auto VOID_TYPE = libstdhl::Memory::make< VoidType >();
+
+Constant::Constant(
+    const std::string& name,
+    const Type::Ptr& type,
+    const libstdhl::Type::Data& data,
+    const std::vector< Constant >& constants,
     Value::ID id )
 : Value( name, type, id )
 , m_data( data )
@@ -58,9 +67,9 @@ Constant::Constant( const std::string& name, const Type::Ptr& type,
 
 bool Constant::classof( Value const* obj )
 {
-    return obj->id() == classid() or VoidConstant::classof( obj )
-           or BitConstant::classof( obj ) or StringConstant::classof( obj )
-           or StructureConstant::classof( obj ) or Identifier::classof( obj );
+    return obj->id() == classid() or VoidConstant::classof( obj ) or BitConstant::classof( obj ) or
+           StringConstant::classof( obj ) or StructureConstant::classof( obj ) or
+           Identifier::classof( obj );
 }
 
 //
@@ -72,8 +81,7 @@ bool Constant::classof( Value const* obj )
 //
 
 VoidConstant::VoidConstant( void )
-: Constant(
-      "void", libstdhl::get< VoidType >(), libstdhl::Type(), {}, classid() )
+: Constant( "void", VOID_TYPE, libstdhl::Type::Data(), {}, classid() )
 {
 }
 
@@ -87,26 +95,23 @@ bool VoidConstant::classof( Value const* obj )
 //
 
 BitConstant::BitConstant( const Type::Ptr& type, u64 value )
-: Constant( "", type, libstdhl::Type( value, type->bitsize() ), {}, classid() )
+: Constant( "", type, libstdhl::Type::Data( value, type->bitsize() ), {}, classid() )
 {
     if( not type->isBit() )
     {
-        throw std::domain_error(
-            "invalid type '" + type->name() + "' for a bit constant" );
+        throw std::domain_error( "invalid type '" + type->name() + "' for a bit constant" );
     }
-
-    assert( m_data.size() <= type->wordsize() );
 
     if( type->bitsize() > BitType::SizeMax )
     {
-        throw std::domain_error( "invalid bit size '"
-                                 + std::to_string( type->bitsize() )
-                                 + "' to create 'BitConstant'" );
+        throw std::domain_error(
+            "invalid bit size '" + std::to_string( type->bitsize() ) +
+            "' to create 'BitConstant'" );
     }
 }
 
 BitConstant::BitConstant( u16 bitsize, u64 value )
-: BitConstant( libstdhl::get< BitType >( bitsize ), value )
+: BitConstant( libstdhl::Memory::get< BitType >( bitsize ), value )
 {
 }
 
@@ -115,7 +120,7 @@ std::string BitConstant::literal( libstdhl::Type::Radix radix ) const
     return m_data.to_string( radix );
 }
 
-const libstdhl::Type& BitConstant::value( void ) const
+const libstdhl::Type::Data& BitConstant::value( void ) const
 {
     return m_data;
 }
@@ -130,8 +135,7 @@ bool BitConstant::classof( Value const* obj )
 //
 
 StringConstant::StringConstant( const std::string& value )
-: Constant(
-      value, libstdhl::get< StringType >(), libstdhl::Type(), {}, classid() )
+: Constant( value, libstdhl::Memory::get< StringType >(), libstdhl::Type::Data(), {}, classid() )
 {
 }
 
@@ -149,16 +153,14 @@ bool StringConstant::classof( Value const* obj )
 // Structure Constant
 //
 
-StructureConstant::StructureConstant(
-    const Type::Ptr& type, const std::vector< Constant >& values )
-: Constant( "", type, libstdhl::Type(), values, classid() )
+StructureConstant::StructureConstant( const Type::Ptr& type, const std::vector< Constant >& values )
+: Constant( "", type, libstdhl::Type::Data(), values, classid() )
 {
     assert( this->type().results().size() == values.size() );
 
     if( not type->isStructure() )
     {
-        throw std::domain_error(
-            "invalid type '" + type->name() + "' for a structure constant" );
+        throw std::domain_error( "invalid type '" + type->name() + "' for a structure constant" );
     }
 
     m_name = "{";
@@ -180,7 +182,7 @@ StructureConstant::StructureConstant(
 
 StructureConstant::StructureConstant(
     const Structure::Ptr& kind, const std::vector< Constant >& values )
-: StructureConstant( libstdhl::get< StructureType >( kind ), values )
+: StructureConstant( libstdhl::Memory::get< StructureType >( kind ), values )
 {
 }
 
@@ -199,7 +201,7 @@ bool StructureConstant::classof( Value const* obj )
 //
 
 Identifier::Identifier( const Type::Ptr& type, const std::string& value )
-: Constant( value, type, libstdhl::Type(), {}, classid() )
+: Constant( value, type, libstdhl::Type::Data(), {}, classid() )
 {
 }
 

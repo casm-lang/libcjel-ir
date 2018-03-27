@@ -42,7 +42,9 @@
 #ifndef _LIB_CJELIR_CONSTANT_H_
 #define _LIB_CJELIR_CONSTANT_H_
 
-#include "Value.h"
+#include <libcjel-ir/Value>
+
+#include <libstdhl/type/Data>
 
 namespace libcjel_ir
 {
@@ -53,9 +55,10 @@ namespace libcjel_ir
       public:
         using Ptr = std::shared_ptr< Constant >;
 
-        Constant( const std::string& name,
+        Constant(
+            const std::string& name,
             const Type::Ptr& type,
-            const libstdhl::Type& data,
+            const libstdhl::Type::Data& data,
             const std::vector< Constant >& constants,
             Value::ID id = classid() );
 
@@ -67,7 +70,7 @@ namespace libcjel_ir
         static bool classof( Value const* obj );
 
       protected:
-        libstdhl::Type m_data;
+        libstdhl::Type::Data m_data;
 
         std::vector< Constant > m_constants;
 
@@ -103,10 +106,9 @@ namespace libcjel_ir
 
         BitConstant( u16 bitsize, u64 value );
 
-        std::string literal(
-            libstdhl::Type::Radix radix = libstdhl::Type::DECIMAL ) const;
+        std::string literal( libstdhl::Type::Radix radix = libstdhl::Type::DECIMAL ) const;
 
-        const libstdhl::Type& value( void ) const;
+        const libstdhl::Type::Data& value( void ) const;
 
         static inline Value::ID classid( void )
         {
@@ -138,11 +140,10 @@ namespace libcjel_ir
       public:
         using Ptr = std::shared_ptr< StructureConstant >;
 
-        StructureConstant(
-            const Type::Ptr& type, const std::vector< Constant >& values );
+        StructureConstant( const Type::Ptr& type, const std::vector< Constant >& values );
 
-        StructureConstant( const std::shared_ptr< Structure >& kind,
-            const std::vector< Constant >& values );
+        StructureConstant(
+            const std::shared_ptr< Structure >& kind, const std::vector< Constant >& values );
 
         std::vector< Constant > value( void ) const;
 
@@ -168,9 +169,9 @@ namespace libcjel_ir
 
         static bool classof( Value const* obj );
     };
-}
+}  // namespace libcjel_ir
 
-#endif // _LIB_CJELIR_CONSTANT_H_
+#endif  // _LIB_CJELIR_CONSTANT_H_
 
 //
 //  Local variables:

@@ -42,9 +42,8 @@
 #ifndef _LIB_CJELIR_VALUE_H_
 #define _LIB_CJELIR_VALUE_H_
 
-#include "CjelIR.h"
-
-#include "Type.h"
+#include <libcjel-ir/CjelIR>
+#include <libcjel-ir/Type>
 
 namespace libcjel_ir
 {
@@ -54,7 +53,10 @@ namespace libcjel_ir
 
     class Module;
 
-    class Value : public CjelIR
+    /**
+      @extends CjelIR
+     */
+    class Value
     {
       public:
         using Ptr = std::shared_ptr< Value >;
@@ -194,8 +196,8 @@ namespace libcjel_ir
         {
             if( this != &rhs )
             {
-                if( this->id() != rhs.id() or this->name().compare( rhs.name() )
-                    or this->type() != rhs.type() )
+                if( this->id() != rhs.id() or this->name().compare( rhs.name() ) or
+                    this->type() != rhs.type() )
                 {
                     return false;
                 }
@@ -218,16 +220,16 @@ namespace libcjel_ir
             return true;
         }
 
-        virtual void iterate( Traversal order, Visitor* visitor = nullptr,
+        virtual void iterate(
+            Traversal order,
+            Visitor* visitor = nullptr,
             Context* context = nullptr,
             std::function< void( Value& ) > action = []( Value& ) {} ) final;
 
-        virtual void iterate(
-            Traversal order, std::function< void( Value& ) > action ) final;
+        virtual void iterate( Traversal order, std::function< void( Value& ) > action ) final;
 
       private:
-        static std::unordered_map< u8, std::unordered_set< Value* > >&
-        m_id2objs( void )
+        static std::unordered_map< u8, std::unordered_set< Value* > >& m_id2objs( void )
         {
             static std::unordered_map< u8, std::unordered_set< Value* > > cache;
             return cache;
@@ -276,7 +278,7 @@ namespace libcjel_ir
 //     };
 // }
 
-#endif // _LIB_CJELIR_VALUE_H_
+#endif  // _LIB_CJELIR_VALUE_H_
 
 //
 //  Local variables:

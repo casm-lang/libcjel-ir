@@ -49,8 +49,7 @@ namespace libcjel_ir
     class User : public Value
     {
       public:
-        User( const std::string& name, const Type::Ptr& type,
-            Value::ID id = classid() )
+        User( const std::string& name, const Type::Ptr& type, Value::ID id = classid() )
         : Value( name, type, id )
         {
         }
@@ -64,7 +63,7 @@ namespace libcjel_ir
     };
 }
 
-#endif // _LIB_CJELIR_USER_H_
+#endif  // _LIB_CJELIR_USER_H_
 
 //
 //  Local variables:

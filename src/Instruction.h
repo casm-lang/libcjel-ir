@@ -42,7 +42,7 @@
 #ifndef _LIB_CJELIR_INSTRUCTION_H_
 #define _LIB_CJELIR_INSTRUCTION_H_
 
-#include "User.h"
+#include <libcjel-ir/User>
 
 namespace libcjel_ir
 {
@@ -53,7 +53,9 @@ namespace libcjel_ir
       public:
         using Ptr = std::shared_ptr< Instruction >;
 
-        Instruction( const std::string& name, const Type::Ptr& type,
+        Instruction(
+            const std::string& name,
+            const Type::Ptr& type,
             const std::vector< Value::Ptr >& operands,
             Value::ID id = classid() );
 
@@ -126,8 +128,11 @@ namespace libcjel_ir
       public:
         using Ptr = std::shared_ptr< OperatorInstruction >;
 
-        OperatorInstruction( const std::string& name, const Type::Ptr& type,
-            const std::vector< Value::Ptr >& values, Value::ID id = classid() );
+        OperatorInstruction(
+            const std::string& name,
+            const Type::Ptr& type,
+            const std::vector< Value::Ptr >& values,
+            Value::ID id = classid() );
 
         static inline Value::ID classid( void )
         {
@@ -142,7 +147,8 @@ namespace libcjel_ir
       public:
         using Ptr = std::shared_ptr< ArithmeticInstruction >;
 
-        ArithmeticInstruction( const std::string& name,
+        ArithmeticInstruction(
+            const std::string& name,
             const std::vector< Value::Ptr >& values,
             Value::ID id = classid() );
 
@@ -159,7 +165,8 @@ namespace libcjel_ir
       public:
         using Ptr = std::shared_ptr< CompareInstruction >;
 
-        CompareInstruction( const std::string& name,
+        CompareInstruction(
+            const std::string& name,
             const std::vector< Value::Ptr >& values,
             Value::ID id = classid() );
 
@@ -176,7 +183,8 @@ namespace libcjel_ir
       public:
         using Ptr = std::shared_ptr< LogicalInstruction >;
 
-        LogicalInstruction( const std::string& name,
+        LogicalInstruction(
+            const std::string& name,
             const std::vector< Value::Ptr >& values,
             Value::ID id = classid() );
 
@@ -218,7 +226,9 @@ namespace libcjel_ir
         static bool classof( Value const* obj );
     };
 
-    class IdInstruction : public Instruction, public UnaryInstruction
+    class IdInstruction
+    : public Instruction
+    , public UnaryInstruction
     {
       public:
         using Ptr = std::shared_ptr< IdInstruction >;
@@ -233,7 +243,9 @@ namespace libcjel_ir
         static bool classof( Value const* obj );
     };
 
-    class LoadInstruction : public Instruction, public UnaryInstruction
+    class LoadInstruction
+    : public Instruction
+    , public UnaryInstruction
     {
       public:
         using Ptr = std::shared_ptr< LoadInstruction >;
@@ -248,7 +260,9 @@ namespace libcjel_ir
         static bool classof( Value const* obj );
     };
 
-    class ZeroExtendInstruction : public Instruction, public UnaryInstruction
+    class ZeroExtendInstruction
+    : public Instruction
+    , public UnaryInstruction
     {
       public:
         using Ptr = std::shared_ptr< ZeroExtendInstruction >;
@@ -263,7 +277,9 @@ namespace libcjel_ir
         static bool classof( Value const* obj );
     };
 
-    class TruncationInstruction : public Instruction, public UnaryInstruction
+    class TruncationInstruction
+    : public Instruction
+    , public UnaryInstruction
     {
       public:
         using Ptr = std::shared_ptr< TruncationInstruction >;
@@ -278,7 +294,9 @@ namespace libcjel_ir
         static bool classof( Value const* obj );
     };
 
-    class StoreInstruction : public Instruction, public BinaryInstruction
+    class StoreInstruction
+    : public Instruction
+    , public BinaryInstruction
     {
       public:
         using Ptr = std::shared_ptr< StoreInstruction >;
@@ -293,7 +311,9 @@ namespace libcjel_ir
         static bool classof( Value const* obj );
     };
 
-    class ExtractInstruction : public Instruction, public BinaryInstruction
+    class ExtractInstruction
+    : public Instruction
+    , public BinaryInstruction
     {
       public:
         using Ptr = std::shared_ptr< ExtractInstruction >;
@@ -308,7 +328,9 @@ namespace libcjel_ir
         static bool classof( Value const* obj );
     };
 
-    class CastInstruction : public Instruction, public BinaryInstruction
+    class CastInstruction
+    : public Instruction
+    , public BinaryInstruction
     {
       public:
         using Ptr = std::shared_ptr< CastInstruction >;
@@ -328,8 +350,7 @@ namespace libcjel_ir
       public:
         using Ptr = std::shared_ptr< CallInstruction >;
 
-        CallInstruction( const Value::Ptr& symbol,
-            const std::vector< Value::Ptr >& operands = {} );
+        CallInstruction( const Value::Ptr& symbol, const std::vector< Value::Ptr >& operands = {} );
 
         Value::Ptr callee( void ) const;
 
@@ -384,7 +405,9 @@ namespace libcjel_ir
         Channel m_channel;
     };
 
-    class NotInstruction : public ArithmeticInstruction, public UnaryInstruction
+    class NotInstruction
+    : public ArithmeticInstruction
+    , public UnaryInstruction
     {
       public:
         using Ptr = std::shared_ptr< NotInstruction >;
@@ -399,8 +422,9 @@ namespace libcjel_ir
         static bool classof( Value const* obj );
     };
 
-    class AndInstruction : public ArithmeticInstruction,
-                           public BinaryInstruction
+    class AndInstruction
+    : public ArithmeticInstruction
+    , public BinaryInstruction
     {
       public:
         using Ptr = std::shared_ptr< AndInstruction >;
@@ -415,7 +439,9 @@ namespace libcjel_ir
         static bool classof( Value const* obj );
     };
 
-    class OrInstruction : public ArithmeticInstruction, public BinaryInstruction
+    class OrInstruction
+    : public ArithmeticInstruction
+    , public BinaryInstruction
     {
       public:
         using Ptr = std::shared_ptr< OrInstruction >;
@@ -430,8 +456,9 @@ namespace libcjel_ir
         static bool classof( Value const* obj );
     };
 
-    class XorInstruction : public ArithmeticInstruction,
-                           public BinaryInstruction
+    class XorInstruction
+    : public ArithmeticInstruction
+    , public BinaryInstruction
     {
       public:
         using Ptr = std::shared_ptr< XorInstruction >;
@@ -446,8 +473,9 @@ namespace libcjel_ir
         static bool classof( Value const* obj );
     };
 
-    class AddUnsignedInstruction : public ArithmeticInstruction,
-                                   public BinaryInstruction
+    class AddUnsignedInstruction
+    : public ArithmeticInstruction
+    , public BinaryInstruction
     {
       public:
         using Ptr = std::shared_ptr< AddUnsignedInstruction >;
@@ -462,8 +490,9 @@ namespace libcjel_ir
         static bool classof( Value const* obj );
     };
 
-    class AddSignedInstruction : public ArithmeticInstruction,
-                                 public BinaryInstruction
+    class AddSignedInstruction
+    : public ArithmeticInstruction
+    , public BinaryInstruction
     {
       public:
         using Ptr = std::shared_ptr< AddSignedInstruction >;
@@ -478,8 +507,9 @@ namespace libcjel_ir
         static bool classof( Value const* obj );
     };
 
-    class DivSignedInstruction : public ArithmeticInstruction,
-                                 public BinaryInstruction
+    class DivSignedInstruction
+    : public ArithmeticInstruction
+    , public BinaryInstruction
     {
       public:
         using Ptr = std::shared_ptr< DivSignedInstruction >;
@@ -494,8 +524,9 @@ namespace libcjel_ir
         static bool classof( Value const* obj );
     };
 
-    class ModUnsignedInstruction : public ArithmeticInstruction,
-                                   public BinaryInstruction
+    class ModUnsignedInstruction
+    : public ArithmeticInstruction
+    , public BinaryInstruction
     {
       public:
         using Ptr = std::shared_ptr< ModUnsignedInstruction >;
@@ -514,7 +545,9 @@ namespace libcjel_ir
     //
     //
 
-    class EquInstruction : public CompareInstruction, public BinaryInstruction
+    class EquInstruction
+    : public CompareInstruction
+    , public BinaryInstruction
     {
       public:
         using Ptr = std::shared_ptr< EquInstruction >;
@@ -529,7 +562,9 @@ namespace libcjel_ir
         static bool classof( Value const* obj );
     };
 
-    class NeqInstruction : public CompareInstruction, public BinaryInstruction
+    class NeqInstruction
+    : public CompareInstruction
+    , public BinaryInstruction
     {
       public:
         using Ptr = std::shared_ptr< NeqInstruction >;
@@ -548,7 +583,9 @@ namespace libcjel_ir
     //
     //
 
-    class LnotInstruction : public LogicalInstruction, public UnaryInstruction
+    class LnotInstruction
+    : public LogicalInstruction
+    , public UnaryInstruction
     {
       public:
         using Ptr = std::shared_ptr< LnotInstruction >;
@@ -564,7 +601,7 @@ namespace libcjel_ir
     };
 }
 
-#endif // _LIB_CJELIR_INSTRUCTION_H_
+#endif  // _LIB_CJELIR_INSTRUCTION_H_
 
 //
 //  Local variables:

@@ -40,12 +40,12 @@
 //
 
 #include "Block.h"
-#include "Statement.h"
+
+#include <libcjel-ir/Statement>
 
 using namespace libcjel_ir;
 
-Block::Block(
-    const std::string& name, const Type::Ptr& type, u1 parallel, Value::ID id )
+Block::Block( const std::string& name, const Type::Ptr& type, u1 parallel, Value::ID id )
 : Value( name, type, id )
 , m_parallel( parallel )
 {
@@ -73,8 +73,7 @@ u1 Block::isParallel( void ) const
 
 bool Block::classof( Value const* obj )
 {
-    return obj->id() == classid() or Scope::classof( obj )
-           or Statement::classof( obj );
+    return obj->id() == classid() or Scope::classof( obj ) or Statement::classof( obj );
 }
 
 //

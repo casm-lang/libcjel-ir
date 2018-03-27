@@ -42,7 +42,7 @@
 #ifndef _LIB_CJELIR_FUNCTION_H_
 #define _LIB_CJELIR_FUNCTION_H_
 
-#include "CallableUnit.h"
+#include <libcjel-ir/CallableUnit>
 
 namespace libcjel_ir
 {
@@ -60,7 +60,7 @@ namespace libcjel_ir
     };
 }
 
-#endif // _LIB_CJELIR_FUNCTION_H_
+#endif  // _LIB_CJELIR_FUNCTION_H_
 
 //
 //  Local variables:

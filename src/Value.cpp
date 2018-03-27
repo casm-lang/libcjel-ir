@@ -41,19 +41,21 @@
 
 #include "Value.h"
 
-#include "Constant.h"
-#include "Function.h"
-#include "Instruction.h"
-#include "Interconnect.h"
-#include "Intrinsic.h"
-#include "Memory.h"
-#include "Module.h"
-#include "Reference.h"
-#include "Scope.h"
-#include "Statement.h"
-#include "Structure.h"
-#include "Variable.h"
-#include "Visitor.h"
+#include <libcjel-ir/Constant>
+#include <libcjel-ir/Function>
+#include <libcjel-ir/Instruction>
+#include <libcjel-ir/Interconnect>
+#include <libcjel-ir/Intrinsic>
+#include <libcjel-ir/Memory>
+#include <libcjel-ir/Module>
+#include <libcjel-ir/Reference>
+#include <libcjel-ir/Scope>
+#include <libcjel-ir/Statement>
+#include <libcjel-ir/Structure>
+#include <libcjel-ir/Variable>
+#include <libcjel-ir/Visitor>
+
+#include <cassert>
 
 using namespace libcjel_ir;
 
@@ -144,11 +146,8 @@ std::string Value::label( void ) const
     return name();
 }
 
-void Value::iterate( Traversal order,
-    Visitor* visitor,
-    Context* context,
-    std::function< void( Value& ) >
-        action )
+void Value::iterate(
+    Traversal order, Visitor* visitor, Context* context, std::function< void( Value& ) > action )
 {
     static Context default_context = Context();
 
@@ -242,8 +241,9 @@ void Value::iterate( Traversal order,
     {
         Statement& stmt = static_cast< Statement& >( value );
 
-        assert( stmt.instructions().size() > 0
-                and " a statement must contain at least one instruction " );
+        assert(
+            stmt.instructions().size() > 0 and
+            " a statement must contain at least one instruction " );
 
         for( auto instr : stmt.instructions() )
         {

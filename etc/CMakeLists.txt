@@ -39,14 +39,5 @@
 #   statement from your version.
 #
 
-TARGET = libcjel-ir
-
-FORMAT  = src
-FORMAT += src/*
-FORMAT += etc
-FORMAT += etc/*
-FORMAT += etc/*/*
-
-UPDATE_ROOT = ../stdhl
-
-include .cmake/config.mk
+add_subdirectory( test )
+add_subdirectory( benchmark )

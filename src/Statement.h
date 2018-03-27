@@ -42,12 +42,12 @@
 #ifndef _LIB_CJELIR_STATEMENT_H_
 #define _LIB_CJELIR_STATEMENT_H_
 
-#include "Block.h"
+#include <libcjel-ir/Block>
 
-#include "Constant.h"
-#include "Instruction.h"
-#include "Scope.h"
-#include "Value.h"
+#include <libcjel-ir/Constant>
+#include <libcjel-ir/Instruction>
+#include <libcjel-ir/Scope>
+#include <libcjel-ir/Value>
 
 namespace libcjel_ir
 {
@@ -56,8 +56,7 @@ namespace libcjel_ir
       public:
         using Ptr = std::shared_ptr< Statement >;
 
-        Statement( const std::string& name, const Type::Ptr& type,
-            Value::ID id = classid() );
+        Statement( const std::string& name, const Type::Ptr& type, Value::ID id = classid() );
 
         Instructions instructions( void ) const;
 
@@ -139,7 +138,7 @@ namespace libcjel_ir
     };
 }
 
-#endif // _LIB_CJELIR_STATEMENT_H_
+#endif  // _LIB_CJELIR_STATEMENT_H_
 
 //
 //  Local variables:

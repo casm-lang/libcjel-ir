@@ -41,30 +41,32 @@
 
 #include "Visitor.h"
 
-#include "Value.h"
+#include <libcjel-ir/Value>
+
+#include <cassert>
 
 using namespace libcjel_ir;
 
-#define CASE_VALUE( VID, CLASS )                                               \
-    case Value::ID::VID:                                                       \
-        if( stage == Stage::PROLOG )                                           \
-            visit_prolog( (CLASS&)value, cxt );                                \
-        else if( stage == Stage::EPILOG )                                      \
-            visit_epilog( (CLASS&)value, cxt );                                \
-        else                                                                   \
-            assert( !"invalid visitor stage value!" );                         \
+#define CASE_VALUE( VID, CLASS )                       \
+    case Value::ID::VID:                               \
+        if( stage == Stage::PROLOG )                   \
+            visit_prolog( (CLASS&)value, cxt );        \
+        else if( stage == Stage::EPILOG )              \
+            visit_epilog( (CLASS&)value, cxt );        \
+        else                                           \
+            assert( !"invalid visitor stage value!" ); \
         break
 
-#define CASE_VALUE_INTER( VID, CLASS )                                         \
-    case Value::ID::VID:                                                       \
-        if( stage == Stage::PROLOG )                                           \
-            visit_prolog( (CLASS&)value, cxt );                                \
-        else if( stage == Stage::INTERLOG )                                    \
-            visit_interlog( (CLASS&)value, cxt );                              \
-        else if( stage == Stage::EPILOG )                                      \
-            visit_epilog( (CLASS&)value, cxt );                                \
-        else                                                                   \
-            assert( !"invalid visitor stage value!" );                         \
+#define CASE_VALUE_INTER( VID, CLASS )                 \
+    case Value::ID::VID:                               \
+        if( stage == Stage::PROLOG )                   \
+            visit_prolog( (CLASS&)value, cxt );        \
+        else if( stage == Stage::INTERLOG )            \
+            visit_interlog( (CLASS&)value, cxt );      \
+        else if( stage == Stage::EPILOG )              \
+            visit_epilog( (CLASS&)value, cxt );        \
+        else                                           \
+            assert( !"invalid visitor stage value!" ); \
         break
 
 void Visitor::dispatch( Stage stage, Value& value, Context& cxt )
@@ -129,10 +131,15 @@ void Visitor::dispatch( Stage stage, Value& value, Context& cxt )
         CASE_VALUE( INTERCONNECT, Interconnect );
 
         default:
-            fprintf( stderr,
+            fprintf(
+                stderr,
                 "%s:%i: warning: unimplemented value ID '%s' to dispatch for "
                 "stage '%i' and context '%p'",
-                __FILE__, __LINE__, value.name().c_str(), stage, &cxt );
+                __FILE__,
+                __LINE__,
+                value.name().c_str(),
+                stage,
+                &cxt );
             assert( 0 );
             break;
     }

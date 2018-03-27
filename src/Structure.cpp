@@ -41,17 +41,17 @@
 
 #include "Structure.h"
 
+#include <libstdhl/Memory>
+
 using namespace libcjel_ir;
 
-Structure::Structure(
-    const std::string& name, const std::vector< StructureElement >& elements )
-: User( name, libstdhl::get< VoidType >(), classid() )
+Structure::Structure( const std::string& name, const std::vector< StructureElement >& elements )
+: User( name, libstdhl::Memory::get< VoidType >(), classid() )
 , m_elements( elements )
 {
     if( elements.size() == 0 )
     {
-        throw std::domain_error(
-            "element size of structure '" + name + "' cannot be '0'" );
+        throw std::domain_error( "element size of structure '" + name + "' cannot be '0'" );
     }
 
     for( std::size_t c = 0; c < elements.size(); c++ )
@@ -61,8 +61,7 @@ Structure::Structure(
         if( not m_element2index.emplace( element, c ).second )
         {
             throw std::domain_error(
-                "structure '" + name + "' already has an element '" + element
-                + "'" );
+                "structure '" + name + "' already has an element '" + element + "'" );
         }
     }
 }
@@ -71,9 +70,8 @@ StructureElement Structure::element( std::size_t index ) const
 {
     if( index >= m_elements.size() )
     {
-        throw std::domain_error( "structure does not have a element at index '"
-                                 + std::to_string( index )
-                                 + "'" );
+        throw std::domain_error(
+            "structure does not have a element at index '" + std::to_string( index ) + "'" );
     }
 
     return m_elements[ index ];
@@ -85,8 +83,7 @@ StructureElement Structure::element( const std::string& name ) const
     if( result == m_element2index.end() )
     {
         throw std::domain_error(
-            "structure '" + this->name() + "' does not have a element '" + name
-            + "'" );
+            "structure '" + this->name() + "' does not have a element '" + name + "'" );
     }
 
     return m_elements[ result->second ];

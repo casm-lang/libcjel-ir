@@ -39,57 +39,10 @@
 //  statement from your version.
 //
 
-#include "Reference.h"
+#include <hayai/hayai.hpp>
 
-#include <libcjel-ir/CallableUnit>
-
-using namespace libcjel_ir;
-
-Reference::Reference( const std::string& name, const Type::Ptr& type, Kind kind )
-: User( name, type, Value::REFERENCE )
-, m_kind( kind )
-, m_callable()
+BENCHMARK( libcjel_ir, main, 0, 0 )
 {
-}
-
-void Reference::setCallable( const CallableUnit::Ptr& callable )
-{
-    if( not callable )
-    {
-        throw std::domain_error( "cannot set callable of reference to null pointer" );
-    }
-
-    m_callable = callable;
-}
-
-CallableUnit::Ptr Reference::callable( void ) const
-{
-    return m_callable.lock();
-}
-
-Reference::Kind Reference::kind( void ) const
-{
-    return m_kind;
-}
-
-u1 Reference::isInput( void ) const
-{
-    return m_kind == INPUT;
-}
-
-u1 Reference::isOutput( void ) const
-{
-    return m_kind == OUTPUT;
-}
-
-u1 Reference::isLinkage( void ) const
-{
-    return m_kind == LINKAGE;
-}
-
-bool Reference::classof( Value const* obj )
-{
-    return obj->id() == classid();
 }
 
 //

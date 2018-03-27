@@ -39,97 +39,158 @@
 #   statement from your version.
 #
 
-cmake_minimum_required( VERSION 3.1 )
+set( PROJECT libcjel-ir )
 
-if( EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../gtest" )
-  set( LIBS .. )
-else()
-  set( LIBS lib )
+cmake_minimum_required( VERSION ${CMAKE_VERSION} )
+
+project( ${PROJECT} LANGUAGES C CXX )
+set( CMAKE_CXX_STANDARD 11 )
+set( CMAKE_VERSION 3.2 )
+set( CMAKE_INCLUDE_CURRENT_DIR ON )
+set( CMAKE_MODULE_PATH ${${PROJECT}_SOURCE_DIR}/.cmake )
+
+include( LibPackage )
+
+package_git( ${PROJECT} )
+package_git_submodule( libstdhl master REQUIRED obj   ../stdhl lib/stdhl )
+package_git_submodule( libpass  master REQUIRED obj   ../pass  lib/pass  )
+package_git_submodule( libgtest master REQUIRED build ../gtest lib/gtest )
+package_git_submodule( libhayai master REQUIRED build ../hayai lib/hayai )
+
+find_package( Threads REQUIRED )
+
+include( ECMGenerateHeaders )
+include( FeatureSummary )
+include( GenerateExportHeader )
+include( CPack )
+
+add_subdirectory( src )
+add_subdirectory( etc
+  EXCLUDE_FROM_ALL
+  )
+
+add_custom_target( ${PROJECT}-sync
+  COMMAND
+    make sync > ${PROJECT_BINARY_DIR}/CMakeSync 2>&1
+  DEPENDS
+    libgtest
+    libhayai
+    libstdhl
+    libpass
+  WORKING_DIRECTORY
+    ${PROJECT_SOURCE_DIR}
+  )
+
+add_dependencies( ${PROJECT}-cpp
+  ${PROJECT}-sync
+  )
+
+
+#
+# library
+#
+
+add_library( ${PROJECT} STATIC
+  $<TARGET_OBJECTS:${PROJECT}-cpp>
+  )
+
+if( ${LIBPASS_FOUND} )
+  target_link_libraries( ${PROJECT}
+    ${LIBPASS_LIBRARY}
+    ${LIBSTDHL_LIBRARY}
+    )
 endif()
 
-foreach( DEPENDENCY
-    stdhl
-    pass
-    )
-  if( NOT TARGET ${DEPENDENCY} )
-    add_subdirectory( ${LIBS}/${DEPENDENCY} lib/${DEPENDENCY} )
-  endif()  
-endforeach()
+set( ${PROJECT}_VERSION ${GIT_REVTAG} )
+set_property( TARGET ${PROJECT} PROPERTY VERSION ${${PROJECT}_VERSION} )
+set_property( TARGET ${PROJECT} PROPERTY PREFIX  "" )
 
 
-file( GLOB_RECURSE CXX_SRC_FILES "src/*.cpp" )
-file( GLOB_RECURSE CXX_UTS_FILES "uts/*.cpp" )
+#
+# test
+# 
 
-
-set( TARGET cjel-ir )
-project( ${TARGET} )
-
-
-include_directories(
-  .
-  src
-  ${LIBS}/gtest/googletest
-  ${LIBS}/gtest/googletest/include
-  ${LIBS}/hayai/src
-  ${LIBS}/stdhl
-  ${LIBS}/pass
-)
-
-
-set( CMAKE_CXX_FLAGS          "${CMAKE_CXX_FLAGS}          -std=c++11 -Wall" )
-
-set( CMAKE_CXX_FLAGS_DEBUG    "${CMAKE_CXX_FLAGS_DEBUG}    -O0" )
-set( CMAKE_CXX_FLAGS_RELEASE  "${CMAKE_CXX_FLAGS_RELEASE}  -O3" )
-set( CMAKE_CXX_FLAGS_SANITIZE "${CMAKE_CXX_FLAGS_SANITIZE} -O1 -Wextra -g -fno-omit-frame-pointer -fno-optimize-sibling-calls -fsanitize=undefined -fsanitize=address" )
-
-
-add_library( ${TARGET} STATIC
-  ${CXX_SRC_FILES}
-)
-
-
-add_library( ${TARGET}-test OBJECT
-  ${CXX_UTS_FILES}
-)
-
-add_executable( ${TARGET}-check
-  ${LIBS}/gtest/googletest/src/gtest_main.cc
-  ${LIBS}/gtest/googletest/src/gtest-all.cc  
-  $<TARGET_OBJECTS:${TARGET}-test>
-)
-
-target_link_libraries( ${TARGET}-check
-  ${TARGET}
-  pass
-  stdhl
-  pthread
-)
-
-
-add_library( ${TARGET}-benchmark OBJECT
-  uts/main.cpp
-)
-
-add_executable( ${TARGET}-run
-  ${LIBS}/hayai/src/hayai_posix_main.cpp
-  ${LIBS}/gtest/googletest/src/gtest-all.cc  
-  $<TARGET_OBJECTS:${TARGET}-benchmark>
-)
-
-target_link_libraries( ${TARGET}-run
-  ${TARGET}
-  pass
-  stdhl
-  pthread
-)
-
-
-if( NOT CMAKE_BUILD_TYPE )
-  set( CMAKE_BUILD_TYPE Debug
-    CACHE STRING "Choose the type of build : debug sanitize release."
-    FORCE
+add_executable( ${PROJECT}-check
+  EXCLUDE_FROM_ALL
+  $<TARGET_OBJECTS:${PROJECT}-test>
   )
-endif( NOT CMAKE_BUILD_TYPE )
+
+if( ${LIBGTEST_FOUND} )
+  target_link_libraries( ${PROJECT}-check
+    ${PROJECT}
+    ${LIBGTEST_LIBRARY}
+    ${LIBGTEST_MAIN}
+    Threads::Threads
+    )
+endif()
 
 
-message( "* ${CMAKE_BUILD_TYPE} : ${TARGET} : ${LIBS}" )
+#
+# benchmark
+#
+
+add_executable( ${PROJECT}-run
+  EXCLUDE_FROM_ALL
+  $<TARGET_OBJECTS:${PROJECT}-benchmark>
+  )
+
+if( ${LIBHAYAI_FOUND} )
+  target_link_libraries( ${PROJECT}-run
+    ${PROJECT}
+    ${LIBHAYAI_LIBRARY}
+    )
+endif()
+
+
+#
+# install
+#
+
+install(
+  TARGETS  ${PROJECT}
+  EXPORT   ${PROJECT}Targets
+  LIBRARY  DESTINATION lib
+  ARCHIVE  DESTINATION lib
+  RUNTIME  DESTINATION bin
+  INCLUDES DESTINATION include
+  )
+
+generate_export_header( ${PROJECT} )
+
+install(
+  FILES
+  "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT}_export.h"
+  DESTINATION
+  "include/${PROJECT}"
+  )
+
+export(
+  TARGETS ${PROJECT}
+  FILE    ${PROJECT}Config.cmake
+  )
+
+
+#
+# cmake
+#
+
+install(
+  FILES
+    .cmake/Find${PROJECT}.cmake
+  DESTINATION
+    "share/cmake/Module/${PROJECT}"
+  )
+
+
+#
+# build features and checks
+#
+
+include( LibCompile )
+compile_flags( CXX )
+compile_check()
+
+feature_summary( WHAT
+  PACKAGES_NOT_FOUND
+  DISABLED_FEATURES
+  )

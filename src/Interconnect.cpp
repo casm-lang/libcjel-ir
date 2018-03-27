@@ -41,14 +41,18 @@
 
 #include "Interconnect.h"
 
-#include "Variable.h"
+#include <libcjel-ir/Type>
+#include <libcjel-ir/Variable>
 
-#include "../stdhl/cpp/Math.h"
+#include <libstdhl/Memory>
+
+#include <cassert>
+#include <cmath>
 
 using namespace libcjel_ir;
 
 Interconnect::Interconnect( const std::string& name )
-: User( name, libstdhl::get< InterconnectType >(), classid() )
+: User( name, libstdhl::Memory::get< InterconnectType >(), classid() )
 , m_bs_max( 0 )
 {
 }

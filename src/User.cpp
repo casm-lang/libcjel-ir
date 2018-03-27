@@ -40,25 +40,24 @@
 //
 
 #include "User.h"
-#include "CallableUnit.h"
-#include "Constant.h"
-#include "Instruction.h"
-#include "Interconnect.h"
-#include "Memory.h"
-#include "Module.h"
-#include "Reference.h"
-#include "Structure.h"
-#include "Variable.h"
+
+#include <libcjel-ir/CallableUnit>
+#include <libcjel-ir/Constant>
+#include <libcjel-ir/Instruction>
+#include <libcjel-ir/Interconnect>
+#include <libcjel-ir/Memory>
+#include <libcjel-ir/Module>
+#include <libcjel-ir/Reference>
+#include <libcjel-ir/Structure>
+#include <libcjel-ir/Variable>
 
 using namespace libcjel_ir;
 
 bool User::classof( Value const* obj )
 {
-    return obj->id() == classid() or Module::classof( obj )
-           or Memory::classof( obj ) or CallableUnit::classof( obj )
-           or Reference::classof( obj ) or Structure::classof( obj )
-           or Instruction::classof( obj ) or Variable::classof( obj )
-           or Interconnect::classof( obj );
+    return obj->id() == classid() or Module::classof( obj ) or Memory::classof( obj ) or
+           CallableUnit::classof( obj ) or Reference::classof( obj ) or Structure::classof( obj ) or
+           Instruction::classof( obj ) or Variable::classof( obj ) or Interconnect::classof( obj );
 }
 
 //

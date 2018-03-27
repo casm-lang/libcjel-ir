@@ -42,7 +42,7 @@
 #ifndef _LIB_CJELIR_MEMORY_H_
 #define _LIB_CJELIR_MEMORY_H_
 
-#include "User.h"
+#include <libcjel-ir/User>
 
 namespace libcjel_ir
 {
@@ -65,7 +65,7 @@ namespace libcjel_ir
     };
 }
 
-#endif // _LIB_CJELIR_MEMORY_H_
+#endif  // _LIB_CJELIR_MEMORY_H_
 
 //
 //  Local variables:

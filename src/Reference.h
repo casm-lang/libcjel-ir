@@ -42,7 +42,7 @@
 #ifndef _LIB_CJELIR_REFERENCE_H_
 #define _LIB_CJELIR_REFERENCE_H_
 
-#include "User.h"
+#include <libcjel-ir/User>
 
 namespace libcjel_ir
 {
@@ -62,8 +62,7 @@ namespace libcjel_ir
             _SIZE_
         };
 
-        Reference(
-            const std::string& name, const Type::Ptr& type, Kind kind = INPUT );
+        Reference( const std::string& name, const Type::Ptr& type, Kind kind = INPUT );
 
         void setCallable( const std::shared_ptr< CallableUnit >& callable );
 
@@ -89,7 +88,7 @@ namespace libcjel_ir
     };
 }
 
-#endif // _LIB_CJELIR_REFERENCE_H_
+#endif  // _LIB_CJELIR_REFERENCE_H_
 
 //
 //  Local variables:

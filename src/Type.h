@@ -42,10 +42,14 @@
 #ifndef _LIB_CJELIR_TYPE_H_
 #define _LIB_CJELIR_TYPE_H_
 
-#include "CjelIR.h"
+#include <libcjel-ir/CjelIR>
 
-#include "../stdhl/cpp/List.h"
-#include "../stdhl/cpp/Log.h"
+#include <libstdhl/List>
+#include <libstdhl/Log>
+
+#include <functional>
+#include <unordered_map>
+#include <unordered_set>
 
 namespace libcjel_ir
 {
@@ -74,8 +78,7 @@ namespace libcjel_ir
             _TOP_
         };
 
-        Type( const std::string& name, const std::string& description,
-            u64 bitsize, ID id );
+        Type( const std::string& name, const std::string& description, u64 bitsize, ID id );
 
         ~Type() = default;
 
@@ -97,14 +100,13 @@ namespace libcjel_ir
 
         Types ptr_arguments( void ) const;
 
-        std::string make_hash( void ) const;
+        virtual std::size_t hash( void ) const = 0;
 
         inline u1 operator==( const Type& rhs ) const
         {
             if( this != &rhs )
             {
-                if( this->id() != rhs.id()
-                    or this->name().compare( rhs.name() ) )
+                if( this->id() != rhs.id() or this->name().compare( rhs.name() ) )
                 {
                     return false;
                 }
@@ -126,6 +128,11 @@ namespace libcjel_ir
         u1 isRelation( void ) const;
         u1 isInterconnect( void ) const;
 
+        inline std::unordered_map< std::size_t, Type::Ptr >& cache( void )
+        {
+            return s_cache();
+        }
+
       protected:
         std::string m_name;
 
@@ -141,10 +148,20 @@ namespace libcjel_ir
         // std::weak_ptr< Type > m_self;
 
       public:
-        std::unordered_map< std::string, Type::Ptr >& make_cache( void )
+        static std::unordered_map< std::size_t, Type::Ptr >& s_cache( void )
         {
-            static std::unordered_map< std::string, Type::Ptr > cache;
-            return cache;
+            static std::unordered_map< std::size_t, Type::Ptr > obj = {};
+            return obj;
+        }
+        static std::unordered_map< std::size_t, Type::Ptr >& s_registered_type_hash2ptr( void )
+        {
+            static std::unordered_map< std::size_t, Type::Ptr > obj = {};
+            return obj;
+        }
+        static std::unordered_map< u64, std::size_t >& s_registered_type_id2hash( void )
+        {
+            static std::unordered_map< u64, std::size_t > obj = {};
+            return obj;
         }
     };
 
@@ -153,8 +170,8 @@ namespace libcjel_ir
       public:
         using Ptr = std::shared_ptr< PrimitiveType >;
 
-        PrimitiveType( const std::string& name, const std::string& description,
-            u64 bitsize, Type::ID id );
+        PrimitiveType(
+            const std::string& name, const std::string& description, u64 bitsize, Type::ID id );
     };
 
     class AggregateType : public Type
@@ -162,8 +179,8 @@ namespace libcjel_ir
       public:
         using Ptr = std::shared_ptr< AggregateType >;
 
-        AggregateType( const std::string& name, const std::string& description,
-            u64 bitsize, Type::ID id );
+        AggregateType(
+            const std::string& name, const std::string& description, u64 bitsize, Type::ID id );
     };
 
     class SyntheticType : public Type
@@ -171,8 +188,8 @@ namespace libcjel_ir
       public:
         using Ptr = std::shared_ptr< SyntheticType >;
 
-        SyntheticType( const std::string& name, const std::string& description,
-            u64 bitsize, Type::ID id );
+        SyntheticType(
+            const std::string& name, const std::string& description, u64 bitsize, Type::ID id );
     };
 
     class LabelType : public PrimitiveType
@@ -181,6 +198,8 @@ namespace libcjel_ir
         using Ptr = std::shared_ptr< LabelType >;
 
         LabelType( void );
+
+        std::size_t hash( void ) const override;
     };
 
     class VoidType : public PrimitiveType
@@ -189,6 +208,8 @@ namespace libcjel_ir
         using Ptr = std::shared_ptr< VoidType >;
 
         VoidType( void );
+
+        std::size_t hash( void ) const override;
     };
 
     class BitType : public PrimitiveType
@@ -199,6 +220,8 @@ namespace libcjel_ir
         static const u16 SizeMax = 512;
 
         BitType( u16 bitsize );
+
+        std::size_t hash( void ) const override;
     };
 
     class StringType : public PrimitiveType
@@ -207,6 +230,8 @@ namespace libcjel_ir
         using Ptr = std::shared_ptr< StringType >;
 
         StringType( void );
+
+        std::size_t hash( void ) const override;
     };
 
     class VectorType : public AggregateType
@@ -215,6 +240,8 @@ namespace libcjel_ir
         using Ptr = std::shared_ptr< VectorType >;
 
         VectorType( const Type::Ptr& type, u16 length );
+
+        std::size_t hash( void ) const override;
 
       private:
         Type::Ptr m_type;
@@ -232,6 +259,8 @@ namespace libcjel_ir
 
         std::shared_ptr< Structure > ptr_kind( void ) const;
 
+        std::size_t hash( void ) const override;
+
       private:
         std::shared_ptr< Structure > m_kind;
     };
@@ -241,10 +270,12 @@ namespace libcjel_ir
       public:
         using Ptr = std::shared_ptr< RelationType >;
 
-        RelationType( const std::vector< Type::Ptr >& results,
-            const std::vector< Type::Ptr >& arguments );
+        RelationType(
+            const std::vector< Type::Ptr >& results, const std::vector< Type::Ptr >& arguments );
 
         const Types& arguments( void ) const;
+
+        std::size_t hash( void ) const override;
 
       private:
         Types m_arguments;
@@ -254,10 +285,12 @@ namespace libcjel_ir
     {
       public:
         InterconnectType( void );
+
+        std::size_t hash( void ) const override;
     };
 }
 
-#endif // _LIB_CJELIR_TYPE_H_
+#endif  // _LIB_CJELIR_TYPE_H_
 
 //
 //  Local variables:

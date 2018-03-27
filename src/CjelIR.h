@@ -42,11 +42,23 @@
 #ifndef _LIB_CJELIR_CJELIR_H_
 #define _LIB_CJELIR_CJELIR_H_
 
-#include "../stdhl/cpp/Default.h"
-#include "../stdhl/cpp/Type.h"
+#include <libstdhl/Type>
+
+#include <memory>
 
 namespace libcjel_ir
 {
+    using u1 = libstdhl::u1;
+    using u8 = libstdhl::u8;
+    using u16 = libstdhl::u16;
+    using u32 = libstdhl::u32;
+    using u64 = libstdhl::u64;
+
+    using i8 = libstdhl::i8;
+    using i16 = libstdhl::i16;
+    using i32 = libstdhl::i32;
+    using i64 = libstdhl::i64;
+
     class CjelIR
     {
     };
@@ -149,9 +161,9 @@ namespace libcjel_ir
         }
         return nullptr;
     }
-}
+}  // namespace libcjel_ir
 
-#endif // _LIB_CJELIR_CJELIR_H_
+#endif  // _LIB_CJELIR_CJELIR_H_
 
 //
 //  Local variables:

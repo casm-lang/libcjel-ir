@@ -42,7 +42,7 @@
 #ifndef _LIB_CJELIR_BLOCK_H_
 #define _LIB_CJELIR_BLOCK_H_
 
-#include "Value.h"
+#include <libcjel-ir/Value>
 
 namespace libcjel_ir
 {
@@ -51,8 +51,8 @@ namespace libcjel_ir
       public:
         using Ptr = std::shared_ptr< Block >;
 
-        Block( const std::string& name, const Type::Ptr& type, u1 parallel,
-            Value::ID id = classid() );
+        Block(
+            const std::string& name, const Type::Ptr& type, u1 parallel, Value::ID id = classid() );
 
         void setParent( const Block::Ptr& parent );
 
@@ -76,7 +76,7 @@ namespace libcjel_ir
     using Blocks = libstdhl::List< Block >;
 }
 
-#endif // _LIB_CJELIR_BLOCK_H_
+#endif  // _LIB_CJELIR_BLOCK_H_
 
 //
 //  Local variables:
