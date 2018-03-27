@@ -39,8 +39,8 @@
 //  statement from your version.
 //
 
-#ifndef _LIB_CJELIR_DUMP_PASS_H_
-#define _LIB_CJELIR_DUMP_PASS_H_
+#ifndef _LIBCJEL_IR_DUMP_PASS_H_
+#define _LIBCJEL_IR_DUMP_PASS_H_
 
 #include <libpass/Pass>
 #include <libpass/PassData>
@@ -62,7 +62,7 @@ namespace libcjel_ir
 
         std::string indention( Value& value );
 
-        LIB_CJELIR_VISITOR_INTERFACE;
+        LIBCJEL_IR_VISITOR_INTERFACE;
 
         class Data : public libpass::PassData
         {
@@ -85,7 +85,7 @@ namespace libcjel_ir
     };
 }
 
-#endif  // _LIB_CJELIR_DUMP_PASS_H_
+#endif  // _LIBCJEL_IR_DUMP_PASS_H_
 
 //
 //  Local variables:

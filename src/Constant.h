@@ -39,8 +39,8 @@
 //  statement from your version.
 //
 
-#ifndef _LIB_CJELIR_CONSTANT_H_
-#define _LIB_CJELIR_CONSTANT_H_
+#ifndef _LIBCJEL_IR_CONSTANT_H_
+#define _LIBCJEL_IR_CONSTANT_H_
 
 #include <libcjel-ir/Value>
 
@@ -171,7 +171,7 @@ namespace libcjel_ir
     };
 }  // namespace libcjel_ir
 
-#endif  // _LIB_CJELIR_CONSTANT_H_
+#endif  // _LIBCJEL_IR_CONSTANT_H_
 
 //
 //  Local variables:

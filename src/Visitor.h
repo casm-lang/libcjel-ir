@@ -39,8 +39,8 @@
 //  statement from your version.
 //
 
-#ifndef _LIB_CJELIR_VISITOR_H_
-#define _LIB_CJELIR_VISITOR_H_
+#ifndef _LIBCJEL_IR_VISITOR_H_
+#define _LIBCJEL_IR_VISITOR_H_
 
 #include <libcjel-ir/CjelIR>
 
@@ -114,7 +114,7 @@ namespace libcjel_ir
 
         void dispatch( Stage stage, Value& value, Context& cxt );
 
-#define LIB_CJELIR_VISITOR_INTERFACE_( PREFIX, POSTFIX )                                           \
+#define LIBCJEL_IR_VISITOR_INTERFACE_( PREFIX, POSTFIX )                                           \
     PREFIX void visit_prolog( libcjel_ir::Module& value, libcjel_ir::Context& cxt ) POSTFIX;       \
     PREFIX void visit_epilog( libcjel_ir::Module& value, libcjel_ir::Context& cxt ) POSTFIX;       \
                                                                                                    \
@@ -298,13 +298,13 @@ namespace libcjel_ir
     PREFIX void visit_prolog( libcjel_ir::Interconnect& value, libcjel_ir::Context& cxt ) POSTFIX; \
     PREFIX void visit_epilog( libcjel_ir::Interconnect& value, libcjel_ir::Context& cxt ) POSTFIX
 
-#define LIB_CJELIR_VISITOR_INTERFACE LIB_CJELIR_VISITOR_INTERFACE_(, override )
+#define LIBCJEL_IR_VISITOR_INTERFACE LIBCJEL_IR_VISITOR_INTERFACE_(, override )
 
-        LIB_CJELIR_VISITOR_INTERFACE_( virtual, = 0 );
+        LIBCJEL_IR_VISITOR_INTERFACE_( virtual, = 0 );
     };
 }
 
-#endif  // _LIB_CJELIR_VISITOR_H_
+#endif  // _LIBCJEL_IR_VISITOR_H_
 
 //
 //  Local variables:

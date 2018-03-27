@@ -39,8 +39,8 @@
 //  statement from your version.
 //
 
-#ifndef _LIB_CJELIR_VALUE_H_
-#define _LIB_CJELIR_VALUE_H_
+#ifndef _LIBCJEL_IR_VALUE_H_
+#define _LIBCJEL_IR_VALUE_H_
 
 #include <libcjel-ir/CjelIR>
 #include <libcjel-ir/Type>
@@ -278,7 +278,7 @@ namespace libcjel_ir
 //     };
 // }
 
-#endif  // _LIB_CJELIR_VALUE_H_
+#endif  // _LIBCJEL_IR_VALUE_H_
 
 //
 //  Local variables:

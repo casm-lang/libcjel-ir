@@ -39,8 +39,8 @@
 //  statement from your version.
 //
 
-#ifndef _LIB_CJELIR_MEMORY_H_
-#define _LIB_CJELIR_MEMORY_H_
+#ifndef _LIBCJEL_IR_MEMORY_H_
+#define _LIBCJEL_IR_MEMORY_H_
 
 #include <libcjel-ir/User>
 
@@ -65,7 +65,7 @@ namespace libcjel_ir
     };
 }
 
-#endif  // _LIB_CJELIR_MEMORY_H_
+#endif  // _LIBCJEL_IR_MEMORY_H_
 
 //
 //  Local variables:

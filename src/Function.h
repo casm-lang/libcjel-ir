@@ -39,8 +39,8 @@
 //  statement from your version.
 //
 
-#ifndef _LIB_CJELIR_FUNCTION_H_
-#define _LIB_CJELIR_FUNCTION_H_
+#ifndef _LIBCJEL_IR_FUNCTION_H_
+#define _LIBCJEL_IR_FUNCTION_H_
 
 #include <libcjel-ir/CallableUnit>
 
@@ -60,7 +60,7 @@ namespace libcjel_ir
     };
 }
 
-#endif  // _LIB_CJELIR_FUNCTION_H_
+#endif  // _LIBCJEL_IR_FUNCTION_H_
 
 //
 //  Local variables:

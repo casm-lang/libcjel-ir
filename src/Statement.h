@@ -39,8 +39,8 @@
 //  statement from your version.
 //
 
-#ifndef _LIB_CJELIR_STATEMENT_H_
-#define _LIB_CJELIR_STATEMENT_H_
+#ifndef _LIBCJEL_IR_STATEMENT_H_
+#define _LIBCJEL_IR_STATEMENT_H_
 
 #include <libcjel-ir/Block>
 
@@ -138,7 +138,7 @@ namespace libcjel_ir
     };
 }
 
-#endif  // _LIB_CJELIR_STATEMENT_H_
+#endif  // _LIBCJEL_IR_STATEMENT_H_
 
 //
 //  Local variables:

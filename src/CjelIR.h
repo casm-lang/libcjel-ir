@@ -39,8 +39,8 @@
 //  statement from your version.
 //
 
-#ifndef _LIB_CJELIR_CJELIR_H_
-#define _LIB_CJELIR_CJELIR_H_
+#ifndef _LIBCJEL_IR_CJELIR_H_
+#define _LIBCJEL_IR_CJELIR_H_
 
 #include <libstdhl/Type>
 
@@ -163,7 +163,7 @@ namespace libcjel_ir
     }
 }  // namespace libcjel_ir
 
-#endif  // _LIB_CJELIR_CJELIR_H_
+#endif  // _LIBCJEL_IR_CJELIR_H_
 
 //
 //  Local variables:

@@ -39,14 +39,14 @@
 //  statement from your version.
 //
 
-#ifndef _LIB_CJELIR_UTS_MAIN_H_
-#define _LIB_CJELIR_UTS_MAIN_H_
+#ifndef _LIBCJEL_IR_UTS_MAIN_H_
+#define _LIBCJEL_IR_UTS_MAIN_H_
 
 #include "../stdhl/uts/main.h"
 
 #include "libcjel-ir.h"
 
-#endif // _LIB_CJELIR_UTS_MAIN_H_
+#endif // _LIBCJEL_IR_UTS_MAIN_H_
 
 //
 //  Local variables:

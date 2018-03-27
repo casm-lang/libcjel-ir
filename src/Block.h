@@ -39,8 +39,8 @@
 //  statement from your version.
 //
 
-#ifndef _LIB_CJELIR_BLOCK_H_
-#define _LIB_CJELIR_BLOCK_H_
+#ifndef _LIBCJEL_IR_BLOCK_H_
+#define _LIBCJEL_IR_BLOCK_H_
 
 #include <libcjel-ir/Value>
 
@@ -76,7 +76,7 @@ namespace libcjel_ir
     using Blocks = libstdhl::List< Block >;
 }
 
-#endif  // _LIB_CJELIR_BLOCK_H_
+#endif  // _LIBCJEL_IR_BLOCK_H_
 
 //
 //  Local variables:

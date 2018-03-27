@@ -39,14 +39,14 @@
 //  statement from your version.
 //
 
-#ifndef _LIBCJELIR_UTS_MAIN_H_
-#define _LIBCJELIR_UTS_MAIN_H_
+#ifndef _LIBCJEL_IR_TEST_MAIN_H_
+#define _LIBCJEL_IR_TEST_MAIN_H_
 
 #include <libstdhl/Test>
 
 #include <libcjel-ir/libcjel-ir>
 
-#endif  // _LIBCJELIR_UTS_MAIN_H_
+#endif  // _LIBCJEL_IR_TEST_MAIN_H_
 
 //
 //  Local variables:
