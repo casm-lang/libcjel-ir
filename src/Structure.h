@@ -63,6 +63,8 @@ namespace libcjel_ir
 
         std::vector< StructureElement > elements( void ) const;
 
+        std::size_t hash( void ) const override;
+
         static inline Value::ID classid( void )
         {
             return Value::STRUCTURE;

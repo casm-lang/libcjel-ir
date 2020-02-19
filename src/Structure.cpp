@@ -41,6 +41,7 @@
 
 #include "Structure.h"
 
+#include <libstdhl/Hash>
 #include <libstdhl/Memory>
 
 using namespace libcjel_ir;
@@ -92,6 +93,11 @@ StructureElement Structure::element( const std::string& name ) const
 std::vector< StructureElement > Structure::elements( void ) const
 {
     return m_elements;
+}
+
+std::size_t Structure::hash( void ) const
+{
+    return libstdhl::Hash::combine( classid(), std::hash< std::string >()( name() ) );
 }
 
 bool Structure::classof( Value const* obj )
