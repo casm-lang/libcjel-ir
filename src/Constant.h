@@ -43,8 +43,7 @@
 #define _LIBCJEL_IR_CONSTANT_H_
 
 #include <libcjel-ir/Value>
-
-#include <libstdhl/type/Data>
+#include <libstdhl/data/type/Data>
 
 namespace libcjel_ir
 {
@@ -62,6 +61,8 @@ namespace libcjel_ir
             const std::vector< Constant >& constants,
             Value::ID id = classid() );
 
+        std::size_t hash( void ) const override;
+
         static inline Value::ID classid( void )
         {
             return Value::CONSTANT;
@@ -75,10 +76,10 @@ namespace libcjel_ir
         std::vector< Constant > m_constants;
 
       public:
-        std::unordered_map< std::string, Constant::Ptr >& make_cache( void )
+        std::unordered_map< std::size_t, Constant::Ptr >& cache( void )
         {
-            static std::unordered_map< std::string, Constant::Ptr > cache;
-            return cache;
+            static std::unordered_map< std::size_t, Constant::Ptr > s_cache;
+            return s_cache;
         }
     };
 
@@ -88,6 +89,8 @@ namespace libcjel_ir
         using Ptr = std::shared_ptr< VoidConstant >;
 
         VoidConstant( void );
+
+        std::size_t hash( void ) const override;
 
         static inline Value::ID classid( void )
         {
@@ -110,6 +113,8 @@ namespace libcjel_ir
 
         const libstdhl::Type::Data& value( void ) const;
 
+        std::size_t hash( void ) const override;
+
         static inline Value::ID classid( void )
         {
             return Value::BIT_CONSTANT;
@@ -126,6 +131,8 @@ namespace libcjel_ir
         StringConstant( const std::string& value );
 
         std::string value( void ) const;
+
+        std::size_t hash( void ) const override;
 
         static inline Value::ID classid( void )
         {
@@ -147,6 +154,8 @@ namespace libcjel_ir
 
         std::vector< Constant > value( void ) const;
 
+        std::size_t hash( void ) const override;
+
         static inline Value::ID classid( void )
         {
             return Value::STRUCTURE_CONSTANT;
@@ -162,6 +171,8 @@ namespace libcjel_ir
 
         Identifier( const Type::Ptr& type, const std::string& value );
 
+        std::size_t hash( void ) const override;
+
         static inline Value::ID classid( void )
         {
             return Value::IDENTIFIER;
@@ -169,7 +180,7 @@ namespace libcjel_ir
 
         static bool classof( Value const* obj );
     };
-}  // namespace libcjel_ir
+}
 
 #endif  // _LIBCJEL_IR_CONSTANT_H_
 

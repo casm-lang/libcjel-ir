@@ -41,17 +41,20 @@
 
 #include "Constant.h"
 
+#include <cassert>
 #include <libcjel-ir/Structure>
 #include <libcjel-ir/Type>
-
 #include <libstdhl/Memory>
-#include <libstdhl/type/Integer>
-
-#include <cassert>
+#include <libstdhl/data/type/Integer>
 
 using namespace libcjel_ir;
 
 static const auto VOID_TYPE = libstdhl::Memory::make< VoidType >();
+
+//
+//
+// Constant
+//
 
 Constant::Constant(
     const std::string& name,
@@ -65,6 +68,34 @@ Constant::Constant(
 {
 }
 
+std::size_t Constant::hash( void ) const
+{
+    switch( id() )
+    {
+        case Value::VOID_CONSTANT:
+        {
+            return static_cast< const VoidConstant* >( this )->hash();
+        }
+        case Value::BIT_CONSTANT:
+        {
+            return static_cast< const BitConstant* >( this )->hash();
+        }
+        case Value::STRING_CONSTANT:
+        {
+            return static_cast< const StringConstant* >( this )->hash();
+        }
+        case Value::STRUCTURE_CONSTANT:
+        {
+            return static_cast< const StructureConstant* >( this )->hash();
+        }
+        default:
+        {
+            throw std::domain_error( "unsupported" );
+            return 0;
+        }
+    }
+}
+
 bool Constant::classof( Value const* obj )
 {
     return obj->id() == classid() or VoidConstant::classof( obj ) or BitConstant::classof( obj ) or
@@ -73,16 +104,18 @@ bool Constant::classof( Value const* obj )
 }
 
 //
-// Constants
-//
-
-//
 // Void Constant
 //
 
 VoidConstant::VoidConstant( void )
 : Constant( "void", VOID_TYPE, libstdhl::Type::Data(), {}, classid() )
 {
+}
+
+std::size_t VoidConstant::hash( void ) const
+{
+    const auto h = ( (std::size_t)classid() ) << 1;
+    return h;
 }
 
 bool VoidConstant::classof( Value const* obj )
@@ -95,7 +128,7 @@ bool VoidConstant::classof( Value const* obj )
 //
 
 BitConstant::BitConstant( const Type::Ptr& type, u64 value )
-: Constant( "", type, libstdhl::Type::Data( value, type->bitsize() ), {}, classid() )
+: Constant( "", type, libstdhl::Type::Data( value, 0 ), {}, classid() )
 {
     if( not type->isBit() )
     {
@@ -125,6 +158,12 @@ const libstdhl::Type::Data& BitConstant::value( void ) const
     return m_data;
 }
 
+std::size_t BitConstant::hash( void ) const
+{
+    const auto h = ( (std::size_t)classid() ) << 1;
+    return h;
+}
+
 bool BitConstant::classof( Value const* obj )
 {
     return obj->id() == classid();
@@ -142,6 +181,12 @@ StringConstant::StringConstant( const std::string& value )
 std::string StringConstant::value( void ) const
 {
     return name();
+}
+
+std::size_t StringConstant::hash( void ) const
+{
+    const auto h = ( (std::size_t)classid() ) << 1;
+    return h;
 }
 
 bool StringConstant::classof( Value const* obj )
@@ -191,6 +236,12 @@ std::vector< Constant > StructureConstant::value( void ) const
     return m_constants;
 }
 
+std::size_t StructureConstant::hash( void ) const
+{
+    const auto h = ( (std::size_t)classid() ) << 1;
+    return h;
+}
+
 bool StructureConstant::classof( Value const* obj )
 {
     return obj->id() == classid();
@@ -203,6 +254,12 @@ bool StructureConstant::classof( Value const* obj )
 Identifier::Identifier( const Type::Ptr& type, const std::string& value )
 : Constant( value, type, libstdhl::Type::Data(), {}, classid() )
 {
+}
+
+std::size_t Identifier::hash( void ) const
+{
+    const auto h = ( (std::size_t)classid() ) << 1;
+    return h;
 }
 
 bool Identifier::classof( Value const* obj )
