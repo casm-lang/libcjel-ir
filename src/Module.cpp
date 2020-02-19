@@ -49,6 +49,7 @@
 #include <libcjel-ir/Structure>
 #include <libcjel-ir/Variable>
 
+#include <libstdhl/Hash>
 #include <libstdhl/Memory>
 
 #include <cassert>
@@ -96,7 +97,12 @@ void Module::add( const Value::Ptr& value )
     }
 }
 
-bool Module::classof( Value const* obj )
+std::size_t Module::hash( void ) const
+{
+    return libstdhl::Hash::combine( classid(), std::hash< std::string >()( name() ) );
+}
+
+u1 Module::classof( Value const* obj )
 {
     return obj->id() == classid();
 }

@@ -71,6 +71,8 @@ namespace libcjel_ir
             return result->second;
         }
 
+        std::size_t hash( void ) const override;
+
         static inline Value::ID classid( void )
         {
             return Value::MODULE;
