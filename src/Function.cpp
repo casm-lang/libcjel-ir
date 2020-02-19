@@ -41,11 +41,18 @@
 
 #include "Function.h"
 
+#include <libstdhl/Hash>
+
 using namespace libcjel_ir;
 
 Function::Function( const std::string& name, const RelationType::Ptr& type )
 : CallableUnit( name, type, classid() )
 {
+}
+
+std::size_t Function::hash( void ) const
+{
+    return libstdhl::Hash::combine( classid(), std::hash< std::string >()( name() ) );
 }
 
 bool Function::classof( Value const* obj )

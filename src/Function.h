@@ -51,6 +51,8 @@ namespace libcjel_ir
       public:
         Function( const std::string& name, const RelationType::Ptr& type );
 
+        std::size_t hash( void ) const override;
+
         static inline Value::ID classid( void )
         {
             return Value::FUNCTION;
