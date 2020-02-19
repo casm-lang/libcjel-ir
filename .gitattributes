@@ -38,6 +38,7 @@
 #   not obliged to do so. If you do not wish to do so, delete this exception
 #   statement from your version.
 #
+
 .gitignore	text eol=lf
 .gitattributes	text eol=lf
 .clang-format	text eol=lf
