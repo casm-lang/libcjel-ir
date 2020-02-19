@@ -39,21 +39,73 @@
 //  statement from your version.
 //
 
-#ifndef _LIBCJEL_IR_UTS_MAIN_H_
-#define _LIBCJEL_IR_UTS_MAIN_H_
+#include "../main.h"
 
-#include "../stdhl/uts/main.h"
+using namespace libcjel_ir;
 
-#include "libcjel-ir.h"
+static void test_constant_bit( u64 i, i16 s )
+{
+    u64 i_mask = i;
 
-#endif // _LIBCJEL_IR_UTS_MAIN_H_
+    auto t = libstdhl::Memory::make< BitType >( s );
 
-//
-//  Local variables:
-//  mode: c++
-//  indent-tabs-mode: nil
-//  c-basic-offset: 4
-//  tab-width: 4
-//  End:
-//  vim:noexpandtab:sw=4:ts=4:
-//
+    auto v = libstdhl::Memory::make< BitConstant >( t, i );
+
+    EXPECT_EQ( v->type().bitsize(), s );
+
+    if( s < 64 )
+    {
+        i_mask = i & ( ~( ( (u64)UINT64_MAX ) << s ) );
+    }
+
+    EXPECT_STREQ( v->name().c_str(), std::to_string( i_mask ).c_str() );
+
+    if( v->name().compare( std::to_string( i_mask ) ) )
+    {
+        printf( "input: '%lu' with bitsize: '%lu'\n", i, v->type().bitsize() );
+    }
+
+    auto w = libstdhl::Memory::make< BitConstant >( t, i );
+
+    EXPECT_TRUE( v != w );
+    EXPECT_TRUE( *w == *w );
+
+    auto a = libstdhl::Memory::get< BitConstant >( t, i );
+    auto b = libstdhl::Memory::get< BitConstant >( t, i );
+
+    EXPECT_TRUE( a == b );
+    EXPECT_TRUE( *a == *b );
+}
+
+TEST( libcjel_ir__constant_bit, example )
+{
+    test_constant_bit( 1234, BitType::SizeMax );
+}
+
+TEST( libcjel_ir__constant_bit, create_range )
+{
+    for( u16 s = 1; s <= BitType::SizeMax; s++ )
+    {
+        test_constant_bit( 0, s );
+        test_constant_bit( 1, s );
+
+        for( u64 i = 2; i < s; i *= 3 )
+        {
+            test_constant_bit( i, s );
+        }
+    }
+}
+
+TEST( libcjel_ir__constant_bit, create_random )
+{
+    for( u16 s = 1; s <= BitType::SizeMax; s++ )
+    {
+        for( u32 c = 0; c < 16; c++ )
+        {
+            auto i = libstdhl::Random::uniform< u64 >(
+                0, (u64)std::floor( std::pow( (long double)2, (long double)s ) ) - 1 );
+
+            test_constant_bit( i, s );
+        }
+    }
+}

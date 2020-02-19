@@ -39,7 +39,7 @@
 //  statement from your version.
 //
 
-#include "uts/main.h"
+#include "../main.h"
 
 using namespace libcjel_ir;
 
@@ -59,16 +59,16 @@ TEST( libcjel_ir__type_bit, from_one_to_SizeMax )
     {
         auto stack = BitType( c );
 
-        auto heap_a = libstdhl::make< BitType >( c );
-        auto heap_b = libstdhl::make< BitType >( c );
+        auto heap_a = libstdhl::Memory::make< BitType >( c );
+        auto heap_b = libstdhl::Memory::make< BitType >( c );
 
         ASSERT_TRUE( heap_a != nullptr );
         ASSERT_TRUE( heap_b != nullptr );
         EXPECT_TRUE( heap_a != heap_b );
         EXPECT_TRUE( *heap_a == *heap_b );
 
-        auto cache_a = libstdhl::get< BitType >( c );
-        auto cache_b = libstdhl::get< BitType >( c );
+        auto cache_a = libstdhl::Memory::get< BitType >( c );
+        auto cache_b = libstdhl::Memory::get< BitType >( c );
 
         ASSERT_TRUE( cache_a != nullptr );
         ASSERT_TRUE( cache_b != nullptr );

@@ -47,5 +47,11 @@ include_directories(
   )
 
 add_library( ${PROJECT}-test OBJECT
+  instruction.cpp
   main.cpp
-)
+  constant/bit.cpp
+  constant/structure.cpp
+  type/operator.cpp
+  type/bit.cpp
+  type/structure.cpp
+  )

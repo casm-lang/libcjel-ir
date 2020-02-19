@@ -39,13 +39,24 @@
 //  statement from your version.
 //
 
-#include "uts/main.h"
+#include "../main.h"
 
 using namespace libcjel_ir;
 
-TEST( libcjel_ir__isa, AllocInstruction )
+TEST( libcjel_ir__type_structure, example )
 {
-    AllocInstruction x( libstdhl::get< BitType >( 1 ) );
-
-    ASSERT_TRUE( isa< AllocInstruction >( x ) );
+    auto t0 = libstdhl::Memory::make< StructureType >( libstdhl::Memory::make< Structure >(
+        "s0",
+        std::initializer_list< StructureElement >{
+            { libstdhl::Memory::make< BitType >( 10 ), "field" } } ) );
 }
+
+//
+//  Local variables:
+//  mode: c++
+//  indent-tabs-mode: nil
+//  c-basic-offset: 4
+//  tab-width: 4
+//  End:
+//  vim:noexpandtab:sw=4:ts=4:
+//

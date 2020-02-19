@@ -39,22 +39,21 @@
 //  statement from your version.
 //
 
-#include "uts/main.h"
+#include "main.h"
 
-void libcjel_ir_main_dummy( void )
+using namespace libcjel_ir;
+
+TEST( libcjel_ir, instruction )
 {
-    const auto source = libstdhl::make< libstdhl::Log::Source >(
-        "libcjel-ir", "CJEL IR Library" );
+    AllocInstruction x( std::make_shared< BitType >( 1 ) );
 
-    libstdhl::Log::defaultSource( source );
-}
+    auto c = std::make_shared< BitConstant >( 33, 22 );
 
-TEST( libcjel_ir_main, empty )
-{
-}
+    auto i_equ = EquInstruction( c, c );
 
-BENCHMARK( libcjel_ir_main, empty, 10, 10 )
-{
+    auto i_and = AndInstruction( c, c );
+
+    auto i_add = AddSignedInstruction( c, c );
 }
 
 //

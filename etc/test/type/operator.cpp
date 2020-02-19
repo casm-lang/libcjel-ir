@@ -39,7 +39,7 @@
 //  statement from your version.
 //
 
-#include "uts/main.h"
+#include "../main.h"
 
 using namespace libcjel_ir;
 
