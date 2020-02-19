@@ -51,6 +51,8 @@ namespace libcjel_ir
       public:
         Intrinsic( const std::string& name, const Type::Ptr& type );
 
+        std::size_t hash( void ) const override;
+
         static inline Value::ID classid( void )
         {
             return Value::INTRINSIC;

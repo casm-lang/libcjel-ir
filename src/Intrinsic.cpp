@@ -41,11 +41,18 @@
 
 #include "Intrinsic.h"
 
+#include <libstdhl/Hash>
+
 using namespace libcjel_ir;
 
 Intrinsic::Intrinsic( const std::string& name, const Type::Ptr& type )
 : CallableUnit( name, type, Value::INTRINSIC )
 {
+}
+
+std::size_t Intrinsic::hash( void ) const
+{
+    return libstdhl::Hash::combine( classid(), std::hash< std::string >()( name() ) );
 }
 
 bool Intrinsic::classof( Value const* obj )
