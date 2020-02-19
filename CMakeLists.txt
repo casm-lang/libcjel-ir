@@ -43,19 +43,21 @@ set( PROJECT libcjel-ir )
 
 cmake_minimum_required( VERSION ${CMAKE_VERSION} )
 
-project( ${PROJECT} LANGUAGES C CXX )
-set( CMAKE_CXX_STANDARD 11 )
+project( ${PROJECT} LANGUAGES CXX )
+set( CMAKE_CXX_STANDARD 14 )
+set( CMAKE_CXX_EXTENSIONS OFF )
 set( CMAKE_VERSION 3.2 )
-set( CMAKE_INCLUDE_CURRENT_DIR ON )
 set( CMAKE_MODULE_PATH ${${PROJECT}_SOURCE_DIR}/.cmake )
-
-include( LibPackage )
+include( ${CMAKE_CONFIG_PATH}/LibPackage.cmake )
 
 package_git( ${PROJECT} )
-package_git_submodule( libstdhl master REQUIRED obj   ../stdhl lib/stdhl )
-package_git_submodule( libpass  master REQUIRED obj   ../pass  lib/pass  )
-package_git_submodule( libgtest master REQUIRED build ../gtest lib/gtest )
-package_git_submodule( libhayai master REQUIRED build ../hayai lib/hayai )
+package_git_submodule( libstdhl   master REQUIRED obj   ../stdhl lib/stdhl )
+package_git_submodule( libpass    master REQUIRED obj   ../pass  lib/pass  )
+package_git_submodule( libgtest   master REQUIRED build ../gtest lib/gtest )
+package_git_submodule( libhayai   master REQUIRED build ../hayai lib/hayai )
+package_git_deps(
+  libstdhl>libpass
+  )
 
 find_package( Threads REQUIRED )
 
@@ -69,30 +71,21 @@ add_subdirectory( etc
   EXCLUDE_FROM_ALL
   )
 
-add_custom_target( ${PROJECT}-sync
-  COMMAND
-    make sync > ${PROJECT_BINARY_DIR}/CMakeSync 2>&1
-  DEPENDS
-    libgtest
-    libhayai
-    libstdhl
-    libpass
-  WORKING_DIRECTORY
-    ${PROJECT_SOURCE_DIR}
-  )
-
-add_dependencies( ${PROJECT}-cpp
-  ${PROJECT}-sync
-  )
-
-
+#
 #
 # library
 #
 
-add_library( ${PROJECT} STATIC
+set( ${PROJECT}_VERSION ${GIT_REVTAG} )
+set_property( TARGET ${PROJECT}-cpp PROPERTY POSITION_INDEPENDENT_CODE 1 )
+
+add_library( ${PROJECT} SHARED
   $<TARGET_OBJECTS:${PROJECT}-cpp>
   )
+
+set_property( TARGET ${PROJECT} PROPERTY OUTPUT_NAME ${PROJECT} )
+set_property( TARGET ${PROJECT} PROPERTY VERSION ${${PROJECT}_VERSION} )
+set_property( TARGET ${PROJECT} PROPERTY PREFIX  "" )
 
 if( ${LIBPASS_FOUND} )
   target_link_libraries( ${PROJECT}
@@ -101,11 +94,26 @@ if( ${LIBPASS_FOUND} )
     )
 endif()
 
-set( ${PROJECT}_VERSION ${GIT_REVTAG} )
-set_property( TARGET ${PROJECT} PROPERTY VERSION ${${PROJECT}_VERSION} )
-set_property( TARGET ${PROJECT} PROPERTY PREFIX  "" )
+add_library( ${PROJECT}-ar STATIC
+  $<TARGET_OBJECTS:${PROJECT}-cpp>
+  )
 
+set_property( TARGET ${PROJECT}-ar PROPERTY OUTPUT_NAME ${PROJECT} )
+set_property( TARGET ${PROJECT}-ar PROPERTY VERSION ${${PROJECT}_VERSION} )
+set_property( TARGET ${PROJECT}-ar PROPERTY PREFIX  "" )
 
+if( ${LIBPASS_FOUND} )
+  target_link_libraries( ${PROJECT}-ar
+    ${LIBPASS_ARCHIVE}
+    ${LIBSTDHL_ARCHIVE}
+    )
+endif()
+
+add_dependencies( ${PROJECT}
+  ${PROJECT}-ar
+  )
+
+#
 #
 # test
 # 
@@ -117,14 +125,14 @@ add_executable( ${PROJECT}-check
 
 if( ${LIBGTEST_FOUND} )
   target_link_libraries( ${PROJECT}-check
-    ${PROJECT}
+    ${PROJECT}-ar
     ${LIBGTEST_LIBRARY}
     ${LIBGTEST_MAIN}
     Threads::Threads
     )
 endif()
 
-
+#
 #
 # benchmark
 #
@@ -136,18 +144,18 @@ add_executable( ${PROJECT}-run
 
 if( ${LIBHAYAI_FOUND} )
   target_link_libraries( ${PROJECT}-run
-    ${PROJECT}
+    ${PROJECT}-ar
     ${LIBHAYAI_LIBRARY}
     )
 endif()
 
-
+#
 #
 # install
 #
 
 install(
-  TARGETS  ${PROJECT}
+  TARGETS  ${PROJECT} ${PROJECT}-ar
   EXPORT   ${PROJECT}Targets
   LIBRARY  DESTINATION lib
   ARCHIVE  DESTINATION lib
@@ -169,7 +177,7 @@ export(
   FILE    ${PROJECT}Config.cmake
   )
 
-
+#
 #
 # cmake
 #
@@ -181,7 +189,7 @@ install(
     "share/cmake/Module/${PROJECT}"
   )
 
-
+#
 #
 # build features and checks
 #
