@@ -192,12 +192,13 @@ namespace libcjel_ir
 
         std::shared_ptr< Module > ptr_module( void ) const;
 
+        virtual std::size_t hash( void ) const = 0;
+
         inline u1 operator==( const Value& rhs ) const
         {
             if( this != &rhs )
             {
-                if( this->id() != rhs.id() or this->name().compare( rhs.name() ) or
-                    this->type() != rhs.type() )
+                if( this->hash() != rhs.hash() or this->type() != rhs.type() )
                 {
                     return false;
                 }
@@ -250,33 +251,6 @@ namespace libcjel_ir
 
     using Values = libstdhl::List< Value >;
 }
-
-// namespace std
-// {
-//     template <>
-//     struct hash< libcjel_ir::Value* >
-//     {
-//       public:
-//         size_t operator()( const libcjel_ir::Value* obj ) const
-//         {
-//             assert( obj and " invalid pointer! " );
-//             return std::hash< std::string >( obj->make_hash() );
-//         }
-//     };
-
-//     template <>
-//     struct equal_to< libcjel_ir::Value* >
-//     {
-//       public:
-//         bool operator()(
-//             const libcjel_ir::Value* lhs, const libcjel_ir::Value* rhs )
-//             const
-//         {
-//             assert( lhs and rhs and " invalid pointers " );
-//             return *rhs == *lhs;
-//         }
-//     };
-// }
 
 #endif  // _LIBCJEL_IR_VALUE_H_
 
