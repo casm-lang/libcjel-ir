@@ -58,6 +58,8 @@ namespace libcjel_ir
 
         Blocks blocks( void ) const;
 
+        std::size_t hash( void ) const override;
+
         static inline Value::ID classid( void )
         {
             return Value::SCOPE;

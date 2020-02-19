@@ -41,6 +41,7 @@
 
 #include "Scope.h"
 
+#include <libstdhl/Hash>
 #include <libstdhl/Memory>
 
 using namespace libcjel_ir;
@@ -67,6 +68,11 @@ void Scope::add( const Block::Ptr& block )
 Blocks Scope::blocks( void ) const
 {
     return m_blocks;
+}
+
+std::size_t Scope::hash( void ) const
+{
+    return libstdhl::Hash::combine( classid(), std::hash< std::string >()( name() ) );
 }
 
 bool Scope::classof( Value const* obj )
