@@ -43,6 +43,8 @@
 
 #include <libcjel-ir/Statement>
 
+#include <libstdhl/Hash>
+
 using namespace libcjel_ir;
 
 Block::Block( const std::string& name, const Type::Ptr& type, u1 parallel, Value::ID id )
@@ -71,7 +73,12 @@ u1 Block::isParallel( void ) const
     return m_parallel;
 }
 
-bool Block::classof( Value const* obj )
+std::size_t Block::hash( void ) const
+{
+    return libstdhl::Hash::combine( classid(), std::hash< std::string >()( name() ) );
+}
+
+u1 Block::classof( Value const* obj )
 {
     return obj->id() == classid() or Scope::classof( obj ) or Statement::classof( obj );
 }
