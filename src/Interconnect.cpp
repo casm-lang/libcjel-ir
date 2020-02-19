@@ -44,6 +44,7 @@
 #include <libcjel-ir/Type>
 #include <libcjel-ir/Variable>
 
+#include <libstdhl/Hash>
 #include <libstdhl/Memory>
 
 #include <cassert>
@@ -76,7 +77,12 @@ u64 Interconnect::bitsizeMax( void ) const
     return m_bs_max;
 }
 
-bool Interconnect::classof( Value const* obj )
+std::size_t Interconnect::hash( void ) const
+{
+    return libstdhl::Hash::combine( classid(), std::hash< std::string >()( name() ) );
+}
+
+u1 Interconnect::classof( Value const* obj )
 {
     return obj->id() == classid();
 }
