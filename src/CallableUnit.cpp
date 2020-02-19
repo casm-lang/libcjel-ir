@@ -46,6 +46,7 @@
 #include <libcjel-ir/Intrinsic>
 #include <libcjel-ir/Scope>
 
+#include <libstdhl/Hash>
 #include <libstdhl/Memory>
 
 #include <cassert>
@@ -180,6 +181,11 @@ Reference::Ptr CallableUnit::reference( const std::string& name ) const
     }
 
     return nullptr;
+}
+
+std::size_t CallableUnit::hash( void ) const
+{
+    return libstdhl::Hash::combine( classid(), std::hash< std::string >()( name() ) );
 }
 
 bool CallableUnit::classof( Value const* obj )

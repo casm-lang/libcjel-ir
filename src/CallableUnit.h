@@ -84,6 +84,8 @@ namespace libcjel_ir
 
         Reference::Ptr reference( const std::string& name ) const;
 
+        std::size_t hash( void ) const override;
+
         static inline Value::ID classid( void )
         {
             return Value::CALLABLE_UNIT;
