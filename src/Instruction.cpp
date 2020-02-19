@@ -129,6 +129,11 @@ Values Instruction::operands( void ) const
     return m_operands;
 }
 
+std::size_t Instruction::hash( void ) const
+{
+    return libstdhl::Hash::combine( classid(), std::hash< std::string >()( name() ) );
+}
+
 u1 Instruction::classof( Value const* obj )
 {
     return obj->id() == classid() or UnaryInstruction::classof( obj ) or

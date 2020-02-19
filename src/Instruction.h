@@ -71,6 +71,8 @@ namespace libcjel_ir
 
         std::shared_ptr< Statement > statement( void ) const;
 
+        std::size_t hash( void ) const override;
+
         static inline Value::ID classid( void )
         {
             return Value::INSTRUCTION;
