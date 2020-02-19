@@ -41,6 +41,7 @@
 
 #include "Variable.h"
 
+#include <libstdhl/Hash>
 #include <libstdhl/Memory>
 
 #include <cassert>
@@ -67,6 +68,11 @@ BitConstant::Ptr Variable::allocId( void )
 Value::Ptr Variable::expression( void ) const
 {
     return m_expression;
+}
+
+std::size_t Variable::hash( void ) const
+{
+    return libstdhl::Hash::combine( classid(), std::hash< std::string >()( name() ) );
 }
 
 bool Variable::classof( Value const* obj )

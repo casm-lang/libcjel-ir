@@ -64,6 +64,8 @@ namespace libcjel_ir
 
         Value::Ptr expression( void ) const;
 
+        std::size_t hash( void ) const override;
+
         static inline ID classid( void )
         {
             return Value::VARIABLE;
