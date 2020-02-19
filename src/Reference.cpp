@@ -43,6 +43,8 @@
 
 #include <libcjel-ir/CallableUnit>
 
+#include <libstdhl/Hash>
+
 using namespace libcjel_ir;
 
 Reference::Reference( const std::string& name, const Type::Ptr& type, Kind kind )
@@ -85,6 +87,11 @@ u1 Reference::isOutput( void ) const
 u1 Reference::isLinkage( void ) const
 {
     return m_kind == LINKAGE;
+}
+
+std::size_t Reference::hash( void ) const
+{
+    return libstdhl::Hash::combine( classid(), std::hash< std::string >()( name() ) );
 }
 
 bool Reference::classof( Value const* obj )

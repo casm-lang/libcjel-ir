@@ -74,6 +74,8 @@ namespace libcjel_ir
         u1 isOutput( void ) const;
         u1 isLinkage( void ) const;
 
+        std::size_t hash( void ) const override;
+
         static inline Value::ID classid( void )
         {
             return Value::REFERENCE;
