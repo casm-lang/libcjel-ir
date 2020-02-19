@@ -41,6 +41,7 @@
 
 #include "Memory.h"
 
+#include <libstdhl/Hash>
 #include <libstdhl/Memory>
 
 using namespace libcjel_ir;
@@ -58,6 +59,11 @@ Memory::Memory( const std::string& name, const Type::Ptr& type, u32 length )
 u32 Memory::length( void ) const
 {
     return m_length;
+}
+
+std::size_t Memory::hash( void ) const
+{
+    return libstdhl::Hash::combine( classid(), std::hash< std::string >()( name() ) );
 }
 
 bool Memory::classof( Value const* obj )

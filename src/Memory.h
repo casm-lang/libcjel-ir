@@ -53,6 +53,8 @@ namespace libcjel_ir
 
         u32 length( void ) const;
 
+        std::size_t hash( void ) const override;
+
         static inline Value::ID classid( void )
         {
             return Value::MEMORY;
